@@ -1,0 +1,12 @@
+accessWidener v2 named
+accessible field net/minecraft/client/renderer/Chunk lists I
+accessible field net/minecraft/client/renderer/Chunk tesselator Lnet/minecraft/client/renderer/Tesselator;
+accessible field net/minecraft/client/renderer/Chunk compiled Z
+accessible field net/minecraft/client/renderer/Chunk globalRenderableTileEntities Ljava/util/List;
+accessible method net/minecraft/client/renderer/Chunk translateToPos ()V
+
+extendable method net/minecraft/world/level/chunk/LevelChunk lightGaps (II)V
+
+accessible field net/minecraft/world/level/TickNextTickData c J
+
+accessible field net/minecraft/world/level/chunk/storage/RegionFileCache cache Ljava/util/Map;

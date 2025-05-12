@@ -1,0 +1,49 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "me.alphamode.mcbig.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "ChunkSourceMixin",
+    "ChunkStorageMixin",
+    "EntityMixin",
+    "LevelChunkMixin",
+    "LevelListenerMixin",
+    "LevelMixin",
+    "LevelSourceMixin",
+    "McRegionChunkStorageMixin",
+    "OldChunkStorageMixin",
+    "PerlinNoiseMixin",
+    "PlayerMixin",
+    "RandomLevelSourceMixin",
+    "RegionMixin",
+    "ServerChunkCacheMixin",
+    "SlimeMixin",
+    "TileMixin",
+    "features.big_movement.BigChunkMixin",
+    "features.big_movement.EntityMixin",
+    "features.big_movement.MobMixin",
+    "tiles.GrassTileMixin",
+    "tiles.LiquidTileDynamicMixin",
+    "tiles.LiquidTileMixin",
+    "tiles.LiquidTileStaticMixin"
+  ],
+  "server": [],
+  "client": [
+    "client.ChunkMixin",
+    "client.EntityRendererMixin",
+    "client.GameModeMixin",
+    "client.GameRendererMixin",
+    "client.GuiMixin",
+    "client.ItemInHandRendererMixin",
+    "client.MinecraftMixin",
+    "client.SurvivalGameModeMixin",
+    "client.TileRendererMixin",
+    "features.big_movement.LevelRendererMixin",
+    "features.big_movement.LocalPlayerMixin",
+    "features.big_movement.OffsettedRenderListMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

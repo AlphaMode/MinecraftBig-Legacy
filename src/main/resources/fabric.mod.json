@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "id": "mcbig",
+  "version": "${version}",
+
+  "name": "MC Big",
+  "description": "Go beyond the integer limit.",
+  "authors": [
+    "AlphaMode"
+  ],
+
+  "license": "MIT",
+
+  "environment": "*",
+  "entrypoints": {
+    "gcapi3": [
+
+    ]
+  },
+  "accessWidener": "mcbig.accesswidener",
+  "mixins": [
+    "mcbig.mixins.json"
+  ],
+  "custom": {
+    "loom:injected_interfaces": {
+      "net/minecraft/class_13": ["me/alphamode/mcbig/extensions/BigTileRendererExtension"],
+      "net/minecraft/class_14": ["me/alphamode/mcbig/extensions/BigLevelSourceExtension"],
+      "net/minecraft/class_17": ["me/alphamode/mcbig/extensions/BigTileExtension"],
+      "net/minecraft/class_18": ["me/alphamode/mcbig/extensions/BigLevelExtension"],
+      "net/minecraft/class_43": ["me/alphamode/mcbig/extensions/BigLevelChunkExtension"],
+      "net/minecraft/class_51": ["me/alphamode/mcbig/extensions/BigChunkSourceExtension"],
+      "net/minecraft/class_57": ["me/alphamode/mcbig/extensions/BigEntityExtension"],
+      "net/minecraft/class_59": ["me/alphamode/mcbig/extensions/BigLevelListenerExtension"],
+      "net/minecraft/class_243": ["me/alphamode/mcbig/extensions/BigChunkStorageExtension"],
+      "net/minecraft/class_472": ["me/alphamode/mcbig/extensions/BigOffsettedRenderListExtension"],
+      "net/minecraft/class_504": ["me/alphamode/mcbig/extensions/BigGameModeExtension"]
+    }
+  },
+
+  "depends": {
+    "minecraft": "1.0.0-beta.7.3"
+  }
+}
