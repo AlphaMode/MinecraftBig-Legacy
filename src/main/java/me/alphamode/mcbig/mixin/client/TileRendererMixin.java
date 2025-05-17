@@ -17,6 +17,7 @@ import net.minecraft.world.level.tile.Tile;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 @Mixin(TileRenderer.class)
@@ -109,8 +110,6 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
 
     @Shadow private float c4b;
 
-    @Shadow public abstract void renderFaceDown(Tile tile, double x, double y, double z, int texture);
-
     @Shadow private float llX0Z;
 
     @Shadow private float llXYZ;
@@ -145,7 +144,173 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
 
     @Shadow private float ll0Yz;
 
-    @Shadow public abstract void renderFaceUp(Tile tile, double x, double y, double z, int texture);
+    @Shadow private int field_91;
+
+    @Shadow private int field_90;
+
+    @Override
+    public void renderFaceDown(Tile tile, BigDecimal x, double y, BigDecimal z, int tex) {
+        Tesselator t = Tesselator.instance;
+        if (this.fixedTexture >= 0) {
+            tex = this.fixedTexture;
+        }
+
+        int xt = (tex & 15) << 4;
+        int yt = tex & 240;
+        double u0 = ((double)xt + tile.xx0 * 16.0) / 256.0;
+        double u1 = ((double)xt + tile.xx1 * 16.0 - 0.01) / 256.0;
+        double v0 = ((double)yt + tile.zz0 * 16.0) / 256.0;
+        double v1 = ((double)yt + tile.zz1 * 16.0 - 0.01) / 256.0;
+        if (tile.xx0 < 0.0 || tile.xx1 > 1.0) {
+            u0 = ((float)xt + 0.0F) / 256.0F;
+            u1 = ((float)xt + 15.99F) / 256.0F;
+        }
+
+        if (tile.zz0 < 0.0 || tile.zz1 > 1.0) {
+            v0 = ((float)yt + 0.0F) / 256.0F;
+            v1 = ((float)yt + 15.99F) / 256.0F;
+        }
+
+        double var20 = u1;
+        double var22 = u0;
+        double var24 = v0;
+        double var26 = v1;
+        if (this.field_91 == 2) {
+            u0 = ((double)xt + tile.zz0 * 16.0) / 256.0;
+            v0 = ((double)(yt + 16) - tile.xx1 * 16.0) / 256.0;
+            u1 = ((double)xt + tile.zz1 * 16.0) / 256.0;
+            v1 = ((double)(yt + 16) - tile.xx0 * 16.0) / 256.0;
+            var24 = v0;
+            var26 = v1;
+            var20 = u0;
+            var22 = u1;
+            v0 = v1;
+            v1 = v0;
+        } else if (this.field_91 == 1) {
+            u0 = ((double)(xt + 16) - tile.zz1 * 16.0) / 256.0;
+            v0 = ((double)yt + tile.xx0 * 16.0) / 256.0;
+            u1 = ((double)(xt + 16) - tile.zz0 * 16.0) / 256.0;
+            v1 = ((double)yt + tile.xx1 * 16.0) / 256.0;
+            var20 = u1;
+            var22 = u0;
+            u0 = u1;
+            u1 = u0;
+            var24 = v1;
+            var26 = v0;
+        } else if (this.field_91 == 3) {
+            u0 = ((double)(xt + 16) - tile.xx0 * 16.0) / 256.0;
+            u1 = ((double)(xt + 16) - tile.xx1 * 16.0 - 0.01) / 256.0;
+            v0 = ((double)(yt + 16) - tile.zz0 * 16.0) / 256.0;
+            v1 = ((double)(yt + 16) - tile.zz1 * 16.0 - 0.01) / 256.0;
+            var20 = u1;
+            var22 = u0;
+            var24 = v0;
+            var26 = v1;
+        }
+
+        BigDecimal x0 = x.add(new BigDecimal(tile.xx0));
+        BigDecimal x1 = x.add(new BigDecimal(tile.xx1));
+        double y1 = y + tile.yy0;
+        BigDecimal z0 = z.add(new BigDecimal(tile.zz0));
+        BigDecimal z1 = z.add(new BigDecimal(tile.zz1));
+        if (this.blen) {
+            t.color(this.c1r, this.c1g, this.c1b);
+            t.vertexUV(x0, y1, z1, var22, var26);
+            t.color(this.c2r, this.c2g, this.c2b);
+            t.vertexUV(x0, y1, z0, u0, v0);
+            t.color(this.c3r, this.c3g, this.c3b);
+            t.vertexUV(x1, y1, z0, var20, var24);
+            t.color(this.c4r, this.c4g, this.c4b);
+            t.vertexUV(x1, y1, z1, u1, v1);
+        } else {
+            t.vertexUV(x0, y1, z1, var22, var26);
+            t.vertexUV(x0, y1, z0, u0, v0);
+            t.vertexUV(x1, y1, z0, var20, var24);
+            t.vertexUV(x1, y1, z1, u1, v1);
+        }
+    }
+
+    @Override
+    public void renderFaceUp(Tile tile, BigDecimal x, double y, BigDecimal z, int tex) {
+        Tesselator t = Tesselator.instance;
+        if (this.fixedTexture >= 0) {
+            tex = this.fixedTexture;
+        }
+
+        int xt = (tex & 15) << 4;
+        int yt = tex & 240;
+        double u0 = ((double)xt + tile.xx0 * 16.0) / 256.0;
+        double u1 = ((double)xt + tile.xx1 * 16.0 - 0.01) / 256.0;
+        double v0 = ((double)yt + tile.zz0 * 16.0) / 256.0;
+        double v1 = ((double)yt + tile.zz1 * 16.0 - 0.01) / 256.0;
+        if (tile.xx0 < 0.0 || tile.xx1 > 1.0) {
+            u0 = ((float)xt + 0.0F) / 256.0F;
+            u1 = ((float)xt + 15.99F) / 256.0F;
+        }
+
+        if (tile.zz0 < 0.0 || tile.zz1 > 1.0) {
+            v0 = ((float)yt + 0.0F) / 256.0F;
+            v1 = ((float)yt + 15.99F) / 256.0F;
+        }
+
+        double var20 = u1;
+        double var22 = u0;
+        double var24 = v0;
+        double var26 = v1;
+        if (this.field_90 == 1) {
+            u0 = ((double)xt + tile.zz0 * 16.0) / 256.0;
+            v0 = ((double)(yt + 16) - tile.xx1 * 16.0) / 256.0;
+            u1 = ((double)xt + tile.zz1 * 16.0) / 256.0;
+            v1 = ((double)(yt + 16) - tile.xx0 * 16.0) / 256.0;
+            var24 = v0;
+            var26 = v1;
+            var20 = u0;
+            var22 = u1;
+            v0 = v1;
+            v1 = v0;
+        } else if (this.field_90 == 2) {
+            u0 = ((double)(xt + 16) - tile.zz1 * 16.0) / 256.0;
+            v0 = ((double)yt + tile.xx0 * 16.0) / 256.0;
+            u1 = ((double)(xt + 16) - tile.zz0 * 16.0) / 256.0;
+            v1 = ((double)yt + tile.xx1 * 16.0) / 256.0;
+            var20 = u1;
+            var22 = u0;
+            u0 = u1;
+            u1 = u0;
+            var24 = v1;
+            var26 = v0;
+        } else if (this.field_90 == 3) {
+            u0 = ((double)(xt + 16) - tile.xx0 * 16.0) / 256.0;
+            u1 = ((double)(xt + 16) - tile.xx1 * 16.0 - 0.01) / 256.0;
+            v0 = ((double)(yt + 16) - tile.zz0 * 16.0) / 256.0;
+            v1 = ((double)(yt + 16) - tile.zz1 * 16.0 - 0.01) / 256.0;
+            var20 = u1;
+            var22 = u0;
+            var24 = v0;
+            var26 = v1;
+        }
+
+        BigDecimal x0 = x.add(new BigDecimal(tile.xx0));
+        BigDecimal x1 = x.add(new BigDecimal(tile.xx1));
+        double y0 = y + tile.yy1;
+        BigDecimal z0 = z.add(new BigDecimal(tile.zz0));
+        BigDecimal z1 = z.add(new BigDecimal(tile.zz1));
+        if (this.blen) {
+            t.color(this.c1r, this.c1g, this.c1b);
+            t.vertexUV(x1, y0, z1, u1, v1);
+            t.color(this.c2r, this.c2g, this.c2b);
+            t.vertexUV(x1, y0, z0, var20, var24);
+            t.color(this.c3r, this.c3g, this.c3b);
+            t.vertexUV(x0, y0, z0, u0, v0);
+            t.color(this.c4r, this.c4g, this.c4b);
+            t.vertexUV(x0, y0, z1, var22, var26);
+        } else {
+            t.vertexUV(x1, y0, z1, u1, v1);
+            t.vertexUV(x1, y0, z0, var20, var24);
+            t.vertexUV(x0, y0, z0, u0, v0);
+            t.vertexUV(x0, y0, z1, var22, var26);
+        }
+    }
 
     @Override
     public boolean tesselateInWorld(Tile tile, BigInteger x, int y, BigInteger z) {
@@ -317,7 +482,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             this.c4r *= var12;
             this.c4g *= var12;
             this.c4b *= var12;
-            this.renderFaceDown(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), tile.getTexture(this.level, x, y, z, Facing.DOWN));
+            renderFaceDown(tile, new BigDecimal(x), y, new BigDecimal(z), tile.getTexture(this.level, x, y, z, Facing.DOWN));
             var8 = true;
         }
 
@@ -378,7 +543,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             this.c4r *= var12;
             this.c4g *= var12;
             this.c4b *= var12;
-            this.renderFaceUp(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), tile.getTexture(this.level, x, y, z, Facing.UP));
+            renderFaceUp(tile, new BigDecimal(x), y, new BigDecimal(z), tile.getTexture(this.level, x, y, z, Facing.UP));
             var8 = true;
         }
 
@@ -454,7 +619,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
                 this.c2b *= h;
                 this.c3b *= h;
                 this.c4b *= h;
-                this.renderNorth(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), 38);
+                renderNorth(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), 38);
             }
 
             var8 = true;
@@ -518,7 +683,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             this.c4g *= var12;
             this.c4b *= var12;
             int var50 = tile.getTexture(this.level, x, y, z, Facing.SOUTH);
-            this.renderSouth(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), tile.getTexture(this.level, x, y, z, Facing.SOUTH));
+            renderSouth(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), tile.getTexture(this.level, x, y, z, Facing.SOUTH));
             if (fancy && var50 == 3 && this.fixedTexture < 0) {
                 this.c1r *= f;
                 this.c2r *= f;
@@ -532,7 +697,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
                 this.c2b *= h;
                 this.c3b *= h;
                 this.c4b *= h;
-                this.renderSouth(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), 38);
+                renderSouth(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), 38);
             }
 
             var8 = true;
@@ -735,7 +900,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
         if (this.noCulling || tile.shouldRenderFace(this.level, x, y - 1, z, Facing.DOWN)) {
             float br = tile.getBrightness(this.level, x, y - 1, z);
             t.color(r10 * br, g10 * br, b10 * br);
-            this.renderFaceDown(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), tile.getTexture(this.level, x, y, z, Facing.DOWN));
+            renderFaceDown(tile, new BigDecimal(x), (double)y, new BigDecimal(z), tile.getTexture(this.level, x, y, z, Facing.DOWN));
             changed = true;
         }
 
@@ -746,7 +911,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             }
 
             t.color(r11 * br, g11 * br, b11 * br);
-            this.renderFaceUp(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), tile.getTexture(this.level, x, y, z, Facing.UP));
+            renderFaceUp(tile, new BigDecimal(x), y, new BigDecimal(z), tile.getTexture(this.level, x, y, z, Facing.UP));
             changed = true;
         }
 
@@ -757,9 +922,9 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             }
 
             t.color(r2 * br, g2 * br, b2 * br);
-            int var28 = tile.getTexture(this.level, x, y, z, Facing.NORTH);
-            this.renderNorth(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), var28);
-            if (fancy && var28 == 3 && this.fixedTexture < 0) {
+            int texture = tile.getTexture(this.level, x, y, z, Facing.NORTH);
+            this.renderNorth(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), texture);
+            if (fancy && texture == 3 && this.fixedTexture < 0) {
                 t.color(r2 * br * r, g2 * br * g, b2 * br * b);
                 this.renderNorth(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), 38);
             }
@@ -774,9 +939,9 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             }
 
             t.color(r2 * br, g2 * br, b2 * br);
-            int var34 = tile.getTexture(this.level, x, y, z, Facing.SOUTH);
-            this.renderSouth(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), var34);
-            if (fancy && var34 == 3 && this.fixedTexture < 0) {
+            int texture = tile.getTexture(this.level, x, y, z, Facing.SOUTH);
+            this.renderSouth(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), texture);
+            if (fancy && texture == 3 && this.fixedTexture < 0) {
                 t.color(r2 * br * r, g2 * br * g, b2 * br * b);
                 this.renderSouth(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), 38);
             }
@@ -884,7 +1049,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             if (this.noCulling || down) {
                 float br = tt.getBrightness(this.level, x, y - 1, z);
                 t.color(c10 * br, c10 * br, c10 * br);
-                this.renderFaceDown(tt, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), tt.getTexture(Facing.DOWN));
+                renderFaceDown(tt, new BigDecimal(x), y, new BigDecimal(z), tt.getTexture(Facing.DOWN));
                 changed = true;
             }
 

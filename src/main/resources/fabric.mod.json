@@ -31,6 +31,7 @@
       "net/minecraft/class_51": ["me/alphamode/mcbig/extensions/BigChunkSourceExtension"],
       "net/minecraft/class_57": ["me/alphamode/mcbig/extensions/BigEntityExtension"],
       "net/minecraft/class_59": ["me/alphamode/mcbig/extensions/BigLevelListenerExtension"],
+      "net/minecraft/class_67": ["me/alphamode/mcbig/extensions/BigTesselatorExtension"],
       "net/minecraft/class_243": ["me/alphamode/mcbig/extensions/BigChunkStorageExtension"],
       "net/minecraft/class_472": ["me/alphamode/mcbig/extensions/BigOffsettedRenderListExtension"],
       "net/minecraft/class_504": ["me/alphamode/mcbig/extensions/BigGameModeExtension"]

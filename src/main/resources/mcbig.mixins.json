@@ -38,6 +38,7 @@
     "client.ItemInHandRendererMixin",
     "client.MinecraftMixin",
     "client.SurvivalGameModeMixin",
+    "client.TesselatorMixin",
     "client.TileRendererMixin",
     "features.big_movement.LevelRendererMixin",
     "features.big_movement.LocalPlayerMixin",

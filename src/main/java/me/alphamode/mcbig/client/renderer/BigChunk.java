@@ -17,6 +17,7 @@ import net.minecraft.world.level.tile.entity.TileEntity;
 import net.minecraft.world.phys.AABB;
 import org.lwjgl.opengl.GL11;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.List;
@@ -128,7 +129,8 @@ public class BigChunk extends Chunk {
                                     GL11.glScalef(ss, ss, ss);
                                     GL11.glTranslatef((float)this.zs / 2.0F, (float)this.ys / 2.0F, (float)this.zs / 2.0F);
                                     tesselator.begin();
-                                    tesselator.offset((double)(this.bigX.negate()).doubleValue(), (double)(-this.y), (double)(this.bigZ.negate()).doubleValue());
+                                    tesselator.offset(new BigDecimal(this.bigX.negate()), -this.y, new BigDecimal(this.bigZ.negate()));
+                                    tesselator.offset(this.bigX.negate().doubleValue(), -this.y, this.bigZ.negate().doubleValue());
                                 }
 
                                 if (l == 0 && Tile.isEntityTile[tileId]) {
@@ -154,6 +156,7 @@ public class BigChunk extends Chunk {
                     tesselator.end();
                     GL11.glPopMatrix();
                     GL11.glEndList();
+                    tesselator.offset(BigDecimal.ZERO, 0.0, BigDecimal.ZERO);
                     tesselator.offset(0.0, 0.0, 0.0);
                 } else {
                     rendered = false;
