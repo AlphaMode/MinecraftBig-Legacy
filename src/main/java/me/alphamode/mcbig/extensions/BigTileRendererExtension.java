@@ -15,6 +15,26 @@ public interface BigTileRendererExtension {
         throw new UnsupportedOperationException();
     }
 
+    default void renderNorth(Tile tile, BigDecimal x, double y, BigDecimal z, int tex) {
+        throw new UnsupportedOperationException();
+    }
+
+    default void renderSouth(Tile tile, BigDecimal x, double y, BigDecimal z, int tex) {
+        throw new UnsupportedOperationException();
+    }
+
+    default void renderWest(Tile tile, BigDecimal x, double y, BigDecimal z, int tex) {
+        throw new UnsupportedOperationException();
+    }
+
+    default void renderEast(Tile tile, BigDecimal x, double y, BigDecimal z, int tex) {
+        throw new UnsupportedOperationException();
+    }
+
+    default void tesselateInWorld(Tile tile, BigInteger x, int y, BigInteger z, int destroyProgress) {
+        throw new UnsupportedOperationException();
+    }
+
     default boolean tesselateInWorld(Tile tile, BigInteger x, int y, BigInteger z) {
         throw new UnsupportedOperationException();
     }

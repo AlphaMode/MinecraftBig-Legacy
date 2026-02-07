@@ -1,6 +1,7 @@
 plugins {
-    id 'babric-loom' version '1.4.2'
     id 'maven-publish'
+    id 'fabric-loom' version '1.13.3'
+    id 'babric-loom-extension' version '1.13.3'
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
@@ -12,9 +13,6 @@ group = project.maven_group
 
 loom {
     accessWidenerPath = file("src/main/resources/mcbig.accesswidener")
-    gluedMinecraftJar()
-    customMinecraftManifest.set("https://babric.github.io/manifest-polyfill/${minecraft_version}.json")
-    intermediaryUrl.set("https://maven.glass-launcher.net/babric/babric/intermediary/%1\$s/intermediary-%1\$s-v2.jar")
 }
 
 repositories {

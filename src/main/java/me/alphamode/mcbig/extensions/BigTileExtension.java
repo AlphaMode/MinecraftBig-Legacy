@@ -1,5 +1,6 @@
 package me.alphamode.mcbig.extensions;
 
+import me.alphamode.mcbig.world.phys.BigAABB;
 import net.minecraft.world.ItemInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -21,11 +22,23 @@ public interface BigTileExtension {
         throw new UnsupportedOperationException("");
     }
 
+    default BigAABB getTileBigAABB(Level level, BigInteger x, int y, BigInteger z) {
+        throw new UnsupportedOperationException("");
+    }
+
     default void addAABBs(Level level, BigInteger x, int y, BigInteger z, AABB bb, List<AABB> boxes) {
         throw new UnsupportedOperationException();
     }
 
+    default void addBigAABBs(Level level, BigInteger x, int y, BigInteger z, BigAABB bb, List<BigAABB> boxes) {
+        throw new UnsupportedOperationException();
+    }
+
     default AABB getAABB(Level level, BigInteger x, int y, BigInteger z) {
+        throw new UnsupportedOperationException();
+    }
+
+    default BigAABB getBigAABB(Level level, BigInteger x, int y, BigInteger z) {
         throw new UnsupportedOperationException();
     }
 

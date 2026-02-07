@@ -22,131 +22,196 @@ import java.math.BigInteger;
 
 @Mixin(TileRenderer.class)
 public abstract class TileRendererMixin implements BigTileRendererExtension {
-    @Shadow private LevelSource level;
+    @Shadow
+    private LevelSource level;
 
-    @Shadow private boolean blen;
+    @Shadow
+    private boolean blen;
 
-    @Shadow private float ll000;
+    @Shadow
+    private float ll000;
 
-    @Shadow private float llx00;
+    @Shadow
+    private float llx00;
 
-    @Shadow private float ll0y0;
+    @Shadow
+    private float ll0y0;
 
-    @Shadow private float ll00z;
+    @Shadow
+    private float ll00z;
 
-    @Shadow private float llX00;
+    @Shadow
+    private float llX00;
 
-    @Shadow private float ll0Y0;
+    @Shadow
+    private float ll0Y0;
 
-    @Shadow private float ll00Z;
+    @Shadow
+    private float ll00Z;
 
-    @Shadow private boolean field_70;
+    @Shadow
+    private boolean field_70;
 
-    @Shadow private boolean field_78;
+    @Shadow
+    private boolean field_78;
 
-    @Shadow private boolean field_74;
+    @Shadow
+    private boolean field_74;
 
-    @Shadow private boolean field_76;
+    @Shadow
+    private boolean field_76;
 
-    @Shadow private boolean field_71;
+    @Shadow
+    private boolean field_71;
 
-    @Shadow private boolean field_79;
+    @Shadow
+    private boolean field_79;
 
-    @Shadow private boolean field_73;
+    @Shadow
+    private boolean field_73;
 
-    @Shadow private boolean field_75;
+    @Shadow
+    private boolean field_75;
 
-    @Shadow private boolean field_72;
+    @Shadow
+    private boolean field_72;
 
-    @Shadow private boolean field_69;
+    @Shadow
+    private boolean field_69;
 
-    @Shadow private boolean field_80;
+    @Shadow
+    private boolean field_80;
 
-    @Shadow private boolean field_77;
+    @Shadow
+    private boolean field_77;
 
-    @Shadow private int fixedTexture;
+    @Shadow
+    private int fixedTexture;
 
-    @Shadow private boolean noCulling;
+    @Shadow
+    private boolean noCulling;
 
-    @Shadow private int blsmooth;
+    @Shadow
+    private int blsmooth;
 
-    @Shadow private float llxyz;
+    @Shadow
+    private float llxyz;
 
-    @Shadow private float llxy0;
+    @Shadow
+    private float llxy0;
 
-    @Shadow private float llxyZ;
+    @Shadow
+    private float llxyZ;
 
-    @Shadow private float ll0yz;
+    @Shadow
+    private float ll0yz;
 
-    @Shadow private float ll0yZ;
+    @Shadow
+    private float ll0yZ;
 
-    @Shadow private float llXyz;
+    @Shadow
+    private float llXyz;
 
-    @Shadow private float llXy0;
+    @Shadow
+    private float llXy0;
 
-    @Shadow private float llXyZ;
+    @Shadow
+    private float llXyZ;
 
-    @Shadow private float c1r;
+    @Shadow
+    private float c1r;
 
-    @Shadow private float c2r;
+    @Shadow
+    private float c2r;
 
-    @Shadow private float c3r;
+    @Shadow
+    private float c3r;
 
-    @Shadow private float c4r;
+    @Shadow
+    private float c4r;
 
-    @Shadow private float c1g;
+    @Shadow
+    private float c1g;
 
-    @Shadow private float c2g;
+    @Shadow
+    private float c2g;
 
-    @Shadow private float c3g;
+    @Shadow
+    private float c3g;
 
-    @Shadow private float c4g;
+    @Shadow
+    private float c4g;
 
-    @Shadow private float c1b;
+    @Shadow
+    private float c1b;
 
-    @Shadow private float c2b;
+    @Shadow
+    private float c2b;
 
-    @Shadow private float c3b;
+    @Shadow
+    private float c3b;
 
-    @Shadow private float c4b;
+    @Shadow
+    private float c4b;
 
-    @Shadow private float llX0Z;
+    @Shadow
+    private float llX0Z;
 
-    @Shadow private float llXYZ;
+    @Shadow
+    private float llXYZ;
 
-    @Shadow private float llXY0;
+    @Shadow
+    private float llXY0;
 
-    @Shadow private float llXYz;
+    @Shadow
+    private float llXYz;
 
-    @Shadow private float llX0z;
+    @Shadow
+    private float llX0z;
 
-    @Shadow public abstract void renderEast(Tile tile, double x, double y, double z, int texture);
+    @Shadow
+    public static boolean fancy;
 
-    @Shadow public static boolean fancy;
+    @Shadow
+    private float llx0Z;
 
-    @Shadow public abstract void renderWest(Tile tile, double x, double y, double z, int texture);
+    @Shadow
+    private float llxY0;
 
-    @Shadow private float llx0Z;
+    @Shadow
+    private float llxYZ;
 
-    @Shadow private float llxY0;
+    @Shadow
+    private float llxYz;
 
-    @Shadow private float llxYZ;
+    @Shadow
+    private float llx0z;
 
-    @Shadow private float llxYz;
+    @Shadow
+    private float ll0YZ;
 
-    @Shadow private float llx0z;
+    @Shadow
+    private float ll0Yz;
 
-    @Shadow public abstract void renderSouth(Tile tile, double x, double y, double z, int texture);
+    @Shadow
+    private int field_91;
 
-    @Shadow private float ll0YZ;
+    @Shadow
+    private int field_90;
 
-    @Shadow public abstract void renderNorth(Tile tile, double x, double y, double z, int texture);
+    @Shadow
+    private boolean xFlipTexture;
 
-    @Shadow private float ll0Yz;
+    @Shadow
+    private int field_86;
 
-    @Shadow private int field_91;
+    @Shadow
+    private int field_87;
 
-    @Shadow private int field_90;
+    @Shadow
+    private int field_89;
+
+    @Shadow private int field_88;
 
     @Override
     public void renderFaceDown(Tile tile, BigDecimal x, double y, BigDecimal z, int tex) {
@@ -157,18 +222,18 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
 
         int xt = (tex & 15) << 4;
         int yt = tex & 240;
-        double u0 = ((double)xt + tile.xx0 * 16.0) / 256.0;
-        double u1 = ((double)xt + tile.xx1 * 16.0 - 0.01) / 256.0;
-        double v0 = ((double)yt + tile.zz0 * 16.0) / 256.0;
-        double v1 = ((double)yt + tile.zz1 * 16.0 - 0.01) / 256.0;
+        double u0 = ((double) xt + tile.xx0 * 16.0) / 256.0;
+        double u1 = ((double) xt + tile.xx1 * 16.0 - 0.01) / 256.0;
+        double v0 = ((double) yt + tile.zz0 * 16.0) / 256.0;
+        double v1 = ((double) yt + tile.zz1 * 16.0 - 0.01) / 256.0;
         if (tile.xx0 < 0.0 || tile.xx1 > 1.0) {
-            u0 = ((float)xt + 0.0F) / 256.0F;
-            u1 = ((float)xt + 15.99F) / 256.0F;
+            u0 = ((float) xt + 0.0F) / 256.0F;
+            u1 = ((float) xt + 15.99F) / 256.0F;
         }
 
         if (tile.zz0 < 0.0 || tile.zz1 > 1.0) {
-            v0 = ((float)yt + 0.0F) / 256.0F;
-            v1 = ((float)yt + 15.99F) / 256.0F;
+            v0 = ((float) yt + 0.0F) / 256.0F;
+            v1 = ((float) yt + 15.99F) / 256.0F;
         }
 
         double var20 = u1;
@@ -176,10 +241,10 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
         double var24 = v0;
         double var26 = v1;
         if (this.field_91 == 2) {
-            u0 = ((double)xt + tile.zz0 * 16.0) / 256.0;
-            v0 = ((double)(yt + 16) - tile.xx1 * 16.0) / 256.0;
-            u1 = ((double)xt + tile.zz1 * 16.0) / 256.0;
-            v1 = ((double)(yt + 16) - tile.xx0 * 16.0) / 256.0;
+            u0 = ((double) xt + tile.zz0 * 16.0) / 256.0;
+            v0 = ((double) (yt + 16) - tile.xx1 * 16.0) / 256.0;
+            u1 = ((double) xt + tile.zz1 * 16.0) / 256.0;
+            v1 = ((double) (yt + 16) - tile.xx0 * 16.0) / 256.0;
             var24 = v0;
             var26 = v1;
             var20 = u0;
@@ -187,10 +252,10 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             v0 = v1;
             v1 = v0;
         } else if (this.field_91 == 1) {
-            u0 = ((double)(xt + 16) - tile.zz1 * 16.0) / 256.0;
-            v0 = ((double)yt + tile.xx0 * 16.0) / 256.0;
-            u1 = ((double)(xt + 16) - tile.zz0 * 16.0) / 256.0;
-            v1 = ((double)yt + tile.xx1 * 16.0) / 256.0;
+            u0 = ((double) (xt + 16) - tile.zz1 * 16.0) / 256.0;
+            v0 = ((double) yt + tile.xx0 * 16.0) / 256.0;
+            u1 = ((double) (xt + 16) - tile.zz0 * 16.0) / 256.0;
+            v1 = ((double) yt + tile.xx1 * 16.0) / 256.0;
             var20 = u1;
             var22 = u0;
             u0 = u1;
@@ -198,10 +263,10 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             var24 = v1;
             var26 = v0;
         } else if (this.field_91 == 3) {
-            u0 = ((double)(xt + 16) - tile.xx0 * 16.0) / 256.0;
-            u1 = ((double)(xt + 16) - tile.xx1 * 16.0 - 0.01) / 256.0;
-            v0 = ((double)(yt + 16) - tile.zz0 * 16.0) / 256.0;
-            v1 = ((double)(yt + 16) - tile.zz1 * 16.0 - 0.01) / 256.0;
+            u0 = ((double) (xt + 16) - tile.xx0 * 16.0) / 256.0;
+            u1 = ((double) (xt + 16) - tile.xx1 * 16.0 - 0.01) / 256.0;
+            v0 = ((double) (yt + 16) - tile.zz0 * 16.0) / 256.0;
+            v1 = ((double) (yt + 16) - tile.zz1 * 16.0 - 0.01) / 256.0;
             var20 = u1;
             var22 = u0;
             var24 = v0;
@@ -239,18 +304,18 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
 
         int xt = (tex & 15) << 4;
         int yt = tex & 240;
-        double u0 = ((double)xt + tile.xx0 * 16.0) / 256.0;
-        double u1 = ((double)xt + tile.xx1 * 16.0 - 0.01) / 256.0;
-        double v0 = ((double)yt + tile.zz0 * 16.0) / 256.0;
-        double v1 = ((double)yt + tile.zz1 * 16.0 - 0.01) / 256.0;
+        double u0 = ((double) xt + tile.xx0 * 16.0) / 256.0;
+        double u1 = ((double) xt + tile.xx1 * 16.0 - 0.01) / 256.0;
+        double v0 = ((double) yt + tile.zz0 * 16.0) / 256.0;
+        double v1 = ((double) yt + tile.zz1 * 16.0 - 0.01) / 256.0;
         if (tile.xx0 < 0.0 || tile.xx1 > 1.0) {
-            u0 = ((float)xt + 0.0F) / 256.0F;
-            u1 = ((float)xt + 15.99F) / 256.0F;
+            u0 = ((float) xt + 0.0F) / 256.0F;
+            u1 = ((float) xt + 15.99F) / 256.0F;
         }
 
         if (tile.zz0 < 0.0 || tile.zz1 > 1.0) {
-            v0 = ((float)yt + 0.0F) / 256.0F;
-            v1 = ((float)yt + 15.99F) / 256.0F;
+            v0 = ((float) yt + 0.0F) / 256.0F;
+            v1 = ((float) yt + 15.99F) / 256.0F;
         }
 
         double var20 = u1;
@@ -258,10 +323,10 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
         double var24 = v0;
         double var26 = v1;
         if (this.field_90 == 1) {
-            u0 = ((double)xt + tile.zz0 * 16.0) / 256.0;
-            v0 = ((double)(yt + 16) - tile.xx1 * 16.0) / 256.0;
-            u1 = ((double)xt + tile.zz1 * 16.0) / 256.0;
-            v1 = ((double)(yt + 16) - tile.xx0 * 16.0) / 256.0;
+            u0 = ((double) xt + tile.zz0 * 16.0) / 256.0;
+            v0 = ((double) (yt + 16) - tile.xx1 * 16.0) / 256.0;
+            u1 = ((double) xt + tile.zz1 * 16.0) / 256.0;
+            v1 = ((double) (yt + 16) - tile.xx0 * 16.0) / 256.0;
             var24 = v0;
             var26 = v1;
             var20 = u0;
@@ -269,10 +334,10 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             v0 = v1;
             v1 = v0;
         } else if (this.field_90 == 2) {
-            u0 = ((double)(xt + 16) - tile.zz1 * 16.0) / 256.0;
-            v0 = ((double)yt + tile.xx0 * 16.0) / 256.0;
-            u1 = ((double)(xt + 16) - tile.zz0 * 16.0) / 256.0;
-            v1 = ((double)yt + tile.xx1 * 16.0) / 256.0;
+            u0 = ((double) (xt + 16) - tile.zz1 * 16.0) / 256.0;
+            v0 = ((double) yt + tile.xx0 * 16.0) / 256.0;
+            u1 = ((double) (xt + 16) - tile.zz0 * 16.0) / 256.0;
+            v1 = ((double) yt + tile.xx1 * 16.0) / 256.0;
             var20 = u1;
             var22 = u0;
             u0 = u1;
@@ -280,10 +345,10 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             var24 = v1;
             var26 = v0;
         } else if (this.field_90 == 3) {
-            u0 = ((double)(xt + 16) - tile.xx0 * 16.0) / 256.0;
-            u1 = ((double)(xt + 16) - tile.xx1 * 16.0 - 0.01) / 256.0;
-            v0 = ((double)(yt + 16) - tile.zz0 * 16.0) / 256.0;
-            v1 = ((double)(yt + 16) - tile.zz1 * 16.0 - 0.01) / 256.0;
+            u0 = ((double) (xt + 16) - tile.xx0 * 16.0) / 256.0;
+            u1 = ((double) (xt + 16) - tile.xx1 * 16.0 - 0.01) / 256.0;
+            v0 = ((double) (yt + 16) - tile.zz0 * 16.0) / 256.0;
+            v1 = ((double) (yt + 16) - tile.zz1 * 16.0 - 0.01) / 256.0;
             var20 = u1;
             var22 = u0;
             var24 = v0;
@@ -310,6 +375,365 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             t.vertexUV(x0, y0, z0, u0, v0);
             t.vertexUV(x0, y0, z1, var22, var26);
         }
+    }
+
+    @Override
+    public void renderNorth(Tile tile, BigDecimal x, double y, BigDecimal z, int tex) {
+        Tesselator t = Tesselator.instance;
+        if (this.fixedTexture >= 0) {
+            tex = this.fixedTexture;
+        }
+
+        int xt = (tex & 15) << 4;
+        int yt = tex & 240;
+        double u0 = ((double) xt + tile.xx0 * 16.0) / 256.0;
+        double u1 = ((double) xt + tile.xx1 * 16.0 - 0.01) / 256.0;
+        double v0 = ((double) (yt + 16) - tile.yy1 * 16.0) / 256.0;
+        double v1 = ((double) (yt + 16) - tile.yy0 * 16.0 - 0.01) / 256.0;
+        if (this.xFlipTexture) {
+            double var20 = u0;
+            u0 = u1;
+            u1 = var20;
+        }
+
+        if (tile.xx0 < 0.0 || tile.xx1 > 1.0) {
+            u0 = ((float) xt + 0.0F) / 256.0F;
+            u1 = ((float) xt + 15.99F) / 256.0F;
+        }
+
+        if (tile.yy0 < 0.0 || tile.yy1 > 1.0) {
+            v0 = ((float) yt + 0.0F) / 256.0F;
+            v1 = ((float) yt + 15.99F) / 256.0F;
+        }
+
+        double var42 = u1;
+        double var22 = u0;
+        double var24 = v0;
+        double var26 = v1;
+        if (this.field_86 == 2) {
+            u0 = ((double) xt + tile.yy0 * 16.0) / 256.0;
+            v0 = ((double) (yt + 16) - tile.xx0 * 16.0) / 256.0;
+            u1 = ((double) xt + tile.yy1 * 16.0) / 256.0;
+            v1 = ((double) (yt + 16) - tile.xx1 * 16.0) / 256.0;
+            var24 = v0;
+            var26 = v1;
+            var42 = u0;
+            var22 = u1;
+            v0 = v1;
+            v1 = v0;
+        } else if (this.field_86 == 1) {
+            u0 = ((double) (xt + 16) - tile.yy1 * 16.0) / 256.0;
+            v0 = ((double) yt + tile.xx1 * 16.0) / 256.0;
+            u1 = ((double) (xt + 16) - tile.yy0 * 16.0) / 256.0;
+            v1 = ((double) yt + tile.xx0 * 16.0) / 256.0;
+            var42 = u1;
+            var22 = u0;
+            u0 = u1;
+            u1 = u0;
+            var24 = v1;
+            var26 = v0;
+        } else if (this.field_86 == 3) {
+            u0 = ((double) (xt + 16) - tile.xx0 * 16.0) / 256.0;
+            u1 = ((double) (xt + 16) - tile.xx1 * 16.0 - 0.01) / 256.0;
+            v0 = ((double) yt + tile.yy1 * 16.0) / 256.0;
+            v1 = ((double) yt + tile.yy0 * 16.0 - 0.01) / 256.0;
+            var42 = u1;
+            var22 = u0;
+            var24 = v0;
+            var26 = v1;
+        }
+
+        BigDecimal x0 = x.add(new BigDecimal(tile.xx0));
+        BigDecimal x1 = x.add(new BigDecimal(tile.xx1));
+        double y0 = y + tile.yy0;
+        double y1 = y + tile.yy1;
+        BigDecimal z0 = z.add(new BigDecimal(tile.zz0));
+        if (this.blen) {
+            t.color(this.c1r, this.c1g, this.c1b);
+            t.vertexUV(x0, y1, z0, var42, var24);
+            t.color(this.c2r, this.c2g, this.c2b);
+            t.vertexUV(x1, y1, z0, u0, v0);
+            t.color(this.c3r, this.c3g, this.c3b);
+            t.vertexUV(x1, y0, z0, var22, var26);
+            t.color(this.c4r, this.c4g, this.c4b);
+            t.vertexUV(x0, y0, z0, u1, v1);
+        } else {
+            t.vertexUV(x0, y1, z0, var42, var24);
+            t.vertexUV(x1, y1, z0, u0, v0);
+            t.vertexUV(x1, y0, z0, var22, var26);
+            t.vertexUV(x0, y0, z0, u1, v1);
+        }
+    }
+
+    @Override
+    public void renderSouth(Tile tile, BigDecimal x, double y, BigDecimal z, int tex) {
+        Tesselator t = Tesselator.instance;
+        if (this.fixedTexture >= 0) {
+            tex = this.fixedTexture;
+        }
+
+        int xt = (tex & 15) << 4;
+        int yt = tex & 240;
+        double u0 = ((double) xt + tile.xx0 * 16.0) / 256.0;
+        double u1 = ((double) xt + tile.xx1 * 16.0 - 0.01) / 256.0;
+        double v0 = ((double) (yt + 16) - tile.yy1 * 16.0) / 256.0;
+        double v1 = ((double) (yt + 16) - tile.yy0 * 16.0 - 0.01) / 256.0;
+        if (this.xFlipTexture) {
+            double tmp = u0;
+            u0 = u1;
+            u1 = tmp;
+        }
+
+        if (tile.xx0 < 0.0 || tile.xx1 > 1.0) {
+            u0 = (double) (((float) xt + 0.0F) / 256.0F);
+            u1 = (double) (((float) xt + 15.99F) / 256.0F);
+        }
+
+        if (tile.yy0 < 0.0 || tile.yy1 > 1.0) {
+            v0 = (double) (((float) yt + 0.0F) / 256.0F);
+            v1 = (double) (((float) yt + 15.99F) / 256.0F);
+        }
+
+        double var42 = u1;
+        double var22 = u0;
+        double var24 = v0;
+        double var26 = v1;
+        if (this.field_87 == 1) {
+            u0 = ((double) xt + tile.yy0 * 16.0) / 256.0;
+            v1 = ((double) (yt + 16) - tile.xx0 * 16.0) / 256.0;
+            u1 = ((double) xt + tile.yy1 * 16.0) / 256.0;
+            v0 = ((double) (yt + 16) - tile.xx1 * 16.0) / 256.0;
+            var24 = v0;
+            var26 = v1;
+            var42 = u0;
+            var22 = u1;
+            v0 = v1;
+            v1 = v0;
+        } else if (this.field_87 == 2) {
+            u0 = ((double) (xt + 16) - tile.yy1 * 16.0) / 256.0;
+            v0 = ((double) yt + tile.xx0 * 16.0) / 256.0;
+            u1 = ((double) (xt + 16) - tile.yy0 * 16.0) / 256.0;
+            v1 = ((double) yt + tile.xx1 * 16.0) / 256.0;
+            var42 = u1;
+            var22 = u0;
+            u0 = u1;
+            u1 = u0;
+            var24 = v1;
+            var26 = v0;
+        } else if (this.field_87 == 3) {
+            u0 = ((double) (xt + 16) - tile.xx0 * 16.0) / 256.0;
+            u1 = ((double) (xt + 16) - tile.xx1 * 16.0 - 0.01) / 256.0;
+            v0 = ((double) yt + tile.yy1 * 16.0) / 256.0;
+            v1 = ((double) yt + tile.yy0 * 16.0 - 0.01) / 256.0;
+            var42 = u1;
+            var22 = u0;
+            var24 = v0;
+            var26 = v1;
+        }
+
+        BigDecimal x0 = x.add(new BigDecimal(tile.xx0));
+        BigDecimal x1 = x.add(new BigDecimal(tile.xx1));
+        double y0 = y + tile.yy0;
+        double y1 = y + tile.yy1;
+        BigDecimal z0 = z.add(new BigDecimal(tile.zz1));
+        if (this.blen) {
+            t.color(this.c1r, this.c1g, this.c1b);
+            t.vertexUV(x0, y1, z0, u0, v0);
+            t.color(this.c2r, this.c2g, this.c2b);
+            t.vertexUV(x0, y0, z0, var22, var26);
+            t.color(this.c3r, this.c3g, this.c3b);
+            t.vertexUV(x1, y0, z0, u1, v1);
+            t.color(this.c4r, this.c4g, this.c4b);
+            t.vertexUV(x1, y1, z0, var42, var24);
+        } else {
+            t.vertexUV(x0, y1, z0, u0, v0);
+            t.vertexUV(x0, y0, z0, var22, var26);
+            t.vertexUV(x1, y0, z0, u1, v1);
+            t.vertexUV(x1, y1, z0, var42, var24);
+        }
+    }
+
+    @Override
+    public void renderWest(Tile tile, BigDecimal x, double y, BigDecimal z, int tex) {
+        Tesselator t = Tesselator.instance;
+        if (this.fixedTexture >= 0) {
+            tex = this.fixedTexture;
+        }
+
+        int xt = (tex & 15) << 4;
+        int yt = tex & 240;
+        double u0 = ((double) xt + tile.zz0 * 16.0) / 256.0;
+        double u1 = ((double) xt + tile.zz1 * 16.0 - 0.01) / 256.0;
+        double v0 = ((double) (yt + 16) - tile.yy1 * 16.0) / 256.0;
+        double v1 = ((double) (yt + 16) - tile.yy0 * 16.0 - 0.01) / 256.0;
+        if (this.xFlipTexture) {
+            double tmp = u0;
+            u0 = u1;
+            u1 = tmp;
+        }
+
+        if (tile.zz0 < 0.0 || tile.zz1 > 1.0) {
+            u0 = ((float) xt + 0.0F) / 256.0F;
+            u1 = ((float) xt + 15.99F) / 256.0F;
+        }
+
+        if (tile.yy0 < 0.0 || tile.yy1 > 1.0) {
+            v0 = ((float) yt + 0.0F) / 256.0F;
+            v1 = ((float) yt + 15.99F) / 256.0F;
+        }
+
+        double var42 = u1;
+        double var22 = u0;
+        double var24 = v0;
+        double var26 = v1;
+        if (this.field_89 == 1) {
+            u0 = ((double) xt + tile.yy0 * 16.0) / 256.0;
+            v0 = ((double) (yt + 16) - tile.zz1 * 16.0) / 256.0;
+            u1 = ((double) xt + tile.yy1 * 16.0) / 256.0;
+            v1 = ((double) (yt + 16) - tile.zz0 * 16.0) / 256.0;
+            var24 = v0;
+            var26 = v1;
+            var42 = u0;
+            var22 = u1;
+            v0 = v1;
+            v1 = v0;
+        } else if (this.field_89 == 2) {
+            u0 = ((double) (xt + 16) - tile.yy1 * 16.0) / 256.0;
+            v0 = ((double) yt + tile.zz0 * 16.0) / 256.0;
+            u1 = ((double) (xt + 16) - tile.yy0 * 16.0) / 256.0;
+            v1 = ((double) yt + tile.zz1 * 16.0) / 256.0;
+            var42 = u1;
+            var22 = u0;
+            u0 = u1;
+            u1 = u0;
+            var24 = v1;
+            var26 = v0;
+        } else if (this.field_89 == 3) {
+            u0 = ((double) (xt + 16) - tile.zz0 * 16.0) / 256.0;
+            u1 = ((double) (xt + 16) - tile.zz1 * 16.0 - 0.01) / 256.0;
+            v0 = ((double) yt + tile.yy1 * 16.0) / 256.0;
+            v1 = ((double) yt + tile.yy0 * 16.0 - 0.01) / 256.0;
+            var42 = u1;
+            var22 = u0;
+            var24 = v0;
+            var26 = v1;
+        }
+
+        BigDecimal x0 = x.add(new BigDecimal(tile.xx0));
+        double y0 = y + tile.yy0;
+        double y1 = y + tile.yy1;
+        BigDecimal z0 = z.add(new BigDecimal(tile.zz0));
+        BigDecimal z1 = z.add(new BigDecimal(tile.zz1));
+        if (this.blen) {
+            t.color(this.c1r, this.c1g, this.c1b);
+            t.vertexUV(x0, y1, z1, var42, var24);
+            t.color(this.c2r, this.c2g, this.c2b);
+            t.vertexUV(x0, y1, z0, u0, v0);
+            t.color(this.c3r, this.c3g, this.c3b);
+            t.vertexUV(x0, y0, z0, var22, var26);
+            t.color(this.c4r, this.c4g, this.c4b);
+            t.vertexUV(x0, y0, z1, u1, v1);
+        } else {
+            t.vertexUV(x0, y1, z1, var42, var24);
+            t.vertexUV(x0, y1, z0, u0, v0);
+            t.vertexUV(x0, y0, z0, var22, var26);
+            t.vertexUV(x0, y0, z1, u1, v1);
+        }
+    }
+
+    @Override
+    public void renderEast(Tile tile, BigDecimal x, double y, BigDecimal z, int tex) {
+        Tesselator t = Tesselator.instance;
+        if (this.fixedTexture >= 0) {
+            tex = this.fixedTexture;
+        }
+
+        int xt = (tex & 15) << 4;
+        int yt = tex & 240;
+        double u0 = ((double) xt + tile.zz0 * 16.0) / 256.0;
+        double u1 = ((double) xt + tile.zz1 * 16.0 - 0.01) / 256.0;
+        double v0 = ((double) (yt + 16) - tile.yy1 * 16.0) / 256.0;
+        double v1 = ((double) (yt + 16) - tile.yy0 * 16.0 - 0.01) / 256.0;
+        if (this.xFlipTexture) {
+            double tmp = u0;
+            u0 = u1;
+            u1 = tmp;
+        }
+
+        if (tile.zz0 < 0.0 || tile.zz1 > 1.0) {
+            u0 = ((float) xt + 0.0F) / 256.0F;
+            u1 = ((float) xt + 15.99F) / 256.0F;
+        }
+
+        if (tile.yy0 < 0.0 || tile.yy1 > 1.0) {
+            v0 = ((float) yt + 0.0F) / 256.0F;
+            v1 = ((float) yt + 15.99F) / 256.0F;
+        }
+
+        double var42 = u1;
+        double var22 = u0;
+        double var24 = v0;
+        double var26 = v1;
+        if (this.field_88 == 2) {
+            u0 = ((double) xt + tile.yy0 * 16.0) / 256.0;
+            v0 = ((double) (yt + 16) - tile.zz0 * 16.0) / 256.0;
+            u1 = ((double) xt + tile.yy1 * 16.0) / 256.0;
+            v1 = ((double) (yt + 16) - tile.zz1 * 16.0) / 256.0;
+            var24 = v0;
+            var26 = v1;
+            var42 = u0;
+            var22 = u1;
+            v0 = v1;
+            v1 = v0;
+        } else if (this.field_88 == 1) {
+            u0 = ((double) (xt + 16) - tile.yy1 * 16.0) / 256.0;
+            v0 = ((double) yt + tile.zz1 * 16.0) / 256.0;
+            u1 = ((double) (xt + 16) - tile.yy0 * 16.0) / 256.0;
+            v1 = ((double) yt + tile.zz0 * 16.0) / 256.0;
+            var42 = u1;
+            var22 = u0;
+            u0 = u1;
+            u1 = u0;
+            var24 = v1;
+            var26 = v0;
+        } else if (this.field_88 == 3) {
+            u0 = ((double) (xt + 16) - tile.zz0 * 16.0) / 256.0;
+            u1 = ((double) (xt + 16) - tile.zz1 * 16.0 - 0.01) / 256.0;
+            v0 = ((double) yt + tile.yy1 * 16.0) / 256.0;
+            v1 = ((double) yt + tile.yy0 * 16.0 - 0.01) / 256.0;
+            var42 = u1;
+            var22 = u0;
+            var24 = v0;
+            var26 = v1;
+        }
+
+        BigDecimal x0 = x.add(new BigDecimal(tile.xx1));
+        double y0 = y + tile.yy0;
+        double y1 = y + tile.yy1;
+        BigDecimal z0 = z.add(new BigDecimal(tile.zz0));
+        BigDecimal z1 = z.add(new BigDecimal(tile.zz1));
+        if (this.blen) {
+            t.color(this.c1r, this.c1g, this.c1b);
+            t.vertexUV(x0, y0, z1, var22, var26);
+            t.color(this.c2r, this.c2g, this.c2b);
+            t.vertexUV(x0, y0, z0, u1, v1);
+            t.color(this.c3r, this.c3g, this.c3b);
+            t.vertexUV(x0, y1, z0, var42, var24);
+            t.color(this.c4r, this.c4g, this.c4b);
+            t.vertexUV(x0, y1, z1, u0, v0);
+        } else {
+            t.vertexUV(x0, y0, z1, var22, var26);
+            t.vertexUV(x0, y0, z0, u1, v1);
+            t.vertexUV(x0, y1, z0, var42, var24);
+            t.vertexUV(x0, y1, z1, u0, v0);
+        }
+    }
+
+    @Override
+    public void tesselateInWorld(Tile tile, BigInteger x, int y, BigInteger z, int destroyProgress) {
+        this.fixedTexture = destroyProgress;
+        tesselateInWorld(tile, x, y, z);
+        this.fixedTexture = -1;
     }
 
     @Override
@@ -359,9 +783,9 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
     @Override
     public boolean tesselateBlockInWorld(Tile tile, BigInteger x, int y, BigInteger z) {
         int color = tile.getFoliageColor(this.level, x, y, z);
-        float r = (float)(color >> 16 & 0xFF) / 255.0F;
-        float g = (float)(color >> 8 & 0xFF) / 255.0F;
-        float b = (float)(color & 0xFF) / 255.0F;
+        float r = (float) (color >> 16 & 0xFF) / 255.0F;
+        float g = (float) (color >> 8 & 0xFF) / 255.0F;
+        float b = (float) (color & 0xFF) / 255.0F;
         if (GameRenderer.anaglyph3d) {
             float var9 = (r * 30.0F + g * 59.0F + b * 11.0F) / 100.0F;
             float var10 = (r * 30.0F + g * 70.0F) / 100.0F;
@@ -605,7 +1029,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             this.c4g *= var12;
             this.c4b *= var12;
             int var19 = tile.getTexture(this.level, x, y, z, Facing.NORTH);
-            this.renderNorth(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), var19);
+            renderNorth(tile, new BigDecimal(x), y, new BigDecimal(z), var19);
             if (fancy && var19 == 3 && this.fixedTexture < 0) {
                 this.c1r *= f;
                 this.c2r *= f;
@@ -619,7 +1043,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
                 this.c2b *= h;
                 this.c3b *= h;
                 this.c4b *= h;
-                renderNorth(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), 38);
+                renderNorth(tile, new BigDecimal(x), y, new BigDecimal(z), 38);
             }
 
             var8 = true;
@@ -683,7 +1107,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             this.c4g *= var12;
             this.c4b *= var12;
             int var50 = tile.getTexture(this.level, x, y, z, Facing.SOUTH);
-            renderSouth(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), tile.getTexture(this.level, x, y, z, Facing.SOUTH));
+            renderSouth(tile, new BigDecimal(x), y, new BigDecimal(z), tile.getTexture(this.level, x, y, z, Facing.SOUTH));
             if (fancy && var50 == 3 && this.fixedTexture < 0) {
                 this.c1r *= f;
                 this.c2r *= f;
@@ -697,7 +1121,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
                 this.c2b *= h;
                 this.c3b *= h;
                 this.c4b *= h;
-                renderSouth(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), 38);
+                renderSouth(tile, new BigDecimal(x), y, new BigDecimal(z), 38);
             }
 
             var8 = true;
@@ -761,7 +1185,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             this.c4g *= var12;
             this.c4b *= var12;
             int var51 = tile.getTexture(this.level, x, y, z, Facing.WEST);
-            this.renderWest(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), var51);
+            renderWest(tile, new BigDecimal(x.doubleValue()), y, new BigDecimal(z), var51);
             if (fancy && var51 == 3 && this.fixedTexture < 0) {
                 this.c1r *= f;
                 this.c2r *= f;
@@ -775,7 +1199,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
                 this.c2b *= h;
                 this.c3b *= h;
                 this.c4b *= h;
-                this.renderWest(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), 38);
+                renderWest(tile, new BigDecimal(x), y, new BigDecimal(z), 38);
             }
 
             var8 = true;
@@ -839,7 +1263,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             this.c4g *= var12;
             this.c4b *= var12;
             int var52 = tile.getTexture(this.level, x, y, z, Facing.EAST);
-            this.renderEast(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), var52);
+            renderEast(tile, new BigDecimal(x), y, new BigDecimal(z), var52);
             if (fancy && var52 == 3 && this.fixedTexture < 0) {
                 this.c1r *= f;
                 this.c2r *= f;
@@ -853,7 +1277,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
                 this.c2b *= h;
                 this.c3b *= h;
                 this.c4b *= h;
-                this.renderEast(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), 38);
+                renderEast(tile, new BigDecimal(x), y, new BigDecimal(z), 38);
             }
 
             var8 = true;
@@ -900,7 +1324,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
         if (this.noCulling || tile.shouldRenderFace(this.level, x, y - 1, z, Facing.DOWN)) {
             float br = tile.getBrightness(this.level, x, y - 1, z);
             t.color(r10 * br, g10 * br, b10 * br);
-            renderFaceDown(tile, new BigDecimal(x), (double)y, new BigDecimal(z), tile.getTexture(this.level, x, y, z, Facing.DOWN));
+            renderFaceDown(tile, new BigDecimal(x), (double) y, new BigDecimal(z), tile.getTexture(this.level, x, y, z, Facing.DOWN));
             changed = true;
         }
 
@@ -923,10 +1347,10 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
 
             t.color(r2 * br, g2 * br, b2 * br);
             int texture = tile.getTexture(this.level, x, y, z, Facing.NORTH);
-            this.renderNorth(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), texture);
+            renderNorth(tile, new BigDecimal(x), y, new BigDecimal(z), texture);
             if (fancy && texture == 3 && this.fixedTexture < 0) {
                 t.color(r2 * br * r, g2 * br * g, b2 * br * b);
-                this.renderNorth(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), 38);
+                renderNorth(tile, new BigDecimal(x), y, new BigDecimal(z), 38);
             }
 
             changed = true;
@@ -940,10 +1364,10 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
 
             t.color(r2 * br, g2 * br, b2 * br);
             int texture = tile.getTexture(this.level, x, y, z, Facing.SOUTH);
-            this.renderSouth(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), texture);
+            renderSouth(tile, new BigDecimal(x), y, new BigDecimal(z), texture);
             if (fancy && texture == 3 && this.fixedTexture < 0) {
                 t.color(r2 * br * r, g2 * br * g, b2 * br * b);
-                this.renderSouth(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), 38);
+                renderSouth(tile, new BigDecimal(x), y, new BigDecimal(z), 38);
             }
 
             changed = true;
@@ -957,10 +1381,10 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
 
             t.color(r3 * br, g3 * br, b3 * br);
             int var35 = tile.getTexture(this.level, x, y, z, Facing.WEST);
-            this.renderWest(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), var35);
+            renderWest(tile, new BigDecimal(x), y, new BigDecimal(z), var35);
             if (fancy && var35 == 3 && this.fixedTexture < 0) {
                 t.color(r3 * br * r, g3 * br * g, b3 * br * b);
-                this.renderWest(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), 38);
+                renderWest(tile, new BigDecimal(x), y, new BigDecimal(z), 38);
             }
 
             changed = true;
@@ -974,10 +1398,10 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
 
             t.color(r3 * var33, g3 * var33, b3 * var33);
             int var36 = tile.getTexture(this.level, x, y, z, Facing.EAST);
-            this.renderEast(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), var36);
+            renderEast(tile, new BigDecimal(x), y, new BigDecimal(z), var36);
             if (fancy && var36 == 3 && this.fixedTexture < 0) {
                 t.color(r3 * var33 * r, g3 * var33 * g, b3 * var33 * b);
-                this.renderEast(tile, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), 38);
+                renderEast(tile, new BigDecimal(x), y, new BigDecimal(z), 38);
             }
 
             changed = true;
@@ -990,9 +1414,9 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
     public boolean tesselateWaterInWorld(Tile tt, BigInteger x, int y, BigInteger z) {
         Tesselator t = Tesselator.instance;
         int col = tt.getFoliageColor(this.level, x, y, z);
-        float var7 = (float)(col >> 16 & 0xFF) / 255.0F;
-        float var8 = (float)(col >> 8 & 0xFF) / 255.0F;
-        float var9 = (float)(col & 0xFF) / 255.0F;
+        float var7 = (float) (col >> 16 & 0xFF) / 255.0F;
+        float var8 = (float) (col >> 8 & 0xFF) / 255.0F;
+        float var9 = (float) (col & 0xFF) / 255.0F;
         boolean up = tt.shouldRenderFace(this.level, x, y + 1, z, Facing.UP);
         boolean down = tt.shouldRenderFace(this.level, x, y - 1, z, Facing.DOWN);
         boolean[] dirs = new boolean[]{
@@ -1027,23 +1451,23 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
 
                 int xt = (tex & 15) << 4;
                 int yt = tex & 240;
-                double uc = ((double)xt + 8.0) / 256.0;
-                double vc = ((double)yt + 8.0) / 256.0;
+                double uc = ((double) xt + 8.0) / 256.0;
+                double vc = ((double) yt + 8.0) / 256.0;
                 if (angle < -999.0F) {
                     angle = 0.0F;
                 } else {
-                    uc = (double)((float)(xt + 16) / 256.0F);
-                    vc = (double)((float)(yt + 16) / 256.0F);
+                    uc = (double) ((float) (xt + 16) / 256.0F);
+                    vc = (double) ((float) (yt + 16) / 256.0F);
                 }
 
                 float s = Mth.sin(angle) * 8.0F / 256.0F;
                 float c = Mth.cos(angle) * 8.0F / 256.0F;
                 float br = tt.getBrightness(this.level, x, y, z);
                 t.color(c11 * br * var7, c11 * br * var8, c11 * br * var9);
-                t.vertexUV((double)(x.doubleValue()), (double)((float)y + h0), (double)(z).doubleValue(), uc - (double)c - (double)s, vc - (double)c + (double)s);
-                t.vertexUV((double)(x.doubleValue()), (double)((float)y + h1), (double)(z.add(BigInteger.ONE)).doubleValue(), uc - (double)c + (double)s, vc + (double)c + (double)s);
-                t.vertexUV((double)(x.add(BigInteger.ONE)).doubleValue(), (double)((float)y + h2), (double)(z.add(BigInteger.ONE)).doubleValue(), uc + (double)c + (double)s, vc + (double)c - (double)s);
-                t.vertexUV((double)(x.add(BigInteger.ONE)).doubleValue(), (double)((float)y + h3), (double)(z).doubleValue(), uc + (double)c - (double)s, vc - (double)c - (double)s);
+                t.vertexUV((double) (x.doubleValue()), (double) ((float) y + h0), (double) (z).doubleValue(), uc - (double) c - (double) s, vc - (double) c + (double) s);
+                t.vertexUV((double) (x.doubleValue()), (double) ((float) y + h1), (double) (z.add(BigInteger.ONE)).doubleValue(), uc - (double) c + (double) s, vc + (double) c + (double) s);
+                t.vertexUV((double) (x.add(BigInteger.ONE)).doubleValue(), (double) ((float) y + h2), (double) (z.add(BigInteger.ONE)).doubleValue(), uc + (double) c + (double) s, vc + (double) c - (double) s);
+                t.vertexUV((double) (x.add(BigInteger.ONE)).doubleValue(), (double) ((float) y + h3), (double) (z).doubleValue(), uc + (double) c - (double) s, vc - (double) c - (double) s);
             }
 
             if (this.noCulling || down) {
@@ -1053,7 +1477,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
                 changed = true;
             }
 
-            for(int face = 0; face < 4; ++face) {
+            for (int face = 0; face < 4; ++face) {
                 BigInteger xt = x;
                 BigInteger zt = z;
                 if (face == 0) {
@@ -1113,11 +1537,11 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
                     }
 
                     changed = true;
-                    double u0 = (double)((float)(xTex + 0) / 256.0F);
-                    double u1 = ((double)(xTex + 16) - 0.01) / 256.0;
-                    double v01 = (double)(((float)yTex + (1.0F - hh0) * 16.0F) / 256.0F);
-                    double v02 = (double)(((float)yTex + (1.0F - hh1) * 16.0F) / 256.0F);
-                    double v1 = ((double)(yTex + 16) - 0.01) / 256.0;
+                    double u0 = (double) ((float) (xTex + 0) / 256.0F);
+                    double u1 = ((double) (xTex + 16) - 0.01) / 256.0;
+                    double v01 = (double) (((float) yTex + (1.0F - hh0) * 16.0F) / 256.0F);
+                    double v02 = (double) (((float) yTex + (1.0F - hh1) * 16.0F) / 256.0F);
+                    double v1 = ((double) (yTex + 16) - 0.01) / 256.0;
                     float br = tt.getBrightness(this.level, xt, y, zt);
                     if (face < 2) {
                         br *= c2;
@@ -1126,10 +1550,10 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
                     }
 
                     t.color(c11 * br * var7, c11 * br * var8, c11 * br * var9);
-                    t.vertexUV((double)x0, (double)((float)y + hh0), (double)z0, u0, v01);
-                    t.vertexUV((double)x1, (double)((float)y + hh1), (double)z1, u1, v02);
-                    t.vertexUV((double)x1, (double)(y + 0), (double)z1, u1, v1);
-                    t.vertexUV((double)x0, (double)(y + 0), (double)z0, u0, v1);
+                    t.vertexUV((double) x0, (double) ((float) y + hh0), (double) z0, u0, v01);
+                    t.vertexUV((double) x1, (double) ((float) y + hh1), (double) z1, u1, v02);
+                    t.vertexUV((double) x1, (double) (y + 0), (double) z1, u1, v1);
+                    t.vertexUV((double) x0, (double) (y + 0), (double) z0, u0, v1);
                 }
             }
 
@@ -1143,7 +1567,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
         int count = 0;
         float h = 0.0F;
 
-        for(int i = 0; i < 4; ++i) {
+        for (int i = 0; i < 4; ++i) {
             BigInteger xx = x.subtract(BigInteger.valueOf((i & 1)));
             BigInteger zz = z.subtract(BigInteger.valueOf((i >> 1 & 1)));
             if (this.level.getMaterial(xx, y + 1, zz) == m) {
@@ -1166,6 +1590,6 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             }
         }
 
-        return 1.0F - h / (float)count;
+        return 1.0F - h / (float) count;
     }
 }

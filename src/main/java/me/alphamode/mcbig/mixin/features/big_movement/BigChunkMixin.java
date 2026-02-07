@@ -30,9 +30,9 @@ public abstract class BigChunkMixin extends Chunk {
      */
     @Overwrite
     public float distanceToSqr(Entity entity) {
-        float var2 = (((BigEntityExtension)entity).getX().subtract(new BigDecimal(this.bigXm))).floatValue();
-        float var3 = (float)(entity.y - (double)this.ym);
-        float var4 = (((BigEntityExtension)entity).getZ().subtract(new BigDecimal(this.bigZm))).floatValue();
-        return var2 * var2 + var3 * var3 + var4 * var4;
+        float xa = (((BigEntityExtension)entity).getX().subtract(new BigDecimal(this.bigXm))).floatValue();
+        float ya = (float)(entity.y - (double)this.ym);
+        float za = (((BigEntityExtension)entity).getZ().subtract(new BigDecimal(this.bigZm))).floatValue();
+        return xa * xa + ya * ya + za * za;
     }
 }

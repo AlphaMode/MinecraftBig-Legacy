@@ -1,11 +1,15 @@
 package me.alphamode.mcbig.extensions;
 
+import me.alphamode.mcbig.world.phys.BigAABB;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.LevelListener;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.phys.AABB;
 
 import java.math.BigInteger;
+import java.util.List;
 
 public interface BigLevelExtension {
     default boolean setTile(BigInteger x, int y, BigInteger z, int tile) {
@@ -107,6 +111,14 @@ public interface BigLevelExtension {
     }
 
     default void animateTick(BigInteger x, int y, BigInteger z) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<Entity> getEntities(Entity entity, BigAABB area) {
+        throw new UnsupportedOperationException();
+    }
+
+    default List<BigAABB> getCubes(Entity entity, BigAABB area) {
         throw new UnsupportedOperationException();
     }
 

@@ -1,6 +1,7 @@
 package me.alphamode.mcbig.mixin;
 
 import me.alphamode.mcbig.extensions.BigTileExtension;
+import me.alphamode.mcbig.world.phys.BigAABB;
 import me.alphamode.mcbig.world.phys.BigHitResult;
 import net.minecraft.util.Facing;
 import net.minecraft.world.ItemInstance;
@@ -15,6 +16,7 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Random;
@@ -69,6 +71,13 @@ public abstract class TileMixin implements BigTileExtension {
     }
 
     @Override
+    public BigAABB getTileBigAABB(Level level, BigInteger x, int y, BigInteger z) {
+        BigDecimal bigX = new BigDecimal(x);
+        BigDecimal bigZ = new BigDecimal(z);
+        return BigAABB.create(bigX.add(new BigDecimal(this.xx0)), (double) y + this.yy0, bigZ.add(new BigDecimal(this.zz0)), bigX.add(new BigDecimal(this.xx1)), (double) y + this.yy1, bigZ.add(new BigDecimal(this.zz1)));
+    }
+
+    @Override
     public void addAABBs(Level level, BigInteger x, int y, BigInteger z, AABB bb, List<AABB> boxes) {
         AABB aabb = getAABB(level, x, y, z);
         if (aabb != null && bb.intersects(aabb)) {
@@ -77,8 +86,21 @@ public abstract class TileMixin implements BigTileExtension {
     }
 
     @Override
+    public void addBigAABBs(Level level, BigInteger x, int y, BigInteger z, BigAABB bb, List<BigAABB> boxes) {
+        BigAABB aabb = getBigAABB(level, x, y, z);
+        if (aabb != null && bb.intersects(aabb)) {
+            boxes.add(aabb);
+        }
+    }
+
+    @Override
     public AABB getAABB(Level level, BigInteger x, int y, BigInteger z) {
         return AABB.newTemp((double)x.doubleValue() + this.xx0, (double)y + this.yy0, (double)z.doubleValue() + this.zz0, (double)x.doubleValue() + this.xx1, (double)y + this.yy1, (double)z.doubleValue() + this.zz1);
+    }
+
+    @Override
+    public BigAABB getBigAABB(Level level, BigInteger x, int y, BigInteger z) {
+        return BigAABB.create(new BigDecimal(x).add(new BigDecimal(this.xx0)), (double)y + this.yy0, new BigDecimal(z).add(new BigDecimal(this.zz0)), new BigDecimal(x).add(new BigDecimal(this.xx1)), (double)y + this.yy1, new BigDecimal(z).add(new BigDecimal(this.zz1)));
     }
 
     @Override

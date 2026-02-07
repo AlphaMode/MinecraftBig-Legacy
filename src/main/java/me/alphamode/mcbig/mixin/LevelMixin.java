@@ -8,6 +8,7 @@ import me.alphamode.mcbig.level.BigTickNextTickData;
 import me.alphamode.mcbig.level.chunk.BigChunkPos;
 import me.alphamode.mcbig.math.BigConstants;
 import me.alphamode.mcbig.math.BigMath;
+import me.alphamode.mcbig.world.phys.BigAABB;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.util.Mth;
@@ -35,6 +36,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.*;
@@ -126,6 +128,8 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
 
     @Shadow
     private ArrayList<AABB> boxes;
+
+    private ArrayList<BigAABB> bigBoxes = new ArrayList<>();
 
     @Shadow
     private List<Entity> es;
@@ -742,6 +746,25 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
         }
     }
 
+    @Override
+    public List<Entity> getEntities(Entity entity, BigAABB area) {
+        this.es.clear();
+        BigInteger x0 = BigMath.floor(area.x0.subtract(BigConstants.TWO).divide(BigConstants.SIXTEEN_F));
+        BigInteger x1 = BigMath.floor(area.x1.add(BigConstants.TWO).divide(BigConstants.SIXTEEN_F));
+        BigInteger z0 = BigMath.floor(area.z0.subtract(BigConstants.TWO).divide(BigConstants.SIXTEEN_F));
+        BigInteger z1 = BigMath.floor(area.z1.add(BigConstants.TWO).divide(BigConstants.SIXTEEN_F));
+
+        for (BigInteger x = x0; x.compareTo(x1) <= 0; x = x.add(BigInteger.ONE)) {
+            for (BigInteger z = z0; z.compareTo(z1) <= 0; z = z.add(BigInteger.ONE)) {
+                if (hasChunk(x, z)) {
+                    getChunk(x, z).getEntities(entity, area, this.es);
+                }
+            }
+        }
+
+        return this.es;
+    }
+
     /**
      * @author
      * @reason
@@ -982,6 +1005,48 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
                 --maxLoop;
             }
         }
+    }
+
+    @Override
+    public List<BigAABB> getCubes(Entity entity, BigAABB area) {
+        this.bigBoxes.clear();
+        BigInteger x0 = BigMath.floor(area.x0);
+        BigInteger x1 = BigMath.floor(area.x1.add(BigDecimal.ONE));
+        int y0 = Mth.floor(area.y0);
+        int y1 = Mth.floor(area.y1 + 1.0);
+        BigInteger z0 = BigMath.floor(area.z0);
+        BigInteger z1 = BigMath.floor(area.z1.add(BigDecimal.ONE));
+
+        for(BigInteger x = x0; x.compareTo(x1) < 0; x = x.add(BigInteger.ONE)) {
+            for(BigInteger z = z0; z.compareTo(z1) < 0; z = z.add(BigInteger.ONE)) {
+                if (this.hasChunkAt(x, 64, z)) {
+                    for(int y = y0 - 1; y < y1; ++y) {
+                        Tile tt = Tile.tiles[this.getTile(x, y, z)];
+                        if (tt != null) {
+                            tt.addBigAABBs((Level) (Object) this, x, y, z, area, this.bigBoxes);
+                        }
+                    }
+                }
+            }
+        }
+
+        double range = 0.25;
+        List entityList = this.getEntities(entity, area.inflate(range, range, range));
+
+        for(int var16 = 0; var16 < entityList.size(); ++var16) {
+            AABB var13 = ((Entity)entityList.get(var16)).getCollideBox();
+            AABB vanillaArea = area.toVanilla();
+            if (var13 != null && var13.intersects(vanillaArea)) {
+                this.bigBoxes.add(BigAABB.from(var13));
+            }
+
+            var13 = entity.getCollideAgainstBox((Entity)entityList.get(var16));
+            if (var13 != null && var13.intersects(vanillaArea)) {
+                this.bigBoxes.add(BigAABB.from(var13));
+            }
+        }
+
+        return this.bigBoxes;
     }
 
     /**
@@ -1503,7 +1568,7 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
      */
     @Overwrite
     public void tick(Entity entity, boolean tick) {
-        if (entity instanceof Player) {
+        if (entity instanceof Player && entity instanceof BigEntityExtension bigEntity) {
             tickPlayer((Player)entity, tick);
             return;
         }
@@ -1514,6 +1579,10 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
             entity.xOld = entity.x;
             entity.yOld = entity.y;
             entity.zOld = entity.z;
+            if (entity instanceof BigEntityExtension bigEntity) {
+                bigEntity.setXOld(bigEntity.getX());
+                bigEntity.setZOld(bigEntity.getZ());
+            }
             entity.yRotO = entity.yRot;
             entity.xRotO = entity.xRot;
             if (tick && entity.inChunk) {

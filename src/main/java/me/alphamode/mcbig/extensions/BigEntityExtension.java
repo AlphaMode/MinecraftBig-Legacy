@@ -3,6 +3,11 @@ package me.alphamode.mcbig.extensions;
 import java.math.BigInteger;
 
 public interface BigEntityExtension {
+
+    default boolean isBigMovementEnabled() {
+        return false;
+    }
+
     default void setXChunk(BigInteger x) {
         throw new UnsupportedOperationException();
     }

@@ -4,8 +4,10 @@ import me.alphamode.mcbig.client.renderer.BigChunk;
 import me.alphamode.mcbig.client.renderer.BigDistanceChunkSorter;
 import me.alphamode.mcbig.extensions.BigLevelListenerExtension;
 import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
+import me.alphamode.mcbig.extensions.features.big_movement.BigLevelRendererExtension;
 import me.alphamode.mcbig.math.BigConstants;
 import me.alphamode.mcbig.math.BigMath;
+import me.alphamode.mcbig.world.phys.BigAABB;
 import me.alphamode.mcbig.world.phys.BigHitResult;
 import net.minecraft.client.Lighting;
 import net.minecraft.client.Minecraft;
@@ -39,7 +41,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Mixin(LevelRenderer.class)
-public abstract class LevelRendererMixin implements BigLevelListenerExtension, LevelListener {
+public abstract class LevelRendererMixin implements BigLevelListenerExtension, LevelListener, BigLevelRendererExtension {
     @Shadow private int lastViewDistance;
 
     @Shadow private Minecraft mc;
@@ -121,6 +123,7 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
     @Shadow public abstract void renderSameAsLast(int layer, double alpha);
 
     @Shadow private TileRenderer tileRenderer;
+    @Shadow public float destroyProgress;
     BigDecimal xOldBig = BigDecimal.valueOf(-9999.0);
     BigDecimal zOldBig = BigDecimal.valueOf(-9999.0);
 
@@ -425,31 +428,148 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
      * @reason
      */
     @Overwrite
-    public void renderHitOutline(Player player, HitResult r, int mode, ItemInstance inventoryItem, float a) {
+    public void renderHit(Player p, HitResult r, int mode, ItemInstance item, float a) {
         BigHitResult result = (BigHitResult) r;
-        if (mode == 0 && result.hitType == HitType.TILE) {
-            GL11.glEnable(GL11.GL_BLEND);
+        BigEntityExtension player = (BigEntityExtension) p;
+        Tesselator t = Tesselator.instance;
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glEnable(GL11.GL_ALPHA_TEST);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, (Mth.sin((float)System.currentTimeMillis() / 100.0F) * 0.2F + 0.4F) * 0.5F);
+        if (mode == 0) {
+            if (this.destroyProgress > 0.0F) {
+                GL11.glBlendFunc(GL11.GL_DST_COLOR, GL11.GL_SRC_COLOR);
+                int tex = this.textures.loadTexture("/terrain.png");
+                GL11.glBindTexture(GL11.GL_TEXTURE_2D, tex);
+                GL11.glColor4f(1.0F, 1.0F, 1.0F, 0.5F);
+                GL11.glPushMatrix();
+                int tileId = this.level.getTile(result.xBig, result.y, result.zBig);
+                Tile tt = tileId > 0 ? Tile.tiles[tileId] : null;
+                GL11.glDisable(GL11.GL_ALPHA_TEST);
+                GL11.glPolygonOffset(-3.0F, -3.0F);
+                GL11.glEnable(GL11.GL_POLYGON_OFFSET_FILL);
+                BigDecimal bigA = new BigDecimal(a);
+                BigDecimal xOff = player.getXOld().add((player.getX().subtract(player.getXOld())).multiply(bigA));
+                double yOff = p.yOld + (p.y - p.yOld) * (double)a;
+                BigDecimal zOff = player.getZOld().add((player.getZ().subtract(player.getZOld())).multiply(bigA));
+                if (tt == null) {
+                    tt = Tile.STONE;
+                }
+
+                GL11.glEnable(GL11.GL_ALPHA_TEST);
+                t.begin();
+                t.offset(xOff.negate(), -yOff, zOff.negate());
+                t.noColor();
+                this.tileRenderer.tesselateInWorld(tt, result.xBig, result.y, result.zBig, 240 + (int)(this.destroyProgress * 10.0F));
+                t.end();
+                t.offset(BigDecimal.ZERO, 0.0, BigDecimal.ZERO);
+                t.offset(0.0, 0.0, 0.0);
+                GL11.glDisable(GL11.GL_ALPHA_TEST);
+                GL11.glPolygonOffset(0.0F, 0.0F);
+                GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL);
+                GL11.glEnable(GL11.GL_ALPHA_TEST);
+                GL11.glDepthMask(true);
+                GL11.glPopMatrix();
+            }
+        } else if (item != null) {
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-            GL11.glColor4f(0.0F, 0.0F, 0.0F, 0.4F);
-            GL11.glLineWidth(2.0F);
-            GL11.glDisable(GL11.GL_TEXTURE_2D);
-            GL11.glDepthMask(false);
-            float ss = 0.002F;
-            int tile = this.level.getTile(result.xBig, result.y, result.zBig);
-            if (tile > 0) {
-                Tile.tiles[tile].updateShape(this.level, result.xBig, result.y, result.zBig);
-                double var8 = player.xOld + (player.x - player.xOld) * (double)a;
-                double var10 = player.yOld + (player.y - player.yOld) * (double)a;
-                double var12 = player.zOld + (player.z - player.zOld) * (double)a;
-                this.render(
-                        Tile.tiles[tile].getTileAABB(this.level, result.xBig, result.y, result.zBig).inflate((double)ss, (double)ss, (double)ss).offset(-var8, -var10, -var12)
-                );
+            float c = Mth.sin((float)System.currentTimeMillis() / 100.0F) * 0.2F + 0.8F;
+            GL11.glColor4f(c, c, c, Mth.sin((float)System.currentTimeMillis() / 200.0F) * 0.2F + 0.5F);
+            int tex = this.textures.loadTexture("/terrain.png");
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, tex);
+            int xt = result.x;
+            int yt = result.y;
+            int zt = result.z;
+            if (result.face == 0) {
+                --yt;
             }
 
-            GL11.glDepthMask(true);
-            GL11.glEnable(GL11.GL_TEXTURE_2D);
-            GL11.glDisable(GL11.GL_BLEND);
+            if (result.face == 1) {
+                ++yt;
+            }
+
+            if (result.face == 2) {
+                --zt;
+            }
+
+            if (result.face == 3) {
+                ++zt;
+            }
+
+            if (result.face == 4) {
+                --xt;
+            }
+
+            if (result.face == 5) {
+                ++xt;
+            }
         }
+
+        GL11.glDisable(GL11.GL_BLEND);
+        GL11.glDisable(GL11.GL_ALPHA_TEST);
+    }
+
+//    /**
+//     * @author
+//     * @reason
+//     */
+//    @Overwrite
+//    public void renderHitOutline(Player player, HitResult r, int mode, ItemInstance inventoryItem, float a) {
+//        BigHitResult result = (BigHitResult) r;
+//        if (mode == 0 && result.hitType == HitType.TILE) {
+//            GL11.glEnable(GL11.GL_BLEND);
+//            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+//            GL11.glColor4f(0.0F, 0.0F, 0.0F, 0.4F);
+//            GL11.glLineWidth(2.0F);
+//            GL11.glDisable(GL11.GL_TEXTURE_2D);
+//            GL11.glDepthMask(false);
+//            float ss = 0.002F;
+//            int tile = this.level.getTile(result.xBig, result.y, result.zBig);
+//            if (tile > 0) {
+//                Tile.tiles[tile].updateShape(this.level, result.xBig, result.y, result.zBig);
+//                BigDecimal bigA = new BigDecimal(a);
+//                BigEntityExtension bigPlayer = (BigEntityExtension) player;
+//                BigDecimal xc = bigPlayer.getXOld().add(bigPlayer.getX().subtract(bigPlayer.getXOld())).multiply(bigA);
+//                double yc = player.yOld + (player.y - player.yOld) * (double)a;
+//                BigDecimal zc = bigPlayer.getZOld().add(bigPlayer.getZ().subtract(bigPlayer.getZOld())).multiply(bigA);
+//                this.render(
+//                        Tile.tiles[tile].getTileBigAABB(this.level, result.xBig, result.y, result.zBig).inflate(ss, ss, ss).offset(xc.negate(), -yc, zc.negate())
+//                );
+//            }
+//
+//            GL11.glDepthMask(true);
+//            GL11.glEnable(GL11.GL_TEXTURE_2D);
+//            GL11.glDisable(GL11.GL_BLEND);
+//        }
+//    }
+
+    @Override
+    public void render(BigAABB aabb) {
+        Tesselator t = Tesselator.instance;
+        t.begin(3);
+        t.vertex(aabb.x0, aabb.y0, aabb.z0);
+        t.vertex(aabb.x1, aabb.y0, aabb.z0);
+        t.vertex(aabb.x1, aabb.y0, aabb.z1);
+        t.vertex(aabb.x0, aabb.y0, aabb.z1);
+        t.vertex(aabb.x0, aabb.y0, aabb.z0);
+        t.end();
+        t.begin(3);
+        t.vertex(aabb.x0, aabb.y1, aabb.z0);
+        t.vertex(aabb.x1, aabb.y1, aabb.z0);
+        t.vertex(aabb.x1, aabb.y1, aabb.z1);
+        t.vertex(aabb.x0, aabb.y1, aabb.z1);
+        t.vertex(aabb.x0, aabb.y1, aabb.z0);
+        t.end();
+        t.begin(1);
+        t.vertex(aabb.x0, aabb.y0, aabb.z0);
+        t.vertex(aabb.x0, aabb.y1, aabb.z0);
+        t.vertex(aabb.x1, aabb.y0, aabb.z0);
+        t.vertex(aabb.x1, aabb.y1, aabb.z0);
+        t.vertex(aabb.x1, aabb.y0, aabb.z1);
+        t.vertex(aabb.x1, aabb.y1, aabb.z1);
+        t.vertex(aabb.x0, aabb.y0, aabb.z1);
+        t.vertex(aabb.x0, aabb.y1, aabb.z1);
+        t.end();
     }
 
     /**

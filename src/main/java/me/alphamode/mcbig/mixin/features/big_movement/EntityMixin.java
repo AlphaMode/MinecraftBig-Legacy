@@ -12,7 +12,6 @@ import net.minecraft.world.level.tile.Tile;
 import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -25,7 +24,7 @@ import java.util.List;
 import java.util.Random;
 
 @Mixin(Entity.class)
-public abstract class EntityMixin implements BigEntityExtension {
+public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mcbig.extensions.BigEntityExtension {
     @Shadow public float bbWidth;
     @Shadow public float bbHeight;
     @Shadow public float heightOffset;
@@ -65,6 +64,14 @@ public abstract class EntityMixin implements BigEntityExtension {
     @Shadow public abstract boolean isInWaterOrRain();
 
     @Shadow protected Random random;
+    @Shadow
+    public double xo;
+    @Shadow
+    public double zo;
+    @Shadow
+    public double xOld;
+    @Shadow
+    public double zOld;
     public BigDecimal xoBig = BigDecimal.ZERO;
     public BigDecimal zoBig = BigDecimal.ZERO;
     public BigDecimal xBig = BigDecimal.ZERO;
@@ -83,6 +90,16 @@ public abstract class EntityMixin implements BigEntityExtension {
     @Redirect(method = "resetPos", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;setPos(DDD)V"))
     private void bigPosReset(Entity instance, double x, double y, double z) {
         ((BigEntityExtension)instance).setPos(this.xBig, y, this.zBig);
+    }
+
+    @Override
+    public boolean isBigMovementEnabled() {
+        return true;
+    }
+
+    @Override
+    public BigAABB getBigBB() {
+        return this.bbBig;
     }
 
     @Override
@@ -132,8 +149,10 @@ public abstract class EntityMixin implements BigEntityExtension {
             this.y = this.bb.y0 + (double)this.heightOffset - (double)this.ySlideOffset;
             this.z = (this.bb.z0 + this.bb.z1) / 2.0;
 
-            this.xBig = (this.bbBig.x0.add(this.bbBig.x1)).divide(BigConstants.TWO);
-            this.zBig = (this.bbBig.z0.add(this.bbBig.z1)).divide(BigConstants.TWO);
+            if (isBigMovementEnabled()) {
+                this.xBig = (this.bbBig.x0.add(this.bbBig.x1)).divide(BigConstants.TWO);
+                this.zBig = (this.bbBig.z0.add(this.bbBig.z1)).divide(BigConstants.TWO);
+            }
         } else {
             this.ySlideOffset *= 0.4F;
             double var7 = this.x;
@@ -155,7 +174,7 @@ public abstract class EntityMixin implements BigEntityExtension {
             boolean var18 = this.onGround && this.isSneaking();
             if (var18) {
                 double var19;
-                for(var19 = 0.05; x != 0.0 && this.level.getCubes((Entity) (Object) this, this.bb.offset(x, -1.0, 0.0)).size() == 0; var11 = x) {
+                for(var19 = 0.05; x != 0.0 && this.level.getCubes((Entity) (Object) this, this.bbBig.offset(x, -1.0, 0.0)).size() == 0; var11 = x) {
                     if (x < var19 && x >= -var19) {
                         x = 0.0;
                     } else if (x > 0.0) {
@@ -165,7 +184,7 @@ public abstract class EntityMixin implements BigEntityExtension {
                     }
                 }
 
-                for(; z != 0.0 && this.level.getCubes((Entity) (Object) this, this.bb.offset(0.0, -1.0, z)).size() == 0; var15 = z) {
+                for(; z != 0.0 && this.level.getCubes((Entity) (Object) this, this.bbBig.offset(0.0, -1.0, z)).size() == 0; var15 = z) {
                     if (z < var19 && z >= -var19) {
                         z = 0.0;
                     } else if (z > 0.0) {
@@ -176,13 +195,14 @@ public abstract class EntityMixin implements BigEntityExtension {
                 }
             }
 
-            List var36 = this.level.getCubes((Entity) (Object) this, this.bb.expand(x, y, z));
+            List<BigAABB> var36 = this.level.getCubes((Entity) (Object) this, this.bbBig.expand(x, y, z));
 
             for(int var20 = 0; var20 < var36.size(); ++var20) {
-                y = ((AABB)var36.get(var20)).clipYCollide(this.bb, y);
+                y = var36.get(var20).clipYCollide(this.bbBig, y);
             }
 
             this.bb.grow(0.0, y, 0.0);
+            this.bbBig.grow(0.0, y, 0.0);
             if (!this.slide && var13 != y) {
                 z = 0.0;
                 y = 0.0;
@@ -192,7 +212,7 @@ public abstract class EntityMixin implements BigEntityExtension {
             boolean var38 = this.onGround || var13 != y && var13 < 0.0;
 
             for(int var21 = 0; var21 < var36.size(); ++var21) {
-                x = ((AABB)var36.get(var21)).clipXCollide(this.bb, x);
+                x = var36.get(var21).clipXCollide(this.bbBig, x);
             }
 
             this.bb.grow(x, 0.0, 0.0);
@@ -204,7 +224,7 @@ public abstract class EntityMixin implements BigEntityExtension {
             }
 
             for(int var39 = 0; var39 < var36.size(); ++var39) {
-                z = ((AABB)var36.get(var39)).clipZCollide(this.bb, z);
+                z = var36.get(var39).clipZCollide(this.bbBig, z);
             }
 
             this.bb.grow(0.0, 0.0, z);
@@ -220,14 +240,14 @@ public abstract class EntityMixin implements BigEntityExtension {
                 double var23 = y;
                 double var25 = z;
                 x = var11;
-                y = (double)this.footSize;
+                y = this.footSize;
                 z = var15;
                 AABB var27 = this.bb.copy();
                 this.bb.copyFrom(var17);
-                var36 = this.level.getCubes((Entity) (Object) this, this.bb.expand(var11, y, var15));
+                var36 = this.level.getCubes((Entity) (Object) this, this.bbBig.expand(var11, y, var15));
 
                 for(int var28 = 0; var28 < var36.size(); ++var28) {
-                    y = ((AABB)var36.get(var28)).clipYCollide(this.bb, y);
+                    y = var36.get(var28).clipYCollide(this.bbBig, y);
                 }
 
                 this.bb.grow(0.0, y, 0.0);
@@ -239,7 +259,7 @@ public abstract class EntityMixin implements BigEntityExtension {
                 }
 
                 for(int var48 = 0; var48 < var36.size(); ++var48) {
-                    x = ((AABB)var36.get(var48)).clipXCollide(this.bb, x);
+                    x = var36.get(var48).clipXCollide(this.bbBig, x);
                 }
 
                 this.bb.grow(x, 0.0, 0.0);
@@ -251,7 +271,7 @@ public abstract class EntityMixin implements BigEntityExtension {
                 }
 
                 for(int var49 = 0; var49 < var36.size(); ++var49) {
-                    z = ((AABB)var36.get(var49)).clipZCollide(this.bb, z);
+                    z = var36.get(var49).clipZCollide(this.bbBig, z);
                 }
 
                 this.bb.grow(0.0, 0.0, z);
@@ -267,10 +287,10 @@ public abstract class EntityMixin implements BigEntityExtension {
                     y = 0.0;
                     x = 0.0;
                 } else {
-                    y = (double)(-this.footSize);
+                    y = -this.footSize;
 
                     for(int var50 = 0; var50 < var36.size(); ++var50) {
-                        y = ((AABB)var36.get(var50)).clipYCollide(this.bb, y);
+                        y = var36.get(var50).clipYCollide(this.bbBig, y);
                     }
 
                     this.bb.grow(0.0, y, 0.0);
@@ -318,9 +338,9 @@ public abstract class EntityMixin implements BigEntityExtension {
             double var42 = this.z - var9;
             if (this.isMovementNoisy() && !var18 && this.riding == null) {
                 this.walkDist = (float)((double)this.walkDist + (double) Mth.sqrt(var41 * var41 + var42 * var42) * 0.6);
-                BigInteger xt = BigMath.floor(this.x);
+                BigInteger xt = BigMath.floor(this.xBig);
                 int yt = Mth.floor(this.y - 0.2F - (double)this.heightOffset);
-                BigInteger zt = BigMath.floor(this.z);
+                BigInteger zt = BigMath.floor(this.zBig);
                 int tt = this.level.getTile(xt, yt, zt);
                 if (this.level.getTile(xt, yt - 1, zt) == Tile.OAK_FENCE.id) {
                     tt = this.level.getTile(xt, yt - 1, zt);
@@ -340,12 +360,13 @@ public abstract class EntityMixin implements BigEntityExtension {
                 }
             }
 
-            BigInteger x0 = BigMath.floor(this.bb.x0 + 0.001);
-            int y0 = Mth.floor(this.bb.y0 + 0.001);
-            BigInteger z0 = BigMath.floor(this.bb.z0 + 0.001);
-            BigInteger x1 = BigMath.floor(this.bb.x1 - 0.001);
-            int y1 = Mth.floor(this.bb.y1 - 0.001);
-            BigInteger z1 = BigMath.floor(this.bb.z1 - 0.001);
+            BigDecimal factor = new BigDecimal(0.001);
+            BigInteger x0 = BigMath.floor(this.bbBig.x0.add(factor));
+            int y0 = Mth.floor(this.bbBig.y0 + 0.001);
+            BigInteger z0 = BigMath.floor(this.bbBig.z0.add(factor));
+            BigInteger x1 = BigMath.floor(this.bbBig.x1.subtract(factor));
+            int y1 = Mth.floor(this.bbBig.y1 - 0.001);
+            BigInteger z1 = BigMath.floor(this.bbBig.z1.subtract(factor));
             if (this.level.hasChunksAt(x0, y0, z0, x1, y1, z1)) {
                 for(BigInteger xt = x0; xt.compareTo(x1) <= 0; xt = xt.add(BigInteger.ONE)) {
                     for(int yt = y0; yt <= y1; ++yt) {
@@ -392,11 +413,35 @@ public abstract class EntityMixin implements BigEntityExtension {
     @Override
     public void setX(BigDecimal x) {
         this.xBig = x;
+        this.x = x.doubleValue();
     }
 
     @Override
     public void setZ(BigDecimal z) {
         this.zBig = z;
+        this.z = z.doubleValue();
+    }
+
+    @Override
+    public BigDecimal getXO() {
+        return this.xoBig;
+    }
+
+    @Override
+    public BigDecimal getZO() {
+        return this.zoBig;
+    }
+
+    @Override
+    public void setXO(BigDecimal x) {
+        this.xoBig = x;
+        this.xo = x.doubleValue();
+    }
+
+    @Override
+    public void setZO(BigDecimal z) {
+        this.zoBig = z;
+        this.zo = z.doubleValue();
     }
 
     @Override
@@ -412,10 +457,18 @@ public abstract class EntityMixin implements BigEntityExtension {
     @Override
     public void setXOld(BigDecimal x) {
         this.xOldBig = x;
+        this.xOld = x.doubleValue();
     }
 
     @Override
     public void setZOld(BigDecimal z) {
         this.zOldBig = z;
+        this.zOld = z.doubleValue();
+    }
+
+    @Inject(method = "moveTo", at = @At("HEAD"))
+    private void bigMoveTo(double x, double y, double z, float yRot, float xRot, CallbackInfo ci) {
+        setXOld(new BigDecimal(x));
+        setZOld(new BigDecimal(z));
     }
 }

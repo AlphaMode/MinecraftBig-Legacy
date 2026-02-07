@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Random;
@@ -118,10 +119,26 @@ public abstract class EntityMixin implements BigEntityExtension {
      */
     @Overwrite
     public boolean isInWall() {
-        for(int var1 = 0; var1 < 8; ++var1) {
-            float var2 = ((float)((var1 >> 0) % 2) - 0.5F) * this.bbWidth * 0.9F;
-            float var3 = ((float)((var1 >> 1) % 2) - 0.5F) * 0.1F;
-            float var4 = ((float)((var1 >> 2) % 2) - 0.5F) * this.bbWidth * 0.9F;
+        if (isBigMovementEnabled()) {
+            for(int i = 0; i < 8; ++i) {
+                me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension bigEntity = (me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension) this;
+                float var2 = ((float)((i >> 0) % 2) - 0.5F) * this.bbWidth * 0.9F;
+                float var3 = ((float)((i >> 1) % 2) - 0.5F) * 0.1F;
+                float var4 = ((float)((i >> 2) % 2) - 0.5F) * this.bbWidth * 0.9F;
+                BigInteger var5 = BigMath.floor(bigEntity.getX().add(new BigDecimal(var2)));
+                int var6 = Mth.floor(this.y + (double)this.getHeadHeight() + (double)var3);
+                BigInteger var7 = BigMath.floor(bigEntity.getZ().add(new BigDecimal(var4)));
+                if (this.level.isSolidBlockingTile(var5, var6, var7)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        for(int i = 0; i < 8; ++i) {
+            float var2 = ((float)((i >> 0) % 2) - 0.5F) * this.bbWidth * 0.9F;
+            float var3 = ((float)((i >> 1) % 2) - 0.5F) * 0.1F;
+            float var4 = ((float)((i >> 2) % 2) - 0.5F) * this.bbWidth * 0.9F;
             BigInteger var5 = BigMath.floor(this.x + (double)var2);
             int var6 = Mth.floor(this.y + (double)this.getHeadHeight() + (double)var3);
             BigInteger var7 = BigMath.floor(this.z + (double)var4);

@@ -5,6 +5,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import me.alphamode.mcbig.extensions.BigTesselatorExtension;
 import net.minecraft.client.renderer.Tesselator;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -35,6 +36,10 @@ public abstract class TesselatorMixin implements BigTesselatorExtension {
 
     @Shadow private boolean tesselating;
 
+    @Shadow
+    private double xo;
+    @Shadow
+    private double zo;
     private BigDecimal xoBig = BigDecimal.ZERO;
     private BigDecimal zoBig = BigDecimal.ZERO;
 
@@ -104,4 +109,18 @@ public abstract class TesselatorMixin implements BigTesselatorExtension {
         this.yo += yo;
         this.zoBig = this.zoBig.add(zo);
     }
+
+//    @Overwrite
+//    public void offset(double x, double y, double z) {
+//        this.xo = x;
+//        this.zo = z;
+//        offset(new BigDecimal(x), y, new BigDecimal(z));
+//    }
+//
+//    @Overwrite
+//    public void addOffset(float xo, float yo, float zo) {
+//        this.xo += (double)xo;
+//        this.zo += (double)zo;
+//        addOffset(new BigDecimal(xo), yo, new BigDecimal(zo));
+//    }
 }

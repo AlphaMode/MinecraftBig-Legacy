@@ -1,5 +1,7 @@
 package me.alphamode.mcbig.extensions.features.big_movement;
 
+import me.alphamode.mcbig.world.phys.BigAABB;
+
 import java.math.BigDecimal;
 
 public interface BigEntityExtension {
@@ -7,11 +9,21 @@ public interface BigEntityExtension {
 
     void bigMove(double x, double y, double z);
 
+    default BigAABB getBigBB() {
+        throw new UnsupportedOperationException();
+    }
+
     BigDecimal getX();
     BigDecimal getZ();
 
     void setX(BigDecimal x);
     void setZ(BigDecimal z);
+
+    BigDecimal getXO();
+    BigDecimal getZO();
+
+    void setXO(BigDecimal x);
+    void setZO(BigDecimal z);
 
     BigDecimal getXOld();
     BigDecimal getZOld();

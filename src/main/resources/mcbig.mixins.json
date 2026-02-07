@@ -4,9 +4,13 @@
   "package": "me.alphamode.mcbig.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "BiomeSourceMixin",
     "ChunkSourceMixin",
     "ChunkStorageMixin",
     "EntityMixin",
+    "FixedBiomeSourceMixin",
+    "LargeCaveFeatureMixin",
+    "LargeFeatureMixin",
     "LevelChunkMixin",
     "LevelListenerMixin",
     "LevelMixin",
@@ -40,6 +44,7 @@
     "client.SurvivalGameModeMixin",
     "client.TesselatorMixin",
     "client.TileRendererMixin",
+    "features.big_movement.GameRendererMixin",
     "features.big_movement.LevelRendererMixin",
     "features.big_movement.LocalPlayerMixin",
     "features.big_movement.OffsettedRenderListMixin"

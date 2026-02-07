@@ -62,7 +62,7 @@ public abstract class ServerChunkCacheMixin implements ChunkSource, BigChunkSour
             }
 
             if (!chunk.terrainPopulated && hasChunk(x.add(BigInteger.ONE), z.add(BigInteger.ONE)) && hasChunk(x, z.add(BigInteger.ONE)) && hasChunk(x.add(BigInteger.ONE), z)) {
-                postProcess(this, x, z);
+//                postProcess(this, x, z);
             }
 
             if (hasChunk(x.subtract(BigInteger.ONE), z)
@@ -70,7 +70,7 @@ public abstract class ServerChunkCacheMixin implements ChunkSource, BigChunkSour
                     && hasChunk(x.subtract(BigInteger.ONE), z.add(BigInteger.ONE))
                     && hasChunk(x, z.add(BigInteger.ONE))
                     && hasChunk(x.subtract(BigInteger.ONE), z)) {
-                this.postProcess(this, x.subtract(BigInteger.ONE), z);
+//                this.postProcess(this, x.subtract(BigInteger.ONE), z);
             }
 
             if (hasChunk(x, z.subtract(BigInteger.ONE))
@@ -78,7 +78,7 @@ public abstract class ServerChunkCacheMixin implements ChunkSource, BigChunkSour
                     && hasChunk(x.add(BigInteger.ONE), z.subtract(BigInteger.ONE))
                     && hasChunk(x, z.subtract(BigInteger.ONE))
                     && hasChunk(x.add(BigInteger.ONE), z)) {
-                postProcess(this, x, z.subtract(BigInteger.ONE));
+//                postProcess(this, x, z.subtract(BigInteger.ONE));
             }
 
             if (hasChunk(x.subtract(BigInteger.ONE), z.subtract(BigInteger.ONE))
@@ -86,7 +86,7 @@ public abstract class ServerChunkCacheMixin implements ChunkSource, BigChunkSour
                     && hasChunk(x.subtract(BigInteger.ONE), z.subtract(BigInteger.ONE))
                     && hasChunk(x, z.subtract(BigInteger.ONE))
                     && hasChunk(x.subtract(BigInteger.ONE), z)) {
-                postProcess(this, x.subtract(BigInteger.ONE), z.subtract(BigInteger.ONE));
+//                postProcess(this, x.subtract(BigInteger.ONE), z.subtract(BigInteger.ONE));
             }
         }
 
