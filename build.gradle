@@ -28,9 +28,11 @@ dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings ploceus.layeredMappings {
         mappings("me.alphamode:nostalgia:${project.nostalgia_mappings}:v2", {
-            containsUnpick()
+//            containsUnpick() Waiting for unpick v4
         })
     }
+
+    implementation(files("libs/nostalgia-b1.7.3+build.51-constants.jar"))
 
 
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
