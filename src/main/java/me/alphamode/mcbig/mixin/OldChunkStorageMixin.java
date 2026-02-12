@@ -1,11 +1,11 @@
 package me.alphamode.mcbig.mixin;
 
+import com.mojang.nbt.CompoundTag;
+import com.mojang.nbt.ListTag;
+import com.mojang.nbt.NbtIo;
 import me.alphamode.mcbig.extensions.BigChunkStorageExtension;
 import me.alphamode.mcbig.level.chunk.BigLevelChunk;
 import me.alphamode.mcbig.math.BigConstants;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtIo;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityIO;
 import net.minecraft.world.level.Level;

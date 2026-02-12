@@ -16,7 +16,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkCache;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.HitType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -107,7 +106,7 @@ public class MinecraftMixin {
             }
 
             if (i != 0 || this.missTime <= 0) {
-                if (bl && this.hitResult != null && this.hitResult.hitType == HitType.TILE && i == 0) {
+                if (bl && this.hitResult != null && this.hitResult.hitType == HitResult.HitType.TILE && i == 0) {
                     BigInteger xt = ((BigHitResult) this.hitResult).xBig;
                     int yt = this.hitResult.y;
                     BigInteger zt = ((BigHitResult) this.hitResult).zBig;
@@ -136,7 +135,7 @@ public class MinecraftMixin {
                 if (i == 0 && !(this.gameMode instanceof CreativeMode)) {
                     this.missTime = 10;
                 }
-            } else if (this.hitResult.hitType == HitType.ENTITY) {
+            } else if (this.hitResult.hitType == HitResult.HitType.ENTITY) {
                 if (i == 0) {
                     this.gameMode.attack(this.player, this.hitResult.entity);
                 }
@@ -144,7 +143,7 @@ public class MinecraftMixin {
                 if (i == 1) {
                     this.gameMode.interact(this.player, this.hitResult.entity);
                 }
-            } else if (this.hitResult.hitType == HitType.TILE) {
+            } else if (this.hitResult.hitType == HitResult.HitType.TILE) {
                 BigInteger xt = ((BigHitResult) this.hitResult).xBig;
                 int yt = this.hitResult.y;
                 BigInteger zt = ((BigHitResult) this.hitResult).zBig;

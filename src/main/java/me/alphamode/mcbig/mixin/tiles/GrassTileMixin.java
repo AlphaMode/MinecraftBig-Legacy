@@ -1,8 +1,6 @@
 package me.alphamode.mcbig.mixin.tiles;
 
 import me.alphamode.mcbig.extensions.BigTileExtension;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.util.Facing;
 import net.minecraft.world.level.GrassColor;
 import net.minecraft.world.level.Level;

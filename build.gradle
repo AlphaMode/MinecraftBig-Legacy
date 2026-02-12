@@ -1,13 +1,13 @@
 plugins {
     id 'maven-publish'
-    id 'fabric-loom' version '1.13.3'
-    id 'babric-loom-extension' version '1.13.3'
+    id 'net.fabricmc.fabric-loom-remap' version '1.15-SNAPSHOT'
+    id 'ploceus' version '1.15-SNAPSHOT'
 }
 
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
+base {
+    archivesName = project.archives_base_name
+}
 
-archivesBaseName = project.archives_base_name
 version = project.mod_version
 group = project.maven_group
 
@@ -15,76 +15,34 @@ loom {
     accessWidenerPath = file("src/main/resources/mcbig.accesswidener")
 }
 
-repositories {
-    // Add repositories to retrieve artifacts from in here.
-    // You should only use this when depending on other mods because
-    // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-    // See https://docs.gradle.org/current/userguide/declaring_repositories.html
-    // for more information about repositories.
+ploceus {
+    setIntermediaryGeneration(2)
+}
 
-    // Used for JOML
-    maven {
-        url = 'https://oss.sonatype.org/content/repositories/snapshots/'
-    }
-    // Used for the fabric toolchain in this project.
-    maven {
-        name = 'Babric'
-        url = 'https://maven.glass-launcher.net/babric'
-    }
-    // Used for mappings.
-    maven {
-        name = 'Glass Releases'
-        url = 'https://maven.glass-launcher.net/releases'
-    }
-    // Used for StationAPI and HowManyItems.
-    maven {
-        name = 'Glass Snapshots'
-        url = 'https://maven.glass-launcher.net/snapshots'
-    }
-    // Used for a StationAPI dependency.
-    maven {
-        name = 'Froge'
-        url 'https://maven.minecraftforge.net/'
-    }
-    // Used for projects that do not have a maven repository, but do have a GitHub repository with working build scripts.
-    maven {
-        name = 'Jitpack'
-        url = 'https://jitpack.io'
-    }
-    // Used for another StationAPI dependency
-    exclusiveContent {
-        forRepository {
-            maven {
-                name = "Modrinth"
-                url = "https://api.modrinth.com/maven"
-            }
-        }
-        filter {
-            includeGroup "maven.modrinth"
-        }
-    }
-    maven {
-        url 'https://repo.sleeping.town'
-        content {
-            includeGroup 'com.unascribed'
-        }
-    }
-    maven { url 'https://maven.wispforest.io' }
-    mavenCentral()
-    mavenLocal()
+repositories {
+    maven { url 'https://mvn.devos.one/releases' }
 }
 
 dependencies {
     // To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings "me.alphamode:nostalgia:${project.nostalgia_mappings}:v2"
-    modImplementation "babric:fabric-loader:${project.loader_version}"
+    mappings ploceus.layeredMappings {
+        mappings("me.alphamode:nostalgia:${project.nostalgia_mappings}:v2", {
+            containsUnpick()
+        })
+    }
 
-    implementation "org.slf4j:slf4j-api:1.8.0-beta4"
-    implementation 'org.apache.logging.log4j:log4j-slf4j18-impl:2.17.2'
-    implementation "blue.endless:jankson:1.2.1"
 
-    // Optional, but convenient mods for mod creators and users alike.
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+    clientExceptions ploceus.raven(project.client_raven_build, 'client')
+    serverExceptions ploceus.raven(project.server_raven_build, 'server')
+
+    clientSignatures ploceus.sparrow(project.client_sparrow_build, 'client')
+    serverSignatures ploceus.sparrow(project.server_sparrow_build, 'server')
+
+    clientNests ploceus.nests(project.client_nests_build, 'client')
+    serverNests ploceus.nests(project.server_nests_build, 'server')
 }
 
 processResources {
@@ -96,15 +54,13 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-    // Minecraft 1.18 (1.18-pre2) upwards uses Java 17.
-    // Loom also requires J17.
     it.options.release = 17
 }
 
 java {
-    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-    // if it is present.
-    // If you remove this line, sources will not be generated.
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+
     withSourcesJar()
 }
 
@@ -114,7 +70,6 @@ jar {
     }
 }
 
-// configure the maven publication
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -122,11 +77,7 @@ publishing {
         }
     }
 
-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
     repositories {
-        // Add repositories to publish to here.
-        // Notice: This block does NOT have the same function as the block in the top level.
-        // The repositories here will be used for publishing your artifact, not for
-        // retrieving dependencies.
+
     }
 }

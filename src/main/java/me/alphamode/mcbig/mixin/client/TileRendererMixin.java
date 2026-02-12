@@ -12,7 +12,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.LevelSource;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.tile.LiquidTile;
-import net.minecraft.world.level.tile.RailTile;
 import net.minecraft.world.level.tile.Tile;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -48,42 +47,6 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
 
     @Shadow
     private float ll00Z;
-
-    @Shadow
-    private boolean field_70;
-
-    @Shadow
-    private boolean field_78;
-
-    @Shadow
-    private boolean field_74;
-
-    @Shadow
-    private boolean field_76;
-
-    @Shadow
-    private boolean field_71;
-
-    @Shadow
-    private boolean field_79;
-
-    @Shadow
-    private boolean field_73;
-
-    @Shadow
-    private boolean field_75;
-
-    @Shadow
-    private boolean field_72;
-
-    @Shadow
-    private boolean field_69;
-
-    @Shadow
-    private boolean field_80;
-
-    @Shadow
-    private boolean field_77;
 
     @Shadow
     private int fixedTexture;
@@ -194,24 +157,64 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
     private float ll0Yz;
 
     @Shadow
-    private int field_91;
-
-    @Shadow
-    private int field_90;
-
-    @Shadow
     private boolean xFlipTexture;
 
     @Shadow
-    private int field_86;
+    public abstract boolean tesselateBlockInWorldWithAmbienceOcclusion(Tile tile, int x, int y, int z, float f, float g, float h);
 
     @Shadow
-    private int field_87;
+    private boolean f_13329347;
 
     @Shadow
-    private int field_89;
+    private boolean f_80261192;
 
-    @Shadow private int field_88;
+    @Shadow
+    private boolean f_36351595;
+
+    @Shadow
+    private boolean f_85822976;
+
+    @Shadow
+    private boolean f_83934836;
+
+    @Shadow
+    private boolean f_14266051;
+
+    @Shadow
+    private boolean f_69224315;
+
+    @Shadow
+    private boolean f_71082245;
+
+    @Shadow
+    private boolean f_33293353;
+
+    @Shadow
+    private boolean f_65471437;
+
+    @Shadow
+    private boolean f_53281161;
+
+    @Shadow
+    private boolean f_75488651;
+
+    @Shadow
+    private int f_35670914;
+
+    @Shadow
+    private int f_28464555;
+
+    @Shadow
+    private int f_54847291;
+
+    @Shadow
+    private int f_41835850;
+
+    @Shadow
+    private int f_78756416;
+
+    @Shadow
+    private int f_50036552;
 
     @Override
     public void renderFaceDown(Tile tile, BigDecimal x, double y, BigDecimal z, int tex) {
@@ -240,7 +243,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
         double var22 = u0;
         double var24 = v0;
         double var26 = v1;
-        if (this.field_91 == 2) {
+        if (this.f_35670914 == 2) {
             u0 = ((double) xt + tile.zz0 * 16.0) / 256.0;
             v0 = ((double) (yt + 16) - tile.xx1 * 16.0) / 256.0;
             u1 = ((double) xt + tile.zz1 * 16.0) / 256.0;
@@ -251,7 +254,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             var22 = u1;
             v0 = v1;
             v1 = v0;
-        } else if (this.field_91 == 1) {
+        } else if (this.f_35670914 == 1) {
             u0 = ((double) (xt + 16) - tile.zz1 * 16.0) / 256.0;
             v0 = ((double) yt + tile.xx0 * 16.0) / 256.0;
             u1 = ((double) (xt + 16) - tile.zz0 * 16.0) / 256.0;
@@ -262,7 +265,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             u1 = u0;
             var24 = v1;
             var26 = v0;
-        } else if (this.field_91 == 3) {
+        } else if (this.f_35670914 == 3) {
             u0 = ((double) (xt + 16) - tile.xx0 * 16.0) / 256.0;
             u1 = ((double) (xt + 16) - tile.xx1 * 16.0 - 0.01) / 256.0;
             v0 = ((double) (yt + 16) - tile.zz0 * 16.0) / 256.0;
@@ -322,7 +325,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
         double var22 = u0;
         double var24 = v0;
         double var26 = v1;
-        if (this.field_90 == 1) {
+        if (this.f_28464555 == 1) {
             u0 = ((double) xt + tile.zz0 * 16.0) / 256.0;
             v0 = ((double) (yt + 16) - tile.xx1 * 16.0) / 256.0;
             u1 = ((double) xt + tile.zz1 * 16.0) / 256.0;
@@ -333,7 +336,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             var22 = u1;
             v0 = v1;
             v1 = v0;
-        } else if (this.field_90 == 2) {
+        } else if (this.f_28464555 == 2) {
             u0 = ((double) (xt + 16) - tile.zz1 * 16.0) / 256.0;
             v0 = ((double) yt + tile.xx0 * 16.0) / 256.0;
             u1 = ((double) (xt + 16) - tile.zz0 * 16.0) / 256.0;
@@ -344,7 +347,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             u1 = u0;
             var24 = v1;
             var26 = v0;
-        } else if (this.field_90 == 3) {
+        } else if (this.f_28464555 == 3) {
             u0 = ((double) (xt + 16) - tile.xx0 * 16.0) / 256.0;
             u1 = ((double) (xt + 16) - tile.xx1 * 16.0 - 0.01) / 256.0;
             v0 = ((double) (yt + 16) - tile.zz0 * 16.0) / 256.0;
@@ -410,7 +413,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
         double var22 = u0;
         double var24 = v0;
         double var26 = v1;
-        if (this.field_86 == 2) {
+        if (this.f_50036552 == 2) {
             u0 = ((double) xt + tile.yy0 * 16.0) / 256.0;
             v0 = ((double) (yt + 16) - tile.xx0 * 16.0) / 256.0;
             u1 = ((double) xt + tile.yy1 * 16.0) / 256.0;
@@ -421,7 +424,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             var22 = u1;
             v0 = v1;
             v1 = v0;
-        } else if (this.field_86 == 1) {
+        } else if (this.f_50036552 == 1) {
             u0 = ((double) (xt + 16) - tile.yy1 * 16.0) / 256.0;
             v0 = ((double) yt + tile.xx1 * 16.0) / 256.0;
             u1 = ((double) (xt + 16) - tile.yy0 * 16.0) / 256.0;
@@ -432,7 +435,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             u1 = u0;
             var24 = v1;
             var26 = v0;
-        } else if (this.field_86 == 3) {
+        } else if (this.f_50036552 == 3) {
             u0 = ((double) (xt + 16) - tile.xx0 * 16.0) / 256.0;
             u1 = ((double) (xt + 16) - tile.xx1 * 16.0 - 0.01) / 256.0;
             v0 = ((double) yt + tile.yy1 * 16.0) / 256.0;
@@ -498,7 +501,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
         double var22 = u0;
         double var24 = v0;
         double var26 = v1;
-        if (this.field_87 == 1) {
+        if (this.f_78756416 == 1) {
             u0 = ((double) xt + tile.yy0 * 16.0) / 256.0;
             v1 = ((double) (yt + 16) - tile.xx0 * 16.0) / 256.0;
             u1 = ((double) xt + tile.yy1 * 16.0) / 256.0;
@@ -509,7 +512,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             var22 = u1;
             v0 = v1;
             v1 = v0;
-        } else if (this.field_87 == 2) {
+        } else if (this.f_78756416 == 2) {
             u0 = ((double) (xt + 16) - tile.yy1 * 16.0) / 256.0;
             v0 = ((double) yt + tile.xx0 * 16.0) / 256.0;
             u1 = ((double) (xt + 16) - tile.yy0 * 16.0) / 256.0;
@@ -520,7 +523,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             u1 = u0;
             var24 = v1;
             var26 = v0;
-        } else if (this.field_87 == 3) {
+        } else if (this.f_78756416 == 3) {
             u0 = ((double) (xt + 16) - tile.xx0 * 16.0) / 256.0;
             u1 = ((double) (xt + 16) - tile.xx1 * 16.0 - 0.01) / 256.0;
             v0 = ((double) yt + tile.yy1 * 16.0) / 256.0;
@@ -586,7 +589,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
         double var22 = u0;
         double var24 = v0;
         double var26 = v1;
-        if (this.field_89 == 1) {
+        if (this.f_41835850 == 1) {
             u0 = ((double) xt + tile.yy0 * 16.0) / 256.0;
             v0 = ((double) (yt + 16) - tile.zz1 * 16.0) / 256.0;
             u1 = ((double) xt + tile.yy1 * 16.0) / 256.0;
@@ -597,7 +600,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             var22 = u1;
             v0 = v1;
             v1 = v0;
-        } else if (this.field_89 == 2) {
+        } else if (this.f_41835850 == 2) {
             u0 = ((double) (xt + 16) - tile.yy1 * 16.0) / 256.0;
             v0 = ((double) yt + tile.zz0 * 16.0) / 256.0;
             u1 = ((double) (xt + 16) - tile.yy0 * 16.0) / 256.0;
@@ -608,7 +611,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             u1 = u0;
             var24 = v1;
             var26 = v0;
-        } else if (this.field_89 == 3) {
+        } else if (this.f_41835850 == 3) {
             u0 = ((double) (xt + 16) - tile.zz0 * 16.0) / 256.0;
             u1 = ((double) (xt + 16) - tile.zz1 * 16.0 - 0.01) / 256.0;
             v0 = ((double) yt + tile.yy1 * 16.0) / 256.0;
@@ -674,7 +677,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
         double var22 = u0;
         double var24 = v0;
         double var26 = v1;
-        if (this.field_88 == 2) {
+        if (this.f_54847291 == 2) {
             u0 = ((double) xt + tile.yy0 * 16.0) / 256.0;
             v0 = ((double) (yt + 16) - tile.zz0 * 16.0) / 256.0;
             u1 = ((double) xt + tile.yy1 * 16.0) / 256.0;
@@ -685,7 +688,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             var22 = u1;
             v0 = v1;
             v1 = v0;
-        } else if (this.field_88 == 1) {
+        } else if (this.f_54847291 == 1) {
             u0 = ((double) (xt + 16) - tile.yy1 * 16.0) / 256.0;
             v0 = ((double) yt + tile.zz1 * 16.0) / 256.0;
             u1 = ((double) (xt + 16) - tile.yy0 * 16.0) / 256.0;
@@ -696,7 +699,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             u1 = u0;
             var24 = v1;
             var26 = v0;
-        } else if (this.field_88 == 3) {
+        } else if (this.f_54847291 == 3) {
             u0 = ((double) (xt + 16) - tile.zz0 * 16.0) / 256.0;
             u1 = ((double) (xt + 16) - tile.zz1 * 16.0 - 0.01) / 256.0;
             v0 = ((double) yt + tile.yy1 * 16.0) / 256.0;
@@ -821,18 +824,18 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
         this.llX00 = tile.getBrightness(this.level, x.add(BigInteger.ONE), y, z);
         this.ll0Y0 = tile.getBrightness(this.level, x, y + 1, z);
         this.ll00Z = tile.getBrightness(this.level, x, y, z.add(BigInteger.ONE));
-        this.field_70 = Tile.translucent[this.level.getTile(x.add(BigInteger.ONE), y + 1, z)];
-        this.field_78 = Tile.translucent[this.level.getTile(x.add(BigInteger.ONE), y - 1, z)];
-        this.field_74 = Tile.translucent[this.level.getTile(x.add(BigInteger.ONE), y, z.add(BigInteger.ONE))];
-        this.field_76 = Tile.translucent[this.level.getTile(x.add(BigInteger.ONE), y, z.subtract(BigInteger.ONE))];
-        this.field_71 = Tile.translucent[this.level.getTile(x.subtract(BigInteger.ONE), y + 1, z)];
-        this.field_79 = Tile.translucent[this.level.getTile(x.subtract(BigInteger.ONE), y - 1, z)];
-        this.field_73 = Tile.translucent[this.level.getTile(x.subtract(BigInteger.ONE), y, z.subtract(BigInteger.ONE))];
-        this.field_75 = Tile.translucent[this.level.getTile(x.subtract(BigInteger.ONE), y, z.add(BigInteger.ONE))];
-        this.field_72 = Tile.translucent[this.level.getTile(x, y + 1, z.add(BigInteger.ONE))];
-        this.field_69 = Tile.translucent[this.level.getTile(x, y + 1, z.subtract(BigInteger.ONE))];
-        this.field_80 = Tile.translucent[this.level.getTile(x, y - 1, z.add(BigInteger.ONE))];
-        this.field_77 = Tile.translucent[this.level.getTile(x, y - 1, z.subtract(BigInteger.ONE))];
+        this.f_13329347 = Tile.translucent[this.level.getTile(x.add(BigInteger.ONE), y + 1, z)];
+        this.f_80261192 = Tile.translucent[this.level.getTile(x.add(BigInteger.ONE), y - 1, z)];
+        this.f_36351595 = Tile.translucent[this.level.getTile(x.add(BigInteger.ONE), y, z.add(BigInteger.ONE))];
+        this.f_85822976 = Tile.translucent[this.level.getTile(x.add(BigInteger.ONE), y, z.subtract(BigInteger.ONE))];
+        this.f_83934836 = Tile.translucent[this.level.getTile(x.subtract(BigInteger.ONE), y + 1, z)];
+        this.f_14266051 = Tile.translucent[this.level.getTile(x.subtract(BigInteger.ONE), y - 1, z)];
+        this.f_69224315 = Tile.translucent[this.level.getTile(x.subtract(BigInteger.ONE), y, z.subtract(BigInteger.ONE))];
+        this.f_71082245 = Tile.translucent[this.level.getTile(x.subtract(BigInteger.ONE), y, z.add(BigInteger.ONE))];
+        this.f_33293353 = Tile.translucent[this.level.getTile(x, y + 1, z.add(BigInteger.ONE))];
+        this.f_65471437 = Tile.translucent[this.level.getTile(x, y + 1, z.subtract(BigInteger.ONE))];
+        this.f_53281161 = Tile.translucent[this.level.getTile(x, y - 1, z.add(BigInteger.ONE))];
+        this.f_75488651 = Tile.translucent[this.level.getTile(x, y - 1, z.subtract(BigInteger.ONE))];
         if (tile.tex == 3) {
             var18 = false;
             var17 = false;
@@ -860,25 +863,25 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
                 this.llxy0 = tile.getBrightness(this.level, x, y, z.subtract(BigInteger.ONE));
                 this.llxyZ = tile.getBrightness(this.level, x, y, z.add(BigInteger.ONE));
                 this.ll0yz = tile.getBrightness(this.level, x.add(BigInteger.ONE), y, z);
-                if (!this.field_77 && !this.field_79) {
+                if (!this.f_75488651 && !this.f_14266051) {
                     this.ll0yZ = this.llxyz;
                 } else {
                     this.ll0yZ = tile.getBrightness(this.level, x.subtract(BigInteger.ONE), y, z.subtract(BigInteger.ONE));
                 }
 
-                if (!this.field_80 && !this.field_79) {
+                if (!this.f_53281161 && !this.f_14266051) {
                     this.llXyz = this.llxyz;
                 } else {
                     this.llXyz = tile.getBrightness(this.level, x.subtract(BigInteger.ONE), y, z.add(BigInteger.ONE));
                 }
 
-                if (!this.field_77 && !this.field_78) {
+                if (!this.f_75488651 && !this.f_80261192) {
                     this.llXy0 = this.ll0yz;
                 } else {
                     this.llXy0 = tile.getBrightness(this.level, x.add(BigInteger.ONE), y, z.subtract(BigInteger.ONE));
                 }
 
-                if (!this.field_80 && !this.field_78) {
+                if (!this.f_53281161 && !this.f_80261192) {
                     this.llXyZ = this.ll0yz;
                 } else {
                     this.llXyZ = tile.getBrightness(this.level, x.add(BigInteger.ONE), y, z.add(BigInteger.ONE));
@@ -921,25 +924,25 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
                 this.llXY0 = tile.getBrightness(this.level, x.add(BigInteger.ONE), y, z);
                 this.ll0Yz = tile.getBrightness(this.level, x, y, z.subtract(BigInteger.ONE));
                 this.ll0YZ = tile.getBrightness(this.level, x, y, z.add(BigInteger.ONE));
-                if (!this.field_69 && !this.field_71) {
+                if (!this.f_65471437 && !this.f_83934836) {
                     this.llxYz = this.llxY0;
                 } else {
                     this.llxYz = tile.getBrightness(this.level, x.subtract(BigInteger.ONE), y, z.subtract(BigInteger.ONE));
                 }
 
-                if (!this.field_69 && !this.field_70) {
+                if (!this.f_65471437 && !this.f_13329347) {
                     this.llXYz = this.llXY0;
                 } else {
                     this.llXYz = tile.getBrightness(this.level, x.add(BigInteger.ONE), y, z.subtract(BigInteger.ONE));
                 }
 
-                if (!this.field_72 && !this.field_71) {
+                if (!this.f_33293353 && !this.f_83934836) {
                     this.llxYZ = this.llxY0;
                 } else {
                     this.llxYZ = tile.getBrightness(this.level, x.subtract(BigInteger.ONE), y, z.add(BigInteger.ONE));
                 }
 
-                if (!this.field_72 && !this.field_70) {
+                if (!this.f_33293353 && !this.f_13329347) {
                     this.llXYZ = this.llXY0;
                 } else {
                     this.llXYZ = tile.getBrightness(this.level, x.add(BigInteger.ONE), y, z.add(BigInteger.ONE));
@@ -982,25 +985,25 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
                 this.llxy0 = tile.getBrightness(this.level, x, y - 1, z);
                 this.ll0Yz = tile.getBrightness(this.level, x, y + 1, z);
                 this.llX0z = tile.getBrightness(this.level, x.add(BigInteger.ONE), y, z);
-                if (!this.field_73 && !this.field_77) {
+                if (!this.f_69224315 && !this.f_75488651) {
                     this.ll0yZ = this.llx0z;
                 } else {
                     this.ll0yZ = tile.getBrightness(this.level, x.subtract(BigInteger.ONE), y - 1, z);
                 }
 
-                if (!this.field_73 && !this.field_69) {
+                if (!this.f_69224315 && !this.f_65471437) {
                     this.llxYz = this.llx0z;
                 } else {
                     this.llxYz = tile.getBrightness(this.level, x.subtract(BigInteger.ONE), y + 1, z);
                 }
 
-                if (!this.field_76 && !this.field_77) {
+                if (!this.f_85822976 && !this.f_75488651) {
                     this.llXy0 = this.llX0z;
                 } else {
                     this.llXy0 = tile.getBrightness(this.level, x.add(BigInteger.ONE), y - 1, z);
                 }
 
-                if (!this.field_76 && !this.field_69) {
+                if (!this.f_85822976 && !this.f_65471437) {
                     this.llXYz = this.llX0z;
                 } else {
                     this.llXYz = tile.getBrightness(this.level, x.add(BigInteger.ONE), y + 1, z);
@@ -1060,25 +1063,25 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
                 this.llX0Z = tile.getBrightness(this.level, x.add(BigInteger.ONE), y, z);
                 this.llxyZ = tile.getBrightness(this.level, x, y - 1, z);
                 this.ll0YZ = tile.getBrightness(this.level, x, y + 1, z);
-                if (!this.field_75 && !this.field_80) {
+                if (!this.f_71082245 && !this.f_53281161) {
                     this.llXyz = this.llx0Z;
                 } else {
                     this.llXyz = tile.getBrightness(this.level, x.subtract(BigInteger.ONE), y - 1, z);
                 }
 
-                if (!this.field_75 && !this.field_72) {
+                if (!this.f_71082245 && !this.f_33293353) {
                     this.llxYZ = this.llx0Z;
                 } else {
                     this.llxYZ = tile.getBrightness(this.level, x.subtract(BigInteger.ONE), y + 1, z);
                 }
 
-                if (!this.field_74 && !this.field_80) {
+                if (!this.f_36351595 && !this.f_53281161) {
                     this.llXyZ = this.llX0Z;
                 } else {
                     this.llXyZ = tile.getBrightness(this.level, x.add(BigInteger.ONE), y - 1, z);
                 }
 
-                if (!this.field_74 && !this.field_72) {
+                if (!this.f_36351595 && !this.f_33293353) {
                     this.llXYZ = this.llX0Z;
                 } else {
                     this.llXYZ = tile.getBrightness(this.level, x.add(BigInteger.ONE), y + 1, z);
@@ -1138,25 +1141,25 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
                 this.llx0z = tile.getBrightness(this.level, x, y, z.subtract(BigInteger.ONE));
                 this.llx0Z = tile.getBrightness(this.level, x, y, z.add(BigInteger.ONE));
                 this.llxY0 = tile.getBrightness(this.level, x, y + 1, z);
-                if (!this.field_73 && !this.field_79) {
+                if (!this.f_69224315 && !this.f_14266051) {
                     this.ll0yZ = this.llx0z;
                 } else {
                     this.ll0yZ = tile.getBrightness(this.level, x, y - 1, z.subtract(BigInteger.ONE));
                 }
 
-                if (!this.field_75 && !this.field_79) {
+                if (!this.f_71082245 && !this.f_14266051) {
                     this.llXyz = this.llx0Z;
                 } else {
                     this.llXyz = tile.getBrightness(this.level, x, y - 1, z.add(BigInteger.ONE));
                 }
 
-                if (!this.field_73 && !this.field_71) {
+                if (!this.f_69224315 && !this.f_83934836) {
                     this.llxYz = this.llx0z;
                 } else {
                     this.llxYz = tile.getBrightness(this.level, x, y + 1, z.subtract(BigInteger.ONE));
                 }
 
-                if (!this.field_75 && !this.field_71) {
+                if (!this.f_71082245 && !this.f_83934836) {
                     this.llxYZ = this.llx0Z;
                 } else {
                     this.llxYZ = tile.getBrightness(this.level, x, y + 1, z.add(BigInteger.ONE));
@@ -1216,25 +1219,25 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
                 this.llX0z = tile.getBrightness(this.level, x, y, z.subtract(BigInteger.ONE));
                 this.llX0Z = tile.getBrightness(this.level, x, y, z.add(BigInteger.ONE));
                 this.llXY0 = tile.getBrightness(this.level, x, y + 1, z);
-                if (!this.field_78 && !this.field_76) {
+                if (!this.f_80261192 && !this.f_85822976) {
                     this.llXy0 = this.llX0z;
                 } else {
                     this.llXy0 = tile.getBrightness(this.level, x, y - 1, z.subtract(BigInteger.ONE));
                 }
 
-                if (!this.field_78 && !this.field_74) {
+                if (!this.f_80261192 && !this.f_36351595) {
                     this.llXyZ = this.llX0Z;
                 } else {
                     this.llXyZ = tile.getBrightness(this.level, x, y - 1, z.add(BigInteger.ONE));
                 }
 
-                if (!this.field_70 && !this.field_76) {
+                if (!this.f_13329347 && !this.f_85822976) {
                     this.llXYz = this.llX0z;
                 } else {
                     this.llXYz = tile.getBrightness(this.level, x, y + 1, z.subtract(BigInteger.ONE));
                 }
 
-                if (!this.field_70 && !this.field_74) {
+                if (!this.f_13329347 && !this.f_36351595) {
                     this.llXYZ = this.llX0Z;
                 } else {
                     this.llXYZ = tile.getBrightness(this.level, x, y + 1, z.add(BigInteger.ONE));

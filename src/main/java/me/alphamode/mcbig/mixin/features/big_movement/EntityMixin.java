@@ -7,7 +7,6 @@ import me.alphamode.mcbig.world.phys.BigAABB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.tile.SoundType;
 import net.minecraft.world.level.tile.Tile;
 import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Final;
@@ -348,7 +347,7 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
 
                 if (this.walkDist > (float)this.nextStep && tt > 0) {
                     ++this.nextStep;
-                    SoundType type = Tile.tiles[tt].soundType;
+                    Tile.SoundType type = Tile.tiles[tt].soundType;
                     if (this.level.getTile(xt, yt + 1, zt) == Tile.SNOW_LAYER.id) {
                         type = Tile.SNOW_LAYER.soundType;
                         this.level.playSound((Entity) (Object) this, type.getStepSound(), type.getVolume() * 0.15F, type.getPitch());

@@ -1,10 +1,10 @@
 package me.alphamode.mcbig.mixin;
 
+import com.mojang.nbt.CompoundTag;
+import com.mojang.nbt.NbtIo;
 import me.alphamode.mcbig.extensions.BigChunkStorageExtension;
 import me.alphamode.mcbig.level.chunk.BigLevelChunk;
 import me.alphamode.mcbig.level.chunk.storage.BigRegionFileCache;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtIo;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.storage.OldChunkStorage;
@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
@@ -49,7 +50,7 @@ public class McRegionChunkStorageMixin implements BigChunkStorageExtension {
     }
 
     @Override
-    public BigLevelChunk load(Level level, BigInteger x, BigInteger z) {
+    public BigLevelChunk load(Level level, BigInteger x, BigInteger z) throws IOException {
         InputStream var4 = BigRegionFileCache.getChunkDataInputStream(this.basePath, x, z);
         if (var4 != null) {
             CompoundTag var5 = NbtIo.read(var4);

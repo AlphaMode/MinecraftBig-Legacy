@@ -1,10 +1,10 @@
 package me.alphamode.mcbig.mixin.features.big_movement;
 
+import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
 import net.minecraft.client.Lighting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.GlConst;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.culling.FrustumCuller;
@@ -15,10 +15,15 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.chunk.ChunkCache;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.tile.Tile;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+
+import java.math.BigDecimal;
 
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
@@ -51,6 +56,116 @@ public abstract class GameRendererMixin {
 
     @Shadow protected abstract void renderItemInHand(float partialTick, int renderLayer);
 
+    @Shadow
+    private float camTilt;
+    @Shadow
+    private float camTiltO;
+
+
+    @Shadow
+    private float oldZOff;
+
+    @Shadow
+    private float zOff;
+
+    @Shadow
+    private float yRotO;
+
+    @Shadow
+    private float yRot;
+
+    @Shadow
+    private float xRotO;
+
+    @Shadow
+    private float xRot;
+
+    @Shadow
+    private boolean thickFog;
+
+    /**
+     * @author
+     * @reason
+     */
+    @Overwrite
+    private void moveCameraToPlayer(float a) {
+        Mob player = this.mc.cameraEntity;
+        BigDecimal bigAlpha = BigDecimal.valueOf(a);
+        BigEntityExtension bigPlayer = (BigEntityExtension) player;
+        float eyeHeight = player.heightOffset - 1.62F;
+        BigDecimal xo = bigPlayer.getXO().add(bigPlayer.getX().subtract(bigPlayer.getXO()).multiply(bigAlpha));
+        double yo = player.yo + (player.y - player.yo) * a - eyeHeight;
+        BigDecimal zo = bigPlayer.getZO().add(bigPlayer.getZ().subtract(bigPlayer.getZO().multiply(bigAlpha)));
+        GL11.glRotatef(this.camTiltO + (this.camTilt - this.camTiltO) * a, 0.0F, 0.0F, 1.0F);
+        if (player.isSleeping()) {
+            eyeHeight = (float)(eyeHeight + 1.0);
+            GL11.glTranslatef(0.0F, 0.3F, 0.0F);
+            if (!this.mc.options.lockCamera) {
+                int var10 = this.mc.level.getTile(Mth.floor(player.x), Mth.floor(player.y), Mth.floor(player.z));
+                if (var10 == Tile.BED.id) {
+                    int var11 = this.mc.level.getData(Mth.floor(player.x), Mth.floor(player.y), Mth.floor(player.z));
+                    int var12 = var11 & 3;
+                    GL11.glRotatef(var12 * 90, 0.0F, 1.0F, 0.0F);
+                }
+
+                GL11.glRotatef(player.yRotO + (player.yRot - player.yRotO) * a + 180.0F, 0.0F, -1.0F, 0.0F);
+                GL11.glRotatef(player.xRotO + (player.xRot - player.xRotO) * a, -1.0F, 0.0F, 0.0F);
+            }
+        } else if (this.mc.options.thirdPersonView) {
+            double var30 = this.oldZOff + (this.zOff - this.oldZOff) * a;
+            if (this.mc.options.lockCamera) {
+                float var31 = this.yRotO + (this.yRot - this.yRotO) * a;
+                float var13 = this.xRotO + (this.xRot - this.xRotO) * a;
+                GL11.glTranslatef(0.0F, 0.0F, (float)(-var30));
+                GL11.glRotatef(var13, 1.0F, 0.0F, 0.0F);
+                GL11.glRotatef(var31, 0.0F, 1.0F, 0.0F);
+            } else {
+                float var32 = player.yRot;
+                float var33 = player.xRot;
+                double var14 = -Mth.sin(var32 / 180.0F * (float) Math.PI) * Mth.cos(var33 / 180.0F * (float) Math.PI) * var30;
+                double var16 = Mth.cos(var32 / 180.0F * (float) Math.PI) * Mth.cos(var33 / 180.0F * (float) Math.PI) * var30;
+                double var18 = -Mth.sin(var33 / 180.0F * (float) Math.PI) * var30;
+
+                for (int var20 = 0; var20 < 8; var20++) {
+                    float var21 = (var20 & 1) * 2 - 1;
+                    float var22 = (var20 >> 1 & 1) * 2 - 1;
+                    float var23 = (var20 >> 2 & 1) * 2 - 1;
+                    var21 *= 0.1F;
+                    var22 *= 0.1F;
+                    var23 *= 0.1F;
+                    HitResult var24 = this.mc
+                            .level
+                            .clip(Vec3.newTemp(xo.doubleValue() + var21, yo + var22, zo.doubleValue() + var23), Vec3.newTemp(xo.doubleValue() - var14 + var21 + var23, yo - var18 + var22, zo.doubleValue() - var16 + var23));
+                    if (var24 != null) {
+                        double var25 = var24.pos.distanceTo(Vec3.newTemp(xo.doubleValue(), yo, zo.doubleValue()));
+                        if (var25 < var30) {
+                            var30 = var25;
+                        }
+                    }
+                }
+
+                GL11.glRotatef(player.xRot - var33, 1.0F, 0.0F, 0.0F);
+                GL11.glRotatef(player.yRot - var32, 0.0F, 1.0F, 0.0F);
+                GL11.glTranslatef(0.0F, 0.0F, (float)(-var30));
+                GL11.glRotatef(var32 - player.yRot, 0.0F, 1.0F, 0.0F);
+                GL11.glRotatef(var33 - player.xRot, 1.0F, 0.0F, 0.0F);
+            }
+        } else {
+            GL11.glTranslatef(0.0F, 0.0F, -0.1F);
+        }
+
+        if (!this.mc.options.lockCamera) {
+            GL11.glRotatef(player.xRotO + (player.xRot - player.xRotO) * a, 1.0F, 0.0F, 0.0F);
+            GL11.glRotatef(player.yRotO + (player.yRot - player.yRotO) * a + 180.0F, 0.0F, 1.0F, 0.0F);
+        }
+
+        GL11.glTranslatef(0.0F, eyeHeight, 0.0F);
+//        xo = player.xo + (player.x - player.xo) * a;
+//        yo = player.yo + (player.y - player.yo) * a - eyeHeight;
+//        zo = player.zo + (player.z - player.zo) * a;
+        this.thickFog = false;//this.mc.levelRenderer.hasThickFog(xo, yo, zo, a);
+    }
+
     /**
      * @author
      * @reason
@@ -67,9 +182,9 @@ public abstract class GameRendererMixin {
         Mob camera = this.mc.cameraEntity;
         LevelRenderer levelRenderer = this.mc.levelRenderer;
         ParticleEngine particleEngine = this.mc.particleEngine;
-        double x = camera.xOld + (camera.x - camera.xOld) * (double) partialTick;
-        double y = camera.yOld + (camera.y - camera.yOld) * (double) partialTick;
-        double z = camera.zOld + (camera.z - camera.zOld) * (double) partialTick;
+        double x = camera.xOld + (camera.x - camera.xOld) * partialTick;
+        double y = camera.yOld + (camera.y - camera.yOld) * partialTick;
+        double z = camera.zOld + (camera.z - camera.zOld) * partialTick;
         ChunkSource source = this.mc.level.getChunkSource();
         if (source instanceof ChunkCache) {
             ChunkCache cache = (ChunkCache) source;
@@ -90,7 +205,7 @@ public abstract class GameRendererMixin {
 
             GL11.glViewport(0, 0, this.mc.width, this.mc.height);
             setupClearColor(partialTick);
-            GL11.glClear(GlConst.GL_COLOR_AND_DEPTH_BUFFER_BIT);
+            GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_COLOR_BUFFER_BIT);
             GL11.glEnable(GL11.GL_CULL_FACE);
             setupCamera(partialTick, renderLayer);
             Frustum.getFrustum();

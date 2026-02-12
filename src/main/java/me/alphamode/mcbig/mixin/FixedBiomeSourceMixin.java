@@ -15,9 +15,11 @@ import java.util.Arrays;
 public abstract class FixedBiomeSourceMixin extends BiomeSource implements BigBiomeSourceExtension {
     @Shadow private Biome biome;
 
-    @Shadow private double field_555;
+    @Shadow
+    private double f_61667819;
 
-    @Shadow private double field_556;
+    @Shadow
+    private double f_95648801;
 
     @Override
     public Biome getBiome(ChunkPos pos) {
@@ -31,7 +33,7 @@ public abstract class FixedBiomeSourceMixin extends BiomeSource implements BigBi
 
     @Override
     public double getTemperature(BigInteger x, BigInteger z) {
-        return this.field_555;
+        return this.f_61667819;
     }
 
     @Override
@@ -46,7 +48,7 @@ public abstract class FixedBiomeSourceMixin extends BiomeSource implements BigBi
             ds = new double[k * l];
         }
 
-        Arrays.fill(ds, 0, k * l, this.field_555);
+        Arrays.fill(ds, 0, k * l, this.f_61667819);
         return ds;
     }
 
@@ -62,8 +64,8 @@ public abstract class FixedBiomeSourceMixin extends BiomeSource implements BigBi
         }
 
         Arrays.fill(biomes, 0, k * l, this.biome);
-        Arrays.fill(this.downfalls, 0, k * l, this.field_556);
-        Arrays.fill(this.temperatures, 0, k * l, this.field_555);
+        Arrays.fill(this.downfalls, 0, k * l, this.f_95648801);
+        Arrays.fill(this.temperatures, 0, k * l, this.f_61667819);
         return biomes;
     }
 }

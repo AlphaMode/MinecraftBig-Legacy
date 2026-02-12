@@ -22,7 +22,6 @@ import net.minecraft.world.level.tile.Tile;
 import net.minecraft.world.level.tile.entity.TileEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.HitType;
 import net.minecraft.world.phys.Vec3;
 import org.lwjgl.opengl.ARBOcclusionQuery;
 import org.lwjgl.opengl.GL11;
@@ -152,8 +151,8 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension {
         this.yMaxChunk = this.yChunks;
         this.zMaxChunk = this.zChunks;
 
-        for(int var4 = 0; var4 < this.dirtyChunks.size(); ++var4) {
-            ((Chunk)this.dirtyChunks.get(var4)).dirty = false;
+        for(int i = 0; i < this.dirtyChunks.size(); ++i) {
+            ((Chunk)this.dirtyChunks.get(i)).dirty = false;
         }
 
         this.dirtyChunks.clear();
@@ -398,7 +397,7 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension {
     @Overwrite
     public void renderHitOutline(Player player, HitResult r, int mode, ItemInstance inventoryItem, float a) {
         BigHitResult result = (BigHitResult) r;
-        if (mode == 0 && result.hitType == HitType.TILE) {
+        if (mode == 0 && result.hitType == HitResult.HitType.TILE) {
             GL11.glEnable(GL11.GL_BLEND);
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
             GL11.glColor4f(0.0F, 0.0F, 0.0F, 0.4F);
