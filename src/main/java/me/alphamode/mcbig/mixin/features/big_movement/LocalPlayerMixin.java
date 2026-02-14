@@ -78,6 +78,10 @@ public abstract class LocalPlayerMixin extends Player implements PlayerExtension
 
     @Inject(method = "aiStep", at = @At("HEAD"))
     private void checkWasJumping(CallbackInfo ci, @Share("was_jumping") LocalBooleanRef flag) {
+        if (this.jumpTriggerTime > 0) {
+            this.jumpTriggerTime--;
+        }
+
         flag.set(this.input.jumping);
     }
 

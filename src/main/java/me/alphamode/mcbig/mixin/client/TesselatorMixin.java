@@ -1,13 +1,9 @@
 package me.alphamode.mcbig.mixin.client;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import me.alphamode.mcbig.extensions.BigTesselatorExtension;
+import me.alphamode.mcbig.extensions.features.fix_stripelands.BigTesselatorExtension;
 import net.minecraft.client.renderer.Tesselator;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
 
 import java.math.BigDecimal;
 

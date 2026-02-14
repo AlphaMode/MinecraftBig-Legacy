@@ -8,13 +8,16 @@
   "authors": [
     "AlphaMode"
   ],
+  "languageAdapters": {
+    "mcbig": "me.alphamode.mcbig.prelaunch.McBigPreLaunch"
+  },
 
   "license": "MIT",
 
   "environment": "*",
   "entrypoints": {
-    "gcapi3": [
-
+    "main": [
+      "me.alphamode.mcbig.McBig"
     ]
   },
   "accessWidener": "mcbig.accesswidener",
@@ -31,7 +34,7 @@
       "net/minecraft/unmapped/C_44627882": ["me/alphamode/mcbig/extensions/BigChunkSourceExtension"],
       "net/minecraft/unmapped/C_42232651": ["me/alphamode/mcbig/extensions/BigEntityExtension"],
       "net/minecraft/unmapped/C_50078015": ["me/alphamode/mcbig/extensions/BigLevelListenerExtension"],
-      "net/minecraft/unmapped/C_96603444": ["me/alphamode/mcbig/extensions/BigTesselatorExtension"],
+      "net/minecraft/unmapped/C_96603444": ["me/alphamode/mcbig/extensions/features/fix_stripelands/BigTesselatorExtension"],
       "net/minecraft/unmapped/C_31728388": ["me/alphamode/mcbig/extensions/BigLargeFeatureExtension"],
       "net/minecraft/unmapped/C_99656780": ["me/alphamode/mcbig/extensions/BigChunkStorageExtension"],
       "net/minecraft/unmapped/C_15682602": ["me/alphamode/mcbig/extensions/BigOffsettedRenderListExtension"],

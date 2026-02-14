@@ -5,6 +5,7 @@ import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
 import net.minecraft.client.renderer.Chunk;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.tile.entity.TileEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -20,7 +21,7 @@ public abstract class BigChunkMixin extends Chunk {
     @Shadow
     public BigInteger bigZm;
 
-    public BigChunkMixin(Level level, List tileEntities, int x, int y, int z, int size, int lists) {
+    public BigChunkMixin(Level level, List<TileEntity> tileEntities, int x, int y, int z, int size, int lists) {
         super(level, tileEntities, x, y, z, size, lists);
     }
 

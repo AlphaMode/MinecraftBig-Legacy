@@ -34,6 +34,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import java.math.BigInteger;
 import java.nio.IntBuffer;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 @Mixin(LevelRenderer.class)

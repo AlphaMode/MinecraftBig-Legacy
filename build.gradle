@@ -13,10 +13,17 @@ group = project.maven_group
 
 loom {
     accessWidenerPath = file("src/main/resources/mcbig.accesswidener")
+
+    mods {
+        "mcbig" {
+            sourceSet sourceSets.main
+        }
+    }
 }
 
 ploceus {
     setIntermediaryGeneration(2)
+    disableLvtPatch() // Lvt patching is still experimental right now and leads to decompiler issues
 }
 
 repositories {

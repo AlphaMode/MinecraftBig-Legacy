@@ -88,51 +88,51 @@ public abstract class GameRendererMixin {
     public void pick(float partialTick) {
         if (this.mc.cameraEntity != null) {
             if (this.mc.level != null) {
-                double var2 = (double)this.mc.gameMode.getPickRange();
-                this.mc.hitResult = this.mc.cameraEntity.pick(var2, partialTick);
-                double var4 = var2;
-                Vec3 var6 = this.mc.cameraEntity.getPos(partialTick);
+                double pickRange = this.mc.gameMode.getPickRange();
+                this.mc.hitResult = this.mc.cameraEntity.pick(pickRange, partialTick);
+                double pickDistance = pickRange;
+                Vec3 cameraPos = this.mc.cameraEntity.getPos(partialTick);
                 if (this.mc.hitResult != null) {
-                    var4 = this.mc.hitResult.pos.distanceTo(var6);
+                    pickDistance = this.mc.hitResult.pos.distanceTo(cameraPos);
                 }
 
                 if (this.mc.gameMode instanceof CreativeMode) {
-                    var2 = 32.0;
-                    var4 = 32.0;
+                    pickRange = 32.0;
+                    pickDistance = 32.0;
                 } else {
-                    if (var4 > 3.0) {
-                        var4 = 3.0;
+                    if (pickDistance > 3.0) {
+                        pickDistance = 3.0;
                     }
 
-                    var2 = var4;
+                    pickRange = pickDistance;
                 }
 
-                Vec3 var7 = this.mc.cameraEntity.getViewVector(partialTick);
-                Vec3 var8 = var6.add(var7.x * var2, var7.y * var2, var7.z * var2);
+                Vec3 view = this.mc.cameraEntity.getViewVector(partialTick);
+                Vec3 pickVec = cameraPos.add(view.x * pickRange, view.y * pickRange, view.z * pickRange);
                 this.hovered = null;
-                float var9 = 1.0F;
-                List var10 = this.mc
+                float range = 1.0F;
+                List<Entity> entities = this.mc
                         .level
                         .getEntities(
-                                this.mc.cameraEntity, this.mc.cameraEntity.bb.expand(var7.x * var2, var7.y * var2, var7.z * var2).inflate((double)var9, (double)var9, (double)var9)
+                                this.mc.cameraEntity, this.mc.cameraEntity.bb.expand(view.x * pickRange, view.y * pickRange, view.z * pickRange).inflate(range, range, range)
                         );
                 double var11 = 0.0;
 
-                for(int var13 = 0; var13 < var10.size(); ++var13) {
-                    Entity var14 = (Entity)var10.get(var13);
-                    if (var14.isPickable()) {
-                        float var15 = var14.getPickRadius();
-                        AABB var16 = var14.bb.inflate((double)var15, (double)var15, (double)var15);
-                        HitResult var17 = var16.clip(var6, var8);
-                        if (var16.intersects(var6)) {
+                for(int i = 0; i < entities.size(); ++i) {
+                    Entity entity = entities.get(i);
+                    if (entity.isPickable()) {
+                        float pickRadius = entity.getPickRadius();
+                        AABB bb = entity.bb.inflate(pickRadius, pickRadius, pickRadius);
+                        HitResult hit = bb.clip(cameraPos, pickVec);
+                        if (bb.intersects(cameraPos)) {
                             if (0.0 < var11 || var11 == 0.0) {
-                                this.hovered = var14;
+                                this.hovered = entity;
                                 var11 = 0.0;
                             }
-                        } else if (var17 != null) {
-                            double var18 = var6.distanceTo(var17.pos);
+                        } else if (hit != null) {
+                            double var18 = cameraPos.distanceTo(hit.pos);
                             if (var18 < var11 || var11 == 0.0) {
-                                this.hovered = var14;
+                                this.hovered = entity;
                                 var11 = var18;
                             }
                         }

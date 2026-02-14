@@ -1,4 +1,4 @@
-package me.alphamode.mcbig.extensions;
+package me.alphamode.mcbig.extensions.features.fix_stripelands;
 
 import java.math.BigDecimal;
 

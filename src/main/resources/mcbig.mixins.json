@@ -2,6 +2,7 @@
   "required": true,
   "minVersion": "0.8",
   "package": "me.alphamode.mcbig.mixin",
+  "plugin": "me.alphamode.mcbig.mixin.McBigMixinPlugin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "BiomeSourceMixin",
@@ -45,11 +46,13 @@
     "client.SurvivalGameModeMixin",
     "client.TesselatorMixin",
     "client.TileRendererMixin",
+    "client.TitleScreenMixin",
     "features.big_movement.FrustumCullerMixin",
     "features.big_movement.GameRendererMixin",
     "features.big_movement.LevelRendererMixin",
     "features.big_movement.LocalPlayerMixin",
-    "features.big_movement.OffsettedRenderListMixin"
+    "features.big_movement.OffsettedRenderListMixin",
+    "features.fix_stripelands.TileRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

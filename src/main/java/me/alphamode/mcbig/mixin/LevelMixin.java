@@ -11,6 +11,7 @@ import me.alphamode.mcbig.math.BigMath;
 import me.alphamode.mcbig.world.phys.BigAABB;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.util.Facing;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.global.LightningBolt;
@@ -134,27 +135,38 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
     @Shadow
     private List<Entity> es;
 
-    @Shadow public boolean instaTick;
+    @Shadow
+    public boolean instaTick;
 
-    @Shadow private Set<BigTickNextTickData> tickNextTickSet;
+    @Shadow
+    private Set<BigTickNextTickData> tickNextTickSet;
 
-    @Shadow private TreeSet<BigTickNextTickData> tickNextTickList;
+    @Shadow
+    private TreeSet<BigTickNextTickData> tickNextTickList;
 
-    @Shadow protected LevelData levelData;
+    @Shadow
+    protected LevelData levelData;
 
-    @Shadow public List globalEntities;
+    @Shadow
+    public List<Entity> globalEntities;
 
-    @Shadow private List entitiesToRemove;
+    @Shadow
+    private List<Entity> entitiesToRemove;
 
-    @Shadow protected abstract void entityRemoved(Entity entity);
+    @Shadow
+    protected abstract void entityRemoved(Entity entity);
 
-    @Shadow public abstract void tick(Entity entity);
+    @Shadow
+    public abstract void tick(Entity entity);
 
-    @Shadow private boolean updatingTileEntities;
+    @Shadow
+    private boolean updatingTileEntities;
 
-    @Shadow public List tileEntityList;
+    @Shadow
+    public List<TileEntity> tileEntityList;
 
-    @Shadow private List<TileEntity> pendingTileEntities;
+    @Shadow
+    private List<TileEntity> pendingTileEntities;
 
     private boolean hasChunk(BigInteger x, BigInteger z) {
         return this.chunkSource.hasChunk(x, z);
@@ -396,9 +408,9 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
                         level = 15;
                     }
                 } else if (layer == LightLayer.BLOCK) {
-                    int var6 = this.getTile(x, y, z);
-                    if (Tile.lightEmission[var6] > level) {
-                        level = Tile.lightEmission[var6];
+                    int tt = this.getTile(x, y, z);
+                    if (Tile.lightEmission[tt] > level) {
+                        level = Tile.lightEmission[tt];
                     }
                 }
 
@@ -438,8 +450,8 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
         if (y >= 0) {
             if (y < 128) {
                 if (hasChunk(x.shiftRight(4), z.shiftRight(4))) {
-                    LevelChunk var6 = this.getChunk(x.shiftRight(4), z.shiftRight(4));
-                    var6.setBrightness(layer, x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue(), level);
+                    LevelChunk chunk = this.getChunk(x.shiftRight(4), z.shiftRight(4));
+                    chunk.setBrightness(layer, x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue(), level);
 
                     for (LevelListener listener : this.listeners) {
                         listener.tileChanged(x, y, z);
@@ -837,13 +849,13 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
         this.chunksToPoll.clear();
 
         for (Player player : this.players) {
-            BigInteger var3 = BigMath.floor(player.x / 16.0);
-            BigInteger var4 = BigMath.floor(player.z / 16.0);
-            byte var5 = 9;
+            BigInteger xc = BigMath.floor(player.x / 16.0);
+            BigInteger zc = BigMath.floor(player.z / 16.0);
+            int range = 9;
 
-            for (int var6 = -var5; var6 <= var5; ++var6) {
-                for (int var7 = -var5; var7 <= var5; ++var7) {
-                    this.chunksToPoll.add(new BigChunkPos(BigInteger.valueOf(var6).add(var3), BigInteger.valueOf(var7).add(var4)));
+            for (int xo = -range; xo <= range; ++xo) {
+                for (int zo = -range; zo <= range; ++zo) {
+                    this.chunksToPoll.add(new BigChunkPos(BigInteger.valueOf(xo).add(xc), BigInteger.valueOf(zo).add(zc)));
                 }
             }
         }
@@ -876,52 +888,52 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
 
             if (this.random.nextInt(100000) == 0 && this.isRaining() && this.isThundering()) {
                 this.randValue = this.randValue * 3 + 1013904223;
-                int var18 = this.randValue >> 2;
-                BigInteger var23 = startX.add(BigInteger.valueOf((var18 & 15)));
-                BigInteger var27 = startZ.add(BigInteger.valueOf(var18 >> 8 & 15));
-                int var30 = getTopSolidBlock(var23, var27);
-                if (isRainingAt(var23, var30, var27)) {
-                    addGlobalEntity(new LightningBolt((Level) (Object) this, (double) var23.doubleValue(), (double) var30, (double) var27.doubleValue()));
+                int packedPos = this.randValue >> 2;
+                BigInteger x = startX.add(BigInteger.valueOf((packedPos & 15)));
+                BigInteger z = startZ.add(BigInteger.valueOf(packedPos >> 8 & 15));
+                int y = getTopSolidBlock(x, z);
+                if (isRainingAt(x, y, z)) {
+                    addGlobalEntity(new LightningBolt((Level) (Object) this, (double) x.doubleValue(), (double) y, (double) z.doubleValue()));
                     this.lightingCooldown = 2;
                 }
             }
 
             if (this.random.nextInt(16) == 0) {
                 this.randValue = this.randValue * 3 + 1013904223;
-                int var19 = this.randValue >> 2;
-                int var24 = var19 & 15;
-                int var28 = var19 >> 8 & 15;
-                int var31 = getTopSolidBlock(BigInteger.valueOf(var24).add(startX), BigInteger.valueOf(var28).add(startZ));
-                if (getBiomeSource().getBiome(var24 + startX.intValue(), var28 + startZ.intValue()).hasPrecipitation()
-                        && var31 >= 0
-                        && var31 < 128
-                        && chunk.getBrightness(LightLayer.BLOCK, var24, var31, var28) < 10) {
-                    int var33 = chunk.getTile(var24, var31 - 1, var28);
-                    int var35 = chunk.getTile(var24, var31, var28);
+                int packedPos = this.randValue >> 2;
+                int x = packedPos & 15;
+                int z = packedPos >> 8 & 15;
+                int y = getTopSolidBlock(BigInteger.valueOf(x).add(startX), BigInteger.valueOf(z).add(startZ));
+                if (getBiomeSource().getBiome(x + startX.intValue(), z + startZ.intValue()).hasPrecipitation()
+                        && y >= 0
+                        && y < 128
+                        && chunk.getBrightness(LightLayer.BLOCK, x, y, z) < 10) {
+                    int belowTile = chunk.getTile(x, y - 1, z);
+                    int tt = chunk.getTile(x, y, z);
                     if (isRaining()
-                            && var35 == 0
-                            && Tile.SNOW_LAYER.mayPlace((Level) (Object) this, var24 + startX.intValue(), var31, var28 + startZ.intValue())
-                            && var33 != 0
-                            && var33 != Tile.ICE.id
-                            && Tile.tiles[var33].material.blocksMotion()) {
-                        setTile(BigInteger.valueOf(var24).add(startX), var31, BigInteger.valueOf(var28).add(startZ), Tile.SNOW_LAYER.id);
+                            && tt == 0
+                            && Tile.SNOW_LAYER.mayPlace((Level) (Object) this, x + startX.intValue(), y, z + startZ.intValue())
+                            && belowTile != 0
+                            && belowTile != Tile.ICE.id
+                            && Tile.tiles[belowTile].material.blocksMotion()) {
+                        setTile(BigInteger.valueOf(x).add(startX), y, BigInteger.valueOf(z).add(startZ), Tile.SNOW_LAYER.id);
                     }
 
-                    if (var33 == Tile.WATER.id && chunk.getData(var24, var31 - 1, var28) == 0) {
-                        setTile(BigInteger.valueOf(var24).add(startX), var31 - 1, BigInteger.valueOf(var28).add(startZ), Tile.ICE.id);
+                    if (belowTile == Tile.WATER.id && chunk.getData(x, y - 1, z) == 0) {
+                        setTile(BigInteger.valueOf(x).add(startX), y - 1, BigInteger.valueOf(z).add(startZ), Tile.ICE.id);
                     }
                 }
             }
 
-            for (int var20 = 0; var20 < 80; ++var20) {
+            for (int i = 0; i < 80; ++i) {
                 this.randValue = this.randValue * 3 + 1013904223;
-                int var25 = this.randValue >> 2;
-                int var29 = var25 & 15;
-                int var32 = var25 >> 8 & 15;
-                int var34 = var25 >> 16 & 127;
-                int var36 = chunk.blocks[var29 << 11 | var32 << 7 | var34] & 255;
-                if (Tile.shouldTick[var36]) {
-                    Tile.tiles[var36].tick((Level) (Object) this, BigInteger.valueOf(var29).add(startX), var34, BigInteger.valueOf(var32).add(startZ), this.random);
+                int packedPos = this.randValue >> 2;
+                int x = packedPos & 15;
+                int z = packedPos >> 8 & 15;
+                int y = packedPos >> 16 & 127;
+                int tt = chunk.blocks[x << 11 | z << 7 | y] & 255;
+                if (Tile.shouldTick[tt]) {
+                    Tile.tiles[tt].tick((Level) (Object) this, BigInteger.valueOf(x).add(startX), y, BigInteger.valueOf(z).add(startZ), this.random);
                 }
             }
         }
@@ -939,10 +951,10 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
             ++this.maxRecurse;
 
             try {
-                int var1 = 500;
+                int maxUpdates = 500;
 
                 while (this.lightUpdates.size() > 0) {
-                    if (--var1 <= 0) {
+                    if (--maxUpdates <= 0) {
                         return true;
                     }
 
@@ -1017,10 +1029,10 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
         BigInteger z0 = BigMath.floor(area.z0);
         BigInteger z1 = BigMath.floor(area.z1.add(BigDecimal.ONE));
 
-        for(BigInteger x = x0; x.compareTo(x1) < 0; x = x.add(BigInteger.ONE)) {
-            for(BigInteger z = z0; z.compareTo(z1) < 0; z = z.add(BigInteger.ONE)) {
+        for (BigInteger x = x0; x.compareTo(x1) < 0; x = x.add(BigInteger.ONE)) {
+            for (BigInteger z = z0; z.compareTo(z1) < 0; z = z.add(BigInteger.ONE)) {
                 if (this.hasChunkAt(x, 64, z)) {
-                    for(int y = y0 - 1; y < y1; ++y) {
+                    for (int y = y0 - 1; y < y1; ++y) {
                         Tile tt = Tile.tiles[this.getTile(x, y, z)];
                         if (tt != null) {
                             tt.addBigAABBs((Level) (Object) this, x, y, z, area, this.bigBoxes);
@@ -1031,18 +1043,18 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
         }
 
         double range = 0.25;
-        List entityList = this.getEntities(entity, area.inflate(range, range, range));
+        List<Entity> entityList = this.getEntities(entity, area.inflate(range, range, range));
 
-        for(int var16 = 0; var16 < entityList.size(); ++var16) {
-            AABB var13 = ((Entity)entityList.get(var16)).getCollideBox();
+        for (int i = 0; i < entityList.size(); ++i) {
+            AABB collideBox = entityList.get(i).getCollideBox();
             AABB vanillaArea = area.toVanilla();
-            if (var13 != null && var13.intersects(vanillaArea)) {
-                this.bigBoxes.add(BigAABB.from(var13));
+            if (collideBox != null && collideBox.intersects(vanillaArea)) {
+                this.bigBoxes.add(BigAABB.from(collideBox));
             }
 
-            var13 = entity.getCollideAgainstBox((Entity)entityList.get(var16));
-            if (var13 != null && var13.intersects(vanillaArea)) {
-                this.bigBoxes.add(BigAABB.from(var13));
+            collideBox = entity.getCollideAgainstBox((Entity) entityList.get(i));
+            if (collideBox != null && collideBox.intersects(vanillaArea)) {
+                this.bigBoxes.add(BigAABB.from(collideBox));
             }
         }
 
@@ -1343,27 +1355,27 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
 
     @Override
     public void extinguishFire(Player player, BigInteger x, int y, BigInteger z, int face) {
-        if (face == 0) {
+        if (face == Facing.DOWN) {
             --y;
         }
 
-        if (face == 1) {
+        if (face == Facing.UP) {
             ++y;
         }
 
-        if (face == 2) {
+        if (face == Facing.NORTH) {
             z = z.subtract(BigInteger.ONE);
         }
 
-        if (face == 3) {
+        if (face == Facing.SOUTH) {
             z = z.add(BigInteger.ONE);
         }
 
-        if (face == 4) {
+        if (face == Facing.WEST) {
             x = x.subtract(BigInteger.ONE);
         }
 
-        if (face == 5) {
+        if (face == Facing.EAST) {
             x = x.add(BigInteger.ONE);
         }
 
@@ -1375,25 +1387,25 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
 
     @Override
     public void addToTickNextTick(BigInteger x, int y, BigInteger z, int tileId, int delay) {
-        BigTickNextTickData var6 = new BigTickNextTickData(x, y, z, tileId);
-        byte var7 = 8;
-        BigInteger bigRange = BigInteger.valueOf(var7);
+        BigTickNextTickData data = new BigTickNextTickData(x, y, z, tileId);
+        int range = 8;
+        BigInteger bigRange = BigInteger.valueOf(range);
         if (this.instaTick) {
-            if (this.hasChunksAt(var6.xBig.subtract(bigRange), var6.y - var7, var6.zBig.subtract(bigRange), var6.xBig.add(bigRange), var6.y + var7, var6.zBig.add(bigRange))) {
-                int var8 = this.getTile(var6.xBig, var6.y, var6.zBig);
-                if (var8 == var6.priority && var8 > 0) {
-                    Tile.tiles[var8].tick((Level) (Object) this, var6.xBig, var6.y, var6.zBig, this.random);
+            if (this.hasChunksAt(data.xBig.subtract(bigRange), data.y - range, data.zBig.subtract(bigRange), data.xBig.add(bigRange), data.y + range, data.zBig.add(bigRange))) {
+                int var8 = this.getTile(data.xBig, data.y, data.zBig);
+                if (var8 == data.priority && var8 > 0) {
+                    Tile.tiles[var8].tick((Level) (Object) this, data.xBig, data.y, data.zBig, this.random);
                 }
             }
         } else {
-            if (this.hasChunksAt(x.subtract(bigRange), y - var7, z.subtract(bigRange), x.add(bigRange), y + var7, z.add(bigRange))) {
+            if (this.hasChunksAt(x.subtract(bigRange), y - range, z.subtract(bigRange), x.add(bigRange), y + range, z.add(bigRange))) {
                 if (tileId > 0) {
-                    var6.delay((long)delay + this.levelData.getTime());
+                    data.delay((long) delay + this.levelData.getTime());
                 }
 
-                if (!this.tickNextTickSet.contains(var6)) {
-                    this.tickNextTickSet.add(var6);
-                    this.tickNextTickList.add(var6);
+                if (!this.tickNextTickSet.contains(data)) {
+                    this.tickNextTickSet.add(data);
+                    this.tickNextTickList.add(data);
                 }
             }
         }
@@ -1405,18 +1417,18 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
      */
     @Overwrite
     public void tickEntities() {
-        for(int var1 = 0; var1 < this.globalEntities.size(); ++var1) {
-            Entity var2 = (Entity)this.globalEntities.get(var1);
-            var2.tick();
-            if (var2.removed) {
-                this.globalEntities.remove(var1--);
+        for (int i = 0; i < this.globalEntities.size(); ++i) {
+            Entity e = this.globalEntities.get(i);
+            e.tick();
+            if (e.removed) {
+                this.globalEntities.remove(i--);
             }
         }
 
         this.entities.removeAll(this.entitiesToRemove);
 
-        for(int var5 = 0; var5 < this.entitiesToRemove.size(); ++var5) {
-            Entity entity = (Entity)this.entitiesToRemove.get(var5);
+        for (int i = 0; i < this.entitiesToRemove.size(); ++i) {
+            Entity entity = this.entitiesToRemove.get(i);
             BigInteger xc = entity.getXChunk();
             BigInteger zc = entity.getZChunk();
             if (entity.inChunk && this.hasChunk(xc, zc)) {
@@ -1424,14 +1436,14 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
             }
         }
 
-        for(int var6 = 0; var6 < this.entitiesToRemove.size(); ++var6) {
-            this.entityRemoved((Entity)this.entitiesToRemove.get(var6));
+        for (int i = 0; i < this.entitiesToRemove.size(); ++i) {
+            this.entityRemoved(this.entitiesToRemove.get(i));
         }
 
         this.entitiesToRemove.clear();
 
-        for(int var7 = 0; var7 < this.entities.size(); ++var7) {
-            Entity entity = this.entities.get(var7);
+        for (int i = 0; i < this.entities.size(); ++i) {
+            Entity entity = this.entities.get(i);
             if (entity.riding != null) {
                 if (!entity.riding.removed && entity.riding.rider == entity) {
                     continue;
@@ -1452,43 +1464,43 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
                     this.getChunk(xc, zc).removeEntity(entity);
                 }
 
-                this.entities.remove(var7--);
+                this.entities.remove(i--);
                 this.entityRemoved(entity);
             }
         }
 
         this.updatingTileEntities = true;
-        Iterator var8 = this.tileEntityList.iterator();
+        Iterator<TileEntity> teIterator = this.tileEntityList.iterator();
 
-        while(var8.hasNext()) {
-            TileEntity te = (TileEntity)var8.next();
+        while (teIterator.hasNext()) {
+            TileEntity te = (TileEntity) teIterator.next();
             if (!te.isRemoved()) {
                 te.tick();
             }
 
             if (te.isRemoved()) {
-                var8.remove();
-                LevelChunk var14 = this.getChunk(te.x >> 4, te.z >> 4);
-                if (var14 != null) {
-                    var14.removeTileEntity(te.x & 15, te.y, te.z & 15);
+                teIterator.remove();
+                LevelChunk chunk = this.getChunk(te.x >> 4, te.z >> 4);
+                if (chunk != null) {
+                    chunk.removeTileEntity(te.x & 15, te.y, te.z & 15);
                 }
             }
         }
 
         this.updatingTileEntities = false;
         if (!this.pendingTileEntities.isEmpty()) {
-            for(TileEntity var15 : this.pendingTileEntities) {
-                if (!var15.isRemoved()) {
-                    if (!this.tileEntityList.contains(var15)) {
-                        this.tileEntityList.add(var15);
+            for (TileEntity te : this.pendingTileEntities) {
+                if (!te.isRemoved()) {
+                    if (!this.tileEntityList.contains(te)) {
+                        this.tileEntityList.add(te);
                     }
 
-                    LevelChunk var17 = this.getChunk(var15.x >> 4, var15.z >> 4);
-                    if (var17 != null) {
-                        var17.setTileEntity(var15.x & 15, var15.y, var15.z & 15, var15);
+                    LevelChunk chunk = this.getChunk(te.x >> 4, te.z >> 4);
+                    if (chunk != null) {
+                        chunk.setTileEntity(te.x & 15, te.y, te.z & 15, te);
                     }
 
-                    this.sendTileUpdated(BigInteger.valueOf(var15.x), var15.y, BigInteger.valueOf(var15.z));
+                    this.sendTileUpdated(BigInteger.valueOf(te.x), te.y, BigInteger.valueOf(te.z));
                 }
             }
 
@@ -1527,11 +1539,11 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
 //                entity.z = entity.zOld;
 //            }
 
-            if (Double.isNaN((double)entity.xRot) || Double.isInfinite((double)entity.xRot)) {
+            if (Double.isNaN((double) entity.xRot) || Double.isInfinite((double) entity.xRot)) {
                 entity.xRot = entity.xRotO;
             }
 
-            if (Double.isNaN((double)entity.yRot) || Double.isInfinite((double)entity.yRot)) {
+            if (Double.isNaN((double) entity.yRot) || Double.isInfinite((double) entity.yRot)) {
                 entity.yRot = entity.yRotO;
             }
 
@@ -1569,7 +1581,7 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
     @Overwrite
     public void tick(Entity entity, boolean tick) {
         if (entity instanceof Player && entity instanceof BigEntityExtension bigEntity) {
-            tickPlayer((Player)entity, tick);
+            tickPlayer((Player) entity, tick);
             return;
         }
         BigInteger var3 = BigMath.floor(entity.x);
@@ -1579,7 +1591,7 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
             entity.xOld = entity.x;
             entity.yOld = entity.y;
             entity.zOld = entity.z;
-            if (entity instanceof BigEntityExtension bigEntity) {
+            if (entity instanceof BigEntityExtension bigEntity && entity.isBigMovementEnabled()) {
                 bigEntity.setXOld(bigEntity.getX());
                 bigEntity.setZOld(bigEntity.getZ());
             }
@@ -1605,11 +1617,11 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
                 entity.z = entity.zOld;
             }
 
-            if (Double.isNaN((double)entity.xRot) || Double.isInfinite((double)entity.xRot)) {
+            if (Double.isNaN((double) entity.xRot) || Double.isInfinite((double) entity.xRot)) {
                 entity.xRot = entity.xRotO;
             }
 
-            if (Double.isNaN((double)entity.yRot) || Double.isInfinite((double)entity.yRot)) {
+            if (Double.isNaN((double) entity.yRot) || Double.isInfinite((double) entity.yRot)) {
                 entity.yRot = entity.yRotO;
             }
 
@@ -1649,7 +1661,7 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
     public void removeEntityImmediately(Entity entity) {
         entity.remove();
         if (entity instanceof Player) {
-            this.players.remove((Player)entity);
+            this.players.remove((Player) entity);
             updateSleepingPlayerList();
         }
 
@@ -1671,8 +1683,8 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
     public void removeAllPendingEntityRemovals() {
         this.entities.removeAll(this.entitiesToRemove);
 
-        for(int i = 0; i < this.entitiesToRemove.size(); ++i) {
-            Entity entity = (Entity)this.entitiesToRemove.get(i);
+        for (int i = 0; i < this.entitiesToRemove.size(); ++i) {
+            Entity entity = (Entity) this.entitiesToRemove.get(i);
             BigInteger xc = entity.getXChunk();
             BigInteger zc = entity.getZChunk();
             if (entity.inChunk && hasChunk(xc, zc)) {
@@ -1680,13 +1692,13 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
             }
         }
 
-        for(int i = 0; i < this.entitiesToRemove.size(); ++i) {
-            entityRemoved((Entity)this.entitiesToRemove.get(i));
+        for (int i = 0; i < this.entitiesToRemove.size(); ++i) {
+            entityRemoved((Entity) this.entitiesToRemove.get(i));
         }
 
         this.entitiesToRemove.clear();
 
-        for(int i = 0; i < this.entities.size(); ++i) {
+        for (int i = 0; i < this.entities.size(); ++i) {
             Entity entity = this.entities.get(i);
             if (entity.riding != null) {
                 if (!entity.riding.removed && entity.riding.rider == entity) {

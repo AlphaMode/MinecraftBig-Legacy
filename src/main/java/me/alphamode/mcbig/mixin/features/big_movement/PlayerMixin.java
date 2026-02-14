@@ -23,4 +23,9 @@ public abstract class PlayerMixin extends Entity implements BigEntityExtension {
     public void setPos(double x, double y, double z) {
         setPos(BigDecimal.valueOf(x), y, BigDecimal.valueOf(z));
     }
+
+    @Override
+    public boolean isBigMovementEnabled() {
+        return true;
+    }
 }

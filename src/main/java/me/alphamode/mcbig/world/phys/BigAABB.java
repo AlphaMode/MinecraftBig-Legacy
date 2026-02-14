@@ -16,13 +16,17 @@ public class BigAABB {
         return new BigAABB(x0, y0, z0, x1, y1, z1);
     }
 
-    private BigAABB(BigDecimal minX, double minY, BigDecimal minZ, BigDecimal maxX, double maxY, BigDecimal maxZ) {
+    public BigAABB(BigDecimal minX, double minY, BigDecimal minZ, BigDecimal maxX, double maxY, BigDecimal maxZ) {
         this.x0 = minX;
         this.y0 = minY;
         this.z0 = minZ;
         this.x1 = maxX;
         this.y1 = maxY;
         this.z1 = maxZ;
+    }
+
+    public BigAABB copy() {
+        return new BigAABB(this.x0, this.y0, this.z0, this.x1, this.y1, this.z1);
     }
 
     public BigAABB set(BigDecimal x0, double y0, BigDecimal z0, BigDecimal x1, double y1, BigDecimal z1) {
@@ -193,5 +197,19 @@ public class BigAABB {
 
     public AABB toVanilla() {
         return AABB.create(x0.doubleValue(), y0, z0.doubleValue(), x1.doubleValue(), y1, z1.doubleValue());
+    }
+
+    public void copyFrom(BigAABB c) {
+        this.x0 = c.x0;
+        this.y0 = c.y0;
+        this.z0 = c.z0;
+        this.x1 = c.x1;
+        this.y1 = c.y1;
+        this.z1 = c.z1;
+    }
+
+    @Override
+    public String toString() {
+        return "big_box[" + this.x0 + ", " + this.y0 + ", " + this.z0 + " -> " + this.x1 + ", " + this.y1 + ", " + this.z1 + "]";
     }
 }
