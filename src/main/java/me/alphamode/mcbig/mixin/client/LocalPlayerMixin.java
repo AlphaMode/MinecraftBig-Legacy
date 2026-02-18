@@ -3,12 +3,14 @@ package me.alphamode.mcbig.mixin.client;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import me.alphamode.mcbig.extensions.PlayerExtension;
+import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
 import me.alphamode.mcbig.math.BigMath;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.player.input.Input;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.feature.BirchFeature;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -34,43 +36,51 @@ public abstract class LocalPlayerMixin extends Player implements PlayerExtension
         if (msg.startsWith("/")) {
             String[] args = msg.split(" ");
             if (args[0].equals("/tp")) {
-                BigDecimal xCoord = BigDecimal.ZERO;
-                double yCoord = 0;
-                BigDecimal zCoord = BigDecimal.ZERO;
-
-                boolean xRel = false;
-                boolean yRel = false;
-                boolean zRel = false;
-                if (args[1].startsWith("~")) {
-                    xRel = true;
-                    args[1] = args[1].substring(1);
-                    if (!args[1].isEmpty())
-                        xCoord = new BigDecimal(args[1]);
-                } else {
-                    xCoord = new BigDecimal(args[1]);
-                }
-
-                if (args[2].startsWith("~")) {
-                    yRel = true;
-                    args[2] = args[2].substring(1);
-                    if (!args[2].isEmpty())
-                        yCoord = Double.parseDouble(args[2]);
-                } else {
-                    yCoord = Double.parseDouble(args[2]);
-                }
-
-                if (args[3].startsWith("~")) {
-                    zRel = true;
-                    args[3] = args[3].substring(1);
-                    if (!args[3].isEmpty())
-                        zCoord = new BigDecimal(args[3]);
-                } else {
-                    zCoord = new BigDecimal(args[3]);
-                }
-
-                setPos(xRel ? BigDecimal.valueOf(this.x).add(xCoord).doubleValue() : xCoord.doubleValue(), yRel ? this.y + yCoord : yCoord, zRel ? BigDecimal.valueOf(this.z).add(zCoord).doubleValue() : zCoord.doubleValue());
+                tpCommand(args);
+            } else if (args[0].equals("/placetree")) {
+                BirchFeature feature = new BirchFeature();
+                feature.init(1.0, 1.0, 1.0);
+                feature.place(this.level, this.random, ((BigEntityExtension) this).getX().toBigInteger(), Mth.floor(this.y), ((BigEntityExtension) this).getZ().toBigInteger());
             }
         }
+    }
+
+    private void tpCommand(String[] args) {
+        BigDecimal xCoord = BigDecimal.ZERO;
+        double yCoord = 0;
+        BigDecimal zCoord = BigDecimal.ZERO;
+
+        boolean xRel = false;
+        boolean yRel = false;
+        boolean zRel = false;
+        if (args[1].startsWith("~")) {
+            xRel = true;
+            args[1] = args[1].substring(1);
+            if (!args[1].isEmpty())
+                xCoord = new BigDecimal(args[1]);
+        } else {
+            xCoord = new BigDecimal(args[1]);
+        }
+
+        if (args[2].startsWith("~")) {
+            yRel = true;
+            args[2] = args[2].substring(1);
+            if (!args[2].isEmpty())
+                yCoord = Double.parseDouble(args[2]);
+        } else {
+            yCoord = Double.parseDouble(args[2]);
+        }
+
+        if (args[3].startsWith("~")) {
+            zRel = true;
+            args[3] = args[3].substring(1);
+            if (!args[3].isEmpty())
+                zCoord = new BigDecimal(args[3]);
+        } else {
+            zCoord = new BigDecimal(args[3]);
+        }
+
+        setPos(xRel ? BigDecimal.valueOf(this.x).add(xCoord).doubleValue() : xCoord.doubleValue(), yRel ? this.y + yCoord : yCoord, zRel ? BigDecimal.valueOf(this.z).add(zCoord).doubleValue() : zCoord.doubleValue());
     }
 
     private int jumpTriggerTime;

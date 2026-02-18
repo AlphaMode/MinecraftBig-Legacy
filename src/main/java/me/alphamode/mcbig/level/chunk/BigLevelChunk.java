@@ -8,8 +8,11 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.TilePos;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.tile.Tile;
+import net.minecraft.world.level.tile.TileEntityTile;
+import net.minecraft.world.level.tile.entity.TileEntity;
 
 import java.math.BigInteger;
 import java.math.RoundingMode;
@@ -37,8 +40,8 @@ public class BigLevelChunk extends LevelChunk {
     @Override
     protected void lightGaps(int x, int z) {
         int height = getHeightmap(x, z);
-        BigInteger xt = this.bigX.multiply(BigInteger.valueOf(16 + x));
-        BigInteger zt = this.bigZ.multiply(BigInteger.valueOf(16 + z));
+        BigInteger xt = this.bigX.multiply(BigConstants.SIXTEEN).add(BigInteger.valueOf(x));
+        BigInteger zt = this.bigZ.multiply(BigConstants.SIXTEEN).add(BigInteger.valueOf(z));
         lightGap(xt.subtract(BigInteger.ONE), zt, height);
         lightGap(xt.add(BigInteger.ONE), zt, height);
         lightGap(xt, zt.subtract(BigInteger.ONE), height);
@@ -64,11 +67,11 @@ public class BigLevelChunk extends LevelChunk {
         if (var8 == id && this.data.get(x, y, z) == meta) {
             return false;
         } else {
-            BigInteger var9 = this.bigX.multiply(BigInteger.valueOf(16 + x));
-            BigInteger var10 = this.bigZ.multiply(BigInteger.valueOf(16 + z));
+            BigInteger xt = this.bigX.multiply(BigConstants.SIXTEEN).add(BigInteger.valueOf(x));
+            BigInteger zt = this.bigZ.multiply(BigConstants.SIXTEEN).add(BigInteger.valueOf(z));
             this.blocks[x << 11 | z << 7 | y] = (byte)(var6 & 255);
             if (var8 != 0 && !this.level.isClientSide) {
-                Tile.tiles[var8].onRemove(this.level, var9, y, var10);
+                Tile.tiles[var8].onRemove(this.level, xt, y, zt);
             }
 
             this.data.set(x, y, z, meta);
@@ -81,14 +84,14 @@ public class BigLevelChunk extends LevelChunk {
                     this.recalcHeight(x, y, z);
                 }
 
-                this.level.updateLight(LightLayer.SKY, var9, y, var10, var9, y, var10);
+                this.level.updateLight(LightLayer.SKY, xt, y, zt, xt, y, zt);
             }
 
-            this.level.updateLight(LightLayer.BLOCK, var9, y, var10, var9, y, var10);
+            this.level.updateLight(LightLayer.BLOCK, xt, y, zt, xt, y, zt);
             this.lightGaps(x, z);
             this.data.set(x, y, z, meta);
             if (id != 0) {
-                Tile.tiles[id].onPlace(this.level, var9, y, var10);
+                Tile.tiles[id].onPlace(this.level, xt, y, zt);
             }
 
             this.unsaved = true;
@@ -104,11 +107,11 @@ public class BigLevelChunk extends LevelChunk {
         if (var7 == id) {
             return false;
         } else {
-            BigInteger xt = this.bigX.multiply(BigInteger.valueOf(16 + x));
-            BigInteger var9 = this.bigZ.multiply(BigInteger.valueOf(16 + z));
+            BigInteger xt = this.bigX.multiply(BigConstants.SIXTEEN).add(BigInteger.valueOf(x));
+            BigInteger zt = this.bigZ.multiply(BigConstants.SIXTEEN).add(BigInteger.valueOf(z));
             this.blocks[x << 11 | z << 7 | y] = (byte)(var5 & 255);
             if (var7 != 0) {
-                Tile.tiles[var7].onRemove(this.level, xt, y, var9);
+                Tile.tiles[var7].onRemove(this.level, xt, y, zt);
             }
 
             this.data.set(x, y, z, 0);
@@ -120,15 +123,64 @@ public class BigLevelChunk extends LevelChunk {
                 this.recalcHeight(x, y, z);
             }
 
-            this.level.updateLight(LightLayer.SKY, xt, y, var9, xt, y, var9);
-            this.level.updateLight(LightLayer.BLOCK, xt, y, var9, xt, y, var9);
+            this.level.updateLight(LightLayer.SKY, xt, y, zt, xt, y, zt);
+            this.level.updateLight(LightLayer.BLOCK, xt, y, zt, xt, y, zt);
             this.lightGaps(x, z);
             if (id != 0 && !this.level.isClientSide) {
-                Tile.tiles[id].onPlace(this.level, xt, y, var9);
+                Tile.tiles[id].onPlace(this.level, xt, y, zt);
             }
 
             this.unsaved = true;
             return true;
+        }
+    }
+
+    @Override
+    public TileEntity getTileEntity(int x, int y, int z) {
+        TilePos pos = new TilePos(x, y, z);
+        TileEntity te = this.tileEntities.get(pos);
+        if (te == null) {
+            int tile = this.getTile(x, y, z);
+            if (!Tile.isEntityTile[tile]) {
+                return null;
+            }
+
+            TileEntityTile teTile = (TileEntityTile)Tile.tiles[tile];
+            teTile.onPlace(this.level, this.bigX.multiply(BigConstants.SIXTEEN).add(BigInteger.valueOf(x)), y, this.bigZ.multiply(BigConstants.SIXTEEN).add(BigInteger.valueOf(z)));
+            te = this.tileEntities.get(pos);
+        }
+
+        if (te != null && te.isRemoved()) {
+            this.tileEntities.remove(pos);
+            return null;
+        } else {
+            return te;
+        }
+    }
+
+    @Override
+    public void addTileEntity(TileEntity tileEntity) {
+        int xt = tileEntity.getX().subtract(this.bigX.multiply(BigConstants.SIXTEEN)).intValue();
+        int yt = tileEntity.y;
+        int zt = tileEntity.getZ().subtract(this.bigZ.multiply(BigConstants.SIXTEEN)).intValue();
+        this.setTileEntity(xt, yt, zt, tileEntity);
+        if (this.loaded) {
+            this.level.tileEntityList.add(tileEntity);
+        }
+    }
+
+    @Override
+    public void setTileEntity(int x, int y, int z, TileEntity tileEntity) {
+        TilePos pos = new TilePos(x, y, z);
+        tileEntity.level = this.level;
+        tileEntity.setX(this.bigX.multiply(BigConstants.SIXTEEN).add(BigInteger.valueOf(x)));
+        tileEntity.y = y;
+        tileEntity.setZ(this.bigZ.multiply(BigConstants.SIXTEEN).add(BigInteger.valueOf(z)));
+        if (this.getTile(x, y, z) != 0 && Tile.tiles[this.getTile(x, y, z)] instanceof TileEntityTile) {
+            tileEntity.clearRemoved();
+            this.tileEntities.put(pos, tileEntity);
+        } else {
+            System.out.println("Attempted to place a tile entity where there was no entity tile!");
         }
     }
 
@@ -164,14 +216,14 @@ public class BigLevelChunk extends LevelChunk {
                 this.minHeight = var7;
             }
 
-            BigInteger var12 = this.bigX.multiply(BigInteger.valueOf(16 + x));
-            BigInteger var13 = this.bigZ.multiply(BigInteger.valueOf(16 + z));
+            BigInteger xt = this.bigX.multiply(BigConstants.SIXTEEN).add(BigInteger.valueOf(x));
+            BigInteger zt = this.bigZ.multiply(BigConstants.SIXTEEN).add(BigInteger.valueOf(z));
             if (var5 < var4) {
                 for(int var14 = var5; var14 < var4; ++var14) {
                     this.skyLight.set(x, var14, z, 15);
                 }
             } else {
-                this.level.updateLight(LightLayer.SKY, var12, var4, var13, var12, var5, var13);
+                this.level.updateLight(LightLayer.SKY, xt, var4, zt, xt, var5, zt);
 
                 for(int var15 = var4; var15 < var5; ++var15) {
                     this.skyLight.set(x, var15, z, 0);
@@ -198,7 +250,7 @@ public class BigLevelChunk extends LevelChunk {
             }
 
             if (var5 != var10) {
-                this.level.updateLight(LightLayer.SKY, var12.subtract(BigInteger.ONE), var5, var13.subtract(BigInteger.ONE), var12.add(BigInteger.ONE), var10, var13.add(BigInteger.ONE));
+                this.level.updateLight(LightLayer.SKY, xt.subtract(BigInteger.ONE), var5, zt.subtract(BigInteger.ONE), xt.add(BigInteger.ONE), var10, zt.add(BigInteger.ONE));
             }
 
             this.unsaved = true;

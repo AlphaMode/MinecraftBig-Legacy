@@ -2,6 +2,7 @@ package me.alphamode.mcbig.mixin.tiles;
 
 import me.alphamode.mcbig.extensions.BigLiquidTileExtension;
 import me.alphamode.mcbig.extensions.BigTileExtension;
+import me.alphamode.mcbig.world.phys.BigAABB;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.util.Facing;
@@ -75,6 +76,11 @@ public abstract class LiquidTileMixin extends Tile implements BigLiquidTileExten
 
     @Override
     public AABB getAABB(Level level, BigInteger x, int y, BigInteger z) {
+        return null;
+    }
+
+    @Override
+    public BigAABB getBigAABB(Level level, BigInteger x, int y, BigInteger z) {
         return null;
     }
 
@@ -167,7 +173,6 @@ public abstract class LiquidTileMixin extends Tile implements BigLiquidTileExten
         delta.z += flow.z;
     }
 
-    @Environment(EnvType.CLIENT)
     @Override
     public float getBrightness(LevelSource level, BigInteger x, int y, BigInteger z) {
         float var5 = level.getBrightness(x, y, z);
@@ -175,7 +180,6 @@ public abstract class LiquidTileMixin extends Tile implements BigLiquidTileExten
         return var5 > var6 ? var5 : var6;
     }
 
-    @Environment(EnvType.CLIENT)
     @Override
     public void animateTick(Level level, BigInteger x, int y, BigInteger z, Random random) {
         if (this.material == Material.WATER && random.nextInt(64) == 0) {
@@ -211,41 +215,41 @@ public abstract class LiquidTileMixin extends Tile implements BigLiquidTileExten
     }
 
     private void updateLiquid(Level level, BigInteger x, int y, BigInteger z) {
-        if (level.getTile(x, y, z) == this.id) {
-            if (this.material == Material.LAVA) {
-                boolean var5 = false;
-                if (var5 || level.getMaterial(x, y, z.subtract(BigInteger.ONE)) == Material.WATER) {
-                    var5 = true;
-                }
-
-                if (var5 || level.getMaterial(x, y, z.add(BigInteger.ONE)) == Material.WATER) {
-                    var5 = true;
-                }
-
-                if (var5 || level.getMaterial(x.subtract(BigInteger.ONE), y, z) == Material.WATER) {
-                    var5 = true;
-                }
-
-                if (var5 || level.getMaterial(x.add(BigInteger.ONE), y, z) == Material.WATER) {
-                    var5 = true;
-                }
-
-                if (var5 || level.getMaterial(x, y + 1, z) == Material.WATER) {
-                    var5 = true;
-                }
-
-                if (var5) {
-                    int var6 = level.getData(x, y, z);
-                    if (var6 == 0) {
-                        level.setTile(x, y, z, Tile.OBSIDIAN.id);
-                    } else if (var6 <= 4) {
-                        level.setTile(x, y, z, Tile.COBBLESTONE.id);
-                    }
-
-                    this.fizz(level, x, y, z);
-                }
-            }
-        }
+//        if (level.getTile(x, y, z) == this.id) {
+//            if (this.material == Material.LAVA) {
+//                boolean var5 = false;
+//                if (var5 || level.getMaterial(x, y, z.subtract(BigInteger.ONE)) == Material.WATER) {
+//                    var5 = true;
+//                }
+//
+//                if (var5 || level.getMaterial(x, y, z.add(BigInteger.ONE)) == Material.WATER) {
+//                    var5 = true;
+//                }
+//
+//                if (var5 || level.getMaterial(x.subtract(BigInteger.ONE), y, z) == Material.WATER) {
+//                    var5 = true;
+//                }
+//
+//                if (var5 || level.getMaterial(x.add(BigInteger.ONE), y, z) == Material.WATER) {
+//                    var5 = true;
+//                }
+//
+//                if (var5 || level.getMaterial(x, y + 1, z) == Material.WATER) {
+//                    var5 = true;
+//                }
+//
+//                if (var5) {
+//                    int var6 = level.getData(x, y, z);
+//                    if (var6 == 0) {
+//                        level.setTile(x, y, z, Tile.OBSIDIAN.id);
+//                    } else if (var6 <= 4) {
+//                        level.setTile(x, y, z, Tile.COBBLESTONE.id);
+//                    }
+//
+//                    this.fizz(level, x, y, z);
+//                }
+//            }
+//        }
     }
 
     @Override

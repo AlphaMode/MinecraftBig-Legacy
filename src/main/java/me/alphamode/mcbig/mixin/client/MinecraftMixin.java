@@ -178,9 +178,4 @@ public class MinecraftMixin {
             }
         }
     }
-
-    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;isOnline()Z", ordinal = 0))
-    private boolean allowChat(Minecraft instance) {
-        return true;
-    }
 }

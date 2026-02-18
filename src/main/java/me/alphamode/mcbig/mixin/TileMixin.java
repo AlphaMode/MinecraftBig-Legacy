@@ -3,9 +3,11 @@ package me.alphamode.mcbig.mixin;
 import me.alphamode.mcbig.extensions.BigTileExtension;
 import me.alphamode.mcbig.world.phys.BigAABB;
 import me.alphamode.mcbig.world.phys.BigHitResult;
+import net.minecraft.stats.Stats;
 import net.minecraft.util.Facing;
 import net.minecraft.world.ItemInstance;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelSource;
 import net.minecraft.world.level.tile.Tile;
@@ -130,6 +132,12 @@ public abstract class TileMixin implements BigTileExtension {
     @Override
     public int getTexture(LevelSource level, BigInteger x, int y, BigInteger z, int side) {
         return getTexture(side, level.getData(x, y, z));
+    }
+
+    @Override
+    public void playerDestroy(Level level, Player player, BigInteger x, int y, BigInteger z, int meta) {
+        player.awardStat(Stats.STAT_MINE_BLOCK[this.id], 1);
+        this.dropResources(level, x, y, z, meta);
     }
 
     @Override

@@ -61,32 +61,38 @@ public abstract class ServerChunkCacheMixin implements ChunkSource, BigChunkSour
                 chunk.load();
             }
 
-            if (!chunk.terrainPopulated && hasChunk(x.add(BigInteger.ONE), z.add(BigInteger.ONE)) && hasChunk(x, z.add(BigInteger.ONE)) && hasChunk(x.add(BigInteger.ONE), z)) {
-//                postProcess(this, x, z);
+            BigInteger xMinusOne = x.subtract(BigInteger.ONE);
+            BigInteger zMinusOne = z.subtract(BigInteger.ONE);
+
+            BigInteger xPlusOne = x.add(BigInteger.ONE);
+            BigInteger zPlusOne = z.add(BigInteger.ONE);
+
+            if (!chunk.terrainPopulated && this.hasChunk(xPlusOne, zPlusOne) && this.hasChunk(x, zPlusOne) && this.hasChunk(xPlusOne, z)) {
+                this.postProcess(this, x, z);
             }
 
-            if (hasChunk(x.subtract(BigInteger.ONE), z)
-                    && !getChunk(x.subtract(BigInteger.ONE), z).terrainPopulated
-                    && hasChunk(x.subtract(BigInteger.ONE), z.add(BigInteger.ONE))
-                    && hasChunk(x, z.add(BigInteger.ONE))
-                    && hasChunk(x.subtract(BigInteger.ONE), z)) {
-//                this.postProcess(this, x.subtract(BigInteger.ONE), z);
+            if (this.hasChunk(xMinusOne, z)
+                    && !this.getChunk(xMinusOne, z).terrainPopulated
+                    && this.hasChunk(xMinusOne, zPlusOne)
+                    && this.hasChunk(x, zPlusOne)
+                    && this.hasChunk(xMinusOne, z)) {
+                this.postProcess(this, xMinusOne, z);
             }
 
-            if (hasChunk(x, z.subtract(BigInteger.ONE))
-                    && !getChunk(x, z.subtract(BigInteger.ONE)).terrainPopulated
-                    && hasChunk(x.add(BigInteger.ONE), z.subtract(BigInteger.ONE))
-                    && hasChunk(x, z.subtract(BigInteger.ONE))
-                    && hasChunk(x.add(BigInteger.ONE), z)) {
-//                postProcess(this, x, z.subtract(BigInteger.ONE));
+            if (this.hasChunk(x, zMinusOne)
+                    && !this.getChunk(x, zMinusOne).terrainPopulated
+                    && this.hasChunk(xPlusOne, zMinusOne)
+                    && this.hasChunk(x, zMinusOne)
+                    && this.hasChunk(xPlusOne, z)) {
+                this.postProcess(this, x, zMinusOne);
             }
 
-            if (hasChunk(x.subtract(BigInteger.ONE), z.subtract(BigInteger.ONE))
-                    && !getChunk(x.subtract(BigInteger.ONE), z.subtract(BigInteger.ONE)).terrainPopulated
-                    && hasChunk(x.subtract(BigInteger.ONE), z.subtract(BigInteger.ONE))
-                    && hasChunk(x, z.subtract(BigInteger.ONE))
-                    && hasChunk(x.subtract(BigInteger.ONE), z)) {
-//                postProcess(this, x.subtract(BigInteger.ONE), z.subtract(BigInteger.ONE));
+            if (this.hasChunk(xMinusOne, zMinusOne)
+                    && !this.getChunk(xMinusOne, zMinusOne).terrainPopulated
+                    && this.hasChunk(xMinusOne, zMinusOne)
+                    && this.hasChunk(x, zMinusOne)
+                    && this.hasChunk(xMinusOne, z)) {
+                this.postProcess(this, xMinusOne, zMinusOne);
             }
         }
 

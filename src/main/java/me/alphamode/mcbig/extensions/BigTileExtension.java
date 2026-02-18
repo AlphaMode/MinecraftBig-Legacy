@@ -1,8 +1,10 @@
 package me.alphamode.mcbig.extensions;
 
 import me.alphamode.mcbig.world.phys.BigAABB;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.ItemInstance;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -88,7 +90,33 @@ public interface BigTileExtension {
         return 16777215;
     }
 
+    default boolean getSignal(LevelSource levelReader, BigInteger x, int y, BigInteger z, int direction) {
+        return false;
+    }
+
+    default boolean canPlace(Level level, BigInteger x, int y, BigInteger z, int face) {
+        return this.mayPlace(level, x, y, z);
+    }
+
+    default boolean mayPlace(Level level, BigInteger x, int y, BigInteger z) {
+        int tt = level.getTile(x, y, z);
+        return tt == 0 || Tile.tiles[tt].material.isReplaceable();
+    }
+
     default void entityInside(Level level, BigInteger x, int y, BigInteger z, Entity entity) {}
+
+    default boolean getDirectSignal(Level level, BigInteger x, int y, BigInteger z, int direction) {
+        return false;
+    }
+
+    default void playerDestroy(Level level, Player player, BigInteger x, int y, BigInteger z, int meta) {}
+
+    default boolean canPlace(Level level, BigInteger x, int y, BigInteger z) {
+        return true;
+    }
+
+    default void setPlacedBy(Level level, BigInteger x, int y, BigInteger z, Mob entity) {
+    }
 
     default void dropResources(Level level, BigInteger x, int y, BigInteger z, int meta) {
         throw new UnsupportedOperationException();

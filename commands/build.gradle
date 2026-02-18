@@ -1,0 +1,87 @@
+plugins {
+    id 'maven-publish'
+    id 'net.fabricmc.fabric-loom-remap' version '1.15-SNAPSHOT'
+    id 'ploceus' version '1.15-SNAPSHOT'
+}
+
+base {
+    archivesName = project.archives_base_name
+}
+
+version = project.mod_version
+group = project.maven_group
+
+ploceus {
+    setIntermediaryGeneration(2)
+    disableLvtPatch() // Lvt patching is still experimental right now and leads to decompiler issues
+}
+
+repositories {
+    maven {
+        url "https://libraries.minecraft.net"
+    }
+    maven { url 'https://mvn.devos.one/releases' }
+}
+
+dependencies {
+    // To change the versions see the gradle.properties file
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings ploceus.layeredMappings {
+        mappings("me.alphamode:nostalgia:${project.nostalgia_mappings}:v2", {
+//            containsUnpick() Waiting for unpick v4
+        })
+    }
+
+    implementation(files("libs/nostalgia-b1.7.3+build.51-constants.jar"))
+
+    implementation 'com.mojang:brigadier:1.3.10'
+
+
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+    clientExceptions ploceus.raven(project.client_raven_build, 'client')
+    serverExceptions ploceus.raven(project.server_raven_build, 'server')
+
+    clientSignatures ploceus.sparrow(project.client_sparrow_build, 'client')
+    serverSignatures ploceus.sparrow(project.server_sparrow_build, 'server')
+
+    clientNests ploceus.nests(project.client_nests_build, 'client')
+    serverNests ploceus.nests(project.server_nests_build, 'server')
+}
+
+processResources {
+    inputs.property "version", project.version
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 17
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+
+    withSourcesJar()
+}
+
+jar {
+    from("LICENSE") {
+        rename { "${it}_${project.archivesBaseName}"}
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+
+    repositories {
+
+    }
+}

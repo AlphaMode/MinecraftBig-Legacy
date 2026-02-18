@@ -5,11 +5,13 @@ import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import me.alphamode.mcbig.extensions.PlayerExtension;
 import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
 import me.alphamode.mcbig.math.BigMath;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.player.input.Input;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.feature.BirchFeature;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -26,52 +28,16 @@ public abstract class LocalPlayerMixin extends Player implements PlayerExtension
 
     @Shadow public Input input;
 
+    @Shadow
+    protected Minecraft minecraft;
+
     public LocalPlayerMixin(Level level) {
         super(level);
     }
 
     @Inject(method = "chat", at = @At("HEAD"))
     private void onChat(String msg, CallbackInfo ci) {
-        if (msg.startsWith("/")) {
-            String[] args = msg.split(" ");
-            if (args[0].equals("/tp")) {
-                BigDecimal xCoord = BigDecimal.ZERO;
-                double yCoord = 0;
-                BigDecimal zCoord = BigDecimal.ZERO;
-
-                boolean xRel = false;
-                boolean yRel = false;
-                boolean zRel = false;
-                if (args[1].startsWith("~")) {
-                    xRel = true;
-                    args[1] = args[1].substring(1);
-                    if (!args[1].isEmpty())
-                        xCoord = new BigDecimal(args[1]);
-                } else {
-                    xCoord = new BigDecimal(args[1]);
-                }
-
-                if (args[2].startsWith("~")) {
-                    yRel = true;
-                    args[2] = args[2].substring(1);
-                    if (!args[2].isEmpty())
-                        yCoord = Double.parseDouble(args[2]);
-                } else {
-                    yCoord = Double.parseDouble(args[2]);
-                }
-
-                if (args[3].startsWith("~")) {
-                    zRel = true;
-                    args[3] = args[3].substring(1);
-                    if (!args[3].isEmpty())
-                        zCoord = new BigDecimal(args[3]);
-                } else {
-                    zCoord = new BigDecimal(args[3]);
-                }
-
-                setPos(xRel ? getX().add(xCoord) : xCoord, yRel ? this.y + yCoord : yCoord, zRel ? getZ().add(zCoord) : zCoord);
-            }
-        }
+        this.minecraft.gui.addMessage("<" + this.name + "> " + msg);
     }
 
     private int jumpTriggerTime;
@@ -88,16 +54,18 @@ public abstract class LocalPlayerMixin extends Player implements PlayerExtension
     @Inject(method = "aiStep", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;aiStep()V", shift = At.Shift.BEFORE))
     private void flyHeight(CallbackInfo ci, @Share("was_jumping") LocalBooleanRef flag) {
 
-        if (!flag.get() && this.input.jumping) {
-            if (this.jumpTriggerTime == 0) {
-                this.jumpTriggerTime = 7;
-            } else {
-                setFlying(!isFlying());
-                if (isFlying() && this.onGround) {
-                    this.jumpFromGround();
-                }
+        if (canFly()) {
+            if (!flag.get() && this.input.jumping) {
+                if (this.jumpTriggerTime == 0) {
+                    this.jumpTriggerTime = 7;
+                } else {
+                    setFlying(!isFlying());
+                    if (isFlying() && this.onGround) {
+                        this.jumpFromGround();
+                    }
 
-                this.jumpTriggerTime = 0;
+                    this.jumpTriggerTime = 0;
+                }
             }
         }
 
@@ -119,6 +87,9 @@ public abstract class LocalPlayerMixin extends Player implements PlayerExtension
 
     @Inject(method = "aiStep", at = @At("TAIL"))
     private void toggleFly(CallbackInfo ci) {
+        if (!canFly()) {
+            setFlying(false);
+        }
         if (this.onGround && isFlying()) {
             setFlying(false);
         }

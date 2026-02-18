@@ -5,6 +5,8 @@ import me.alphamode.mcbig.math.BigConstants;
 import me.alphamode.mcbig.math.BigMath;
 import me.alphamode.mcbig.world.phys.BigAABB;
 import me.alphamode.mcbig.world.phys.DelegatingBigAABB;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
@@ -90,6 +92,7 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
         }
     }
 
+    @Environment(EnvType.CLIENT)
     @Redirect(method = "resetPos", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;setPos(DDD)V"))
     private void bigPosReset(Entity instance, double x, double y, double z) {
         ((BigEntityExtension)instance).setPos(this.xBig, y, this.zBig);

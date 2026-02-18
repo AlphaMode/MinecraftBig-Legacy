@@ -20,7 +20,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 @Mixin(TileRenderer.class)
-public abstract class TileRendererMixin implements BigTileRendererExtension {
+public abstract class TileRendererMixin implements BigTileRendererExtension, me.alphamode.mcbig.extensions.features.fix_stripelands.BigTileRendererExtension {
     @Shadow
     private LevelSource level;
 
@@ -225,8 +225,8 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             return tesselateBlockInWorld(tile, x, y, z);
         } else if (shape == BlockShapes.LIQUID) {
             return tesselateWaterInWorld(tile, x, y, z);
-//        } else if (shape == BlockShapes.CACTUS) {
-//            return this.tesselateCactusInWorld(tile, x, y, z);
+        } else if (shape == BlockShapes.CACTUS) {
+            return this.tesselateCactusInWorld(tile, x, y, z);
 //        } else if (shape == BlockShapes.REEDS) {
 //            return this.tesselateCrossInWorld(tile, x, y, z);
 //        } else if (shape == BlockShapes.CROP) {
@@ -971,13 +971,151 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
         return changed;
     }
 
+    public boolean tesselateCactusInWorld(Tile tt, BigInteger x, int y, BigInteger z) {
+        int col = tt.getFoliageColor(this.level, x, y, z);
+        float r = (col >> 16 & 0xFF) / 255.0F;
+        float g = (col >> 8 & 0xFF) / 255.0F;
+        float b = (col & 0xFF) / 255.0F;
+        if (GameRenderer.anaglyph3d) {
+            float cR = (r * 30.0F + g * 59.0F + b * 11.0F) / 100.0F;
+            float cG = (r * 30.0F + g * 70.0F) / 100.0F;
+            float cB = (r * 30.0F + b * 70.0F) / 100.0F;
+            r = cR;
+            g = cG;
+            b = cB;
+        }
+
+        return this.tesselateCactusInWorld(tt, x, y, z, r, g, b);
+    }
+
+    public boolean tesselateCactusInWorld(Tile tt, final BigInteger x, int y, final BigInteger z, float r, float g, float b) {
+        final BigDecimal bigX = new BigDecimal(x);
+        final BigDecimal bigZ = new BigDecimal(z);
+        Tesselator t = Tesselator.instance;
+        boolean var9 = false;
+        float var10 = 0.5F;
+        float var11 = 1.0F;
+        float var12 = 0.8F;
+        float var13 = 0.6F;
+        float var14 = var10 * r;
+        float var15 = var11 * r;
+        float var16 = var12 * r;
+        float var17 = var13 * r;
+        float var18 = var10 * g;
+        float var19 = var11 * g;
+        float var20 = var12 * g;
+        float var21 = var13 * g;
+        float var22 = var10 * b;
+        float var23 = var11 * b;
+        float var24 = var12 * b;
+        float var25 = var13 * b;
+        float var26 = 0.0625F;
+        float var27 = tt.getBrightness(this.level, x, y, z);
+        if (this.noCulling || tt.shouldRenderFace(this.level, x, y - 1, z, 0)) {
+            float br = tt.getBrightness(this.level, x, y - 1, z);
+            t.color(var14 * br, var18 * br, var22 * br);
+            if (FIX_STRIPELANDS) {
+                this.renderFaceDown(tt, bigX, y, bigZ, tt.getTexture(this.level, x, y, z, Facing.DOWN));
+            } else {
+                this.renderFaceDown(tt, x.doubleValue(), y, z.doubleValue(), tt.getTexture(this.level, x, y, z, Facing.DOWN));
+            }
+
+            var9 = true;
+        }
+
+        if (this.noCulling || tt.shouldRenderFace(this.level, x, y + 1, z, Facing.UP)) {
+            float br = tt.getBrightness(this.level, x, y + 1, z);
+            if (tt.yy1 != 1.0 && !tt.material.isLiquid()) {
+                br = var27;
+            }
+
+            t.color(var15 * br, var19 * br, var23 * br);
+            if (FIX_STRIPELANDS) {
+                this.renderFaceUp(tt, bigX, y, bigZ, tt.getTexture(this.level, x, y, z, Facing.UP));
+            } else {
+                this.renderFaceUp(tt, x.doubleValue(), y, z.doubleValue(), tt.getTexture(this.level, x, y, z, Facing.UP));
+            }
+            var9 = true;
+        }
+
+        if (this.noCulling || tt.shouldRenderFace(this.level, x, y, z.subtract(BigInteger.ONE), Facing.NORTH)) {
+            float var30 = tt.getBrightness(this.level, x, y, z.subtract(BigInteger.ONE));
+            if (tt.zz0 > 0.0) {
+                var30 = var27;
+            }
+
+            t.color(var16 * var30, var20 * var30, var24 * var30);
+            t.addOffset(0.0F, 0.0F, var26);
+            if (FIX_STRIPELANDS) {
+                this.renderNorth(tt, bigX, y, bigZ, tt.getTexture(this.level, x, y, z, Facing.NORTH));
+            } else {
+                this.renderNorth(tt, x.doubleValue(), y, z.doubleValue(), tt.getTexture(this.level, x, y, z, Facing.NORTH));
+            }
+            t.addOffset(0.0F, 0.0F, -var26);
+            var9 = true;
+        }
+
+        if (this.noCulling || tt.shouldRenderFace(this.level, x, y, z.add(BigInteger.ONE), Facing.SOUTH)) {
+            float br = tt.getBrightness(this.level, x, y, z.add(BigInteger.ONE));
+            if (tt.zz1 < 1.0) {
+                br = var27;
+            }
+
+            t.color(var16 * br, var20 * br, var24 * br);
+            t.addOffset(0.0F, 0.0F, -var26);
+            if (FIX_STRIPELANDS) {
+                this.renderSouth(tt, bigX, y, bigZ, tt.getTexture(this.level, x, y, z, Facing.SOUTH));
+            } else {
+                this.renderSouth(tt, x.doubleValue(), y, z.doubleValue(), tt.getTexture(this.level, x, y, z, Facing.SOUTH));
+            }
+            t.addOffset(0.0F, 0.0F, var26);
+            var9 = true;
+        }
+
+        if (this.noCulling || tt.shouldRenderFace(this.level, x.subtract(BigInteger.ONE), y, z, Facing.WEST)) {
+            float var32 = tt.getBrightness(this.level, x.subtract(BigInteger.ONE), y, z);
+            if (tt.xx0 > 0.0) {
+                var32 = var27;
+            }
+
+            t.color(var17 * var32, var21 * var32, var25 * var32);
+            t.addOffset(var26, 0.0F, 0.0F);
+            if (FIX_STRIPELANDS) {
+                this.renderWest(tt, bigX, y, bigZ, tt.getTexture(this.level, x, y, z, Facing.WEST));
+            } else {
+                this.renderWest(tt, x.doubleValue(), y, z.doubleValue(), tt.getTexture(this.level, x, y, z, Facing.WEST));
+            }
+            t.addOffset(-var26, 0.0F, 0.0F);
+            var9 = true;
+        }
+
+        if (this.noCulling || tt.shouldRenderFace(this.level, x.add(BigInteger.ONE), y, z, Facing.EAST)) {
+            float br = tt.getBrightness(this.level, x.add(BigInteger.ONE), y, z);
+            if (tt.xx1 < 1.0) {
+                br = var27;
+            }
+
+            t.color(var17 * br, var21 * br, var25 * br);
+            t.addOffset(-var26, 0.0F, 0.0F);
+            if (FIX_STRIPELANDS) {
+                this.renderEast(tt, bigX, y, bigZ, tt.getTexture(this.level, x, y, z, Facing.EAST));
+            } else {
+                this.renderEast(tt, x.doubleValue(), y, z.doubleValue(), tt.getTexture(this.level, x, y, z, Facing.EAST));
+            }
+            t.addOffset(var26, 0.0F, 0.0F);
+            var9 = true;
+        }
+
+        return var9;
+    }
+
     @Override
     public boolean tesselateWaterInWorld(Tile tt, BigInteger x, int y, BigInteger z) {
         Tesselator t = Tesselator.instance;
         int col = tt.getFoliageColor(this.level, x, y, z);
-        float var7 = (float) (col >> 16 & 0xFF) / 255.0F;
-        float var8 = (float) (col >> 8 & 0xFF) / 255.0F;
-        float var9 = (float) (col & 0xFF) / 255.0F;
+        float r = (float) (col >> 16 & 0xFF) / 255.0F;
+        float g = (float) (col >> 8 & 0xFF) / 255.0F;
+        float b = (float) (col & 0xFF) / 255.0F;
         boolean up = tt.shouldRenderFace(this.level, x, y + 1, z, Facing.UP);
         boolean down = tt.shouldRenderFace(this.level, x, y - 1, z, Facing.DOWN);
         boolean[] dirs = new boolean[]{
@@ -1024,11 +1162,18 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
                 float s = Mth.sin(angle) * 8.0F / 256.0F;
                 float c = Mth.cos(angle) * 8.0F / 256.0F;
                 float br = tt.getBrightness(this.level, x, y, z);
-                t.color(c11 * br * var7, c11 * br * var8, c11 * br * var9);
-                t.vertexUV((double) (x.doubleValue()), (double) ((float) y + h0), (double) (z).doubleValue(), uc - (double) c - (double) s, vc - (double) c + (double) s);
-                t.vertexUV((double) (x.doubleValue()), (double) ((float) y + h1), (double) (z.add(BigInteger.ONE)).doubleValue(), uc - (double) c + (double) s, vc + (double) c + (double) s);
-                t.vertexUV((double) (x.add(BigInteger.ONE)).doubleValue(), (double) ((float) y + h2), (double) (z.add(BigInteger.ONE)).doubleValue(), uc + (double) c + (double) s, vc + (double) c - (double) s);
-                t.vertexUV((double) (x.add(BigInteger.ONE)).doubleValue(), (double) ((float) y + h3), (double) (z).doubleValue(), uc + (double) c - (double) s, vc - (double) c - (double) s);
+                t.color(c11 * br * r, c11 * br * g, c11 * br * b);
+                if (FIX_STRIPELANDS) {
+                    t.vertexUV(new BigDecimal(x), (float) y + h0, new BigDecimal(z), uc - (double) c - (double) s, vc - (double) c + (double) s);
+                    t.vertexUV(new BigDecimal(x), (float) y + h1, new BigDecimal(z.add(BigInteger.ONE)), uc - (double) c + (double) s, vc + (double) c + (double) s);
+                    t.vertexUV(new BigDecimal(x.add(BigInteger.ONE)), (float) y + h2, new BigDecimal(z.add(BigInteger.ONE)), uc + (double) c + (double) s, vc + (double) c - (double) s);
+                    t.vertexUV(new BigDecimal(x.add(BigInteger.ONE)), (float) y + h3, new BigDecimal(z), uc + (double) c - (double) s, vc - (double) c - (double) s);
+                } else {
+                    t.vertexUV((double) (x.doubleValue()), (double) ((float) y + h0), (double) (z).doubleValue(), uc - (double) c - (double) s, vc - (double) c + (double) s);
+                    t.vertexUV((double) (x.doubleValue()), (double) ((float) y + h1), (double) (z.add(BigInteger.ONE)).doubleValue(), uc - (double) c + (double) s, vc + (double) c + (double) s);
+                    t.vertexUV((double) (x.add(BigInteger.ONE)).doubleValue(), (double) ((float) y + h2), (double) (z.add(BigInteger.ONE)).doubleValue(), uc + (double) c + (double) s, vc + (double) c - (double) s);
+                    t.vertexUV((double) (x.add(BigInteger.ONE)).doubleValue(), (double) ((float) y + h3), (double) (z).doubleValue(), uc + (double) c - (double) s, vc - (double) c - (double) s);
+                }
             }
 
             if (this.noCulling || down) {
@@ -1043,82 +1188,29 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             }
 
             for (int face = 0; face < 4; ++face) {
-                BigInteger xt = x;
-                BigInteger zt = z;
-                if (face == 0) {
-                    zt = z.subtract(BigInteger.ONE);
-                }
-
-                if (face == 1) {
-                    zt = zt.add(BigInteger.ONE);
-                }
-
-                if (face == 2) {
-                    xt = x.subtract(BigInteger.ONE);
-                }
-
-                if (face == 3) {
-                    xt = xt.add(BigInteger.ONE);
-                }
-
-                int texx = tt.getTexture(face + 2, data);
-                int xTex = (texx & 15) << 4;
-                int yTex = texx & 240;
-                if (this.noCulling || dirs[face]) {
-                    float hh0;
-                    double x1;
-                    double z1;
-                    float hh1;
-                    double x0;
-                    double z0;
-                    if (face == 0) {
-                        hh0 = h0;
-                        hh1 = h3;
-                        x0 = x.doubleValue();
-                        x1 = (x.add(BigInteger.ONE)).doubleValue();
-                        z0 = z.doubleValue();
-                        z1 = z.doubleValue();
-                    } else if (face == 1) {
-                        hh0 = h2;
-                        hh1 = h1;
-                        x0 = (x.add(BigInteger.ONE)).doubleValue();
-                        x1 = x.doubleValue();
-                        z0 = (z.add(BigInteger.ONE)).doubleValue();
-                        z1 = (z.add(BigInteger.ONE)).doubleValue();
-                    } else if (face == 2) {
-                        hh0 = h1;
-                        hh1 = h0;
-                        x0 = x.doubleValue();
-                        x1 = x.doubleValue();
-                        z0 = (z.add(BigInteger.ONE)).doubleValue();
-                        z1 = z.doubleValue();
-                    } else {
-                        hh0 = h3;
-                        hh1 = h2;
-                        x0 = (x.add(BigInteger.ONE)).doubleValue();
-                        x1 = (x.add(BigInteger.ONE)).doubleValue();
-                        z0 = z.doubleValue();
-                        z1 = (z.add(BigInteger.ONE)).doubleValue();
-                    }
-
-                    changed = true;
-                    double u0 = (double) ((float) (xTex + 0) / 256.0F);
-                    double u1 = ((double) (xTex + 16) - 0.01) / 256.0;
-                    double v01 = (double) (((float) yTex + (1.0F - hh0) * 16.0F) / 256.0F);
-                    double v02 = (double) (((float) yTex + (1.0F - hh1) * 16.0F) / 256.0F);
-                    double v1 = ((double) (yTex + 16) - 0.01) / 256.0;
-                    float br = tt.getBrightness(this.level, xt, y, zt);
-                    if (face < 2) {
-                        br *= c2;
-                    } else {
-                        br *= c3;
-                    }
-
-                    t.color(c11 * br * var7, c11 * br * var8, c11 * br * var9);
-                    t.vertexUV((double) x0, (double) ((float) y + hh0), (double) z0, u0, v01);
-                    t.vertexUV((double) x1, (double) ((float) y + hh1), (double) z1, u1, v02);
-                    t.vertexUV((double) x1, (double) (y + 0), (double) z1, u1, v1);
-                    t.vertexUV((double) x0, (double) (y + 0), (double) z0, u0, v1);
+                if (FIX_STRIPELANDS) {
+                    changed = renderBigLiquidFace(
+                            t,
+                            x, y, z,
+                            new BigDecimal(x), new BigDecimal(z),
+                            tt, data,
+                            dirs,
+                            c2, c3, c11,
+                            r, g, b,
+                            h0, h1, h2, h3,
+                            face
+                    );
+                } else {
+                    changed = renderLiquidFace(
+                            t,
+                            x, y, z,
+                            tt, data,
+                            dirs,
+                            c2, c3, c11,
+                            r, g, b,
+                            h0, h1, h2, h3,
+                            face
+                    );
                 }
             }
 
@@ -1126,6 +1218,189 @@ public abstract class TileRendererMixin implements BigTileRendererExtension {
             tt.yy1 = yo1;
             return changed;
         }
+    }
+
+    private boolean renderBigLiquidFace(
+            Tesselator t,
+            final BigInteger x, final int y, final BigInteger z,
+            final BigDecimal bigX, final BigDecimal bigZ,
+            Tile tt, int data,
+            boolean[] dirs,
+            float c2, float c3, float c11,
+            float r, float g, float b,
+            float h0, float h1, float h2, float h3,
+            int face
+    ) {
+        final BigDecimal bigXPOne = new BigDecimal(x.add(BigInteger.ONE));
+        final BigDecimal bigZPOne = new BigDecimal(z.add(BigInteger.ONE));
+        BigInteger xt = x;
+        BigInteger zt = z;
+        if (face == 0) {
+            zt = z.subtract(BigInteger.ONE);
+        }
+
+        if (face == 1) {
+            zt = zt.add(BigInteger.ONE);
+        }
+
+        if (face == 2) {
+            xt = x.subtract(BigInteger.ONE);
+        }
+
+        if (face == 3) {
+            xt = xt.add(BigInteger.ONE);
+        }
+
+        int texx = tt.getTexture(face + 2, data);
+        int xTex = (texx & 15) << 4;
+        int yTex = texx & 240;
+        if (this.noCulling || dirs[face]) {
+            float hh0;
+            BigDecimal x1;
+            BigDecimal z1;
+            float hh1;
+            BigDecimal x0;
+            BigDecimal z0;
+            if (face == 0) {
+                hh0 = h0;
+                hh1 = h3;
+                x0 = bigX;
+                x1 = bigXPOne;
+                z0 = bigZ;
+                z1 = bigZ;
+            } else if (face == 1) {
+                hh0 = h2;
+                hh1 = h1;
+                x0 = bigXPOne;
+                x1 = bigX;
+                z0 = bigZPOne;
+                z1 = bigZPOne;
+            } else if (face == 2) {
+                hh0 = h1;
+                hh1 = h0;
+                x0 = bigX;
+                x1 = bigX;
+                z0 = bigZPOne;
+                z1 = bigZ;
+            } else {
+                hh0 = h3;
+                hh1 = h2;
+                x0 = bigXPOne;
+                x1 = bigXPOne;
+                z0 = bigZ;
+                z1 = bigZPOne;
+            }
+
+            double u0 = (double) ((float) (xTex + 0) / 256.0F);
+            double u1 = ((double) (xTex + 16) - 0.01) / 256.0;
+            double v01 = (double) (((float) yTex + (1.0F - hh0) * 16.0F) / 256.0F);
+            double v02 = (double) (((float) yTex + (1.0F - hh1) * 16.0F) / 256.0F);
+            double v1 = ((double) (yTex + 16) - 0.01) / 256.0;
+            float br = tt.getBrightness(this.level, xt, y, zt);
+            if (face < 2) {
+                br *= c2;
+            } else {
+                br *= c3;
+            }
+
+            t.color(c11 * br * r, c11 * br * g, c11 * br * b);
+            t.vertexUV(x0, (float) y + hh0, z0, u0, v01);
+            t.vertexUV(x1, (float) y + hh1, z1, u1, v02);
+            t.vertexUV(x1, y + 0, z1, u1, v1);
+            t.vertexUV(x0, y + 0, z0, u0, v1);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean renderLiquidFace(
+            Tesselator t,
+            BigInteger x, int y, BigInteger z,
+            Tile tt, int data,
+            boolean[] dirs,
+            float c2, float c3, float c11,
+            float r, float g, float b,
+            float h0, float h1, float h2, float h3,
+            int face
+    ) {
+        BigInteger xt = x;
+        BigInteger zt = z;
+        if (face == 0) {
+            zt = z.subtract(BigInteger.ONE);
+        }
+
+        if (face == 1) {
+            zt = zt.add(BigInteger.ONE);
+        }
+
+        if (face == 2) {
+            xt = x.subtract(BigInteger.ONE);
+        }
+
+        if (face == 3) {
+            xt = xt.add(BigInteger.ONE);
+        }
+
+        int texx = tt.getTexture(face + 2, data);
+        int xTex = (texx & 15) << 4;
+        int yTex = texx & 240;
+        if (this.noCulling || dirs[face]) {
+            float hh0;
+            double x1;
+            double z1;
+            float hh1;
+            double x0;
+            double z0;
+            if (face == 0) {
+                hh0 = h0;
+                hh1 = h3;
+                x0 = x.doubleValue();
+                x1 = (x.add(BigInteger.ONE)).doubleValue();
+                z0 = z.doubleValue();
+                z1 = z.doubleValue();
+            } else if (face == 1) {
+                hh0 = h2;
+                hh1 = h1;
+                x0 = (x.add(BigInteger.ONE)).doubleValue();
+                x1 = x.doubleValue();
+                z0 = (z.add(BigInteger.ONE)).doubleValue();
+                z1 = (z.add(BigInteger.ONE)).doubleValue();
+            } else if (face == 2) {
+                hh0 = h1;
+                hh1 = h0;
+                x0 = x.doubleValue();
+                x1 = x.doubleValue();
+                z0 = (z.add(BigInteger.ONE)).doubleValue();
+                z1 = z.doubleValue();
+            } else {
+                hh0 = h3;
+                hh1 = h2;
+                x0 = (x.add(BigInteger.ONE)).doubleValue();
+                x1 = (x.add(BigInteger.ONE)).doubleValue();
+                z0 = z.doubleValue();
+                z1 = (z.add(BigInteger.ONE)).doubleValue();
+            }
+
+            double u0 = (double) ((float) (xTex + 0) / 256.0F);
+            double u1 = ((double) (xTex + 16) - 0.01) / 256.0;
+            double v01 = (double) (((float) yTex + (1.0F - hh0) * 16.0F) / 256.0F);
+            double v02 = (double) (((float) yTex + (1.0F - hh1) * 16.0F) / 256.0F);
+            double v1 = ((double) (yTex + 16) - 0.01) / 256.0;
+            float br = tt.getBrightness(this.level, xt, y, zt);
+            if (face < 2) {
+                br *= c2;
+            } else {
+                br *= c3;
+            }
+
+            t.color(c11 * br * r, c11 * br * g, c11 * br * b);
+            t.vertexUV((double) x0, (double) ((float) y + hh0), (double) z0, u0, v01);
+            t.vertexUV((double) x1, (double) ((float) y + hh1), (double) z1, u1, v02);
+            t.vertexUV((double) x1, (double) (y + 0), (double) z1, u1, v1);
+            t.vertexUV((double) x0, (double) (y + 0), (double) z0, u0, v1);
+            return true;
+        }
+        return false;
     }
 
     private float getWaterHeight(BigInteger x, int y, BigInteger z, Material m) {

@@ -26,7 +26,12 @@
   ],
   "custom": {
     "loom:injected_interfaces": {
-      "net/minecraft/unmapped/C_03670941": ["me/alphamode/mcbig/extensions/BigTileRendererExtension"],
+      "net/minecraft/unmapped/C_97866173": ["me/alphamode/mcbig/extensions/features/commands/GuiExtension"],
+      "net/minecraft/unmapped/C_57778754": ["me/alphamode/mcbig/extensions/features/commands/LocalPlayerExtension"],
+      "net/minecraft/unmapped/C_03670941": [
+        "me/alphamode/mcbig/extensions/BigTileRendererExtension",
+        "me/alphamode/mcbig/extensions/features/fix_stripelands/BigTileRendererExtension"
+      ],
       "net/minecraft/unmapped/C_46108969": ["me/alphamode/mcbig/extensions/BigLevelSourceExtension"],
       "net/minecraft/unmapped/C_81592558": ["me/alphamode/mcbig/extensions/BigTileExtension"],
       "net/minecraft/unmapped/C_64041439": ["me/alphamode/mcbig/extensions/BigLevelExtension"],
@@ -39,7 +44,12 @@
       "net/minecraft/unmapped/C_99656780": ["me/alphamode/mcbig/extensions/BigChunkStorageExtension"],
       "net/minecraft/unmapped/C_15682602": ["me/alphamode/mcbig/extensions/BigOffsettedRenderListExtension"],
       "net/minecraft/unmapped/C_34267874": ["me/alphamode/mcbig/extensions/BigGameModeExtension"],
-      "net/minecraft/unmapped/C_28112798": ["me/alphamode/mcbig/extensions/BigBiomeSourceExtension"]
+      "net/minecraft/unmapped/C_28112798": ["me/alphamode/mcbig/extensions/BigBiomeSourceExtension"],
+      "net/minecraft/unmapped/C_30339133": ["me/alphamode/mcbig/extensions/BigFeatureExtension"],
+      "net/minecraft/unmapped/C_40735137": ["me/alphamode/mcbig/extensions/BigTileEntityExtension"],
+      "net/minecraft/unmapped/C_23014920": ["me/alphamode/mcbig/extensions/features/commands/FontExtension"],
+      "net/minecraft/unmapped/C_71940803": ["me/alphamode/mcbig/extensions/tiles/BigPortalTileExtension"],
+      "net/minecraft/unmapped/C_32290952": ["me/alphamode/mcbig/extensions/tiles/BigFireTileExtension"]
     }
   },
 

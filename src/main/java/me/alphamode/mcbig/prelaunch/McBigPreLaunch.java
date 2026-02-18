@@ -20,7 +20,7 @@ public class McBigPreLaunch implements LanguageAdapter {
             System.setProperty("swing.aatext", "true");
 
             // Force GTK if available
-//        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             for (var laf : UIManager.getInstalledLookAndFeels()) {
                 if (!"GTK+".equals(laf.getName())) continue;
                 UIManager.setLookAndFeel(laf.getClassName());

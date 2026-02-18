@@ -27,6 +27,9 @@ ploceus {
 }
 
 repositories {
+    maven {
+        url "https://libraries.minecraft.net"
+    }
     maven { url 'https://mvn.devos.one/releases' }
 }
 
@@ -41,6 +44,7 @@ dependencies {
 
     implementation(files("libs/nostalgia-b1.7.3+build.51-constants.jar"))
 
+    implementation(include('com.mojang:brigadier:1.3.10'))
 
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 

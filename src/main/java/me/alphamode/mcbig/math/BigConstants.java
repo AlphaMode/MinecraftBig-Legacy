@@ -2,8 +2,10 @@ package me.alphamode.mcbig.math;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
 
 public class BigConstants {
+    public static final BigInteger FOUR = BigInteger.valueOf(4);
     public static final BigInteger EIGHT = BigInteger.valueOf(8);
     public static final BigInteger FIFTEEN = BigInteger.valueOf(15);
     public static final BigInteger SIXTEEN = BigInteger.valueOf(16);
@@ -13,6 +15,6 @@ public class BigConstants {
     public static final BigInteger CHUNK_OFFSET = BigInteger.valueOf(1023);
 
     public static final BigDecimal TWO = BigDecimal.valueOf(2);
-
-
+    public static final BigDecimal POINT_FIVE = BigDecimal.valueOf(0.5);
+    public static final BigDecimal EPSILON = new BigDecimal(0.0625F, MathContext.DECIMAL32);
 }

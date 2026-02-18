@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "me.alphamode.mcbig.commands.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+  ],
+  "client": [
+    "me.alphamode.mcbig.mixin.commands.client.ChatScreenMixin",
+    "me.alphamode.mcbig.mixin.commands.client.GuiMixin",
+    "me.alphamode.mcbig.mixin.commands.client.LocalPlayerMixin",
+    "me.alphamode.mcbig.mixin.commands.client.MinecraftMixin"
+  ],
+  "server": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

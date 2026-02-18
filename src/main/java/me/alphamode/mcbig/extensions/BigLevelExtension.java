@@ -6,6 +6,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.LevelListener;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.tile.entity.TileEntity;
 import net.minecraft.world.phys.AABB;
 
 import java.math.BigInteger;
@@ -51,6 +52,8 @@ public interface BigLevelExtension {
     default void neighborChanged(BigInteger x, int y, BigInteger z, int tile) {
         throw new UnsupportedOperationException();
     }
+
+    boolean isEmptyTile(BigInteger x, int y, BigInteger z);
 
     boolean hasChunkAt(BigInteger x, int y, BigInteger z);
 
@@ -114,7 +117,39 @@ public interface BigLevelExtension {
         throw new UnsupportedOperationException();
     }
 
+    default boolean mayPlace(int tileId, BigInteger x, int y, BigInteger z, boolean ignoreObstructed, int face) {
+        throw new UnsupportedOperationException();
+    }
+
+    default boolean getDirectSignal(BigInteger x, int y, BigInteger z, int direction) {
+        throw new UnsupportedOperationException();
+    }
+
+    default boolean hasDirectSignal(BigInteger x, int y, BigInteger z) {
+        throw new UnsupportedOperationException();
+    }
+
+    default boolean getSignal(BigInteger x, int y, BigInteger z, int direction) {
+        throw new UnsupportedOperationException();
+    }
+
+    default boolean hasNeighborSignal(BigInteger x, int y, BigInteger z) {
+        throw new UnsupportedOperationException();
+    }
+
     default List<Entity> getEntities(Entity entity, BigAABB area) {
+        throw new UnsupportedOperationException();
+    }
+
+    default void setTileEntity(BigInteger x, int y, BigInteger z, TileEntity tileEntity) {
+        throw new UnsupportedOperationException();
+    }
+
+    default void removeTileEntity(BigInteger x, int y, BigInteger z) {
+        throw new UnsupportedOperationException();
+    }
+
+    default void tileEntityChanged(BigInteger x, int y, BigInteger z, TileEntity te) {
         throw new UnsupportedOperationException();
     }
 

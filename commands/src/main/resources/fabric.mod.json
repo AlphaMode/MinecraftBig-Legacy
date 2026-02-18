@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "mcbig-commands",
+  "version": "${version}",
+
+  "name": "MC Big Commands",
+  "description": "Command system for MC Big",
+  "authors": [
+    "AlphaMode"
+  ],
+  "license": "MIT",
+  "mixins": [
+    "commands.mixins.json"
+  ],
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+    ]
+  },
+  "custom": {
+    "loom:injected_interfaces": {
+
+    }
+  },
+  "depends": {
+    "minecraft": "1.0.0-beta.7.3"
+  }
+}

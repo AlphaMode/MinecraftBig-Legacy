@@ -1,6 +1,8 @@
 package me.alphamode.mcbig.mixin.tiles;
 
 import me.alphamode.mcbig.extensions.BigTileExtension;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.util.Facing;
 import net.minecraft.world.level.GrassColor;
 import net.minecraft.world.level.Level;
@@ -15,6 +17,7 @@ import java.util.Random;
 
 @Mixin(GrassTile.class)
 public class GrassTileMixin implements BigTileExtension {
+    @Environment(EnvType.CLIENT)
     @Override
     public int getTexture(LevelSource level, BigInteger x, int y, BigInteger z, int side) {
         if (side == Facing.UP) {
@@ -27,6 +30,7 @@ public class GrassTileMixin implements BigTileExtension {
         }
     }
 
+    @Environment(EnvType.CLIENT)
     @Override
     public int getFoliageColor(LevelSource level, BigInteger x, int y, BigInteger z) {
         level.getBiomeSource().getBiomeBlock(x.intValue(), z.intValue(), 1, 1);

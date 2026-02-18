@@ -18,11 +18,22 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Player.class)
 public abstract class PlayerMixin extends Entity implements PlayerExtension {
 
+    private boolean canFly = false;
     private boolean flying = false;
     private float flyingSpeed = 0.05F;
 
     public PlayerMixin(Level level) {
         super(level);
+    }
+
+    @Override
+    public boolean canFly() {
+        return this.canFly;
+    }
+
+    @Override
+    public void setCanFly(boolean canFly) {
+        this.canFly = canFly;
     }
 
     @Override

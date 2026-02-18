@@ -95,9 +95,6 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
     public abstract boolean isThundering();
 
     @Shadow
-    public abstract boolean setTile(int x, int y, int z, int tile);
-
-    @Shadow
     protected List<LevelListener> listeners;
 
     @Shadow
@@ -168,6 +165,9 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
     @Shadow
     private List<TileEntity> pendingTileEntities;
 
+    @Shadow
+    public abstract boolean isUnobstructed(AABB aabb);
+
     private boolean hasChunk(BigInteger x, BigInteger z) {
         return this.chunkSource.hasChunk(x, z);
     }
@@ -182,6 +182,15 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
         }
     }
 
+    /**
+     * @author AlphaMode
+     * @reason Redirect to big int method
+     */
+    @Overwrite
+    public boolean setTile(int x, int y, int z, int tile) {
+        return setTile(BigInteger.valueOf(x), y, BigInteger.valueOf(z), tile);
+    }
+
     @Override
     public boolean setTileNoUpdate(BigInteger x, int y, BigInteger z, int tile) {
         if (y < 0) {
@@ -194,6 +203,15 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
         }
     }
 
+    /**
+     * @author AlphaMode
+     * @reason Redirect to big int method
+     */
+    @Overwrite
+    public boolean setTileNoUpdate(int x, int y, int z, int tile) {
+        return setTileNoUpdate(BigInteger.valueOf(x), y, BigInteger.valueOf(z), tile);
+    }
+
     @Override
     public boolean setTileAndData(BigInteger x, int y, BigInteger z, int id, int data) {
         if (setTileAndDataNoUpdate(x, y, z, id, data)) {
@@ -202,6 +220,15 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
         } else {
             return false;
         }
+    }
+
+    /**
+     * @author AlphaMode
+     * @reason Redirect to big int method
+     */
+    @Overwrite
+    public boolean setTileAndData(int x, int y, int z, int id, int data) {
+        return setTileAndData(BigInteger.valueOf(x), y, BigInteger.valueOf(z), id, data);
     }
 
     @Override
@@ -214,6 +241,15 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
             LevelChunk chunk = this.getChunk(x.shiftRight(4), z.shiftRight(4));
             return chunk.setTileAndData(x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue(), tile, data);
         }
+    }
+
+    /**
+     * @author AlphaMode
+     * @reason Redirect to big int method
+     */
+    @Overwrite
+    public boolean setTileAndDataNoUpdate(int x, int y, int z, int tile, int data) {
+        return setTileAndDataNoUpdate(BigInteger.valueOf(x), y, BigInteger.valueOf(z), tile, data);
     }
 
     @Override
@@ -276,6 +312,43 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
     public TileEntity getTileEntity(BigInteger x, int y, BigInteger z) {
         LevelChunk chunk = this.getChunk(x.shiftRight(4), z.shiftRight(4));
         return chunk != null ? chunk.getTileEntity(x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue()) : null;
+    }
+
+    @Override
+    public void setTileEntity(BigInteger x, int y, BigInteger z, TileEntity tileEntity) {
+        if (!tileEntity.isRemoved()) {
+            if (this.updatingTileEntities) {
+                tileEntity.setX(x);
+                tileEntity.y = y;
+                tileEntity.setZ(z);
+                this.pendingTileEntities.add(tileEntity);
+            } else {
+                this.tileEntityList.add(tileEntity);
+                LevelChunk chunk = this.getChunk(x.shiftRight(4), z.shiftRight(4));
+                if (chunk != null) {
+                    chunk.setTileEntity(x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue(), tileEntity);
+                }
+            }
+        }
+
+    }
+
+    @Override
+    public void removeTileEntity(BigInteger x, int y, BigInteger z) {
+        TileEntity te = this.getTileEntity(x, y, z);
+        if (te != null && this.updatingTileEntities) {
+            te.setRemoved();
+        } else {
+            if (te != null) {
+                this.tileEntityList.remove(te);
+            }
+
+            LevelChunk chunk = this.getChunk(x.shiftRight(4), z.shiftRight(4));
+            if (chunk != null) {
+                chunk.removeTileEntity(x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue());
+            }
+        }
+
     }
 
     @Override
@@ -499,6 +572,11 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
     public Material getMaterial(BigInteger x, int y, BigInteger z) {
         int tile = getTile(x, y, z);
         return tile == 0 ? Material.AIR : Tile.tiles[tile].material;
+    }
+
+    @Override
+    public boolean isEmptyTile(BigInteger x, int y, BigInteger z) {
+        return this.getTile(x, y, z) == 0;
     }
 
     @Override
@@ -759,6 +837,73 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
     }
 
     @Override
+    public boolean mayPlace(int tileId, BigInteger x, int y, BigInteger z, boolean ignoreObstructed, int face) {
+        int var7 = this.getTile(x, y, z);
+        Tile var8 = Tile.tiles[var7];
+        Tile var9 = Tile.tiles[tileId];
+        AABB var10 = var9.getAABB((Level) (Object) this, x, y, z);
+        if (ignoreObstructed) {
+            var10 = null;
+        }
+
+        if (var10 != null && !this.isUnobstructed(var10)) {
+            return false;
+        } else {
+            if (var8 == Tile.FLOWING_WATER || var8 == Tile.WATER || var8 == Tile.FLOWING_LAVA || var8 == Tile.LAVA || var8 == Tile.FIRE || var8 == Tile.SNOW_LAYER) {
+                var8 = null;
+            }
+
+            return tileId > 0 && var8 == null && var9.canPlace((Level) (Object) this, x, y, z, face);
+        }
+    }
+
+    @Override
+    public boolean getDirectSignal(BigInteger x, int y, BigInteger z, int direction) {
+        int tt = this.getTile(x, y, z);
+        return tt == 0 ? false : Tile.tiles[tt].getDirectSignal((Level) (Object) this, x, y, z, direction);
+    }
+
+    @Override
+    public boolean hasDirectSignal(BigInteger x, int y, BigInteger z) {
+        if (this.getDirectSignal(x, y - 1, z, Facing.DOWN)) {
+            return true;
+        } else if (this.getDirectSignal(x, y + 1, z, Facing.UP)) {
+            return true;
+        } else if (this.getDirectSignal(x, y, z.subtract(BigInteger.ONE), Facing.NORTH)) {
+            return true;
+        } else if (this.getDirectSignal(x, y, z.add(BigInteger.ONE), Facing.SOUTH)) {
+            return true;
+        } else {
+            return this.getDirectSignal(x.subtract(BigInteger.ONE), y, z, Facing.WEST) ? true : this.getDirectSignal(x.add(BigInteger.ONE), y, z, Facing.EAST);
+        }
+    }
+
+    @Override
+    public boolean getSignal(BigInteger x, int y, BigInteger z, int direction) {
+        if (this.isSolidBlockingTile(x, y, z)) {
+            return this.hasDirectSignal(x, y, z);
+        } else {
+            int tile = this.getTile(x, y, z);
+            return tile == 0 ? false : Tile.tiles[tile].getSignal((Level) (Object) this, x, y, z, direction);
+        }
+    }
+
+    @Override
+    public boolean hasNeighborSignal(BigInteger x, int y, BigInteger z) {
+        if (this.getSignal(x, y - 1, z, Facing.DOWN)) {
+            return true;
+        } else if (this.getSignal(x, y + 1, z, Facing.UP)) {
+            return true;
+        } else if (this.getSignal(x, y, z.subtract(BigInteger.ONE), Facing.NORTH)) {
+            return true;
+        } else if (this.getSignal(x, y, z.add(BigInteger.ONE), Facing.SOUTH)) {
+            return true;
+        } else {
+            return this.getSignal(x.subtract(BigInteger.ONE), y, z, Facing.WEST) ? true : this.getSignal(x.add(BigInteger.ONE), y, z, Facing.EAST);
+        }
+    }
+
+    @Override
     public List<Entity> getEntities(Entity entity, BigAABB area) {
         this.es.clear();
         BigInteger x0 = BigMath.floor(area.x0.subtract(BigConstants.TWO).divide(BigConstants.SIXTEEN_F));
@@ -775,6 +920,17 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
         }
 
         return this.es;
+    }
+
+    @Override
+    public void tileEntityChanged(BigInteger x, int y, BigInteger z, TileEntity te) {
+        if (this.hasChunkAt(x, y, z)) {
+            this.getChunkAt(x, z).markUnsaved();
+        }
+
+        for (int i = 0; i < this.listeners.size(); i++) {
+            this.listeners.get(i).tileEntityChanged(x, y, z, te);
+        }
     }
 
     /**
@@ -1124,6 +1280,7 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
      * @author
      * @reason
      */
+    @Environment(EnvType.CLIENT)
     @Overwrite
     public void ensureAdded(Entity entity) {
         BigInteger x = BigMath.floor(entity.x / 16.0);
@@ -1679,6 +1836,7 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
      * @author
      * @reason
      */
+    @Environment(EnvType.CLIENT)
     @Overwrite
     public void removeAllPendingEntityRemovals() {
         this.entities.removeAll(this.entitiesToRemove);
