@@ -1,6 +1,7 @@
 package me.alphamode.mcbig.mixin.tiles;
 
 import me.alphamode.mcbig.extensions.BigTileExtension;
+import me.alphamode.mcbig.world.phys.BigAABB;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.tile.Bush;
 import net.minecraft.world.phys.AABB;
@@ -45,6 +46,11 @@ public abstract class BushMixin implements BigTileExtension {
 
     @Override
     public AABB getAABB(Level level, BigInteger x, int y, BigInteger z) {
+        return null;
+    }
+
+    @Override
+    public BigAABB getBigAABB(Level level, BigInteger x, int y, BigInteger z) {
         return null;
     }
 }

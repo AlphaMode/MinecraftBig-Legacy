@@ -284,7 +284,7 @@ public class CommandSuggestions extends GuiComponent {
         return suggestion.startsWith(contents) ? suggestion.substring(contents.length()) : null;
     }
 
-    public class SuggestionList {
+    public class SuggestionList extends GuiComponent {
         private final Area area;
         private final String originalContents;
         private final List<Suggestion> suggestions;
@@ -370,7 +370,12 @@ public class CommandSuggestions extends GuiComponent {
             if (hovered) {
                 Message tooltip = this.suggestions.get(this.current).getTooltip();
                 if (tooltip != null) {
-//                    graphics.setTooltipForNextFrame(CommandSuggestions.this.font, ComponentUtils.fromMessage(tooltip), mouseX, mouseY);
+                    String msg = tooltip.getString();
+                    int x = mouseX + 12;
+                    int y = mouseY - 12;
+                    int width = font.width(msg);
+                    this.fillGradient(x - 3, y - 3, x + width + 3, y + 8 + 3, -1073741824, -1073741824);
+                    font.drawShadow(msg, x, y, -1);
                 }
             }
 

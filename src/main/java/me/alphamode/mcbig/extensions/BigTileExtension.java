@@ -80,6 +80,8 @@ public interface BigTileExtension {
 
     default void stepOn(Level level, BigInteger x, int y, BigInteger z, Entity entity) {}
 
+    default void setPlacedOnFace(Level level, BigInteger x, int y, BigInteger z, int facing) {}
+
     default void attack(Level level, BigInteger x, int y, BigInteger z, Player player) {}
 
     default void handleEntityInside(Level level, BigInteger x, int y, BigInteger z, Entity entity, Vec3 delta) {}

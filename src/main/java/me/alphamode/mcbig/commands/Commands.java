@@ -48,5 +48,6 @@ public class Commands {
         TeleportCommand.register(DISPATCHER);
         GiveCommand.register(DISPATCHER);
         FlyCommand.register(DISPATCHER);
+        TimeCommand.register(DISPATCHER);
     }
 }
