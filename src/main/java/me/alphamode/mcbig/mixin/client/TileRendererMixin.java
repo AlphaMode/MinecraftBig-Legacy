@@ -537,13 +537,13 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
             this.c4r *= var12;
             this.c4g *= var12;
             this.c4b *= var12;
-            int var19 = tile.getTexture(this.level, x, y, z, Facing.NORTH);
+            int tex = tile.getTexture(this.level, x, y, z, Facing.NORTH);
             if (FIX_STRIPELANDS) {
-                this.renderNorth(tile, bigX, y, bigZ, var19);
+                this.renderNorth(tile, bigX, y, bigZ, tex);
             } else {
-                renderNorth(tile, x.doubleValue(), y, z.doubleValue(), tile.getTexture(this.level, x, y, z, var19));
+                renderNorth(tile, x.doubleValue(), y, z.doubleValue(), tex);
             }
-            if (fancy && var19 == 3 && this.fixedTexture < 0) {
+            if (fancy && tex == 3 && this.fixedTexture < 0) {
                 this.c1r *= f;
                 this.c2r *= f;
                 this.c3r *= f;
@@ -559,7 +559,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
                 if (FIX_STRIPELANDS) {
                     this.renderNorth(tile, bigX, y, bigZ, 38);
                 } else {
-                    renderNorth(tile, x.doubleValue(), y, z.doubleValue(), tile.getTexture(this.level, x, y, z, 38));
+                    renderNorth(tile, x.doubleValue(), y, z.doubleValue(), 38);
                 }
             }
 
