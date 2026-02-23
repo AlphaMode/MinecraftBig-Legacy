@@ -19,7 +19,7 @@ public class BigMath {
         return x.compareTo(BigInteger.ZERO) < 0 ? ((x.negate().subtract(BigInteger.ONE)).divide(y)).negate().subtract(BigInteger.ONE) : x.divide(y);
     }
 
-    public static final MathContext CONTEXT = MathContext.DECIMAL64;
+    public static final MathContext CONTEXT = MathContext.UNLIMITED;
 
     public static BigDecimal decimal(double value) {
         return new BigDecimal(value, CONTEXT);
@@ -30,7 +30,7 @@ public class BigMath {
     }
 
     public static BigDecimal addD(BigDecimal a, double b) {
-        return a.add(new BigDecimal(b, CONTEXT), CONTEXT);
+        return a.add(new BigDecimal(b, CONTEXT));
     }
 
     public static BigDecimal addD(BigDecimal a, BigDecimal b) {
@@ -38,35 +38,35 @@ public class BigMath {
     }
 
     public static BigDecimal addD(BigInteger a, BigDecimal b) {
-        return new BigDecimal(a, CONTEXT).add(b, CONTEXT);
+        return new BigDecimal(a, CONTEXT).add(b);
     }
 
     public static BigDecimal addD(BigInteger a, BigInteger b) {
-        return new BigDecimal(a, CONTEXT).add(new BigDecimal(b, CONTEXT), CONTEXT);
+        return new BigDecimal(a, CONTEXT).add(new BigDecimal(b, CONTEXT));
     }
 
     public static BigDecimal addD(BigInteger a, double b) {
-        return new BigDecimal(a, CONTEXT).add(new BigDecimal(b, CONTEXT), CONTEXT);
+        return new BigDecimal(a, CONTEXT).add(new BigDecimal(b, CONTEXT));
     }
 
     // Sub
     public static BigDecimal subD(BigDecimal a, BigInteger b) {
-        return a.subtract(new BigDecimal(b, CONTEXT), CONTEXT);
+        return a.subtract(new BigDecimal(b, CONTEXT));
     }
 
     public static BigDecimal subD(BigDecimal a, double b) {
-        return a.subtract(new BigDecimal(b, CONTEXT), CONTEXT);
+        return a.subtract(new BigDecimal(b, CONTEXT));
     }
 
     public static BigDecimal subD(BigDecimal a, BigDecimal b) {
-        return a.subtract(b, CONTEXT);
+        return a.subtract(b);
     }
 
     public static BigDecimal subD(BigInteger a, BigInteger b) {
-        return new BigDecimal(a, CONTEXT).subtract(new BigDecimal(b, CONTEXT), CONTEXT);
+        return new BigDecimal(a, CONTEXT).subtract(new BigDecimal(b, CONTEXT));
     }
 
     public static BigDecimal subD(BigInteger a, double b) {
-        return new BigDecimal(a, CONTEXT).subtract(new BigDecimal(b, CONTEXT), CONTEXT);
+        return new BigDecimal(a, CONTEXT).subtract(new BigDecimal(b, CONTEXT));
     }
 }
