@@ -12,3 +12,7 @@ accessible field net/minecraft/world/level/TickNextTickData c J
 accessible field net/minecraft/world/level/chunk/storage/RegionFileCache cache Ljava/util/Map;
 
 accessible method net/minecraft/client/Minecraft getPlatform ()Lnet/minecraft/client/Minecraft$OS;
+
+accessible class net/minecraft/server/level/ChunkMap$ServerChunk
+
+accessible field net/minecraft/network/packets/BlockRegionUpdatePacket size I

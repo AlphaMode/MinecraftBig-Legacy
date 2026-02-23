@@ -6,11 +6,19 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import java.math.BigInteger;
 
 public interface BigChunkSourceExtension {
-    boolean hasChunk(BigInteger x, BigInteger z);
+    default boolean hasChunk(BigInteger x, BigInteger z) {
+        throw new UnsupportedOperationException();
+    }
 
-    LevelChunk getChunk(BigInteger x, BigInteger z);
+    default LevelChunk getChunk(BigInteger x, BigInteger z) {
+        throw new UnsupportedOperationException();
+    }
 
-    LevelChunk loadChunk(BigInteger x, BigInteger z);
+    default LevelChunk loadChunk(BigInteger x, BigInteger z) {
+        throw new UnsupportedOperationException();
+    }
 
-    void postProcess(ChunkSource generator, BigInteger x, BigInteger z);
+    default void postProcess(ChunkSource generator, BigInteger x, BigInteger z) {
+        throw new UnsupportedOperationException();
+    }
 }

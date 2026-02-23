@@ -49,5 +49,6 @@ public class Commands {
         GiveCommand.register(DISPATCHER);
         FlyCommand.register(DISPATCHER);
         TimeCommand.register(DISPATCHER);
+        SetSpawnCommand.register(DISPATCHER);
     }
 }

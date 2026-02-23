@@ -1,11 +1,13 @@
 package me.alphamode.mcbig.mixin.client;
 
 import me.alphamode.mcbig.extensions.BigChunkSourceExtension;
+import me.alphamode.mcbig.extensions.networking.client.BigMultiplayerChunkCacheExtension;
 import me.alphamode.mcbig.level.chunk.BigChunkPos;
 import me.alphamode.mcbig.level.chunk.BigEmptyLevelChunk;
 import me.alphamode.mcbig.level.chunk.BigLevelChunk;
 import net.minecraft.client.multiplayer.MultiplayerChunkCache;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.EmptyLevelChunk;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -22,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 @Mixin(MultiplayerChunkCache.class)
-public abstract class MultiplayerChunkCacheMixin implements BigChunkSourceExtension {
+public abstract class MultiplayerChunkCacheMixin implements BigChunkSourceExtension, BigMultiplayerChunkCacheExtension {
 
     @Shadow
     public abstract void postProcess(ChunkSource generator, int x, int z);
@@ -44,21 +46,24 @@ public abstract class MultiplayerChunkCacheMixin implements BigChunkSourceExtens
         this.emptyChunk = new BigEmptyLevelChunk(level, new byte[32768], BigInteger.ZERO, BigInteger.ZERO);
     }
 
+    @Override
+    public void unloadChunk(BigInteger x, BigInteger z) {
+        LevelChunk chunk = this.getChunk(x, z);
+        if (!chunk.isEmpty()) {
+            chunk.unload();
+        }
+
+        this.loadedChunks.remove(new BigChunkPos(x, z));
+        this.loadedChunkList.remove(chunk);
+    }
+
     /**
      * @author
      * @reason
      */
     @Overwrite
     public void unloadChunk(int x, int z) {
-        BigInteger bigX = BigInteger.valueOf(x);
-        BigInteger bigZ = BigInteger.valueOf(z);
-        LevelChunk chunk = this.getChunk(bigX, bigZ);
-        if (!chunk.isEmpty()) {
-            chunk.unload();
-        }
-
-        this.loadedChunks.remove(new BigChunkPos(bigX, bigZ));
-        this.loadedChunkList.remove(chunk);
+        this.unloadChunk(BigInteger.valueOf(x), BigInteger.valueOf(z));
     }
 
     @Override

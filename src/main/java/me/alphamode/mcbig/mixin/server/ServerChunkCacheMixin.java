@@ -1,12 +1,16 @@
 package me.alphamode.mcbig.mixin.server;
 
 import me.alphamode.mcbig.extensions.BigChunkSourceExtension;
+import me.alphamode.mcbig.extensions.server.BigServerChunkCacheExtension;
 import me.alphamode.mcbig.level.chunk.BigChunkPos;
 import me.alphamode.mcbig.level.chunk.BigEmptyLevelChunk;
 import me.alphamode.mcbig.level.chunk.BigLevelChunk;
+import me.alphamode.mcbig.math.BigConstants;
+import me.alphamode.mcbig.world.phys.BigVec3i;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Vec3i;
+import net.minecraft.world.level.chunk.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.storage.ChunkStorage;
@@ -24,7 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Mixin(ServerChunkCache.class)
-public abstract class ServerChunkCacheMixin implements BigChunkSourceExtension {
+public abstract class ServerChunkCacheMixin implements BigChunkSourceExtension, BigServerChunkCacheExtension {
     @Shadow
     private ServerLevel level;
     @Shadow
@@ -67,19 +71,24 @@ public abstract class ServerChunkCacheMixin implements BigChunkSourceExtension {
         return this.hasChunk(BigInteger.valueOf(x), BigInteger.valueOf(z));
     }
 
+    @Override
+    public void dropNoneSpawnChunk(BigInteger x, BigInteger z) {
+        BigVec3i spawnPos = this.level.getBigSpawnPos();
+        int xRange = x.multiply(BigConstants.SIXTEEN).add(BigConstants.EIGHT).subtract(spawnPos.x()).intValue();
+        int zRange = z.multiply(BigConstants.SIXTEEN).add(BigConstants.EIGHT).subtract(spawnPos.z()).intValue();
+        short range = 128;
+        if (xRange < -range || xRange > range || zRange < -range || zRange > range) {
+            this.toDrop.add(new BigChunkPos(x, z));
+        }
+    }
+
     /**
      * @author
      * @reason
      */
     @Overwrite
     public void dropNoneSpawnChunk(int x, int z) {
-        Vec3i spawnPos = this.level.getSpawnPos();
-        int var4 = x * 16 + 8 - spawnPos.x;
-        int var5 = z * 16 + 8 - spawnPos.z;
-        short var6 = 128;
-        if (var4 < -var6 || var4 > var6 || var5 < -var6 || var5 > var6) {
-            this.toDrop.add(new BigChunkPos(BigInteger.valueOf(x), BigInteger.valueOf(z)));
-        }
+        this.dropNoneSpawnChunk(BigInteger.valueOf(x), BigInteger.valueOf(z));
     }
 
     @Override

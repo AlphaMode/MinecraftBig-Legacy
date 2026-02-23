@@ -120,6 +120,9 @@ public interface BigTileExtension {
     default void setPlacedBy(Level level, BigInteger x, int y, BigInteger z, Mob entity) {
     }
 
+    default void triggerEvent(Level level, BigInteger x, int y, BigInteger z, int b0, int b1) {
+    }
+
     default void dropResources(Level level, BigInteger x, int y, BigInteger z, int meta) {
         throw new UnsupportedOperationException();
     }

@@ -13,6 +13,7 @@
     "LargeCaveFeatureMixin",
     "LargeFeatureMixin",
     "LevelChunkMixin",
+    "LevelDataMixin",
     "LevelListenerMixin",
     "LevelMixin",
     "LevelSourceMixin",
@@ -29,6 +30,9 @@
     "features.big_movement.EntityMixin",
     "features.big_movement.MobMixin",
     "features.big_movement.PlayerMixin",
+    "networking.ConnectionMixin",
+    "networking.PacketListenerMixin",
+    "networking.PacketMixin",
     "tiles.BushMixin",
     "tiles.CactusTileMixin",
     "tiles.CakeTileMixin",
@@ -67,7 +71,14 @@
     "worldgen.features.TreeFeatureMixin"
   ],
   "server": [
-    "server.ServerChunkCacheMixin"
+    "features.big_movement.server.ServerPlayerMixin",
+    "networking.server.ChunkMapMixin",
+    "networking.server.ServerGamePacketListenerMixin",
+    "networking.server.ServerLoginPacketListenerMixin",
+    "server.ServerChunkCacheMixin",
+    "server.ServerLevelMixin",
+    "server.ServerPlayerGameModeMixin",
+    "server.ServerPlayerMixin"
   ],
   "client": [
     "client.ChunkMixin",
@@ -92,7 +103,10 @@
     "features.big_movement.LevelRendererMixin",
     "features.big_movement.LocalPlayerMixin",
     "features.big_movement.OffsettedRenderListMixin",
-    "features.fix_stripelands.TileRendererMixin"
+    "features.fix_stripelands.TileRendererMixin",
+    "networking.client.ClientPacketListenerMixin",
+    "networking.client.MultiplayerGameModeMixin",
+    "networking.client.MultiPlayerLevelMixin"
   ],
   "injectors": {
     "defaultRequire": 1

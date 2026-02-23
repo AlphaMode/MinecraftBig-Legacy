@@ -231,7 +231,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
         if (shape == 0) {
             return tesselateBlockInWorld(tile, x, y, z);
         } else if (shape == BlockShapes.LIQUID) {
-            return tesselateWaterInWorld(tile, x.intValue(), y, z.intValue()); // TODO: water rendering brokey ):
+            return tesselateWaterInWorld(tile, x, y, z); // TODO: water rendering brokey ):
         } else if (shape == BlockShapes.CACTUS) {
             return this.tesselateCactusInWorld(tile, x, y, z);
         } else if (shape == BlockShapes.REEDS) {

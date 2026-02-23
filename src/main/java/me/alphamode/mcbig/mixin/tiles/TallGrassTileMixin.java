@@ -1,5 +1,7 @@
 package me.alphamode.mcbig.mixin.tiles;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.world.level.GrassColor;
 import net.minecraft.world.level.LevelSource;
 import net.minecraft.world.level.tile.Bush;
@@ -14,6 +16,7 @@ public class TallGrassTileMixin extends Bush {
         super(id, texture);
     }
 
+    @Environment(EnvType.CLIENT)
     @Override
     public int getFoliageColor(LevelSource level, BigInteger x, int y, BigInteger z) {
         int data = level.getData(x, y, z);

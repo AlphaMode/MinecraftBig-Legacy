@@ -1,7 +1,10 @@
 package me.alphamode.mcbig.commands;
 
+import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
+
+import java.math.BigDecimal;
 
 public class CommandSource {
 
@@ -17,5 +20,13 @@ public class CommandSource {
 
     public Entity getEntity() {
         return this.mc.player;
+    }
+
+    public BigDecimal getX() {
+        return ((BigEntityExtension) getEntity()).getX();
+    }
+
+    public BigDecimal getZ() {
+        return ((BigEntityExtension) getEntity()).getZ();
     }
 }

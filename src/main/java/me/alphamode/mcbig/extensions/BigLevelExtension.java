@@ -1,6 +1,8 @@
 package me.alphamode.mcbig.extensions;
 
 import me.alphamode.mcbig.world.phys.BigAABB;
+import me.alphamode.mcbig.world.phys.BigVec3i;
+import net.minecraft.util.Vec3i;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.LevelListener;
@@ -137,6 +139,14 @@ public interface BigLevelExtension {
         throw new UnsupportedOperationException();
     }
 
+    default void setBlocksAndData(BigInteger x, int y, BigInteger z, int xs, int ys, int zs, byte[] buffer) {
+        throw new UnsupportedOperationException();
+    }
+
+    default byte[] getBlocksAndData(BigInteger x, int y, BigInteger z, int xs, int yz, int zs) {
+        throw new UnsupportedOperationException();
+    }
+
     default List<Entity> getEntities(Entity entity, BigAABB area) {
         throw new UnsupportedOperationException();
     }
@@ -186,6 +196,18 @@ public interface BigLevelExtension {
     }
 
     default void levelEvent(Player player, int event, BigInteger x, int y, BigInteger z, int data) {
+        throw new UnsupportedOperationException();
+    }
+
+    default BigVec3i getBigSpawnPos() {
+        throw new UnsupportedOperationException();
+    }
+
+    default boolean mayInteract(Player player, BigInteger x, int y, BigInteger z) {
+        return true;
+    }
+
+    default void tileEvent(BigInteger x, int y, BigInteger z, int b0, int b1) {
         throw new UnsupportedOperationException();
     }
 }

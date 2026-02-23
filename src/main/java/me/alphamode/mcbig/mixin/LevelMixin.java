@@ -9,10 +9,12 @@ import me.alphamode.mcbig.level.chunk.BigChunkPos;
 import me.alphamode.mcbig.math.BigConstants;
 import me.alphamode.mcbig.math.BigMath;
 import me.alphamode.mcbig.world.phys.BigAABB;
+import me.alphamode.mcbig.world.phys.BigVec3i;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.util.Facing;
 import net.minecraft.util.Mth;
+import net.minecraft.util.Vec3i;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.global.LightningBolt;
 import net.minecraft.world.entity.player.Player;
@@ -901,6 +903,108 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
         } else {
             return this.getSignal(x.subtract(BigInteger.ONE), y, z, Facing.WEST) ? true : this.getSignal(x.add(BigInteger.ONE), y, z, Facing.EAST);
         }
+    }
+
+    @Override
+    public void setBlocksAndData(BigInteger x, int y, BigInteger z, int xs, int ys, int zs, byte[] buffer) {
+        BigInteger xsBig = BigInteger.valueOf(xs);
+        BigInteger zsBig = BigInteger.valueOf(zs);
+        BigInteger x0 = x.shiftRight(4);
+        BigInteger z0 = z.shiftRight(4);
+        BigInteger x1 = x.add(xsBig).subtract(BigInteger.ONE).shiftRight(4);
+        BigInteger z1 = z.add(zsBig).subtract(BigInteger.ONE).shiftRight(4);
+        int size = 0;
+        int y0 = y;
+        int y1 = y + ys;
+        if (y < 0) {
+            y0 = 0;
+        }
+
+        if (y1 > 128) {
+            y1 = 128;
+        }
+
+        for (BigInteger xc = x0; xc.compareTo(x1) <= 0; xc = xc.add(BigInteger.ONE)) {
+            BigInteger xcBlock = xc.multiply(BigConstants.SIXTEEN);
+            int minX = x.subtract(xcBlock).intValue();
+            int maxX = x.add(xsBig).subtract(xcBlock).intValue();
+            if (minX < 0) {
+                minX = 0;
+            }
+
+            if (maxX > 16) {
+                maxX = 16;
+            }
+            BigInteger minXBlockBig = xcBlock.add(BigInteger.valueOf(minX));
+            BigInteger maxXBlockBig = xcBlock.add(BigInteger.valueOf(maxX));
+
+            for (BigInteger zc = z0; zc.compareTo(z1) <= 0; zc = zc.add(BigInteger.ONE)) {
+                BigInteger zcBlock = zc.multiply(BigConstants.SIXTEEN);
+                int minZ = z.subtract(zcBlock).intValue();
+                int maxZ = z.add(zsBig).subtract(zcBlock).intValue();
+                if (minZ < 0) {
+                    minZ = 0;
+                }
+
+                if (maxZ > 16) {
+                    maxZ = 16;
+                }
+
+                size = this.getChunk(xc, zc).setBlocksAndData(buffer, minX, y0, minZ, maxX, y1, maxZ, size);
+                this.setTilesDirty(minXBlockBig, y0, zcBlock.add(BigInteger.valueOf(minZ)), maxXBlockBig, y1, zcBlock.add(BigInteger.valueOf(maxZ)));
+            }
+        }
+    }
+
+    @Override
+    public byte[] getBlocksAndData(BigInteger x, int y, BigInteger z, int xs, int yz, int zs) {
+        byte[] data = new byte[xs * yz * zs * 5 / 2];
+        BigInteger xsBig = BigInteger.valueOf(xs);
+        BigInteger zsBig = BigInteger.valueOf(zs);
+        BigInteger x0 = x.shiftRight(4);
+        BigInteger z0 = z.shiftRight(4);
+        BigInteger x1 = x.add(xsBig).subtract(BigInteger.ONE).shiftRight(4);
+        BigInteger z1 = z.add(zsBig).subtract(BigInteger.ONE).shiftRight(4);
+        int size = 0;
+        int y0 = y;
+        int y1 = y + yz;
+        if (y < 0) {
+            y0 = 0;
+        }
+
+        if (y1 > 128) {
+            y1 = 128;
+        }
+
+        for (BigInteger xc = x0; xc.compareTo(x1) <= 0; xc = xc.add(BigInteger.ONE)) {
+            BigInteger xcBlock = xc.multiply(BigConstants.SIXTEEN);
+            int minX = x.subtract(xcBlock).intValue();
+            int maxX = x.add(xsBig).subtract(xcBlock).intValue();
+            if (minX < 0) {
+                minX = 0;
+            }
+
+            if (maxX > 16) {
+                maxX = 16;
+            }
+
+            for (BigInteger zc = z0; zc.compareTo(z1) <= 0; zc = zc.add(BigInteger.ONE)) {
+                BigInteger zcBlock = zc.multiply(BigConstants.SIXTEEN);
+                int minZ = z.subtract(zcBlock).intValue();
+                int maxZ = z.add(zsBig).subtract(zcBlock).intValue();
+                if (minZ < 0) {
+                    minZ = 0;
+                }
+
+                if (maxZ > 16) {
+                    maxZ = 16;
+                }
+
+                size = this.getChunk(xc, zc).getBlocksAndData(data, minX, y0, minZ, maxX, y1, maxZ, size);
+            }
+        }
+
+        return data;
     }
 
     @Override
@@ -1877,6 +1981,19 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
                 this.entities.remove(i--);
                 entityRemoved(entity);
             }
+        }
+    }
+
+    @Override
+    public BigVec3i getBigSpawnPos() {
+        return new BigVec3i(this.levelData.getBigSpawnX(), this.levelData.getSpawnY(), this.levelData.getBigSpawnZ());
+    }
+
+    @Override
+    public void tileEvent(BigInteger x, int y, BigInteger z, int b0, int b1) {
+        int tile = this.getTile(x, y, z);
+        if (tile > 0) {
+            Tile.tiles[tile].triggerEvent((Level) (Object) this, x, y, z, b0, b1);
         }
     }
 

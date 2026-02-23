@@ -8,7 +8,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.util.Mth;
 
 public class BigVec3 {
-    public static final BigVec3 ZERO = newTemp(BigDecimal.ZERO, 0, BigDecimal.ZERO);
+    public static final BigVec3 ZERO = create(BigDecimal.ZERO, 0, BigDecimal.ZERO);
     private static final List<BigVec3> pool = new ArrayList<>();
     private static int poolPointer = 0;
     public BigDecimal x;

@@ -9,6 +9,8 @@ public interface BigEntityExtension {
 
     void bigMove(double x, double y, double z);
 
+    void absMoveTo(BigDecimal x, double y, BigDecimal z, float yRot, float xRot);
+
     default BigAABB getBigBB() {
         throw new UnsupportedOperationException();
     }

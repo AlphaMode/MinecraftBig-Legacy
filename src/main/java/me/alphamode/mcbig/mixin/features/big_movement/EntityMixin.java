@@ -74,6 +74,20 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
     public double xOld;
     @Shadow
     public double zOld;
+    @Shadow
+    public double yo;
+    @Shadow
+    public float yRotO;
+    @Shadow
+    public float xRotO;
+    @Shadow
+    public float yRot;
+    @Shadow
+    public float xRot;
+
+    @Shadow
+    protected abstract void setRot(float yRot, float xRot);
+
     public BigDecimal xoBig = BigDecimal.ZERO;
     public BigDecimal zoBig = BigDecimal.ZERO;
     public BigDecimal xBig = BigDecimal.ZERO;
@@ -146,9 +160,25 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
         }
     }
 
-    @Inject(method = "move", at = @At("HEAD"))
-    private void aaa(double x, double y, double z, CallbackInfo ci) {
+    @Override
+    public void absMoveTo(BigDecimal x, double y, BigDecimal z, float yRot, float xRot) {
+        this.xoBig = this.xBig = x;
+        this.yo = this.y = y;
+        this.zoBig = this.zBig = z;
+        this.yRotO = this.yRot = yRot;
+        this.xRotO = this.xRot = xRot;
+        this.ySlideOffset = 0.0F;
+        double var9 = this.yRotO - yRot;
+        if (var9 < -180.0) {
+            this.yRotO += 360.0F;
+        }
 
+        if (var9 >= 180.0) {
+            this.yRotO -= 360.0F;
+        }
+
+        this.setPos(this.xBig, this.y, this.zBig);
+        this.setRot(yRot, xRot);
     }
 
     @Override

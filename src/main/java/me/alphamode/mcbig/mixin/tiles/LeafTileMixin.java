@@ -1,5 +1,7 @@
 package me.alphamode.mcbig.mixin.tiles;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.ItemInstance;
 import net.minecraft.world.entity.Entity;
@@ -27,6 +29,7 @@ public class LeafTileMixin extends TransparentTile {
         super(id, tex, material, allowSame);
     }
 
+    @Environment(EnvType.CLIENT)
     @Override
     public int getFoliageColor(LevelSource level, BigInteger x, int y, BigInteger z) {
         int data = level.getData(x, y, z);
