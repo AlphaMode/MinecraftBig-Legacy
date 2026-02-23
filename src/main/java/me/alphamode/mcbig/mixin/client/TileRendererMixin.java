@@ -1,6 +1,7 @@
 package me.alphamode.mcbig.mixin.client;
 
 import me.alphamode.mcbig.extensions.BigTileRendererExtension;
+import me.alphamode.mcbig.extensions.tiles.BigRedStoneDustTileExtension;
 import me.alphamode.mcbig.level.tile.LiquidUtil;
 import me.alphamode.mcbig.math.BigConstants;
 import me.alphamode.mcbig.math.BigMath;
@@ -14,6 +15,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.LevelSource;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.tile.LiquidTile;
+import net.minecraft.world.level.tile.RedStoneDustTile;
 import net.minecraft.world.level.tile.Tile;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -246,8 +248,8 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
             return this.tesselateTorchInWorld(tile, x, y, z);
         } else if (shape == BlockShapes.FIRE) {
             return this.tesselateFireInWorld(tile, x, y, z);
-//        } else if (shape == BlockShapes.REDSTONE) {
-//            return this.tesselateDustInWorld(tile, x, y, z);
+        } else if (shape == BlockShapes.REDSTONE) {
+            return this.tesselateDustInWorld(tile, x, y, z);
 //        } else if (shape == BlockShapes.LADDER) {
 //            return this.tesselateLadderInWorld(tile, x, y, z);
 //        } else if (shape == BlockShapes.DOOR) {
@@ -1500,6 +1502,231 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
             t.vertexUV(xPlusOneD, y + 0, z0, u0, v1);
             t.vertexUV(xD, y + 0, z0, u1, v1);
             t.vertexUV(xD, y + h, z0_, u1, v0);
+        }
+
+        return true;
+    }
+
+    public boolean tesselateDustInWorld(Tile tile, BigInteger x, int y, BigInteger z) {
+        Tesselator t = Tesselator.instance;
+        int power = this.level.getData(x, y, z);
+        int tex = tile.getTexture(1, power);
+        if (this.fixedTexture >= 0) {
+            tex = this.fixedTexture;
+        }
+
+        float br = tile.getBrightness(this.level, x, y, z);
+        float var9 = power / 15.0F;
+        float var10 = var9 * 0.6F + 0.4F;
+        if (power == 0) {
+            var10 = 0.3F;
+        }
+
+        float var11 = var9 * var9 * 0.7F - 0.5F;
+        float var12 = var9 * var9 * 0.6F - 0.7F;
+        if (var11 < 0.0F) {
+            var11 = 0.0F;
+        }
+
+        if (var12 < 0.0F) {
+            var12 = 0.0F;
+        }
+
+        t.color(br * var10, br * var11, br * var12);
+        int xt = (tex & 15) << 4;
+        int yt = tex & 240;
+        double u0 = xt / 256.0F;
+        double u1 = (xt + 15.99F) / 256.0F;
+        double v0 = yt / 256.0F;
+        double v1 = (yt + 15.99F) / 256.0F;
+
+        BigInteger xPlusOne = x.add(BigInteger.ONE);
+        BigInteger xMinusOne = x.subtract(BigInteger.ONE);
+        BigInteger zPlusOne = z.add(BigInteger.ONE);
+        BigInteger zMinusOne = z.subtract(BigInteger.ONE);
+
+        BigDecimal xD = new BigDecimal(x);
+        BigDecimal zD = new BigDecimal(z);
+
+        boolean w = BigRedStoneDustTileExtension.isPowerSourceAt(this.level, xMinusOne, y, z, 1)
+                || !this.level.isSolidBlockingTile(xMinusOne, y, z) && BigRedStoneDustTileExtension.isPowerSourceAt(this.level, xMinusOne, y - 1, z, -1);
+        boolean e = BigRedStoneDustTileExtension.isPowerSourceAt(this.level, xPlusOne, y, z, 3)
+                || !this.level.isSolidBlockingTile(xPlusOne, y, z) && BigRedStoneDustTileExtension.isPowerSourceAt(this.level, xPlusOne, y - 1, z, -1);
+        boolean n = BigRedStoneDustTileExtension.isPowerSourceAt(this.level, x, y, zMinusOne, 2)
+                || !this.level.isSolidBlockingTile(x, y, zMinusOne) && BigRedStoneDustTileExtension.isPowerSourceAt(this.level, x, y - 1, zMinusOne, -1);
+        boolean s = BigRedStoneDustTileExtension.isPowerSourceAt(this.level, x, y, zPlusOne, 0)
+                || !this.level.isSolidBlockingTile(x, y, zPlusOne) && BigRedStoneDustTileExtension.isPowerSourceAt(this.level, x, y - 1, zPlusOne, -1);
+        if (!this.level.isSolidBlockingTile(x, y + 1, z)) {
+            if (this.level.isSolidBlockingTile(xMinusOne, y, z) && BigRedStoneDustTileExtension.isPowerSourceAt(this.level, xMinusOne, y + 1, z, -1)) {
+                w = true;
+            }
+
+            if (this.level.isSolidBlockingTile(xPlusOne, y, z) && BigRedStoneDustTileExtension.isPowerSourceAt(this.level, xPlusOne, y + 1, z, -1)) {
+                e = true;
+            }
+
+            if (this.level.isSolidBlockingTile(x, y, zMinusOne) && BigRedStoneDustTileExtension.isPowerSourceAt(this.level, x, y + 1, zMinusOne, -1)) {
+                n = true;
+            }
+
+            if (this.level.isSolidBlockingTile(x, y, zPlusOne) && BigRedStoneDustTileExtension.isPowerSourceAt(this.level, x, y + 1, zPlusOne, -1)) {
+                s = true;
+            }
+        }
+
+        float d = 0.3125F;
+        BigDecimal dB = BigMath.decimal(d);
+        BigDecimal xPlusOneD = new BigDecimal(xPlusOne);
+        BigDecimal zPlusOneD = new BigDecimal(zPlusOne);
+        BigDecimal x0 = xD;
+        BigDecimal x1 = xPlusOneD;
+        BigDecimal z0 = zD;
+        BigDecimal z1 = zPlusOneD;
+        float r = 0.03125F;
+        float o = r / 2;
+        BigDecimal oB = BigMath.decimal(o);
+        BigDecimal xPlusO = BigMath.addD(xD, oB);
+        BigDecimal xPlusOneMinusO = BigMath.subD(xPlusOneD, oB);
+        BigDecimal zPlusO = BigMath.addD(zD, oB);
+        BigDecimal zPlusOneMinusO = BigMath.subD(zPlusOneD, oB);
+        int pic = 0;
+        if ((w || e) && !n && !s) {
+            pic = 1;
+        }
+
+        if ((n || s) && !e && !w) {
+            pic = 2;
+        }
+
+        if (pic != 0) {
+            u0 = (xt + 16) / 256.0F;
+            u1 = (xt + 16 + 15.99F) / 256.0F;
+            v0 = yt / 256.0F;
+            v1 = (yt + 15.99F) / 256.0F;
+        }
+
+        if (pic == 0) {
+            if (e || n || s || w) {
+                if (!w) {
+                    x0 = BigMath.addD(x0, dB);
+                }
+
+                if (!w) {
+                    u0 += d / 16.0F;
+                }
+
+                if (!e) {
+                    x1 = BigMath.subD(x1, dB);
+                }
+
+                if (!e) {
+                    u1 -= d / 16.0F;
+                }
+
+                if (!n) {
+                    z0 = BigMath.addD(z0, dB);
+                }
+
+                if (!n) {
+                    v0 += d / 16.0F;
+                }
+
+                if (!s) {
+                    z1 = BigMath.subD(z1, dB);
+                }
+
+                if (!s) {
+                    v1 -= d / 16.0F;
+                }
+            }
+
+            t.vertexUV(x1, y + 0.015625F, z1, u1, v1);
+            t.vertexUV(x1, y + 0.015625F, z0, u1, v0);
+            t.vertexUV(x0, y + 0.015625F, z0, u0, v0);
+            t.vertexUV(x0, y + 0.015625F, z1, u0, v1);
+            t.color(br, br, br);
+            t.vertexUV(x1, y + 0.015625F, z1, u1, v1 + 0.0625);
+            t.vertexUV(x1, y + 0.015625F, z0, u1, v0 + 0.0625);
+            t.vertexUV(x0, y + 0.015625F, z0, u0, v0 + 0.0625);
+            t.vertexUV(x0, y + 0.015625F, z1, u0, v1 + 0.0625);
+        } else if (pic == 1) {
+            t.vertexUV(x1, y + 0.015625F, z1, u1, v1);
+            t.vertexUV(x1, y + 0.015625F, z0, u1, v0);
+            t.vertexUV(x0, y + 0.015625F, z0, u0, v0);
+            t.vertexUV(x0, y + 0.015625F, z1, u0, v1);
+            t.color(br, br, br);
+            t.vertexUV(x1, y + 0.015625F, z1, u1, v1 + 0.0625);
+            t.vertexUV(x1, y + 0.015625F, z0, u1, v0 + 0.0625);
+            t.vertexUV(x0, y + 0.015625F, z0, u0, v0 + 0.0625);
+            t.vertexUV(x0, y + 0.015625F, z1, u0, v1 + 0.0625);
+        } else if (pic == 2) {
+            t.vertexUV(x1, y + 0.015625F, z1, u1, v1);
+            t.vertexUV(x1, y + 0.015625F, z0, u0, v1);
+            t.vertexUV(x0, y + 0.015625F, z0, u0, v0);
+            t.vertexUV(x0, y + 0.015625F, z1, u1, v0);
+            t.color(br, br, br);
+            t.vertexUV(x1, y + 0.015625F, z1, u1, v1 + 0.0625);
+            t.vertexUV(x1, y + 0.015625F, z0, u0, v1 + 0.0625);
+            t.vertexUV(x0, y + 0.015625F, z0, u0, v0 + 0.0625);
+            t.vertexUV(x0, y + 0.015625F, z1, u1, v0 + 0.0625);
+        }
+
+        if (!this.level.isSolidBlockingTile(x, y + 1, z)) {
+            u0 = (xt + 16) / 256.0F;
+            u1 = (xt + 16 + 15.99F) / 256.0F;
+            v0 = yt / 256.0F;
+            v1 = (yt + 15.99F) / 256.0F;
+            if (this.level.isSolidBlockingTile(xMinusOne, y, z) && this.level.getTile(xMinusOne, y + 1, z) == Tile.REDSTONE.id) {
+                t.color(br * var10, br * var11, br * var12);
+                t.vertexUV(xPlusO, y + 1 + 0.021875F, zPlusOneD, u1, v0);
+                t.vertexUV(xPlusO, y + 0, zPlusOneD, u0, v0);
+                t.vertexUV(xPlusO, y + 0, zD, u0, v1);
+                t.vertexUV(xPlusO, y + 1 + 0.021875F, zD, u1, v1);
+                t.color(br, br, br);
+                t.vertexUV(xPlusO, y + 1 + 0.021875F, zPlusOneD, u1, v0 + 0.0625);
+                t.vertexUV(xPlusO, y + 0, zPlusOneD, u0, v0 + 0.0625);
+                t.vertexUV(xPlusO, y + 0, zD, u0, v1 + 0.0625);
+                t.vertexUV(xPlusO, y + 1 + 0.021875F, zD, u1, v1 + 0.0625);
+            }
+
+            if (this.level.isSolidBlockingTile(xPlusOne, y, z) && this.level.getTile(xPlusOne, y + 1, z) == Tile.REDSTONE.id) {
+                t.color(br * var10, br * var11, br * var12);
+                t.vertexUV(xPlusOneMinusO, y + 0, zPlusOneD, u0, v1);
+                t.vertexUV(xPlusOneMinusO, y + 1 + 0.021875F, zPlusOneD, u1, v1);
+                t.vertexUV(xPlusOneMinusO, y + 1 + 0.021875F, zD, u1, v0);
+                t.vertexUV(xPlusOneMinusO, y + 0, zD, u0, v0);
+                t.color(br, br, br);
+                t.vertexUV(xPlusOneMinusO, y + 0, zPlusOneD, u0, v1 + 0.0625);
+                t.vertexUV(xPlusOneMinusO, y + 1 + 0.021875F, zPlusOneD, u1, v1 + 0.0625);
+                t.vertexUV(xPlusOneMinusO, y + 1 + 0.021875F, zD, u1, v0 + 0.0625);
+                t.vertexUV(xPlusOneMinusO, y + 0, zD, u0, v0 + 0.0625);
+            }
+
+            if (this.level.isSolidBlockingTile(x, y, zMinusOne) && this.level.getTile(x, y + 1, zMinusOne) == Tile.REDSTONE.id) {
+                t.color(br * var10, br * var11, br * var12);
+                t.vertexUV(xPlusOneD, y + 0, zPlusO, u0, v1);
+                t.vertexUV(xPlusOneD, y + 1 + 0.021875F, zPlusO, u1, v1);
+                t.vertexUV(xD, y + 1 + 0.021875F, zPlusO, u1, v0);
+                t.vertexUV(xD, y + 0, zPlusO, u0, v0);
+                t.color(br, br, br);
+                t.vertexUV(xPlusOneD, y + 0, zPlusO, u0, v1 + 0.0625);
+                t.vertexUV(xPlusOneD, y + 1 + 0.021875F, zPlusO, u1, v1 + 0.0625);
+                t.vertexUV(xD, y + 1 + 0.021875F, zPlusO, u1, v0 + 0.0625);
+                t.vertexUV(xD, y + 0, zPlusO, u0, v0 + 0.0625);
+            }
+
+            if (this.level.isSolidBlockingTile(x, y, zPlusOne) && this.level.getTile(x, y + 1, zPlusOne) == Tile.REDSTONE.id) {
+                t.color(br * var10, br * var11, br * var12);
+                t.vertexUV(xPlusOneD, y + 1 + 0.021875F, zPlusOneMinusO, u1, v0);
+                t.vertexUV(xPlusOneD, y + 0, zPlusOneMinusO, u0, v0);
+                t.vertexUV(xD, y + 0, zPlusOneMinusO, u0, v1);
+                t.vertexUV(xD, y + 1 + 0.021875F, zPlusOneMinusO, u1, v1);
+                t.color(br, br, br);
+                t.vertexUV(xPlusOneD, y + 1 + 0.021875F, zPlusOneMinusO, u1, v0 + 0.0625);
+                t.vertexUV(xPlusOneD, y + 0, zPlusOneMinusO, u0, v0 + 0.0625);
+                t.vertexUV(xD, y + 0, zPlusOneMinusO, u0, v1 + 0.0625);
+                t.vertexUV(xD, y + 1 + 0.021875F, zPlusOneMinusO, u1, v1 + 0.0625);
+            }
         }
 
         return true;

@@ -47,6 +47,7 @@
     "tiles.LiquidTileStaticMixin",
     "tiles.MushroomTileMixin",
     "tiles.PortalTileMixin",
+    "tiles.RedStoneDustTileMixin",
     "tiles.ReedTileMixin",
     "tiles.RepeaterTileMixin",
     "tiles.SlabTileMixin",
