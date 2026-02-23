@@ -1,5 +1,6 @@
 package me.alphamode.mcbig.mixin.tiles;
 
+import me.alphamode.mcbig.extensions.BigTileExtension;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.tile.Tile;
@@ -11,7 +12,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import java.math.BigInteger;
 
 @Mixin(TileEntityTile.class)
-public abstract class TileEntityTileMixin extends Tile {
+public abstract class TileEntityTileMixin extends Tile implements BigTileExtension {
     @Shadow
     protected abstract TileEntity newTileEntity();
 

@@ -1,6 +1,7 @@
 package me.alphamode.mcbig.mixin.tiles;
 
 import me.alphamode.mcbig.extensions.BigLiquidTileExtension;
+import me.alphamode.mcbig.extensions.BigTileExtension;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.tile.LiquidTileDynamic;
@@ -12,7 +13,7 @@ import java.math.BigInteger;
 import java.util.Random;
 
 @Mixin(LiquidTileDynamic.class)
-public abstract class LiquidTileDynamicMixin extends Tile implements BigLiquidTileExtension {
+public abstract class LiquidTileDynamicMixin extends Tile implements BigTileExtension, BigLiquidTileExtension {
     @Shadow private int maxCount;
 
     @Shadow private boolean[] result;

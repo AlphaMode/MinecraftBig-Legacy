@@ -18,7 +18,7 @@ import java.math.BigInteger;
 import java.util.Random;
 
 @Mixin(CactusTile.class)
-public abstract class CactusTileMixin extends Tile {
+public abstract class CactusTileMixin extends Tile implements BigTileExtension {
     protected CactusTileMixin(int id, Material material) {
         super(id, material);
     }

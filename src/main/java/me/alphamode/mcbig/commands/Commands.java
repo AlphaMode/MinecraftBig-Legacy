@@ -47,8 +47,11 @@ public class Commands {
         HelpCommand.register(DISPATCHER);
         TeleportCommand.register(DISPATCHER);
         GiveCommand.register(DISPATCHER);
+        SetBlockCommand.register(DISPATCHER);
         FlyCommand.register(DISPATCHER);
         TimeCommand.register(DISPATCHER);
         SetSpawnCommand.register(DISPATCHER);
+        HealthCommand.register(DISPATCHER);
+        SeedCommand.register(DISPATCHER);
     }
 }

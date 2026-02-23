@@ -1,5 +1,6 @@
 package me.alphamode.mcbig.mixin.tiles;
 
+import me.alphamode.mcbig.extensions.BigTileExtension;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.tile.LiquidTileStatic;
@@ -10,7 +11,7 @@ import java.math.BigInteger;
 import java.util.Random;
 
 @Mixin(LiquidTileStatic.class)
-public abstract class LiquidTileStaticMixin extends Tile {
+public abstract class LiquidTileStaticMixin extends Tile implements BigTileExtension {
     protected LiquidTileStaticMixin(int id, Material material) {
         super(id, material);
     }

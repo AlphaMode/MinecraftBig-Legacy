@@ -1,5 +1,6 @@
 package me.alphamode.mcbig.mixin.tiles;
 
+import me.alphamode.mcbig.extensions.BigTileExtension;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.stats.Stats;
@@ -21,7 +22,7 @@ import java.math.BigInteger;
 import java.util.Random;
 
 @Mixin(LeafTile.class)
-public class LeafTileMixin extends TransparentTile {
+public class LeafTileMixin extends TransparentTile implements BigTileExtension {
     @Shadow
     private int[] checkBuffer;
 

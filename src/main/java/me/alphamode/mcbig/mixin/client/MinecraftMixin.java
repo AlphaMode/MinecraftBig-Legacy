@@ -3,6 +3,7 @@ package me.alphamode.mcbig.mixin.client;
 import me.alphamode.mcbig.math.BigMath;
 import me.alphamode.mcbig.world.phys.BigHitResult;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftApplet;
 import net.minecraft.client.ProgressRenderer;
 import net.minecraft.client.gamemode.CreativeMode;
 import net.minecraft.client.gamemode.GameMode;
@@ -20,8 +21,11 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.awt.*;
 import java.math.BigInteger;
 
 @Mixin(Minecraft.class)
@@ -49,6 +53,14 @@ public class MinecraftMixin {
 
     @Shadow
     public ParticleEngine particleEngine;
+
+    @Shadow
+    public boolean appletMode;
+
+    @Inject(method = "init", at = @At("HEAD"))
+    private void fixQuitButton(CallbackInfo ci) {
+        this.appletMode = false;
+    }
 
     /**
      * @author

@@ -1,5 +1,6 @@
 package me.alphamode.mcbig.mixin.tiles;
 
+import me.alphamode.mcbig.extensions.BigTileExtension;
 import me.alphamode.mcbig.world.phys.BigAABB;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Material;
@@ -12,7 +13,7 @@ import java.math.BigInteger;
 import java.util.Random;
 
 @Mixin(ReedTile.class)
-public abstract class ReedTileMixin extends Tile {
+public abstract class ReedTileMixin extends Tile implements BigTileExtension {
     protected ReedTileMixin(int id, Material material) {
         super(id, material);
     }

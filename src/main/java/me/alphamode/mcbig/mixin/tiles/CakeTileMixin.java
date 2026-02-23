@@ -1,5 +1,6 @@
 package me.alphamode.mcbig.mixin.tiles;
 
+import me.alphamode.mcbig.extensions.BigTileExtension;
 import me.alphamode.mcbig.math.BigConstants;
 import me.alphamode.mcbig.world.phys.BigAABB;
 import net.fabricmc.api.EnvType;
@@ -17,7 +18,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 @Mixin(CakeTile.class)
-public abstract class CakeTileMixin extends Tile {
+public abstract class CakeTileMixin extends Tile implements BigTileExtension {
     protected CakeTileMixin(int id, Material material) {
         super(id, material);
     }

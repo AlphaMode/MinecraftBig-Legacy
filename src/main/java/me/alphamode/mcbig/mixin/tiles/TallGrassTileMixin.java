@@ -1,5 +1,6 @@
 package me.alphamode.mcbig.mixin.tiles;
 
+import me.alphamode.mcbig.extensions.BigTileExtension;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.world.level.GrassColor;
@@ -11,7 +12,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import java.math.BigInteger;
 
 @Mixin(TallGrassTile.class)
-public class TallGrassTileMixin extends Bush {
+public class TallGrassTileMixin extends Bush implements BigTileExtension {
     protected TallGrassTileMixin(int id, int texture) {
         super(id, texture);
     }

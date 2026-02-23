@@ -3,6 +3,7 @@ package me.alphamode.mcbig.mixin.client;
 import me.alphamode.mcbig.extensions.BigTileRendererExtension;
 import me.alphamode.mcbig.level.tile.LiquidUtil;
 import me.alphamode.mcbig.math.BigConstants;
+import me.alphamode.mcbig.math.BigMath;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockShapes;
 import net.minecraft.client.renderer.GameRenderer;
@@ -217,6 +218,9 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
     @Shadow
     public abstract boolean tesselateWaterInWorld(Tile level, int x, int y, int z);
 
+    @Shadow
+    public abstract void tesselateTorch(Tile tile, double x, double y, double z, double xxa, double zza);
+
     @Override
     public void tesselateInWorld(Tile tile, BigInteger x, int y, BigInteger z, int destroyProgress) {
         this.fixedTexture = destroyProgress;
@@ -231,7 +235,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
         if (shape == 0) {
             return tesselateBlockInWorld(tile, x, y, z);
         } else if (shape == BlockShapes.LIQUID) {
-            return tesselateWaterInWorld(tile, x, y, z); // TODO: water rendering brokey ):
+            return tesselateWaterInWorld(tile, x, y, z);
         } else if (shape == BlockShapes.CACTUS) {
             return this.tesselateCactusInWorld(tile, x, y, z);
         } else if (shape == BlockShapes.REEDS) {
@@ -240,8 +244,8 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
             return this.tesselateRowInWorld(tile, x, y, z);
         } else if (shape == BlockShapes.TORCH) {
             return this.tesselateTorchInWorld(tile, x, y, z);
-//        } else if (shape == BlockShapes.FIRE) {
-//            return this.tesselateFireInWorld(tile, x, y, z);
+        } else if (shape == BlockShapes.FIRE) {
+            return this.tesselateFireInWorld(tile, x, y, z);
 //        } else if (shape == BlockShapes.REDSTONE) {
 //            return this.tesselateDustInWorld(tile, x, y, z);
 //        } else if (shape == BlockShapes.LADDER) {
@@ -1024,7 +1028,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
         final float b3 = c3 * b;
         final float epsilon = 0.0625F;
         final float centerBrightness = tt.getBrightness(this.level, x, y, z);
-        if (this.noCulling || tt.shouldRenderFace(this.level, x, y - 1, z, 0)) {
+        if (this.noCulling || tt.shouldRenderFace(this.level, x, y - 1, z, Facing.DOWN)) {
             float br = tt.getBrightness(this.level, x, y - 1, z);
             t.color(r10 * br, g10 * br, b10 * br);
             if (FIX_STRIPELANDS) {
@@ -1214,7 +1218,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
 
     public void tesselateTorch(Tile tile, BigDecimal x, double y, BigDecimal z, double xxa, double zza) {
         Tesselator t = Tesselator.instance;
-        int tex = tile.getTexture(0);
+        int tex = tile.getTexture(Facing.DOWN);
         if (this.fixedTexture >= 0) {
             tex = this.fixedTexture;
         }
@@ -1229,41 +1233,276 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
         double vc0 = v0 + 0.0234375;
         double uc1 = u0 + 0.03515625;
         double vc1 = v0 + 0.03125;
-        BigDecimal x0 = x;
-        BigDecimal x1 = x.add(BigDecimal.ONE);
-        BigDecimal z0 = z;
-        BigDecimal z1 = z.add(BigDecimal.ONE);
-        double r = 0.0625;
-        double h = 0.625;
+
+        final BigDecimal x0 = x;
+        final BigDecimal x1 = x.add(BigDecimal.ONE);
+        final BigDecimal z0 = z;
+        final BigDecimal z1 = z.add(BigDecimal.ONE);
+
         x = x.add(BigConstants.POINT_FIVE);
         z = z.add(BigConstants.POINT_FIVE);
-        BigDecimal bigX0O = x.add(BigDecimal.valueOf(xxa * (1.0 - h) - r));
-        BigDecimal bigX1O = x.add(BigDecimal.valueOf(xxa * (1.0 - h) + r));
-        BigDecimal bigZ0O = z.add(BigDecimal.valueOf(zza * (1.0 - h) - r));
-        BigDecimal bigZ1O = z.add(BigDecimal.valueOf(zza * (1.0 - h) + r));
-        t.vertexUV(bigX0O, y + h, bigZ0O, uc0, vc0);
-        t.vertexUV(bigX0O, y + h, bigZ1O, uc0, vc1);
-        t.vertexUV(bigX1O, y + h, bigZ1O, uc1, vc1);
-        t.vertexUV(bigX1O, y + h, bigZ0O, uc1, vc0);
-        BigDecimal bigR = BigDecimal.valueOf(r);
-        BigDecimal bigXR0 = x.subtract(bigR);
-        BigDecimal bigXR1 = x.subtract(bigR);
-        t.vertexUV(bigXR0, y + 1.0, z0, u0, v0);
-        t.vertexUV(x.subtract(BigDecimal.valueOf(r + xxa)), y + 0.0, z0.add(BigDecimal.valueOf(zza)), u0, v1);
-        t.vertexUV(x.subtract(BigDecimal.valueOf(r + xxa)), y + 0.0, z1.add(BigDecimal.valueOf(zza)), u1, v1);
-        t.vertexUV(bigXR0, y + 1.0, z1, u1, v0);
-        t.vertexUV(x.add(BigDecimal.valueOf(r)), y + 1.0, z1, u0, v0);
-        t.vertexUV(x.add(BigDecimal.valueOf(xxa + r)), y + 0.0, z1.add(BigDecimal.valueOf(zza)), u0, v1);
-        t.vertexUV(x.add(BigDecimal.valueOf(xxa + r)), y + 0.0, z0.add(BigDecimal.valueOf(zza)), u1, v1);
-        t.vertexUV(x.add(BigDecimal.valueOf(r)), y + 1.0, z0, u1, v0);
-        t.vertexUV(x0, y + 1.0, z.add(bigR), u0, v0);
-        t.vertexUV(x0.add(BigDecimal.valueOf(xxa)), y + 0.0, z.add(BigDecimal.valueOf(r + zza)), u0, v1);
-        t.vertexUV(x1.add(BigDecimal.valueOf(xxa)), y + 0.0, z.add(BigDecimal.valueOf(r + zza)), u1, v1);
-        t.vertexUV(x1, y + 1.0, z.add(bigR), u1, v0);
-        t.vertexUV(x1, y + 1.0, z.subtract(bigR), u0, v0);
-        t.vertexUV(x1.add(BigDecimal.valueOf(xxa)), y + 0.0, z.subtract(BigDecimal.valueOf(r + zza)), u0, v1);
-        t.vertexUV(x0.add(BigDecimal.valueOf(xxa)), y + 0.0, z.subtract(BigDecimal.valueOf(r + zza)), u1, v1);
-        t.vertexUV(x0, y + 1.0, z.subtract(bigR), u1, v0);
+
+        double r = 0.0625;
+        double h = 0.625;
+
+        BigDecimal tx00 = BigMath.addD(x, xxa * (1.0 - h) - r);
+        BigDecimal tx01 = BigMath.addD(x, xxa * (1.0 - h) + r);
+
+        BigDecimal tz00 = BigMath.addD(z, zza * (1.0 - h) - r);
+        BigDecimal tz01 = BigMath.addD(z, zza * (1.0 - h) + r);
+
+        // Top
+        t.vertexUV(tx00, y + h, tz00, uc0, vc0); // t.vertexUV(x + xxa * (1.0 - h) - r, y + h, z + zza * (1.0 - h) - r, uc0, vc0);
+        t.vertexUV(tx00, y + h, tz01, uc0, vc1); // t.vertexUV(x + xxa * (1.0 - h) - r, y + h, z + zza * (1.0 - h) + r, uc0, vc1);
+        t.vertexUV(tx01, y + h, tz01, uc1, vc1); // t.vertexUV(x + xxa * (1.0 - h) + r, y + h, z + zza * (1.0 - h) + r, uc1, vc1);
+        t.vertexUV(tx01, y + h, tz00, uc1, vc0); // t.vertexUV(x + xxa * (1.0 - h) + r, y + h, z + zza * (1.0 - h) - r, uc1, vc0);
+
+        BigDecimal bigR = BigMath.decimal(r);
+        BigDecimal bigXXA = BigMath.decimal(xxa);
+        BigDecimal bigZZA = BigMath.decimal(zza);
+
+        BigDecimal tx10 = BigMath.subD(x, bigR);
+        BigDecimal tx11 = BigMath.addD(BigMath.subD(x, r), xxa);
+
+        BigDecimal tz10 = BigMath.addD(z0, bigZZA);
+        BigDecimal tz11 = BigMath.addD(z1, bigZZA);
+
+        // West (-x)
+        t.vertexUV(tx10, y + 1.0, z0, u0, v0);   // t.vertexUV(x - r, y + 1.0, z0, u0, v0);
+        t.vertexUV(tx11, y + 0.0, tz10, u0, v1); // t.vertexUV(x - r + xxa, y + 0.0, z0 + zza, u0, v1);
+        t.vertexUV(tx11, y + 0.0, tz11, u1, v1); // t.vertexUV(x - r + xxa, y + 0.0, z1 + zza, u1, v1);
+        t.vertexUV(tx10, y + 1.0, z1, u1, v0);   // t.vertexUV(x - r, y + 1.0, z1, u1, v0);
+
+        BigDecimal tx20 = BigMath.addD(x, bigR);
+        BigDecimal tx21 = BigMath.addD(x, xxa + r);
+
+        // East (+x)
+        t.vertexUV(tx20, y + 1.0, z1, u0, v0);   // t.vertexUV(x + r, y + 1.0, z1, u0, v0);
+        t.vertexUV(tx21, y + 0.0, tz11, u0, v1); // t.vertexUV(x + xxa + r, y + 0.0, z1 + zza, u0, v1);
+        t.vertexUV(tx21, y + 0.0, tz10, u1, v1); // t.vertexUV(x + xxa + r, y + 0.0, z0 + zza, u1, v1);
+        t.vertexUV(tx20, y + 1.0, z0, u1, v0);   // t.vertexUV(x + r, y + 1.0, z0, u1, v0);
+
+        BigDecimal tx30 = BigMath.addD(x0, bigXXA);
+        BigDecimal tx31 = BigMath.addD(x1, bigXXA);
+
+        BigDecimal tz30 = BigMath.addD(z, bigR);
+        BigDecimal tz31 = BigMath.addD(z, zza + r);
+
+        // South (+z)
+        t.vertexUV(x0, y + 1.0, tz30, u0, v0);   // t.vertexUV(x0, y + 1.0, z + r, u0, v0);
+        t.vertexUV(tx30, y + 0.0, tz31, u0, v1); // t.vertexUV(x0 + xxa, y + 0.0, z + r + zza, u0, v1);
+        t.vertexUV(tx31, y + 0.0, tz31, u1, v1); // t.vertexUV(x1 + xxa, y + 0.0, z + r + zza, u1, v1);
+        t.vertexUV(x1, y + 1.0, tz30, u1, v0);   // t.vertexUV(x1, y + 1.0, z + r, u1, v0);
+
+        BigDecimal tz40 = BigMath.subD(z, bigR);
+        BigDecimal tz41 = new BigDecimal(z.doubleValue() - r + zza);//BigMath.subD(z, zza + r);
+
+        // North (-z)
+        t.vertexUV(x1, y + 1.0, tz40, u0, v0);   // t.vertexUV(x1, y + 1.0, z - r, u0, v0);
+        t.vertexUV(tx31, y + 0.0, tz41, u0, v1); // t.vertexUV(x1 + xxa, y + 0.0, z - r + zza, u0, v1);
+        t.vertexUV(tx30, y + 0.0, tz41, u1, v1); // t.vertexUV(x0 + xxa, y + 0.0, z - r + zza, u1, v1);
+        t.vertexUV(x0, y + 1.0, tz40, u1, v0);   // t.vertexUV(x0, y + 1.0, z - r, u1, v0);
+    }
+
+    public boolean tesselateFireInWorld(Tile tile, final BigInteger x, int y, final BigInteger z) {
+        Tesselator t = Tesselator.instance;
+        int tex = tile.getTexture(0);
+        if (this.fixedTexture >= 0) {
+            tex = this.fixedTexture;
+        }
+
+        float br = tile.getBrightness(this.level, x, y, z);
+        t.color(br, br, br);
+        int tx = (tex & 15) << 4;
+        int yt = tex & 240;
+        double u0 = tx / 256.0F;
+        double u1 = (tx + 15.99F) / 256.0F;
+        double v0 = yt / 256.0F;
+        double v1 = (yt + 15.99F) / 256.0F;
+        float h = 1.4F;
+
+        final BigInteger xPlusOne = x.add(BigInteger.ONE);
+        final BigInteger xMinusOne = x.subtract(BigInteger.ONE);
+        final BigInteger zPlusOne = z.add(BigInteger.ONE);
+        final BigInteger zMinusOne = z.subtract(BigInteger.ONE);
+
+        final BigDecimal xD = new BigDecimal(x);
+        final BigDecimal zD = new BigDecimal(z);
+
+        final BigDecimal xPlusOneD = new BigDecimal(xPlusOne);
+        final BigDecimal zPlusOneD = new BigDecimal(zPlusOne);
+
+
+        if (!this.level.isSolidBlockingTile(x, y - 1, z) && !Tile.FIRE.canBurn(this.level, x, y - 1, z)) {
+            float r = 0.2F;
+            float yo = 0.0625F;
+            BigDecimal bigR = BigMath.decimal(r);
+            BigDecimal xPlusR = BigMath.addD(xD, bigR);
+            BigDecimal xPlusOneMinusR = BigMath.subD(xPlusOneD, bigR);
+            BigDecimal zPlusR = BigMath.addD(zD, bigR);
+            BigDecimal zPlusOneMinusR = BigMath.subD(zPlusOneD, bigR);
+            if ((x.add(BigInteger.valueOf(y)).add(z).and(BigInteger.ONE).intValue()) == 1) {
+                u0 = tx / 256.0F;
+                u1 = (tx + 15.99F) / 256.0F;
+                v0 = (yt + 16) / 256.0F;
+                v1 = (yt + 15.99F + 16.0F) / 256.0F;
+            }
+
+            if ((x.divide(BigInteger.TWO).add(BigInteger.valueOf(y / 2)).add(z.divide(BigInteger.TWO)).and(BigInteger.ONE).intValue()) == 1) {
+                double tmp = u1;
+                u1 = u0;
+                u0 = tmp;
+            }
+
+            if (Tile.FIRE.canBurn(this.level, xMinusOne, y, z)) {
+                t.vertexUV(xPlusR, y + h + yo, zPlusOneD, u1, v0);
+                t.vertexUV(xD, y + 0 + yo, zPlusOneD, u1, v1);
+                t.vertexUV(xD, y + 0 + yo, zD, u0, v1);
+                t.vertexUV(xPlusR, y + h + yo, zD, u0, v0);
+                t.vertexUV(xPlusR, y + h + yo, zD, u0, v0);
+                t.vertexUV(xD, y + 0 + yo, zD, u0, v1);
+                t.vertexUV(xD, y + 0 + yo, zPlusOneD, u1, v1);
+                t.vertexUV(xPlusR, y + h + yo, zPlusOneD, u1, v0);
+            }
+
+            if (Tile.FIRE.canBurn(this.level, xPlusOne, y, z)) {
+                t.vertexUV(xPlusOneMinusR, y + h + yo, zD, u0, v0);
+                t.vertexUV(xPlusOneD, y + 0 + yo, zD, u0, v1);
+                t.vertexUV(xPlusOneD, y + 0 + yo, zPlusOneD, u1, v1);
+                t.vertexUV(xPlusOneMinusR, y + h + yo, zPlusOneD, u1, v0);
+                t.vertexUV(xPlusOneMinusR, y + h + yo, zPlusOneD, u1, v0);
+                t.vertexUV(xPlusOneD, y + 0 + yo, zPlusOneD, u1, v1);
+                t.vertexUV(xPlusOneD, y + 0 + yo, zD, u0, v1);
+                t.vertexUV(xPlusOneMinusR, y + h + yo, zD, u0, v0);
+            }
+
+            if (Tile.FIRE.canBurn(this.level, x, y, zMinusOne)) {
+                t.vertexUV(xD, y + h + yo, zPlusR, u1, v0);
+                t.vertexUV(xD, y + 0 + yo, zD, u1, v1);
+                t.vertexUV(xPlusOneD, y + 0 + yo, zD, u0, v1);
+                t.vertexUV(xPlusOneD, y + h + yo, zPlusR, u0, v0);
+                t.vertexUV(xPlusOneD, y + h + yo, zPlusR, u0, v0);
+                t.vertexUV(xPlusOneD, y + 0 + yo, zD, u0, v1);
+                t.vertexUV(xD, y + 0 + yo, zD, u1, v1);
+                t.vertexUV(xD, y + h + yo, zPlusR, u1, v0);
+            }
+
+            if (Tile.FIRE.canBurn(this.level, x, y, zPlusOne)) {
+                t.vertexUV(xPlusOneD, y + h + yo, zPlusOneMinusR, u0, v0);
+                t.vertexUV(xPlusOneD, y + 0 + yo, zPlusOneD, u0, v1);
+                t.vertexUV(xD, y + 0 + yo, zPlusOneD, u1, v1);
+                t.vertexUV(xD, y + h + yo, zPlusOneMinusR, u1, v0);
+                t.vertexUV(xD, y + h + yo, zPlusOneMinusR, u1, v0);
+                t.vertexUV(xD, y + 0 + yo, zPlusOneD, u1, v1);
+                t.vertexUV(xPlusOneD, y + 0 + yo, zPlusOneD, u0, v1);
+                t.vertexUV(xPlusOneD, y + h + yo, zPlusOneMinusR, u0, v0);
+            }
+
+            if (Tile.FIRE.canBurn(this.level, x, y + 1, z)) {
+                BigDecimal x0 = BigMath.addD(xD, BigDecimal.ONE);
+                BigDecimal x1 = xD;
+                BigDecimal z0 = BigMath.addD(zD, BigDecimal.ONE);
+                BigDecimal z1 = zD;
+                BigDecimal x0_ = xD;
+                BigDecimal x1_ = BigMath.addD(xD, BigDecimal.ONE);
+                BigDecimal z0_ = zD;
+                BigDecimal z1_ = BigMath.addD(z, BigDecimal.ONE);
+                u0 = tx / 256.0F;
+                u1 = (tx + 15.99F) / 256.0F;
+                v0 = yt / 256.0F;
+                v1 = (yt + 15.99F) / 256.0F;
+                y++;
+                h = -0.2F;
+                if ((x.add(BigInteger.valueOf(y)).add(z).and(BigInteger.ONE).intValue()) == 0) {
+                    t.vertexUV(x0_, y + h, zD, u1, v0);
+                    t.vertexUV(x0, y + 0, zD, u1, v1);
+                    t.vertexUV(x0, y + 0, zPlusOneD, u0, v1);
+                    t.vertexUV(x0_, y + h, zPlusOneD, u0, v0);
+                    u0 = tx / 256.0F;
+                    u1 = (tx + 15.99F) / 256.0F;
+                    v0 = (yt + 16) / 256.0F;
+                    v1 = (yt + 15.99F + 16.0F) / 256.0F;
+                    t.vertexUV(x1_, y + h, zPlusOneD, u1, v0);
+                    t.vertexUV(x1, y + 0, zPlusOneD, u1, v1);
+                    t.vertexUV(x1, y + 0, zD, u0, v1);
+                    t.vertexUV(x1_, y + h, zD, u0, v0);
+                } else {
+                    t.vertexUV(xD, y + h, z1_, u1, v0);
+                    t.vertexUV(xD, y + 0, z1, u1, v1);
+                    t.vertexUV(xPlusOneD, y + 0, z1, u0, v1);
+                    t.vertexUV(xPlusOneD, y + h, z1_, u0, v0);
+                    u0 = tx / 256.0F;
+                    u1 = (tx + 15.99F) / 256.0F;
+                    v0 = (yt + 16) / 256.0F;
+                    v1 = (yt + 15.99F + 16.0F) / 256.0F;
+                    t.vertexUV(xPlusOneD, y + h, z0_, u1, v0);
+                    t.vertexUV(xPlusOneD, y + 0, z0, u1, v1);
+                    t.vertexUV(xD, y + 0, z0, u0, v1);
+                    t.vertexUV(xD, y + h, z0_, u0, v0);
+                }
+            }
+        } else {
+            final BigDecimal xPlusHalf = BigMath.addD(xD, BigConstants.POINT_FIVE);
+            final BigDecimal zPlusHalf = BigMath.addD(zD, BigConstants.POINT_FIVE);
+            BigDecimal x0 = BigMath.addD(xPlusHalf, BigConstants.POINT_TWO);
+            BigDecimal x1 = BigMath.subD(xPlusHalf, BigConstants.POINT_TWO);
+            BigDecimal z0 = BigMath.addD(zPlusHalf, BigConstants.POINT_TWO);
+            BigDecimal z1 = BigMath.subD(zPlusHalf, BigConstants.POINT_TWO);
+            BigDecimal x0_ = BigMath.subD(xPlusHalf, BigConstants.POINT_THREE);
+            BigDecimal x1_ = BigMath.addD(xPlusHalf, BigConstants.POINT_THREE);
+            BigDecimal z0_ = BigMath.subD(zPlusHalf, BigConstants.POINT_THREE);
+            BigDecimal z1_ = BigMath.addD(zPlusHalf, BigConstants.POINT_THREE);
+            t.vertexUV(x0_, y + h, zPlusOneD, u1, v0);
+            t.vertexUV(x0, y + 0, zPlusOneD, u1, v1);
+            t.vertexUV(x0, y + 0, zD, u0, v1);
+            t.vertexUV(x0_, y + h, zD, u0, v0);
+            t.vertexUV(x1_, y + h, zD, u1, v0);
+            t.vertexUV(x1, y + 0, zD, u1, v1);
+            t.vertexUV(x1, y + 0, zPlusOneD, u0, v1);
+            t.vertexUV(x1_, y + h, zPlusOneD, u0, v0);
+            u0 = tx / 256.0F;
+            u1 = (tx + 15.99F) / 256.0F;
+            v0 = (yt + 16) / 256.0F;
+            v1 = (yt + 15.99F + 16.0F) / 256.0F;
+            t.vertexUV(xPlusOneD, y + h, z1_, u1, v0);
+            t.vertexUV(xPlusOneD, y + 0, z1, u1, v1);
+            t.vertexUV(xD, y + 0, z1, u0, v1);
+            t.vertexUV(xD, y + h, z1_, u0, v0);
+            t.vertexUV(xD, y + h, z0_, u1, v0);
+            t.vertexUV(xD, y + 0, z0, u1, v1);
+            t.vertexUV(xPlusOneD, y + 0, z0, u0, v1);
+            t.vertexUV(xPlusOneD, y + h, z0_, u0, v0);
+            x0 = xD;
+            x1 = BigMath.addD(x, BigDecimal.ONE);
+            z0 = zD;
+            z1 = BigMath.addD(z, BigDecimal.ONE);
+            x0_ = BigMath.subD(xPlusHalf, BigConstants.POINT_FOUR);
+            x1_ = BigMath.addD(xPlusHalf, BigConstants.POINT_FOUR);
+            z0_ = BigMath.subD(zPlusHalf, BigConstants.POINT_FOUR);
+            z1_ = BigMath.addD(zPlusHalf, BigConstants.POINT_FOUR);
+            t.vertexUV(x0_, y + h, zD, u0, v0);
+            t.vertexUV(x0, y + 0, zD, u0, v1);
+            t.vertexUV(x0, y + 0, zPlusOneD, u1, v1);
+            t.vertexUV(x0_, y + h, zPlusOneD, u1, v0);
+            t.vertexUV(x1_, y + h, zPlusOneD, u0, v0);
+            t.vertexUV(x1, y + 0, zPlusOneD, u0, v1);
+            t.vertexUV(x1, y + 0, zD, u1, v1);
+            t.vertexUV(x1_, y + h, zD, u1, v0);
+            u0 = tx / 256.0F;
+            u1 = (tx + 15.99F) / 256.0F;
+            v0 = yt / 256.0F;
+            v1 = (yt + 15.99F) / 256.0F;
+            t.vertexUV(xD, y + h, z1_, u0, v0);
+            t.vertexUV(xD, y + 0, z1, u0, v1);
+            t.vertexUV(xPlusOneD, y + 0, z1, u1, v1);
+            t.vertexUV(xPlusOneD, y + h, z1_, u1, v0);
+            t.vertexUV(xPlusOneD, y + h, z0_, u0, v0);
+            t.vertexUV(xPlusOneD, y + 0, z0, u0, v1);
+            t.vertexUV(xD, y + 0, z0, u1, v1);
+            t.vertexUV(xD, y + h, z0_, u1, v0);
+        }
+
+        return true;
     }
 
     private static BigDecimal CROSS_CONSTANT = BigDecimal.valueOf(0.45F);
@@ -1403,7 +1642,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
                 int tex = tt.getTexture(Facing.UP, data);
                 float angle = (float) LiquidUtil.getSlopeAngle(this.level, x, y, z, m);
                 if (angle > -999.0F) {
-                    tex = tt.getTexture(2, data);
+                    tex = tt.getTexture(Facing.NORTH, data);
                 }
 
                 int xt = (tex & 15) << 4;
@@ -1451,7 +1690,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
 
             for (int face = 0; face < 4; ++face) {
                 if (FIX_STRIPELANDS) {
-                    changed = renderBigLiquidFace(
+                    changed |= renderBigLiquidFace(
                             t,
                             x, y, z,
                             new BigDecimal(x), new BigDecimal(z),
@@ -1463,7 +1702,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
                             face
                     );
                 } else {
-                    changed = renderLiquidFace(
+                    changed |= renderLiquidFace(
                             t,
                             x, y, z,
                             tt, data,

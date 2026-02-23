@@ -96,6 +96,9 @@ public interface BigTileExtension {
         return false;
     }
 
+    default void wasExploded(Level level, BigInteger x, int y, BigInteger z) {
+    }
+
     default boolean canPlace(Level level, BigInteger x, int y, BigInteger z, int face) {
         return this.mayPlace(level, x, y, z);
     }

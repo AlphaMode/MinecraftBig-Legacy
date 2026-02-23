@@ -20,7 +20,7 @@ import java.math.BigInteger;
 import java.util.Random;
 
 @Mixin(LiquidTile.class)
-public abstract class LiquidTileMixin extends Tile implements BigLiquidTileExtension {
+public abstract class LiquidTileMixin extends Tile implements BigTileExtension, BigLiquidTileExtension {
     protected LiquidTileMixin(int id, Material material) {
         super(id, material);
     }
@@ -57,11 +57,10 @@ public abstract class LiquidTileMixin extends Tile implements BigLiquidTileExten
         } else if (mat == Material.ICE) {
             return false;
         } else {
-            return face == Facing.UP ? true : super.isSolid(level, x, y, z, face);
+            return face == Facing.UP || super.isSolid(level, x, y, z, face);
         }
     }
 
-    @Environment(EnvType.CLIENT)
     @Override
     public boolean shouldRenderFace(LevelSource level, BigInteger x, int y, BigInteger z, int face) {
         Material mat = level.getMaterial(x, y, z);
@@ -70,7 +69,7 @@ public abstract class LiquidTileMixin extends Tile implements BigLiquidTileExten
         } else if (mat == Material.ICE) {
             return false;
         } else {
-            return face == Facing.UP ? true : super.shouldRenderFace(level, x, y, z, face);
+            return face == Facing.UP || super.shouldRenderFace(level, x, y, z, face);
         }
     }
 

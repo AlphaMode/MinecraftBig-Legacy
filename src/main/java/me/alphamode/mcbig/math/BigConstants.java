@@ -15,6 +15,9 @@ public class BigConstants {
     public static final BigInteger CHUNK_OFFSET = BigInteger.valueOf(1023);
 
     public static final BigDecimal TWO = BigDecimal.valueOf(2);
+    public static final BigDecimal POINT_TWO = BigDecimal.valueOf(0.2);
+    public static final BigDecimal POINT_THREE = BigDecimal.valueOf(0.3);
+    public static final BigDecimal POINT_FOUR = BigDecimal.valueOf(0.4);
     public static final BigDecimal POINT_FIVE = BigDecimal.valueOf(0.5);
     public static final BigDecimal EPSILON = new BigDecimal(0.0625F, MathContext.DECIMAL32);
     public static final BigDecimal NEGATIVE_EPSILON = EPSILON.negate();

@@ -1,5 +1,6 @@
 package me.alphamode.mcbig.mixin.tiles;
 
+import me.alphamode.mcbig.extensions.BigTileExtension;
 import net.minecraft.util.Facing;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Mob;
@@ -17,7 +18,7 @@ import java.math.BigInteger;
 import java.util.Random;
 
 @Mixin(RepeaterTile.class)
-public abstract class RepeaterTileMixin extends Tile {
+public abstract class RepeaterTileMixin extends Tile implements BigTileExtension {
 
     @Shadow
     @Final

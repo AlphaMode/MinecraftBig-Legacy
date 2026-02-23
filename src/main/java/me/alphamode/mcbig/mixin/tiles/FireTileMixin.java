@@ -1,5 +1,6 @@
 package me.alphamode.mcbig.mixin.tiles;
 
+import me.alphamode.mcbig.extensions.BigTileExtension;
 import me.alphamode.mcbig.extensions.tiles.BigFireTileExtension;
 import me.alphamode.mcbig.world.phys.BigAABB;
 import net.minecraft.world.level.Level;
@@ -15,7 +16,7 @@ import java.math.BigInteger;
 import java.util.Random;
 
 @Mixin(FireTile.class)
-public abstract class FireTileMixin extends Tile implements BigFireTileExtension {
+public abstract class FireTileMixin extends Tile implements BigTileExtension, BigFireTileExtension {
     @Shadow
     private int[] burnOdds;
 

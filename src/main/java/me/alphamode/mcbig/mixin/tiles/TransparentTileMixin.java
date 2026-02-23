@@ -1,5 +1,6 @@
 package me.alphamode.mcbig.mixin.tiles;
 
+import me.alphamode.mcbig.extensions.BigTileExtension;
 import net.minecraft.world.level.LevelSource;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.tile.Tile;
@@ -10,7 +11,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import java.math.BigInteger;
 
 @Mixin(TransparentTile.class)
-public abstract class TransparentTileMixin extends Tile {
+public abstract class TransparentTileMixin extends Tile implements BigTileExtension {
     @Shadow
     protected boolean allowSame;
 

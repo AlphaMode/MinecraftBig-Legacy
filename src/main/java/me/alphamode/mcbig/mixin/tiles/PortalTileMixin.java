@@ -1,5 +1,6 @@
 package me.alphamode.mcbig.mixin.tiles;
 
+import me.alphamode.mcbig.extensions.BigTileExtension;
 import me.alphamode.mcbig.extensions.tiles.BigPortalTileExtension;
 import me.alphamode.mcbig.world.phys.BigAABB;
 import net.minecraft.util.Facing;
@@ -17,7 +18,7 @@ import java.math.BigInteger;
 import java.util.Random;
 
 @Mixin(PortalTile.class)
-public abstract class PortalTileMixin extends HalfTransparentTile implements BigPortalTileExtension {
+public abstract class PortalTileMixin extends HalfTransparentTile implements BigTileExtension, BigPortalTileExtension {
     protected PortalTileMixin(int id, int tex, Material material, boolean allowSame) {
         super(id, tex, material, allowSame);
     }

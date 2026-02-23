@@ -1,5 +1,6 @@
 package me.alphamode.mcbig.mixin.tiles;
 
+import me.alphamode.mcbig.extensions.BigTileExtension;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelSource;
@@ -14,7 +15,7 @@ import java.math.BigInteger;
 import java.util.Random;
 
 @Mixin(IceTile.class)
-public abstract class IceTileMixin extends HalfTransparentTile {
+public abstract class IceTileMixin extends HalfTransparentTile implements BigTileExtension {
     protected IceTileMixin(int id, int tex, Material material, boolean allowSame) {
         super(id, tex, material, allowSame);
     }

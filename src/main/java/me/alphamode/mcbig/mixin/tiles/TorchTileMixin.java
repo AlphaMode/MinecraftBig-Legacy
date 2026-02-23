@@ -1,5 +1,6 @@
 package me.alphamode.mcbig.mixin.tiles;
 
+import me.alphamode.mcbig.extensions.BigTileExtension;
 import me.alphamode.mcbig.world.phys.BigAABB;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -16,7 +17,7 @@ import java.math.BigInteger;
 import java.util.Random;
 
 @Mixin(TorchTile.class)
-public abstract class TorchTileMixin extends Tile {
+public abstract class TorchTileMixin extends Tile implements BigTileExtension {
     protected TorchTileMixin(int id, Material material) {
         super(id, material);
     }
