@@ -16,3 +16,5 @@ accessible method net/minecraft/client/Minecraft getPlatform ()Lnet/minecraft/cl
 accessible class net/minecraft/server/level/ChunkMap$ServerChunk
 
 accessible field net/minecraft/network/packets/BlockRegionUpdatePacket size I
+
+accessible method net/minecraft/world/level/Level stopWeather ()V

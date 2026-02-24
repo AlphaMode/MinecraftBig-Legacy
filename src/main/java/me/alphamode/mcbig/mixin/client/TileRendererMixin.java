@@ -15,6 +15,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.LevelSource;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.tile.*;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
@@ -257,12 +258,12 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
             return this.tesselateDoorInWorld(tile, x, y, z);
         } else if (shape == BlockShapes.RAILS) {
             return this.tesselateRailInWorld((RailTile)tile, x, y, z);
-//        } else if (shape == BlockShapes.STAIRS) {
-//            return this.tesselateStairsInWorld(tile, x, y, z);
-//        } else if (shape == BlockShapes.FENCE) {
-//            return this.tesselateFenceInWorld(tile, x, y, z);
-//        } else if (shape == BlockShapes.LEVER) {
-//            return this.tesselateLeverInWorld(tile, x, y, z);
+        } else if (shape == BlockShapes.STAIRS) {
+            return this.tesselateStairsInWorld(tile, x, y, z);
+        } else if (shape == BlockShapes.FENCE) {
+            return this.tesselateFenceInWorld(tile, x, y, z);
+        } else if (shape == BlockShapes.LEVER) {
+            return this.tesselateLeverInWorld(tile, x, y, z); // // TODO: use big decimal
 //        } else if (shape == BlockShapes.BED) {
 //            return this.tesselateBedInWorld(tile, x, y, z);
 //        } else if (shape == BlockShapes.REPEATER) {
@@ -1144,6 +1145,242 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
         return changed;
     }
 
+    public boolean tesselateFenceInWorld(Tile tile, BigInteger x, int y, BigInteger z) {
+        boolean changed = false;
+        float a = 0.375F;
+        float b = 0.625F;
+        tile.setShape(a, 0.0F, a, b, 1.0F, b);
+        this.tesselateBlockInWorld(tile, x, y, z);
+        changed = true;
+        boolean vertical = false;
+        boolean horizontal = false;
+        if (this.level.getTile(x.subtract(BigInteger.ONE), y, z) == tile.id || this.level.getTile(x.add(BigInteger.ONE), y, z) == tile.id) {
+            vertical = true;
+        }
+
+        if (this.level.getTile(x, y, z.subtract(BigInteger.ONE)) == tile.id || this.level.getTile(x, y, z.add(BigInteger.ONE)) == tile.id) {
+            horizontal = true;
+        }
+
+        boolean l = this.level.getTile(x.subtract(BigInteger.ONE), y, z) == tile.id;
+        boolean r = this.level.getTile(x.add(BigInteger.ONE), y, z) == tile.id;
+        boolean u = this.level.getTile(x, y, z.subtract(BigInteger.ONE)) == tile.id;
+        boolean d = this.level.getTile(x, y, z.add(BigInteger.ONE)) == tile.id;
+        if (!vertical && !horizontal) {
+            vertical = true;
+        }
+
+        a = 0.4375F;
+        b = 0.5625F;
+        float h0 = 0.75F;
+        float h1 = 0.9375F;
+        float x0 = l ? 0.0F : a;
+        float x1 = r ? 1.0F : b;
+        float z0 = u ? 0.0F : a;
+        float z1 = d ? 1.0F : b;
+        if (vertical) {
+            tile.setShape(x0, h0, a, x1, h1, b);
+            this.tesselateBlockInWorld(tile, x, y, z);
+            changed = true;
+        }
+
+        if (horizontal) {
+            tile.setShape(a, h0, z0, b, h1, z1);
+            this.tesselateBlockInWorld(tile, x, y, z);
+            changed = true;
+        }
+
+        h0 = 0.375F;
+        h1 = 0.5625F;
+        if (vertical) {
+            tile.setShape(x0, h0, a, x1, h1, b);
+            this.tesselateBlockInWorld(tile, x, y, z);
+            changed = true;
+        }
+
+        if (horizontal) {
+            tile.setShape(a, h0, z0, b, h1, z1);
+            this.tesselateBlockInWorld(tile, x, y, z);
+            changed = true;
+        }
+
+        tile.setShape(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+        return changed;
+    }
+
+    public boolean tesselateStairsInWorld(Tile tile, BigInteger x, int y, BigInteger z) {
+        boolean changed = false;
+        int dir = this.level.getData(x, y, z);
+        if (dir == 0) {
+            tile.setShape(0.0F, 0.0F, 0.0F, 0.5F, 0.5F, 1.0F);
+            this.tesselateBlockInWorld(tile, x, y, z);
+            tile.setShape(0.5F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+            this.tesselateBlockInWorld(tile, x, y, z);
+            changed = true;
+        } else if (dir == 1) {
+            tile.setShape(0.0F, 0.0F, 0.0F, 0.5F, 1.0F, 1.0F);
+            this.tesselateBlockInWorld(tile, x, y, z);
+            tile.setShape(0.5F, 0.0F, 0.0F, 1.0F, 0.5F, 1.0F);
+            this.tesselateBlockInWorld(tile, x, y, z);
+            changed = true;
+        } else if (dir == 2) {
+            tile.setShape(0.0F, 0.0F, 0.0F, 1.0F, 0.5F, 0.5F);
+            this.tesselateBlockInWorld(tile, x, y, z);
+            tile.setShape(0.0F, 0.0F, 0.5F, 1.0F, 1.0F, 1.0F);
+            this.tesselateBlockInWorld(tile, x, y, z);
+            changed = true;
+        } else if (dir == 3) {
+            tile.setShape(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 0.5F);
+            this.tesselateBlockInWorld(tile, x, y, z);
+            tile.setShape(0.0F, 0.0F, 0.5F, 1.0F, 0.5F, 1.0F);
+            this.tesselateBlockInWorld(tile, x, y, z);
+            changed = true;
+        }
+
+        tile.setShape(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+        return changed;
+    }
+
+    public boolean tesselateDoorInWorld(Tile tt, final BigInteger x, int y, final BigInteger z) {
+        Tesselator t = Tesselator.instance;
+        DoorTile dt = (DoorTile) tt;
+        boolean changed = false;
+        float c10 = 0.5F;
+        float c11 = 1.0F;
+        float c2 = 0.8F;
+        float c3 = 0.6F;
+        float centerBrightness = tt.getBrightness(this.level, x, y, z);
+        float br = tt.getBrightness(this.level, x, y - 1, z);
+        BigDecimal xD = new BigDecimal(x);
+        BigDecimal zD = new BigDecimal(z);
+        if (dt.yy0 > 0.0) {
+            br = centerBrightness;
+        }
+
+        if (Tile.lightEmission[tt.id] > 0) {
+            br = 1.0F;
+        }
+
+        t.color(c10 * br, c10 * br, c10 * br);
+        if (FIX_STRIPELANDS) {
+            this.renderFaceDown(tt, xD, y, zD, tt.getTexture(this.level, x, y, z, Facing.DOWN));
+        } else {
+            this.renderFaceDown(tt, x.doubleValue(), y, z.doubleValue(), tt.getTexture(this.level, x, y, z, Facing.DOWN));
+        }
+
+        changed = true;
+        br = tt.getBrightness(this.level, x, y + 1, z);
+        if (dt.yy1 < 1.0) {
+            br = centerBrightness;
+        }
+
+        if (Tile.lightEmission[tt.id] > 0) {
+            br = 1.0F;
+        }
+
+        t.color(c11 * br, c11 * br, c11 * br);
+        if (FIX_STRIPELANDS) {
+            this.renderFaceUp(tt, xD, y, zD, tt.getTexture(this.level, x, y, z, Facing.UP));
+        } else {
+            this.renderFaceUp(tt, x.doubleValue(), y, z.doubleValue(), tt.getTexture(this.level, x, y, z, Facing.UP));
+        }
+
+        changed = true;
+        br = tt.getBrightness(this.level, x, y, z.subtract(BigInteger.ONE));
+        if (dt.zz0 > 0.0) {
+            br = centerBrightness;
+        }
+
+        if (Tile.lightEmission[tt.id] > 0) {
+            br = 1.0F;
+        }
+
+        t.color(c2 * br, c2 * br, c2 * br);
+        int tex = tt.getTexture(this.level, x, y, z, Facing.NORTH);
+        if (tex < 0) {
+            this.xFlipTexture = true;
+            tex = -tex;
+        }
+
+        if (FIX_STRIPELANDS) {
+            this.renderNorth(tt, xD, y, zD, tex);
+        } else {
+            this.renderNorth(tt, x.doubleValue(), y, z.doubleValue(), tex);
+        }
+        changed = true;
+        this.xFlipTexture = false;
+        br = tt.getBrightness(this.level, x, y, z.add(BigInteger.ONE));
+        if (dt.zz1 < 1.0) {
+            br = centerBrightness;
+        }
+
+        if (Tile.lightEmission[tt.id] > 0) {
+            br = 1.0F;
+        }
+
+        t.color(c2 * br, c2 * br, c2 * br);
+        tex = tt.getTexture(this.level, x, y, z, Facing.SOUTH);
+        if (tex < 0) {
+            this.xFlipTexture = true;
+            tex = -tex;
+        }
+
+        if (FIX_STRIPELANDS) {
+            this.renderSouth(tt, xD, y, zD, tex);
+        } else {
+            this.renderSouth(tt, x.doubleValue(), y, z.doubleValue(), tex);
+        }
+        changed = true;
+        this.xFlipTexture = false;
+        br = tt.getBrightness(this.level, x.subtract(BigInteger.ONE), y, z);
+        if (dt.xx0 > 0.0) {
+            br = centerBrightness;
+        }
+
+        if (Tile.lightEmission[tt.id] > 0) {
+            br = 1.0F;
+        }
+
+        t.color(c3 * br, c3 * br, c3 * br);
+        tex = tt.getTexture(this.level, x, y, z, Facing.WEST);
+        if (tex < 0) {
+            this.xFlipTexture = true;
+            tex = -tex;
+        }
+
+        if (FIX_STRIPELANDS) {
+            this.renderWest(tt, xD, y, zD, tex);
+        } else {
+            this.renderWest(tt, x.doubleValue(), y, z.doubleValue(), tex);
+        }
+        changed = true;
+        this.xFlipTexture = false;
+        br = tt.getBrightness(this.level, x.add(BigInteger.ONE), y, z);
+        if (dt.xx1 < 1.0) {
+            br = centerBrightness;
+        }
+
+        if (Tile.lightEmission[tt.id] > 0) {
+            br = 1.0F;
+        }
+
+        t.color(c3 * br, c3 * br, c3 * br);
+        tex = tt.getTexture(this.level, x, y, z, Facing.EAST);
+        if (tex < 0) {
+            this.xFlipTexture = true;
+            tex = -tex;
+        }
+
+        if (FIX_STRIPELANDS) {
+            this.renderEast(tt, xD, y, zD, tex);
+        } else {
+            this.renderEast(tt, x.doubleValue(), y, z.doubleValue(), tex);
+        }
+        changed = true;
+        this.xFlipTexture = false;
+        return changed;
+    }
+
     public boolean tesselateLadderInWorld(Tile tile, BigInteger x, int y, BigInteger z) {
         Tesselator t = Tesselator.instance;
         int tex = tile.getTexture(0);
@@ -1365,6 +1602,170 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
         t.vertexUV(tx31, y + 0.0, tz41, u0, v1); // t.vertexUV(x1 + xxa, y + 0.0, z - r + zza, u0, v1);
         t.vertexUV(tx30, y + 0.0, tz41, u1, v1); // t.vertexUV(x0 + xxa, y + 0.0, z - r + zza, u1, v1);
         t.vertexUV(x0, y + 1.0, tz40, u1, v0);   // t.vertexUV(x0, y + 1.0, z - r, u1, v0);
+    }
+
+    // TODO: use big decimal
+    public boolean tesselateLeverInWorld(Tile tile, BigInteger x, int y, BigInteger z) {
+        int data = this.level.getData(x, y, z);
+        int dir = data & 7;
+        boolean flipped = (data & 8) > 0;
+        Tesselator t = Tesselator.instance;
+        boolean hadFixed = this.fixedTexture >= 0;
+        if (!hadFixed) {
+            this.fixedTexture = Tile.COBBLESTONE.tex;
+        }
+
+        float w1 = 0.25F;
+        float w2 = 0.1875F;
+        float h = 0.1875F;
+        if (dir == 5) {
+            tile.setShape(0.5F - w2, 0.0F, 0.5F - w1, 0.5F + w2, h, 0.5F + w1);
+        } else if (dir == 6) {
+            tile.setShape(0.5F - w1, 0.0F, 0.5F - w2, 0.5F + w1, h, 0.5F + w2);
+        } else if (dir == 4) {
+            tile.setShape(0.5F - w2, 0.5F - w1, 1.0F - h, 0.5F + w2, 0.5F + w1, 1.0F);
+        } else if (dir == 3) {
+            tile.setShape(0.5F - w2, 0.5F - w1, 0.0F, 0.5F + w2, 0.5F + w1, h);
+        } else if (dir == 2) {
+            tile.setShape(1.0F - h, 0.5F - w1, 0.5F - w2, 1.0F, 0.5F + w1, 0.5F + w2);
+        } else if (dir == 1) {
+            tile.setShape(0.0F, 0.5F - w1, 0.5F - w2, h, 0.5F + w1, 0.5F + w2);
+        }
+
+        this.tesselateBlockInWorld(tile, x, y, z);
+        if (!hadFixed) {
+            this.fixedTexture = -1;
+        }
+
+        float br = tile.getBrightness(this.level, x, y, z);
+        if (Tile.lightEmission[tile.id] > 0) {
+            br = 1.0F;
+        }
+
+        t.color(br, br, br);
+        int var14 = tile.getTexture(0);
+        if (this.fixedTexture >= 0) {
+            var14 = this.fixedTexture;
+        }
+
+        int xt = (var14 & 15) << 4;
+        int yt = var14 & 240;
+        float u0 = xt / 256.0F;
+        float u1 = (xt + 15.99F) / 256.0F;
+        float v0 = yt / 256.0F;
+        float v1 = (yt + 15.99F) / 256.0F;
+        Vec3[] corners = new Vec3[8];
+        float xv = 0.0625F;
+        float zv = 0.0625F;
+        float yv = 0.625F;
+        corners[0] = Vec3.newTemp(-xv, 0.0, -zv);
+        corners[1] = Vec3.newTemp(xv, 0.0, -zv);
+        corners[2] = Vec3.newTemp(xv, 0.0, zv);
+        corners[3] = Vec3.newTemp(-xv, 0.0, zv);
+        corners[4] = Vec3.newTemp(-xv, yv, -zv);
+        corners[5] = Vec3.newTemp(xv, yv, -zv);
+        corners[6] = Vec3.newTemp(xv, yv, zv);
+        corners[7] = Vec3.newTemp(-xv, yv, zv);
+
+        for (int i = 0; i < 8; i++) {
+            if (flipped) {
+                corners[i].z -= 0.0625;
+                corners[i].xRot((float) Math.PI * 2.0F / 9.0F);
+            } else {
+                corners[i].z += 0.0625;
+                corners[i].xRot((float) -Math.PI * 2.0F / 9.0F);
+            }
+
+            if (dir == 6) {
+                corners[i].yRot((float) (Math.PI / 2));
+            }
+
+            if (dir < 5) {
+                corners[i].y -= 0.375;
+                corners[i].xRot((float) (Math.PI / 2));
+                if (dir == 4) {
+                    corners[i].yRot(0.0F);
+                }
+
+                if (dir == 3) {
+                    corners[i].yRot((float) Math.PI);
+                }
+
+                if (dir == 2) {
+                    corners[i].yRot((float) (Math.PI / 2));
+                }
+
+                if (dir == 1) {
+                    corners[i].yRot((float) (-Math.PI / 2));
+                }
+
+                corners[i].x += x.doubleValue() + 0.5;
+                corners[i].y += y + 0.5F;
+                corners[i].z += z.doubleValue() + 0.5;
+            } else {
+                corners[i].x += x.doubleValue() + 0.5;
+                corners[i].y += y + 0.125F;
+                corners[i].z += z.doubleValue() + 0.5;
+            }
+        }
+
+        Vec3 c0 = null;
+        Vec3 c1 = null;
+        Vec3 c2 = null;
+        Vec3 c3 = null;
+
+        for (int i = 0; i < 6; i++) {
+            if (i == 0) {
+                u0 = (xt + 7) / 256.0F;
+                u1 = (xt + 9 - 0.01F) / 256.0F;
+                v0 = (yt + 6) / 256.0F;
+                v1 = (yt + 8 - 0.01F) / 256.0F;
+            } else if (i == 2) {
+                u0 = (xt + 7) / 256.0F;
+                u1 = (xt + 9 - 0.01F) / 256.0F;
+                v0 = (yt + 6) / 256.0F;
+                v1 = (yt + 16 - 0.01F) / 256.0F;
+            }
+
+            if (i == 0) {
+                c0 = corners[0];
+                c1 = corners[1];
+                c2 = corners[2];
+                c3 = corners[3];
+            } else if (i == 1) {
+                c0 = corners[7];
+                c1 = corners[6];
+                c2 = corners[5];
+                c3 = corners[4];
+            } else if (i == 2) {
+                c0 = corners[1];
+                c1 = corners[0];
+                c2 = corners[4];
+                c3 = corners[5];
+            } else if (i == 3) {
+                c0 = corners[2];
+                c1 = corners[1];
+                c2 = corners[5];
+                c3 = corners[6];
+            } else if (i == 4) {
+                c0 = corners[3];
+                c1 = corners[2];
+                c2 = corners[6];
+                c3 = corners[7];
+            } else if (i == 5) {
+                c0 = corners[0];
+                c1 = corners[3];
+                c2 = corners[7];
+                c3 = corners[4];
+            }
+
+            t.vertexUV(c0.x, c0.y, c0.z, u0, v1);
+            t.vertexUV(c1.x, c1.y, c1.z, u1, v1);
+            t.vertexUV(c2.x, c2.y, c2.z, u1, v0);
+            t.vertexUV(c3.x, c3.y, c3.z, u0, v0);
+        }
+
+        return true;
     }
 
     public boolean tesselateFireInWorld(Tile tile, final BigInteger x, int y, final BigInteger z) {
@@ -2293,145 +2694,5 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
         }
 
         return 1.0F - h / (float) count;
-    }
-
-    public boolean tesselateDoorInWorld(Tile tt, final BigInteger x, int y, final BigInteger z) {
-        Tesselator t = Tesselator.instance;
-        DoorTile dt = (DoorTile) tt;
-        boolean changed = false;
-        float c10 = 0.5F;
-        float c11 = 1.0F;
-        float c2 = 0.8F;
-        float c3 = 0.6F;
-        float centerBrightness = tt.getBrightness(this.level, x, y, z);
-        float br = tt.getBrightness(this.level, x, y - 1, z);
-        BigDecimal xD = new BigDecimal(x);
-        BigDecimal zD = new BigDecimal(z);
-        if (dt.yy0 > 0.0) {
-            br = centerBrightness;
-        }
-
-        if (Tile.lightEmission[tt.id] > 0) {
-            br = 1.0F;
-        }
-
-        t.color(c10 * br, c10 * br, c10 * br);
-        if (FIX_STRIPELANDS) {
-            this.renderFaceDown(tt, xD, y, zD, tt.getTexture(this.level, x, y, z, Facing.DOWN));
-        } else {
-            this.renderFaceDown(tt, x.doubleValue(), y, z.doubleValue(), tt.getTexture(this.level, x, y, z, Facing.DOWN));
-        }
-
-        changed = true;
-        br = tt.getBrightness(this.level, x, y + 1, z);
-        if (dt.yy1 < 1.0) {
-            br = centerBrightness;
-        }
-
-        if (Tile.lightEmission[tt.id] > 0) {
-            br = 1.0F;
-        }
-
-        t.color(c11 * br, c11 * br, c11 * br);
-        if (FIX_STRIPELANDS) {
-            this.renderFaceUp(tt, xD, y, zD, tt.getTexture(this.level, x, y, z, Facing.UP));
-        } else {
-            this.renderFaceUp(tt, x.doubleValue(), y, z.doubleValue(), tt.getTexture(this.level, x, y, z, Facing.UP));
-        }
-
-        changed = true;
-        br = tt.getBrightness(this.level, x, y, z.subtract(BigInteger.ONE));
-        if (dt.zz0 > 0.0) {
-            br = centerBrightness;
-        }
-
-        if (Tile.lightEmission[tt.id] > 0) {
-            br = 1.0F;
-        }
-
-        t.color(c2 * br, c2 * br, c2 * br);
-        int tex = tt.getTexture(this.level, x, y, z, Facing.NORTH);
-        if (tex < 0) {
-            this.xFlipTexture = true;
-            tex = -tex;
-        }
-
-        if (FIX_STRIPELANDS) {
-            this.renderNorth(tt, xD, y, zD, tex);
-        } else {
-            this.renderNorth(tt, x.doubleValue(), y, z.doubleValue(), tex);
-        }
-        changed = true;
-        this.xFlipTexture = false;
-        br = tt.getBrightness(this.level, x, y, z.add(BigInteger.ONE));
-        if (dt.zz1 < 1.0) {
-            br = centerBrightness;
-        }
-
-        if (Tile.lightEmission[tt.id] > 0) {
-            br = 1.0F;
-        }
-
-        t.color(c2 * br, c2 * br, c2 * br);
-        tex = tt.getTexture(this.level, x, y, z, Facing.SOUTH);
-        if (tex < 0) {
-            this.xFlipTexture = true;
-            tex = -tex;
-        }
-
-        if (FIX_STRIPELANDS) {
-            this.renderSouth(tt, xD, y, zD, tex);
-        } else {
-            this.renderSouth(tt, x.doubleValue(), y, z.doubleValue(), tex);
-        }
-        changed = true;
-        this.xFlipTexture = false;
-        br = tt.getBrightness(this.level, x.subtract(BigInteger.ONE), y, z);
-        if (dt.xx0 > 0.0) {
-            br = centerBrightness;
-        }
-
-        if (Tile.lightEmission[tt.id] > 0) {
-            br = 1.0F;
-        }
-
-        t.color(c3 * br, c3 * br, c3 * br);
-        tex = tt.getTexture(this.level, x, y, z, Facing.WEST);
-        if (tex < 0) {
-            this.xFlipTexture = true;
-            tex = -tex;
-        }
-
-        if (FIX_STRIPELANDS) {
-            this.renderWest(tt, xD, y, zD, tex);
-        } else {
-            this.renderWest(tt, x.doubleValue(), y, z.doubleValue(), tex);
-        }
-        changed = true;
-        this.xFlipTexture = false;
-        br = tt.getBrightness(this.level, x.add(BigInteger.ONE), y, z);
-        if (dt.xx1 < 1.0) {
-            br = centerBrightness;
-        }
-
-        if (Tile.lightEmission[tt.id] > 0) {
-            br = 1.0F;
-        }
-
-        t.color(c3 * br, c3 * br, c3 * br);
-        tex = tt.getTexture(this.level, x, y, z, Facing.EAST);
-        if (tex < 0) {
-            this.xFlipTexture = true;
-            tex = -tex;
-        }
-
-        if (FIX_STRIPELANDS) {
-            this.renderEast(tt, xD, y, zD, tex);
-        } else {
-            this.renderEast(tt, x.doubleValue(), y, z.doubleValue(), tex);
-        }
-        changed = true;
-        this.xFlipTexture = false;
-        return changed;
     }
 }
