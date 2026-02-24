@@ -50,6 +50,7 @@ public class Commands {
         SetBlockCommand.register(DISPATCHER);
         FlyCommand.register(DISPATCHER);
         TimeCommand.register(DISPATCHER);
+        WeatherCommand.register(DISPATCHER);
         SetSpawnCommand.register(DISPATCHER);
         HealthCommand.register(DISPATCHER);
         SeedCommand.register(DISPATCHER);
