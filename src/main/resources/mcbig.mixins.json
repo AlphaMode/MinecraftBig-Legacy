@@ -34,6 +34,7 @@
     "networking.PacketListenerMixin",
     "networking.PacketMixin",
     "testing.DimensionMixin",
+    "tiles.BedTileMixin",
     "tiles.BushMixin",
     "tiles.CactusTileMixin",
     "tiles.CakeTileMixin",

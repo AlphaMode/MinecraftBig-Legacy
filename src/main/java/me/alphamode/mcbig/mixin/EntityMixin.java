@@ -198,7 +198,7 @@ public abstract class EntityMixin implements BigEntityExtension {
      */
     @Overwrite
     public void moveRelative(float front, float right, float speed) {
-        if (this instanceof PlayerExtension plr) {
+        if (this instanceof PlayerExtension plr && plr.isFlying()) {
             speed = plr.getFlySpeed();
         }
         float var4 = Mth.sqrt(front * front + right * right);

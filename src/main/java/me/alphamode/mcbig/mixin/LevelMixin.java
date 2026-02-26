@@ -1105,6 +1105,42 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
      * @reason
      */
     @Overwrite
+    public boolean tickPendingTicks(boolean force) {
+        int var2 = this.tickNextTickList.size();
+        if (var2 != this.tickNextTickSet.size()) {
+            throw new IllegalStateException("TickNextTick list out of synch");
+        } else {
+            if (var2 > 1000) {
+                var2 = 1000;
+            }
+
+            for (int i = 0; i < var2; i++) {
+                BigTickNextTickData data = this.tickNextTickList.first();
+                if (!force && data.delay > this.levelData.getTime()) {
+                    break;
+                }
+
+                this.tickNextTickList.remove(data);
+                this.tickNextTickSet.remove(data);
+                int radius = 8;
+                BigInteger bigRadius = BigConstants.EIGHT;
+                if (this.hasChunksAt(data.xBig.subtract(bigRadius), data.y - radius, data.zBig.subtract(bigRadius), data.xBig.add(bigRadius), data.y + radius, data.zBig.add(bigRadius))) {
+                    int t = this.getTile(data.xBig, data.y, data.zBig);
+                    if (t == data.priority && t > 0) {
+                        Tile.tiles[t].tick((Level) (Object) this, data.xBig, data.y, data.zBig, this.random);
+                    }
+                }
+            }
+
+            return this.tickNextTickList.size() != 0;
+        }
+    }
+
+    /**
+     * @author
+     * @reason
+     */
+    @Overwrite
     public void tickTiles() {
         this.chunksToPoll.clear();
 
@@ -1312,7 +1348,7 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
                 this.bigBoxes.add(BigAABB.from(collideBox));
             }
 
-            collideBox = entity.getCollideAgainstBox((Entity) entityList.get(i));
+            collideBox = entity.getCollideAgainstBox(entityList.get(i));
             if (collideBox != null && collideBox.intersects(vanillaArea)) {
                 this.bigBoxes.add(BigAABB.from(collideBox));
             }

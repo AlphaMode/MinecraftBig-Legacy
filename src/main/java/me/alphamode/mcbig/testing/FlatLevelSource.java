@@ -36,6 +36,9 @@ public class FlatLevelSource implements ChunkSource {
                 tiles[pos | 61] = (byte) Tile.STONE.id;
                 tiles[pos | 62] = (byte) Tile.DIRT.id;
                 tiles[pos | 63] = x.equals(BigInteger.ZERO) && z.equals(BigInteger.ZERO) ? (byte) Tile.SAND.id : (byte) Tile.GRASS.id; // Spawn block needs to be sand and between y 63 and 64
+                if (z.equals(BigInteger.ZERO)) {
+
+                }
             }
         }
         chunk.recalcHeightmap();

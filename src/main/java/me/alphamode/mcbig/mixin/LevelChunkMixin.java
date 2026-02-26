@@ -21,7 +21,7 @@ import java.util.List;
 public abstract class LevelChunkMixin implements BigLevelChunkExtension {
     @Shadow public abstract int getHeightmap(int x, int z);
 
-    @Shadow public List[] entityBlocks;
+    @Shadow public List<Entity>[] entityBlocks;
 
     @Inject(method = {"<init>(Lnet/minecraft/world/level/Level;II)V", "<init>(Lnet/minecraft/world/level/Level;[BII)V"}, at = @At("TAIL"))
     private void throwOnVanillaInit(CallbackInfo ci) {
@@ -43,12 +43,12 @@ public abstract class LevelChunkMixin implements BigLevelChunkExtension {
         }
 
         for(int var6 = var4; var6 <= var5; ++var6) {
-            List var7 = this.entityBlocks[var6];
+            List<Entity> entityBlock = this.entityBlocks[var6];
 
-            for(int var8 = 0; var8 < var7.size(); ++var8) {
-                Entity var9 = (Entity)var7.get(var8);
-                if (var9 != ignore && ((BigEntityExtension)var9).getBigBB().intersects(area)) {
-                    entities.add(var9);
+            for (int i = 0; i < entityBlock.size(); ++i) {
+                Entity e = entityBlock.get(i);
+                if (e != ignore && ((BigEntityExtension)e).getBigBB().intersects(area)) {
+                    entities.add(e);
                 }
             }
         }

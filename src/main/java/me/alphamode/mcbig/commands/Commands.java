@@ -7,6 +7,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.alphamode.mcbig.client.commands.ChatHistory;
+import me.alphamode.mcbig.world.phys.BigAABB;
 import org.jetbrains.annotations.Nullable;
 
 public class Commands {
@@ -46,6 +47,7 @@ public class Commands {
     static {
         HelpCommand.register(DISPATCHER);
         TeleportCommand.register(DISPATCHER);
+        TeleportConstantCommand.register(DISPATCHER);
         GiveCommand.register(DISPATCHER);
         SetBlockCommand.register(DISPATCHER);
         FlyCommand.register(DISPATCHER);
@@ -54,5 +56,9 @@ public class Commands {
         SetSpawnCommand.register(DISPATCHER);
         HealthCommand.register(DISPATCHER);
         SeedCommand.register(DISPATCHER);
+        DISPATCHER.register(literal("debug").executes(context -> {
+            BigAABB.USE_VANILLA = !BigAABB.USE_VANILLA;
+            return 1;
+        }));
     }
 }

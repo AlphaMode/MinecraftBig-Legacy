@@ -48,14 +48,14 @@ public abstract class RepeaterTileMixin extends Tile implements BigTileExtension
 
     @Override
     public void tick(Level level, BigInteger x, int y, BigInteger z, Random random) {
-        int var6 = level.getData(x, y, z);
-        boolean var7 = this.shouldTurnOn(level, x, y, z, var6);
-        if (this.isOn && !var7) {
-            level.setTileAndData(x, y, z, Tile.REPEATER_OFF.id, var6);
+        int data = level.getData(x, y, z);
+        boolean on = this.shouldTurnOn(level, x, y, z, data);
+        if (this.isOn && !on) {
+            level.setTileAndData(x, y, z, Tile.REPEATER_OFF.id, data);
         } else if (!this.isOn) {
-            level.setTileAndData(x, y, z, Tile.REPEATER_ON.id, var6);
-            if (!var7) {
-                int var8 = (var6 & 12) >> 2;
+            level.setTileAndData(x, y, z, Tile.REPEATER_ON.id, data);
+            if (!on) {
+                int var8 = (data & 12) >> 2;
                 level.addToTickNextTick(x, y, z, Tile.REPEATER_ON.id, DELAYS[var8] * 2);
             }
         }
@@ -93,12 +93,12 @@ public abstract class RepeaterTileMixin extends Tile implements BigTileExtension
             this.dropResources(level, x, y, z, level.getData(x, y, z));
             level.setTile(x, y, z, 0);
         } else {
-            int var6 = level.getData(x, y, z);
-            boolean var7 = this.shouldTurnOn(level, x, y, z, var6);
-            int var8 = (var6 & 12) >> 2;
-            if (this.isOn && !var7) {
+            int data = level.getData(x, y, z);
+            boolean on = this.shouldTurnOn(level, x, y, z, data);
+            int var8 = (data & 12) >> 2;
+            if (this.isOn && !on) {
                 level.addToTickNextTick(x, y, z, this.id, DELAYS[var8] * 2);
-            } else if (!this.isOn && var7) {
+            } else if (!this.isOn && on) {
                 level.addToTickNextTick(x, y, z, this.id, DELAYS[var8] * 2);
             }
         }
@@ -121,7 +121,7 @@ public abstract class RepeaterTileMixin extends Tile implements BigTileExtension
     }
 
     @Override
-    public boolean use(Level level, int x, int y, int z, Player player) {
+    public boolean use(Level level, BigInteger x, int y, BigInteger z, Player player) {
         int data = level.getData(x, y, z);
         int delay = (data & 12) >> 2;
         delay = delay + 1 << 2 & 12;

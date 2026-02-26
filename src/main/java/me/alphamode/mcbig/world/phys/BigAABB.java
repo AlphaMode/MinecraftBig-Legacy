@@ -1,5 +1,6 @@
 package me.alphamode.mcbig.world.phys;
 
+import me.alphamode.mcbig.math.BigMath;
 import net.minecraft.world.phys.AABB;
 
 import java.math.BigDecimal;
@@ -39,19 +40,24 @@ public class BigAABB {
         return this;
     }
 
+    public static boolean USE_VANILLA = false;
+
     public double clipXCollide(BigAABB c, double xa) {
+        if (USE_VANILLA) {
+            return toVanilla().clipXCollide(c.toVanilla(), xa);
+        }
         if (c.y1 <= this.y0 || c.y0 >= this.y1) {
             return xa;
         } else if (!(c.z1.compareTo(this.z0) <= 0) && !(c.z0.compareTo(this.z1) >= 0)) {
             if (xa > 0.0 && c.x1.compareTo(this.x0) <= 0) {
-                double var4 = this.x0.subtract(c.x1).doubleValue();
+                double var4 = BigMath.subD(this.x0, c.x1).doubleValue();
                 if (var4 < xa) {
                     xa = var4;
                 }
             }
 
             if (xa < 0.0 && c.x0.compareTo(this.x1) >= 0) {
-                double var6 = this.x1.subtract(c.x0).doubleValue();
+                double var6 = BigMath.subD(this.x1, c.x0).doubleValue();
                 if (var6 > xa) {
                     xa = var6;
                 }
@@ -64,6 +70,9 @@ public class BigAABB {
     }
 
     public double clipYCollide(BigAABB c, double ya) {
+        if (USE_VANILLA) {
+            return toVanilla().clipYCollide(c.toVanilla(), ya);
+        }
         if (c.x1.compareTo(this.x0) <= 0 || c.x0.compareTo(this.x1) >= 0) {
             return ya;
         } else if (!(c.z1.compareTo(this.z0) <= 0) && !(c.z0.compareTo(this.z1) >= 0)) {
@@ -88,20 +97,23 @@ public class BigAABB {
     }
 
     public double clipZCollide(BigAABB c, double za) {
+        if (USE_VANILLA) {
+            return toVanilla().clipZCollide(c.toVanilla(), za);
+        }
         if (c.x1.compareTo(this.x0) <= 0 || c.x0.compareTo(this.x1) >= 0) {
             return za;
         } else if (!(c.y1 <= this.y0) && !(c.y0 >= this.y1)) {
             if (za > 0.0 && c.z1.compareTo(this.z0) <= 0) {
-                BigDecimal var4 = this.z0.subtract(c.z1);
-                if (var4.doubleValue() < za) {
-                    za = var4.doubleValue();
+                double var4 = BigMath.subD(this.z0, c.z1).doubleValue();
+                if (var4 < za) {
+                    za = var4;
                 }
             }
 
             if (za < 0.0 && c.z0.compareTo(this.z1) >= 0) {
-                BigDecimal var6 = this.z1.subtract(c.z0);
-                if (var6.doubleValue() > za) {
-                    za = var6.doubleValue();
+                double var6 = BigMath.subD(this.z1, c.z0).doubleValue();
+                if (var6 > za) {
+                    za = var6;
                 }
             }
 
@@ -112,8 +124,8 @@ public class BigAABB {
     }
 
     public BigAABB expand(double x, double y, double z) {
-        BigDecimal bigX = new BigDecimal(x);
-        BigDecimal bigZ = new BigDecimal(z);
+        BigDecimal bigX = BigMath.decimal(x);
+        BigDecimal bigZ = BigMath.decimal(z);
         BigDecimal var7 = this.x0;
         double var9 = this.y0;
         BigDecimal var11 = this.z0;
@@ -121,11 +133,11 @@ public class BigAABB {
         double var15 = this.y1;
         BigDecimal var17 = this.z1;
         if (x < 0.0) {
-            var7 = var7.add(bigX);
+            var7 = BigMath.addD(var7, bigX);
         }
 
         if (x > 0.0) {
-            var13 = var13.add(bigX);
+            var13 = BigMath.addD(var13, bigX);
         }
 
         if (y < 0.0) {
@@ -137,34 +149,34 @@ public class BigAABB {
         }
 
         if (z < 0.0) {
-            var11 = var11.add(bigZ);
+            var11 = BigMath.addD(var11, bigZ);
         }
 
         if (z > 0.0) {
-            var17 = var17.add(bigZ);
+            var17 = BigMath.addD(var17, bigZ);
         }
 
         return create(var7, var9, var11, var13, var15, var17);
     }
 
     public BigAABB inflate(double x, double y, double z) {
-        BigDecimal bigX = new BigDecimal(x);
-        BigDecimal bigZ = new BigDecimal(z);
-        BigDecimal x0 = this.x0.subtract(bigX);
+        BigDecimal bigX = BigMath.decimal(x);
+        BigDecimal bigZ = BigMath.decimal(z);
+        BigDecimal x0 = this.x0.subtract(bigX, BigMath.CONTEXT);
         double y0 = this.y0 - y;
-        BigDecimal z0 = this.z0.subtract(bigZ);
-        BigDecimal x1 = this.x1.add(bigX);
+        BigDecimal z0 = this.z0.subtract(bigZ, BigMath.CONTEXT);
+        BigDecimal x1 = this.x1.add(bigX, BigMath.CONTEXT);
         double y1 = this.y1 + y;
-        BigDecimal z1 = this.z1.add(bigZ);
+        BigDecimal z1 = this.z1.add(bigZ, BigMath.CONTEXT);
         return create(x0, y0, z0, x1, y1, z1);
     }
 
     public BigAABB offset(BigDecimal x, double y, BigDecimal z) {
-        return create(this.x0.add(x), this.y0 + y, this.z0.add(z), this.x1.add(x), this.y1 + y, this.z1.add(z));
+        return create(BigMath.addD(this.x0, x), this.y0 + y, BigMath.addD(this.z0, z), BigMath.addD(this.x1, x), this.y1 + y, BigMath.addD(this.z1, z));
     }
 
     public BigAABB offset(double x, double y, double z) {
-        return create(this.x0.add(new BigDecimal(x)), this.y0 + y, this.z0.add(new BigDecimal(z)), this.x1.add(new BigDecimal(x)), this.y1 + y, this.z1.add(new BigDecimal(z)));
+        return create(BigMath.addD(this.x0, x), this.y0 + y, BigMath.addD(this.z0, z), BigMath.addD(this.x1, x), this.y1 + y, BigMath.addD(this.z1, z));
     }
 
     public boolean intersects(BigAABB c) {
@@ -178,7 +190,7 @@ public class BigAABB {
     }
 
     public BigAABB grow(double x, double y, double z) {
-        return grow(BigDecimal.valueOf(x), y, BigDecimal.valueOf(z));
+        return grow(BigMath.decimal(x), y, BigMath.decimal(z));
     }
 
     public BigAABB grow(BigDecimal x, double y, BigDecimal z) {
@@ -192,7 +204,7 @@ public class BigAABB {
     }
 
     public static BigAABB from(AABB bb) {
-        return create(new BigDecimal(bb.x0), bb.y0, new BigDecimal(bb.z0), new BigDecimal(bb.x1), bb.y1, new BigDecimal(bb.z1));
+        return create(BigMath.decimal(bb.x0), bb.y0, BigMath.decimal(bb.z0), BigMath.decimal(bb.x1), bb.y1, BigMath.decimal(bb.z1));
     }
 
     public AABB toVanilla() {
@@ -206,6 +218,15 @@ public class BigAABB {
         this.x1 = c.x1;
         this.y1 = c.y1;
         this.z1 = c.z1;
+    }
+
+    public void copyFrom(AABB c) {
+        this.x0 = BigMath.decimal(c.x0);
+        this.y0 = c.y0;
+        this.z0 = BigMath.decimal(c.z0);
+        this.x1 = BigMath.decimal(c.x1);
+        this.y1 = c.y1;
+        this.z1 = BigMath.decimal(c.z1);
     }
 
     @Override

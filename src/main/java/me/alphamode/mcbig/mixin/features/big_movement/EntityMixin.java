@@ -22,6 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Random;
 
@@ -88,6 +89,12 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
     @Shadow
     protected abstract void setRot(float yRot, float xRot);
 
+    @Shadow
+    public abstract void move(double x, double y, double z);
+
+    @Shadow
+    public abstract void setPos(double x, double y, double z);
+
     public BigDecimal xoBig = BigDecimal.ZERO;
     public BigDecimal zoBig = BigDecimal.ZERO;
     public BigDecimal xBig = BigDecimal.ZERO;
@@ -119,8 +126,10 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
 
     @Inject(method = "setPos", at = @At("HEAD"))
     private void setBigPos(double x, double y, double z, CallbackInfo ci) {
-        this.xBig = BigDecimal.valueOf(x);
-        this.zBig = BigDecimal.valueOf(z);
+        if (isBigMovementEnabled()) {
+            this.xBig = BigDecimal.valueOf(x);
+            this.zBig = BigDecimal.valueOf(z);
+        }
     }
 
     @Override
@@ -133,22 +142,12 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
         BigDecimal wBig = BigDecimal.valueOf(w);
         this.bbBig
                 .set(
-                        x.subtract(wBig),
+                        x.subtract(wBig, BigMath.CONTEXT),
                         y - (double)this.heightOffset + (double)this.ySlideOffset,
-                        z.subtract(wBig),
+                        z.subtract(wBig, BigMath.CONTEXT),
                         x.add(wBig),
                         y - (double)this.heightOffset + (double)this.ySlideOffset + (double)h,
-                        z.add(wBig)
-                );
-
-        this.bb
-                .set(
-                        x.doubleValue() - (double)w,
-                        y - (double)this.heightOffset + (double)this.ySlideOffset,
-                        z.doubleValue() - (double)w,
-                        x.doubleValue() + (double)w,
-                        y - (double)this.heightOffset + (double)this.ySlideOffset + (double)h,
-                        z.doubleValue() + (double)w
+                        z.add(wBig, BigMath.CONTEXT)
                 );
     }
 
@@ -183,6 +182,13 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
 
     @Override
     public void bigMove(double xa, double ya, double za) {
+//        if (true) {
+//            this.move(xa, ya, za);
+//            setX(new BigDecimal(this.x));
+//            setZ(new BigDecimal(this.z));
+//            this.bbBig.copyFrom(this.bb);
+//            return;
+//        }
         if (this.noPhysics) {
             this.bbBig.grow(xa, ya, za);
             this.setX(this.bbBig.x0.add(this.bbBig.x1).divide(BigConstants.TWO));
@@ -206,8 +212,8 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
             double tya = ya;
             double tza = za;
             BigAABB var17 = this.bbBig.copy();
-            boolean var18 = this.onGround && this.isSneaking();
-            if (var18) {
+            boolean slowWalking = this.onGround && this.isSneaking();
+            if (slowWalking) {
                 double var19;
                 for (var19 = 0.05; xa != 0.0 && this.level.getCubes((Entity) (Object) this, this.bbBig.offset(xa, -1.0, 0.0)).size() == 0; txa = xa) {
                     if (xa < var19 && xa >= -var19) {
@@ -243,7 +249,7 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
                 xa = 0.0;
             }
 
-            boolean var38 = this.onGround || tya != ya && tya < 0.0;
+            boolean walking = this.onGround || tya != ya && tya < 0.0;
 
             for (int i = 0; i < cubes.size(); i++) {
                 xa = cubes.get(i).clipXCollide(this.bbBig, xa);
@@ -267,7 +273,7 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
                 xa = 0.0;
             }
 
-            if (this.footSize > 0.0F && var38 && (var18 || this.ySlideOffset < 0.05F) && (txa != xa || tza != za)) {
+            if (this.footSize > 0.0F && walking && (slowWalking || this.ySlideOffset < 0.05F) && (txa != xa || tza != za)) {
                 double var40 = xa;
                 double var23 = ya;
                 double var25 = za;
@@ -338,9 +344,9 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
                 }
             }
 
-            this.setX(this.bbBig.x0.add(this.bbBig.x1).divide(BigConstants.TWO));
+            this.setX(this.bbBig.x0.add(this.bbBig.x1, BigMath.CONTEXT).divide(BigConstants.TWO, RoundingMode.HALF_EVEN));
             this.y = this.bbBig.y0 + this.heightOffset - this.ySlideOffset;
-            this.setZ(this.bbBig.z0.add(this.bbBig.z1).divide(BigConstants.TWO));
+            this.setZ(this.bbBig.z0.add(this.bbBig.z1).divide(BigConstants.TWO, RoundingMode.HALF_EVEN));
 
             this.horizontalCollision = txa != xa || tza != za;
             this.verticalCollision = tya != ya;
@@ -361,7 +367,7 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
 
             double var41 = this.getX().subtract(var7).doubleValue();
             double var42 = this.getZ().subtract(var9).doubleValue();
-            if (this.isMovementNoisy() && !var18 && this.riding == null) {
+            if (this.isMovementNoisy() && !slowWalking && this.riding == null) {
                 this.walkDist = (float)(this.walkDist + Mth.sqrt(var41 * var41 + var42 * var42) * 0.6);
                 BigInteger x = BigMath.floor(this.getX());
                 int y = Mth.floor(this.y - 0.2F - this.heightOffset);

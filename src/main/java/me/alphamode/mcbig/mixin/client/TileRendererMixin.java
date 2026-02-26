@@ -10,11 +10,13 @@ import net.minecraft.client.renderer.BlockShapes;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.Tesselator;
 import net.minecraft.client.renderer.TileRenderer;
+import net.minecraft.util.Directions;
 import net.minecraft.util.Facing;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.LevelSource;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.tile.*;
+import net.minecraft.world.level.tile.piston.PistonBaseTile;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -225,6 +227,24 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
     @Shadow
     private boolean xFlipTexture;
 
+    @Shadow
+    private int f_50036552;
+
+    @Shadow
+    private int f_78756416;
+
+    @Shadow
+    private int f_54847291;
+
+    @Shadow
+    private int f_41835850;
+
+    @Shadow
+    private int f_28464555;
+
+    @Shadow
+    private int f_35670914;
+
     @Override
     public void tesselateInWorld(Tile tile, BigInteger x, int y, BigInteger z, int destroyProgress) {
         this.fixedTexture = destroyProgress;
@@ -264,16 +284,175 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
             return this.tesselateFenceInWorld(tile, x, y, z);
         } else if (shape == BlockShapes.LEVER) {
             return this.tesselateLeverInWorld(tile, x, y, z); // // TODO: use big decimal
-//        } else if (shape == BlockShapes.BED) {
-//            return this.tesselateBedInWorld(tile, x, y, z);
-//        } else if (shape == BlockShapes.REPEATER) {
-//            return this.tesselateRepeaterInWorld(tile, x, y, z);
+        } else if (shape == BlockShapes.BED) {
+            return this.tesselateBedInWorld(tile, x, y, z);
+        } else if (shape == BlockShapes.REPEATER) {
+            return this.tesselateRepeaterInWorld(tile, x, y, z);
 //        } else if (shape == BlockShapes.PISTON) {
 //            return this.tesselatePistonInWorld(tile, x, y, z, false);
 //        } else {
 //            return shape == BlockShapes.PISTON_HEAD ? this.tesselateHeadPistonInWorld(tile, x, y, z, true) : false;
         }
         return tesselateBlockInWorld(tile, x, y, z);
+    }
+
+    private boolean tesselateBedInWorld(Tile tile, BigInteger x, int y, BigInteger z) {
+        Tesselator t = Tesselator.instance;
+        int data = this.level.getData(x, y, z);
+        int dir = BedTile.getBedOrientation(data);
+        boolean headPiece = BedTile.isHeadPiece(data);
+        float c0 = 0.5F;
+        float c1 = 1.0F;
+        float c2 = 0.8F;
+        float c3 = 0.6F;
+        float centerBrightness = tile.getBrightness(this.level, x, y, z);
+        t.color(c0 * centerBrightness, c0 * centerBrightness, c0 * centerBrightness);
+        int tex = tile.getTexture(this.level, x, y, z, 0);
+        int xt = (tex & 15) << 4;
+        int yt = tex & 240;
+        double u0 = xt / 256.0F;
+        double u1 = (xt + 16 - 0.01) / 256.0;
+        double v0 = yt / 256.0F;
+        double v1 = (yt + 16 - 0.01) / 256.0;
+        BigDecimal xD = new BigDecimal(x);
+        BigDecimal zD = new BigDecimal(z);
+        BigDecimal x0_ = BigMath.addD(x, tile.xx0);
+        BigDecimal x1_ = BigMath.addD(x, tile.xx1);
+        double y0_ = y + tile.yy0 + 0.1875;
+        BigDecimal z0_ = BigMath.addD(z, tile.zz0);
+        BigDecimal z1_ = BigMath.addD(z, tile.zz1);
+        t.vertexUV(x0_, y0_, z1_, u0, v1);
+        t.vertexUV(x0_, y0_, z0_, u0, v0);
+        t.vertexUV(x1_, y0_, z0_, u1, v0);
+        t.vertexUV(x1_, y0_, z1_, u1, v1);
+        float br = tile.getBrightness(this.level, x, y + 1, z);
+        t.color(c1 * br, c1 * br, c1 * br);
+        xt = tile.getTexture(this.level, x, y, z, 1);
+        yt = (xt & 15) << 4;
+        int var73 = xt & 240;
+        double var30 = yt / 256.0F;
+        double var32 = (yt + 16 - 0.01) / 256.0;
+        double var34 = var73 / 256.0F;
+        double var36 = (var73 + 16 - 0.01) / 256.0;
+        double var38 = var30;
+        double var40 = var32;
+        double var42 = var34;
+        double var44 = var34;
+        double var46 = var30;
+        double var48 = var32;
+        double var50 = var36;
+        double var52 = var36;
+        if (dir == 0) {
+            var40 = var30;
+            var42 = var36;
+            var46 = var32;
+            var52 = var34;
+        } else if (dir == 2) {
+            var38 = var32;
+            var44 = var36;
+            var48 = var30;
+            var50 = var34;
+        } else if (dir == 3) {
+            var38 = var32;
+            var44 = var36;
+            var48 = var30;
+            var50 = var34;
+            var40 = var30;
+            var42 = var36;
+            var46 = var32;
+            var52 = var34;
+        }
+
+        BigDecimal x0 = BigMath.addD(x, tile.xx0);
+        BigDecimal x1 = BigMath.addD(x, tile.xx1);
+        double y0 = y + tile.yy1;
+        BigDecimal z0 = BigMath.addD(z, tile.zz0);
+        BigDecimal z1 = BigMath.addD(z, tile.zz1);
+        t.vertexUV(x1, y0, z1, var46, var50);
+        t.vertexUV(x1, y0, z0, var38, var42);
+        t.vertexUV(x0, y0, z0, var40, var44);
+        t.vertexUV(x0, y0, z1, var48, var52);
+        tex = Directions.f_97201411[dir];
+        if (headPiece) {
+            tex = Directions.f_97201411[Directions.f_32166371[dir]];
+        }
+
+        byte var67 = 4;
+        switch (dir) {
+            case 0:
+                var67 = 5;
+                break;
+            case 1:
+                var67 = 3;
+            case 2:
+            default:
+                break;
+            case 3:
+                var67 = 2;
+        }
+
+        if (tex != 2 && (this.noCulling || tile.shouldRenderFace(this.level, x, y, z.subtract(BigInteger.ONE), Facing.NORTH))) {
+            float var69 = tile.getBrightness(this.level, x, y, z.subtract(BigInteger.ONE));
+            if (tile.zz0 > 0.0) {
+                var69 = centerBrightness;
+            }
+
+            t.color(c2 * var69, c2 * var69, c2 * var69);
+            this.xFlipTexture = var67 == Facing.NORTH;
+            if (FIX_STRIPELANDS) {
+                this.renderNorth(tile, xD, y, zD, tile.getTexture(this.level, x, y, z, Facing.NORTH));
+            } else {
+                this.renderNorth(tile, x.doubleValue(), y, z.doubleValue(), tile.getTexture(this.level, x, y, z, Facing.NORTH));
+            }
+        }
+
+        if (tex != 3 && (this.noCulling || tile.shouldRenderFace(this.level, x, y, z.add(BigInteger.ONE), Facing.SOUTH))) {
+            float var70 = tile.getBrightness(this.level, x, y, z.add(BigInteger.ONE));
+            if (tile.zz1 < 1.0) {
+                var70 = centerBrightness;
+            }
+
+            t.color(c2 * var70, c2 * var70, c2 * var70);
+            this.xFlipTexture = var67 == Facing.SOUTH;
+            if (FIX_STRIPELANDS) {
+                this.renderSouth(tile, xD, y, zD, tile.getTexture(this.level, x, y, z, Facing.SOUTH));
+            } else {
+                this.renderSouth(tile, x.doubleValue(), y, z.doubleValue(), tile.getTexture(this.level, x, y, z, Facing.SOUTH));
+            }
+        }
+
+        if (tex != 4 && (this.noCulling || tile.shouldRenderFace(this.level, x.subtract(BigInteger.ONE), y, z, Facing.WEST))) {
+            float var71 = tile.getBrightness(this.level, x.subtract(BigInteger.ONE), y, z);
+            if (tile.xx0 > 0.0) {
+                var71 = centerBrightness;
+            }
+
+            t.color(c3 * var71, c3 * var71, c3 * var71);
+            this.xFlipTexture = var67 == Facing.WEST;
+            if (FIX_STRIPELANDS) {
+                this.renderWest(tile, xD, y, zD, tile.getTexture(this.level, x, y, z, Facing.WEST));
+            } else {
+                this.renderWest(tile, x.doubleValue(), y, z.doubleValue(), tile.getTexture(this.level, x, y, z, Facing.WEST));
+            }
+        }
+
+        if (tex != 5 && (this.noCulling || tile.shouldRenderFace(this.level, x.add(BigInteger.ONE), y, z, Facing.EAST))) {
+            float var72 = tile.getBrightness(this.level, x.add(BigInteger.ONE), y, z);
+            if (tile.xx1 < 1.0) {
+                var72 = centerBrightness;
+            }
+
+            t.color(c3 * var72, c3 * var72, c3 * var72);
+            this.xFlipTexture = var67 == Facing.EAST;
+            if (FIX_STRIPELANDS) {
+                this.renderEast(tile, xD, y, zD, tile.getTexture(this.level, x, y, z, Facing.EAST));
+            } else {
+                this.renderEast(tile, x.doubleValue(), y, z.doubleValue(), tile.getTexture(this.level, x, y, z, Facing.EAST));
+            }
+        }
+
+        this.xFlipTexture = false;
+        return true;
     }
 
     @Override
@@ -1511,6 +1690,184 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
             this.tesselateTorch(tile, bigX, y + h, rZ1, 0.0, r);
         } else {
             this.tesselateTorch(tile, bigX, y, bigZ, 0.0, 0.0);
+        }
+
+        return true;
+    }
+
+    private boolean tesselateRepeaterInWorld(Tile tile, BigInteger x, int y, BigInteger z) {
+        int data = this.level.getData(x, y, z);
+        int delay = data & 3;
+        int var7 = (data & 12) >> 2;
+        this.tesselateBlockInWorld(tile, x, y, z);
+        Tesselator t = Tesselator.instance;
+        float br = tile.getBrightness(this.level, x, y, z);
+        if (Tile.lightEmission[tile.id] > 0) {
+            br = (br + 1.0F) * 0.5F;
+        }
+
+        t.color(br, br, br);
+        double var10 = -0.1875;
+        double var12 = 0.0;
+        double var14 = 0.0;
+        double var16 = 0.0;
+        double var18 = 0.0;
+        switch (delay) {
+            case 0:
+                var18 = -0.3125;
+                var14 = RepeaterTile.PARTICLE_OFFSETS[var7];
+                break;
+            case 1:
+                var16 = 0.3125;
+                var12 = -RepeaterTile.PARTICLE_OFFSETS[var7];
+                break;
+            case 2:
+                var18 = 0.3125;
+                var14 = -RepeaterTile.PARTICLE_OFFSETS[var7];
+                break;
+            case 3:
+                var16 = -0.3125;
+                var12 = RepeaterTile.PARTICLE_OFFSETS[var7];
+        }
+        BigDecimal xD = new BigDecimal(x);
+        BigDecimal zD = new BigDecimal(z);
+
+        this.tesselateTorch(tile, BigMath.addD(xD, var12), y + var10, BigMath.addD(zD, var14), 0.0, 0.0);
+        this.tesselateTorch(tile, BigMath.addD(xD, var16), y + var10, BigMath.addD(zD, var18), 0.0, 0.0);
+        int tex = tile.getTexture(1);
+        int xt = (tex & 15) << 4;
+        int yt = tex & 240;
+        double u0 = xt / 256.0F;
+        double u1 = (xt + 15.99F) / 256.0F;
+        double v0 = yt / 256.0F;
+        double v1 = (yt + 15.99F) / 256.0F;
+        float var31 = 0.125F;
+        BigDecimal xPlusOneD = new BigDecimal(x.add(BigInteger.ONE));
+        BigDecimal zPlusOneD = new BigDecimal(z.add(BigInteger.ONE));
+        BigDecimal x0 = xPlusOneD;
+        BigDecimal x1 = xPlusOneD;
+        BigDecimal x2 = xD;
+        BigDecimal x3 = xD;
+        BigDecimal z0 = zD;
+        BigDecimal z1 = zPlusOneD;
+        BigDecimal z2 = zPlusOneD;
+        BigDecimal z3 = zD;
+        float y0 = y + var31;
+        if (delay == 2) {
+            x0 = x1 = xD;
+            x2 = x3 = xPlusOneD;
+            z0 = z3 = zPlusOneD;
+            z1 = z2 = zD;
+        } else if (delay == 3) {
+            x0 = x3 = xD;
+            x1 = x2 = xPlusOneD;
+            z0 = z1 = zD;
+            z2 = z3 = zPlusOneD;
+        } else if (delay == 1) {
+            x0 = x3 = xPlusOneD;
+            x1 = x2 = xD;
+            z0 = z1 = zPlusOneD;
+            z2 = z3 = zD;
+        }
+
+        t.vertexUV(x3, y0, z3, u0, v0);
+        t.vertexUV(x2, y0, z2, u0, v1);
+        t.vertexUV(x1, y0, z1, u1, v1);
+        t.vertexUV(x0, y0, z0, u1, v0);
+        return true;
+    }
+
+    private boolean tesselatePistonInWorld(Tile tile, BigInteger x, int y, BigInteger z, boolean head) {
+        int data = this.level.getData(x, y, z);
+        boolean extended = head || PistonBaseTile.isExtended(data);
+        int facing = PistonBaseTile.getFacing(data);
+        if (extended) {
+            switch (facing) {
+                case 0:
+                    this.f_50036552 = 3;
+                    this.f_78756416 = 3;
+                    this.f_54847291 = 3;
+                    this.f_41835850 = 3;
+                    tile.setShape(0.0F, 0.25F, 0.0F, 1.0F, 1.0F, 1.0F);
+                    break;
+                case 1:
+                    tile.setShape(0.0F, 0.0F, 0.0F, 1.0F, 0.75F, 1.0F);
+                    break;
+                case 2:
+                    this.f_54847291 = 1;
+                    this.f_41835850 = 2;
+                    tile.setShape(0.0F, 0.0F, 0.25F, 1.0F, 1.0F, 1.0F);
+                    break;
+                case 3:
+                    this.f_54847291 = 2;
+                    this.f_41835850 = 1;
+                    this.f_28464555 = 3;
+                    this.f_35670914 = 3;
+                    tile.setShape(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 0.75F);
+                    break;
+                case 4:
+                    this.f_50036552 = 1;
+                    this.f_78756416 = 2;
+                    this.f_28464555 = 2;
+                    this.f_35670914 = 1;
+                    tile.setShape(0.25F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+                    break;
+                case 5:
+                    this.f_50036552 = 2;
+                    this.f_78756416 = 1;
+                    this.f_28464555 = 1;
+                    this.f_35670914 = 2;
+                    tile.setShape(0.0F, 0.0F, 0.0F, 0.75F, 1.0F, 1.0F);
+            }
+
+            this.tesselateBlockInWorld(tile, x, y, z);
+            this.f_50036552 = 0;
+            this.f_78756416 = 0;
+            this.f_54847291 = 0;
+            this.f_41835850 = 0;
+            this.f_28464555 = 0;
+            this.f_35670914 = 0;
+            tile.setShape(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+        } else {
+            switch (facing) {
+                case 0:
+                    this.f_50036552 = 3;
+                    this.f_78756416 = 3;
+                    this.f_54847291 = 3;
+                    this.f_41835850 = 3;
+                case 1:
+                default:
+                    break;
+                case 2:
+                    this.f_54847291 = 1;
+                    this.f_41835850 = 2;
+                    break;
+                case 3:
+                    this.f_54847291 = 2;
+                    this.f_41835850 = 1;
+                    this.f_28464555 = 3;
+                    this.f_35670914 = 3;
+                    break;
+                case 4:
+                    this.f_50036552 = 1;
+                    this.f_78756416 = 2;
+                    this.f_28464555 = 2;
+                    this.f_35670914 = 1;
+                    break;
+                case 5:
+                    this.f_50036552 = 2;
+                    this.f_78756416 = 1;
+                    this.f_28464555 = 1;
+                    this.f_35670914 = 2;
+            }
+
+            this.tesselateBlockInWorld(tile, x, y, z);
+            this.f_50036552 = 0;
+            this.f_78756416 = 0;
+            this.f_54847291 = 0;
+            this.f_41835850 = 0;
+            this.f_28464555 = 0;
+            this.f_35670914 = 0;
         }
 
         return true;

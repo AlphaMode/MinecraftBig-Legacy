@@ -9,6 +9,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.storage.ChunkStorage;
 import net.minecraft.world.level.levelgen.ServerChunkCache;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
 import java.math.BigInteger;
@@ -37,6 +38,15 @@ public abstract class ServerChunkCacheMixin implements ChunkSource, BigChunkSour
     @Override
     public boolean hasChunk(BigInteger x, BigInteger z) {
         return this.cache.containsKey(new BigChunkPos(x, z));
+    }
+
+    /**
+     * @author AlphaMode
+     * @reason Fallback to big int version
+     */
+    @Overwrite
+    public boolean hasChunk(int x, int z) {
+        return hasChunk(BigInteger.valueOf(x), BigInteger.valueOf(z));
     }
 
     @Override
@@ -99,10 +109,28 @@ public abstract class ServerChunkCacheMixin implements ChunkSource, BigChunkSour
         return chunk;
     }
 
+    /**
+     * @author AlphaMode
+     * @reason Fallback to big int version
+     */
+    @Overwrite
+    public LevelChunk loadChunk(int x, int z) {
+        return loadChunk(BigInteger.valueOf(x), BigInteger.valueOf(z));
+    }
+
     @Override
     public LevelChunk getChunk(BigInteger x, BigInteger z) {
         LevelChunk chunk = this.cache.get(new BigChunkPos(x, z));
         return chunk == null ? this.loadChunk(x, z) : chunk;
+    }
+
+    /**
+     * @author AlphaMode
+     * @reason Fallback to big int version
+     */
+    @Overwrite
+    public LevelChunk getChunk(int x, int z) {
+        return getChunk(BigInteger.valueOf(x), BigInteger.valueOf(z));
     }
 
     private BigLevelChunk readChunk(BigInteger x, BigInteger z) {
