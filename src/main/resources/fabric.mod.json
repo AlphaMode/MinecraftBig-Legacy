@@ -20,48 +20,10 @@
       "me.alphamode.mcbig.McBig"
     ]
   },
-  "accessWidener": "mcbig.accesswidener",
+  "accessWidener": "mcbig.classtweaker",
   "mixins": [
     "mcbig.mixins.json"
   ],
-  "custom": {
-    "loom:injected_interfaces": {
-      "net/minecraft/unmapped/C_14230742": ["me/alphamode/mcbig/extensions/server/BigServerPlayerGameModeExtension"],
-      "net/minecraft/unmapped/C_27018031": ["me/alphamode/mcbig/extensions/server/BigServerChunkCacheExtension"],
-      "net/minecraft/unmapped/C_70668269": ["me/alphamode/mcbig/extensions/server/BigServerLevelExtension"],
-      "net/minecraft/unmapped/C_49202226": ["me/alphamode/mcbig/extensions/server/BigServerPlayerExtension"],
-      "net/minecraft/unmapped/C_17889813": ["me/alphamode/mcbig/extensions/networking/server/BigChunkMapExtension"],
-      "net/minecraft/unmapped/C_34399650": ["me/alphamode/mcbig/extensions/networking/client/BigMultiPlayerLevelExtension"],
-      "net/minecraft/unmapped/C_39588828": ["me/alphamode/mcbig/extensions/networking/BigConnectionExtension"],
-      "net/minecraft/unmapped/C_10918870": ["me/alphamode/mcbig/extensions/networking/PayloadPacketListenerExtension"],
-      "net/minecraft/unmapped/C_99660737": ["me/alphamode/mcbig/extensions/networking/BigServerGamePacketListenerExtension"],
-      "net/minecraft/unmapped/C_97866173": ["me/alphamode/mcbig/extensions/features/commands/GuiExtension"],
-      "net/minecraft/unmapped/C_57778754": ["me/alphamode/mcbig/extensions/features/commands/LocalPlayerExtension"],
-      "net/minecraft/unmapped/C_03670941": [
-        "me/alphamode/mcbig/extensions/BigTileRendererExtension",
-        "me/alphamode/mcbig/extensions/features/fix_stripelands/BigTileRendererExtension"
-      ],
-      "net/minecraft/unmapped/C_64676926": ["me/alphamode/mcbig/extensions/BigLevelDataExtension"],
-      "net/minecraft/unmapped/C_46108969": ["me/alphamode/mcbig/extensions/BigLevelSourceExtension"],
-      "net/minecraft/unmapped/C_81592558": ["me/alphamode/mcbig/extensions/BigTileExtension"],
-      "net/minecraft/unmapped/C_64041439": ["me/alphamode/mcbig/extensions/BigLevelExtension"],
-      "net/minecraft/unmapped/C_14917579": ["me/alphamode/mcbig/extensions/BigLevelChunkExtension"],
-      "net/minecraft/unmapped/C_44627882": ["me/alphamode/mcbig/extensions/BigChunkSourceExtension"],
-      "net/minecraft/unmapped/C_42232651": ["me/alphamode/mcbig/extensions/BigEntityExtension"],
-      "net/minecraft/unmapped/C_50078015": ["me/alphamode/mcbig/extensions/BigLevelListenerExtension"],
-      "net/minecraft/unmapped/C_96603444": ["me/alphamode/mcbig/extensions/features/fix_stripelands/BigTesselatorExtension"],
-      "net/minecraft/unmapped/C_31728388": ["me/alphamode/mcbig/extensions/BigLargeFeatureExtension"],
-      "net/minecraft/unmapped/C_99656780": ["me/alphamode/mcbig/extensions/BigChunkStorageExtension"],
-      "net/minecraft/unmapped/C_15682602": ["me/alphamode/mcbig/extensions/BigOffsettedRenderListExtension"],
-      "net/minecraft/unmapped/C_34267874": ["me/alphamode/mcbig/extensions/BigGameModeExtension"],
-      "net/minecraft/unmapped/C_28112798": ["me/alphamode/mcbig/extensions/BigBiomeSourceExtension"],
-      "net/minecraft/unmapped/C_30339133": ["me/alphamode/mcbig/extensions/BigFeatureExtension"],
-      "net/minecraft/unmapped/C_40735137": ["me/alphamode/mcbig/extensions/BigTileEntityExtension"],
-      "net/minecraft/unmapped/C_23014920": ["me/alphamode/mcbig/extensions/features/commands/FontExtension"],
-      "net/minecraft/unmapped/C_71940803": ["me/alphamode/mcbig/extensions/tiles/BigPortalTileExtension"],
-      "net/minecraft/unmapped/C_32290952": ["me/alphamode/mcbig/extensions/tiles/BigFireTileExtension"]
-    }
-  },
 
   "depends": {
     "minecraft": "1.0.0-beta.7.3"

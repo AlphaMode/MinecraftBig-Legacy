@@ -1,0 +1,61 @@
+classTweaker v1 named
+
+accessible field net/minecraft/client/renderer/Chunk lists I
+accessible field net/minecraft/client/renderer/Chunk tesselator Lnet/minecraft/client/renderer/Tesselator;
+accessible field net/minecraft/client/renderer/Chunk compiled Z
+accessible field net/minecraft/client/renderer/Chunk globalRenderableTileEntities Ljava/util/List;
+accessible method net/minecraft/client/renderer/Chunk translateToPos ()V
+
+extendable method net/minecraft/world/level/chunk/LevelChunk lightGaps (II)V
+
+accessible field net/minecraft/world/level/TickNextTickData c J
+
+accessible field net/minecraft/world/level/chunk/storage/RegionFileCache cache Ljava/util/Map;
+
+accessible method net/minecraft/client/Minecraft getPlatform ()Lnet/minecraft/client/Minecraft$OS;
+
+accessible class net/minecraft/server/level/ChunkMap$ServerChunk
+
+accessible field net/minecraft/network/packets/BlockRegionUpdatePacket size I
+
+accessible method net/minecraft/world/level/Level stopWeather ()V
+
+# Interface injection
+
+# Common
+inject-interface net/minecraft/network/Connection me/alphamode/mcbig/extensions/networking/BigConnectionExtension
+inject-interface net/minecraft/network/PacketListener me/alphamode/mcbig/extensions/networking/PayloadPacketListenerExtension
+inject-interface net/minecraft/world/level/storage/LevelData me/alphamode/mcbig/extensions/BigLevelDataExtension
+inject-interface net/minecraft/world/level/LevelSource me/alphamode/mcbig/extensions/BigLevelSourceExtension
+inject-interface net/minecraft/world/level/tile/Tile me/alphamode/mcbig/extensions/BigTileExtension
+inject-interface net/minecraft/world/level/Level me/alphamode/mcbig/extensions/BigLevelExtension
+inject-interface net/minecraft/world/level/chunk/LevelChunk me/alphamode/mcbig/extensions/BigLevelChunkExtension
+inject-interface net/minecraft/world/level/chunk/ChunkSource me/alphamode/mcbig/extensions/BigChunkSourceExtension
+inject-interface net/minecraft/world/entity/Entity me/alphamode/mcbig/extensions/BigEntityExtension
+inject-interface net/minecraft/world/level/LevelListener me/alphamode/mcbig/extensions/BigLevelListenerExtension
+inject-interface net/minecraft/world/level/levelgen/LargeFeature me/alphamode/mcbig/extensions/BigLargeFeatureExtension
+inject-interface net/minecraft/world/level/chunk/storage/ChunkStorage me/alphamode/mcbig/extensions/BigChunkStorageExtension
+inject-interface net/minecraft/world/level/biome/BiomeSource me/alphamode/mcbig/extensions/BigBiomeSourceExtension
+inject-interface net/minecraft/world/level/levelgen/feature/Feature me/alphamode/mcbig/extensions/BigFeatureExtension
+inject-interface net/minecraft/world/level/tile/entity/TileEntity me/alphamode/mcbig/extensions/BigTileEntityExtension
+inject-interface net/minecraft/world/level/tile/PortalTile me/alphamode/mcbig/extensions/tiles/BigPortalTileExtension
+inject-interface net/minecraft/world/level/tile/FireTile me/alphamode/mcbig/extensions/tiles/BigFireTileExtension
+
+# Server
+inject-interface net/minecraft/server/level/ServerPlayerGameMode me/alphamode/mcbig/extensions/server/BigServerPlayerGameModeExtension
+inject-interface net/minecraft/server/level/ServerChunkCache me/alphamode/mcbig/extensions/server/BigServerChunkCacheExtension
+inject-interface net/minecraft/server/level/ServerLevel me/alphamode/mcbig/extensions/server/BigServerLevelExtension
+inject-interface net/minecraft/server/level/ServerPlayer me/alphamode/mcbig/extensions/server/BigServerPlayerExtension
+inject-interface net/minecraft/server/level/ChunkMap me/alphamode/mcbig/extensions/networking/server/BigChunkMapExtension
+inject-interface net/minecraft/server/network/ServerGamePacketListener me/alphamode/mcbig/extensions/networking/BigServerGamePacketListenerExtension
+
+# Client
+inject-interface net/minecraft/client/multiplayer/MultiPlayerLevel me/alphamode/mcbig/extensions/networking/client/BigMultiPlayerLevelExtension
+inject-interface net/minecraft/client/gui/Gui me/alphamode/mcbig/extensions/features/commands/GuiExtension
+inject-interface net/minecraft/client/player/LocalPlayer me/alphamode/mcbig/extensions/features/commands/LocalPlayerExtension
+inject-interface net/minecraft/client/renderer/TileRenderer me/alphamode/mcbig/extensions/BigTileRendererExtension
+inject-interface net/minecraft/client/renderer/TileRenderer me/alphamode/mcbig/extensions/features/fix_stripelands/BigTileRendererExtension
+inject-interface net/minecraft/client/renderer/Tesselator me/alphamode/mcbig/extensions/features/fix_stripelands/BigTesselatorExtension
+inject-interface net/minecraft/client/renderer/OffsettedRenderList me/alphamode/mcbig/extensions/BigOffsettedRenderListExtension
+inject-interface net/minecraft/client/gamemode/GameMode me/alphamode/mcbig/extensions/BigGameModeExtension
+inject-interface net/minecraft/client/gui/Font me/alphamode/mcbig/extensions/features/commands/FontExtension
