@@ -44,7 +44,7 @@ public class GameModeMixin implements BigGameModeExtension {
         if (tile > 0 && Tile.tiles[tile].use(level, x, y, z, player)) {
             return true;
         } else {
-            return item != null && item.useOn(player, level, x.intValue(), y, z.intValue(), face);
+            return item != null && item.useOn(player, level, x, y, z, face);
         }
     }
 }

@@ -630,6 +630,15 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
     }
 
     @Override
+    public void playStreamingMusic(String track, BigInteger x, int y, BigInteger z) {
+        if (track != null) {
+            this.mc.gui.setNowPlaying("C418 - " + track);
+        }
+
+        this.mc.soundEngine.playStreaming(track, x.floatValue(), y, z.floatValue(), 1.0F, 1.0F);
+    }
+
+    @Override
     public void tileChanged(BigInteger x, int y, BigInteger z) {
         this.setDirty(x.subtract(BigInteger.ONE), y - 1, z.subtract(BigInteger.ONE), x.add(BigInteger.ONE), y + 1, z.add(BigInteger.ONE));
     }

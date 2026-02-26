@@ -256,6 +256,13 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
     }
 
     @Override
+    public void playMusic(String music, BigInteger x, int y, BigInteger z) {
+        for (LevelListener listener : this.listeners) {
+            listener.playStreamingMusic(music, x, y, z);
+        }
+    }
+
+    @Override
     public void sendTileUpdated(BigInteger x, int y, BigInteger z) {
         for (LevelListener listener : this.listeners) {
             listener.tileChanged(x, y, z);

@@ -34,6 +34,10 @@ public interface BigLevelExtension {
         throw new UnsupportedOperationException();
     }
 
+    default void playMusic(String music, BigInteger x, int y, BigInteger z) {
+        throw new UnsupportedOperationException();
+    }
+
     default void sendTileUpdated(BigInteger x, int y, BigInteger z) {
         throw new UnsupportedOperationException();
     }

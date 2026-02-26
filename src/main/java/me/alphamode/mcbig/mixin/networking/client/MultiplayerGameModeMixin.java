@@ -50,7 +50,7 @@ public abstract class MultiplayerGameModeMixin extends GameMode {
         boolean changed = super.destroyBlock(x, y, z, face);
         ItemInstance item = this.minecraft.player.getSelectedItem();
         if (item != null) {
-            item.mineBlock(t, x.intValue(), y, z.intValue(), this.minecraft.player);
+            item.mineBlock(t, x, y, z, this.minecraft.player);
             if (item.count == 0) {
                 item.snap(this.minecraft.player);
                 this.minecraft.player.removeSelectedItem();

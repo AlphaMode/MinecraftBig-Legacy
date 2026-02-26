@@ -126,7 +126,7 @@ public class ServerPlayerGameModeMixin implements BigServerPlayerGameModeExtensi
         boolean destroyed = this.destroyTile(x, y, z);
         ItemInstance item = this.player.getSelectedItem();
         if (item != null) {
-            item.mineBlock(t, x.intValue(), y, z.intValue(), this.player);
+            item.mineBlock(t, x, y, z, this.player);
             if (item.count == 0) {
                 item.snap(this.player);
                 this.player.removeSelectedItem();
@@ -147,7 +147,7 @@ public class ServerPlayerGameModeMixin implements BigServerPlayerGameModeExtensi
         if (t > 0 && Tile.tiles[t].use(level, x, y, z, player)) {
             return true;
         } else {
-            return item == null ? false : item.useOn(player, level, x.intValue(), y, z.intValue(), face);
+            return item == null ? false : item.useOn(player, level, x, y, z, face);
         }
     }
 }

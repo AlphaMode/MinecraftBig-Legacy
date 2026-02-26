@@ -37,7 +37,7 @@ public abstract class SurvivalGameModeMixin extends GameMode implements BigGameM
         ItemInstance item = this.minecraft.player.getSelectedItem();
         boolean canDestroy = this.minecraft.player.canDestroy(Tile.tiles[tile]);
         if (item != null) {
-            item.mineBlock(tile, x.intValue(), y, z.intValue(), this.minecraft.player);
+            item.mineBlock(tile, x, y, z, this.minecraft.player);
             if (item.count == 0) {
                 item.snap(this.minecraft.player);
                 this.minecraft.player.removeSelectedItem();
@@ -45,7 +45,7 @@ public abstract class SurvivalGameModeMixin extends GameMode implements BigGameM
         }
 
         if (success && canDestroy) {
-            Tile.tiles[tile].playerDestroy(this.minecraft.level, this.minecraft.player, x.intValue(), y, z.intValue(), data);
+            Tile.tiles[tile].playerDestroy(this.minecraft.level, this.minecraft.player, x, y, z, data);
         }
 
         return success;

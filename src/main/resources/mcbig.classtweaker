@@ -40,6 +40,12 @@ inject-interface net/minecraft/world/level/levelgen/feature/Feature me/alphamode
 inject-interface net/minecraft/world/level/tile/entity/TileEntity me/alphamode/mcbig/extensions/BigTileEntityExtension
 inject-interface net/minecraft/world/level/tile/PortalTile me/alphamode/mcbig/extensions/tiles/BigPortalTileExtension
 inject-interface net/minecraft/world/level/tile/FireTile me/alphamode/mcbig/extensions/tiles/BigFireTileExtension
+inject-interface net/minecraft/world/level/tile/SaplingTile me/alphamode/mcbig/extensions/tiles/BigSaplingTileExtension
+inject-interface net/minecraft/world/level/tile/CropTile me/alphamode/mcbig/extensions/tiles/BigCropTileExtension
+inject-interface net/minecraft/world/level/tile/RecordPlayerTile me/alphamode/mcbig/extensions/tiles/BigRecordPlayerTileExtension
+
+inject-interface net/minecraft/world/item/Item me/alphamode/mcbig/extensions/items/BigItemExtension
+inject-interface net/minecraft/world/ItemInstance me/alphamode/mcbig/extensions/items/BigItemInstanceExtension
 
 # Server
 inject-interface net/minecraft/server/level/ServerPlayerGameMode me/alphamode/mcbig/extensions/server/BigServerPlayerGameModeExtension
