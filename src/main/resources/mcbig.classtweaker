@@ -25,18 +25,20 @@ accessible method net/minecraft/world/level/Level stopWeather ()V
 # Common
 inject-interface net/minecraft/network/Connection me/alphamode/mcbig/extensions/networking/BigConnectionExtension
 inject-interface net/minecraft/network/PacketListener me/alphamode/mcbig/extensions/networking/PayloadPacketListenerExtension
-inject-interface net/minecraft/world/level/storage/LevelData me/alphamode/mcbig/extensions/BigLevelDataExtension
-inject-interface net/minecraft/world/level/LevelSource me/alphamode/mcbig/extensions/BigLevelSourceExtension
-inject-interface net/minecraft/world/level/tile/Tile me/alphamode/mcbig/extensions/BigTileExtension
-inject-interface net/minecraft/world/level/Level me/alphamode/mcbig/extensions/BigLevelExtension
 inject-interface net/minecraft/world/level/chunk/LevelChunk me/alphamode/mcbig/extensions/BigLevelChunkExtension
 inject-interface net/minecraft/world/level/chunk/ChunkSource me/alphamode/mcbig/extensions/BigChunkSourceExtension
-inject-interface net/minecraft/world/entity/Entity me/alphamode/mcbig/extensions/BigEntityExtension
-inject-interface net/minecraft/world/level/LevelListener me/alphamode/mcbig/extensions/BigLevelListenerExtension
-inject-interface net/minecraft/world/level/levelgen/LargeFeature me/alphamode/mcbig/extensions/BigLargeFeatureExtension
 inject-interface net/minecraft/world/level/chunk/storage/ChunkStorage me/alphamode/mcbig/extensions/BigChunkStorageExtension
-inject-interface net/minecraft/world/level/biome/BiomeSource me/alphamode/mcbig/extensions/BigBiomeSourceExtension
+inject-interface net/minecraft/world/level/storage/LevelData me/alphamode/mcbig/extensions/BigLevelDataExtension
+inject-interface net/minecraft/world/level/LevelSource me/alphamode/mcbig/extensions/BigLevelSourceExtension
+inject-interface net/minecraft/world/level/LevelListener me/alphamode/mcbig/extensions/BigLevelListenerExtension
+inject-interface net/minecraft/world/level/Level me/alphamode/mcbig/extensions/BigLevelExtension
+inject-interface net/minecraft/world/level/levelgen/LargeFeature me/alphamode/mcbig/extensions/BigLargeFeatureExtension
 inject-interface net/minecraft/world/level/levelgen/feature/Feature me/alphamode/mcbig/extensions/BigFeatureExtension
+inject-interface net/minecraft/world/level/biome/BiomeSource me/alphamode/mcbig/extensions/BigBiomeSourceExtension
+inject-interface net/minecraft/world/entity/Entity me/alphamode/mcbig/extensions/BigEntityExtension
+
+# Blocks
+inject-interface net/minecraft/world/level/tile/Tile me/alphamode/mcbig/extensions/BigTileExtension
 inject-interface net/minecraft/world/level/tile/entity/TileEntity me/alphamode/mcbig/extensions/BigTileEntityExtension
 inject-interface net/minecraft/world/level/tile/PortalTile me/alphamode/mcbig/extensions/tiles/BigPortalTileExtension
 inject-interface net/minecraft/world/level/tile/FireTile me/alphamode/mcbig/extensions/tiles/BigFireTileExtension
@@ -44,6 +46,7 @@ inject-interface net/minecraft/world/level/tile/SaplingTile me/alphamode/mcbig/e
 inject-interface net/minecraft/world/level/tile/CropTile me/alphamode/mcbig/extensions/tiles/BigCropTileExtension
 inject-interface net/minecraft/world/level/tile/RecordPlayerTile me/alphamode/mcbig/extensions/tiles/BigRecordPlayerTileExtension
 
+# Items
 inject-interface net/minecraft/world/item/Item me/alphamode/mcbig/extensions/items/BigItemExtension
 inject-interface net/minecraft/world/ItemInstance me/alphamode/mcbig/extensions/items/BigItemInstanceExtension
 
@@ -56,12 +59,14 @@ inject-interface net/minecraft/server/level/ChunkMap me/alphamode/mcbig/extensio
 inject-interface net/minecraft/server/network/ServerGamePacketListener me/alphamode/mcbig/extensions/networking/BigServerGamePacketListenerExtension
 
 # Client
+inject-interface net/minecraft/client/gamemode/GameMode me/alphamode/mcbig/extensions/BigGameModeExtension
+inject-interface net/minecraft/client/player/LocalPlayer me/alphamode/mcbig/extensions/features/commands/LocalPlayerExtension
 inject-interface net/minecraft/client/multiplayer/MultiPlayerLevel me/alphamode/mcbig/extensions/networking/client/BigMultiPlayerLevelExtension
 inject-interface net/minecraft/client/gui/Gui me/alphamode/mcbig/extensions/features/commands/GuiExtension
-inject-interface net/minecraft/client/player/LocalPlayer me/alphamode/mcbig/extensions/features/commands/LocalPlayerExtension
+inject-interface net/minecraft/client/gui/Font me/alphamode/mcbig/extensions/features/commands/FontExtension
 inject-interface net/minecraft/client/renderer/TileRenderer me/alphamode/mcbig/extensions/BigTileRendererExtension
 inject-interface net/minecraft/client/renderer/TileRenderer me/alphamode/mcbig/extensions/features/fix_stripelands/BigTileRendererExtension
-inject-interface net/minecraft/client/renderer/Tesselator me/alphamode/mcbig/extensions/features/fix_stripelands/BigTesselatorExtension
 inject-interface net/minecraft/client/renderer/OffsettedRenderList me/alphamode/mcbig/extensions/BigOffsettedRenderListExtension
-inject-interface net/minecraft/client/gamemode/GameMode me/alphamode/mcbig/extensions/BigGameModeExtension
-inject-interface net/minecraft/client/gui/Font me/alphamode/mcbig/extensions/features/commands/FontExtension
+inject-interface net/minecraft/client/renderer/Tesselator me/alphamode/mcbig/extensions/features/fix_stripelands/BigTesselatorExtension
+
+
