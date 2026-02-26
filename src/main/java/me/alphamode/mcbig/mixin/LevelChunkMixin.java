@@ -32,8 +32,8 @@ public abstract class LevelChunkMixin implements BigLevelChunkExtension {
 
     @Override
     public void getEntities(Entity ignore, BigAABB area, List<Entity> entities) {
-        int var4 = Mth.floor((area.y0 - 2.0) / 16.0);
-        int var5 = Mth.floor((area.y1 + 2.0) / 16.0);
+        int var4 = Mth.floor((area.y0() - 2.0) / 16.0);
+        int var5 = Mth.floor((area.y1() + 2.0) / 16.0);
         if (var4 < 0) {
             var4 = 0;
         }

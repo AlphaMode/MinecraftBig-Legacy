@@ -2,6 +2,7 @@ package me.alphamode.mcbig.mixin.tiles;
 
 import me.alphamode.mcbig.extensions.BigTileExtension;
 import me.alphamode.mcbig.world.phys.BigAABB;
+import me.alphamode.mcbig.world.phys.BigVec3;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.world.level.Level;
@@ -144,6 +145,26 @@ public abstract class TorchTileMixin extends Tile implements BigTileExtension {
 
     @Override
     public HitResult clip(Level level, BigInteger x, int y, BigInteger z, Vec3 vec1, Vec3 vec2) {
+        int side = level.getData(x, y, z) & 7;
+        float var8 = 0.15F;
+        if (side == 1) {
+            this.setShape(0.0F, 0.2F, 0.5F - var8, var8 * 2.0F, 0.8F, 0.5F + var8);
+        } else if (side == 2) {
+            this.setShape(1.0F - var8 * 2.0F, 0.2F, 0.5F - var8, 1.0F, 0.8F, 0.5F + var8);
+        } else if (side == 3) {
+            this.setShape(0.5F - var8, 0.2F, 0.0F, 0.5F + var8, 0.8F, var8 * 2.0F);
+        } else if (side == 4) {
+            this.setShape(0.5F - var8, 0.2F, 1.0F - var8 * 2.0F, 0.5F + var8, 0.8F, 1.0F);
+        } else {
+            var8 = 0.1F;
+            this.setShape(0.5F - var8, 0.0F, 0.5F - var8, 0.5F + var8, 0.6F, 0.5F + var8);
+        }
+
+        return super.clip(level, x, y, z, vec1, vec2);
+    }
+
+    @Override
+    public HitResult clip(Level level, BigInteger x, int y, BigInteger z, BigVec3 vec1, BigVec3 vec2) {
         int side = level.getData(x, y, z) & 7;
         float var8 = 0.15F;
         if (side == 1) {

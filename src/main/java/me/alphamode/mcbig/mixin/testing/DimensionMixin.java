@@ -13,12 +13,12 @@ public class DimensionMixin {
     @Shadow
     public Level level;
 
-    /**
-     * @author
-     * @reason
-     */
-    @Overwrite
-    public ChunkSource createRandomLevelSource() {
-        return new FlatLevelSource(this.level);
-    }
+//    /**
+//     * @author
+//     * @reason
+//     */
+//    @Overwrite
+//    public ChunkSource createRandomLevelSource() {
+//        return new FlatLevelSource(this.level);
+//    }
 }

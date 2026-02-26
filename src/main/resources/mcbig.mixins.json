@@ -85,6 +85,7 @@
   "server": [
     "features.big_movement.server.ServerPlayerMixin",
     "networking.server.ChunkMapMixin",
+    "networking.server.PlayerListMixin",
     "networking.server.ServerGamePacketListenerMixin",
     "networking.server.ServerLoginPacketListenerMixin",
     "server.ServerChunkCacheMixin",
@@ -115,6 +116,7 @@
     "features.big_movement.LevelRendererMixin",
     "features.big_movement.LocalPlayerMixin",
     "features.big_movement.OffsettedRenderListMixin",
+    "features.big_movement.client.MultiplayerLocalPlayerMixin",
     "features.fix_stripelands.TileRendererMixin",
     "networking.client.ClientPacketListenerMixin",
     "networking.client.MultiplayerGameModeMixin",

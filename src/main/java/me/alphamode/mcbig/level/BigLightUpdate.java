@@ -6,8 +6,11 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.tile.Tile;
 
 import java.math.BigInteger;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class BigLightUpdate {
+    public static final ExecutorService LIGHT_EXECUTOR = Executors.newCachedThreadPool();
     public final LightLayer type;
     public BigInteger x0;
     public int y0;
@@ -27,40 +30,40 @@ public class BigLightUpdate {
     }
 
     public void update(Level level) {
-        int var2 = this.x1.subtract(this.x0).add(BigInteger.ONE).intValue();
-        int var3 = this.y1 - this.y0 + 1;
-        int var4 = this.z1.subtract(this.z0).add(BigInteger.ONE).intValue();
-        int var5 = var2 * var3 * var4;
-        if (var5 > 32768) {
+        int mx = this.x1.subtract(this.x0).add(BigInteger.ONE).intValue();
+        int my = this.y1 - this.y0 + 1;
+        int mz = this.z1.subtract(this.z0).add(BigInteger.ONE).intValue();
+        int area = mx * my * mz;
+        if (area > 32768) {
             System.out.println("Light too large, skipping!");
         } else {
-            BigInteger var6 = BigInteger.ZERO;
-            BigInteger var7 = BigInteger.ZERO;
+            BigInteger lxc = BigInteger.ZERO;
+            BigInteger lzc = BigInteger.ZERO;
             boolean var8 = false;
             boolean var9 = false;
 
-            for(BigInteger var10 = this.x0; var10.compareTo(this.x1) <= 0; var10 = var10.add(BigInteger.ONE)) {
-                for(BigInteger var11 = this.z0; var11.compareTo(this.z1) <= 0; var11 = var11.add(BigInteger.ONE)) {
-                    BigInteger var12 = var10.shiftRight(4);
-                    BigInteger var13 = var11.shiftRight(4);
-                    boolean var14 = false;
-                    if (var8 && var12.equals(var6) && var13.equals(var7)) {
-                        var14 = var9;
+            for(BigInteger x = this.x0; x.compareTo(this.x1) <= 0; x = x.add(BigInteger.ONE)) {
+                for(BigInteger z = this.z0; z.compareTo(this.z1) <= 0; z = z.add(BigInteger.ONE)) {
+                    BigInteger xc = x.shiftRight(4);
+                    BigInteger zc = z.shiftRight(4);
+                    boolean hasChunk = false;
+                    if (var8 && xc.equals(lxc) && zc.equals(lzc)) {
+                        hasChunk = var9;
                     } else {
-                        var14 = level.hasChunksAt(var10, 0, var11, 1);
-                        if (var14) {
-                            LevelChunk var15 = level.getChunk(var10.shiftRight(4), var11.shiftRight(4));
+                        hasChunk = level.hasChunksAt(x, 0, z, 1);
+                        if (hasChunk) {
+                            LevelChunk var15 = level.getChunk(x.shiftRight(4), z.shiftRight(4));
                             if (var15.isEmpty()) {
-                                var14 = false;
+                                hasChunk = false;
                             }
                         }
 
-                        var9 = var14;
-                        var6 = var12;
-                        var7 = var13;
+                        var9 = hasChunk;
+                        lxc = xc;
+                        lzc = zc;
                     }
 
-                    if (var14) {
+                    if (hasChunk) {
                         if (this.y0 < 0) {
                             this.y0 = 0;
                         }
@@ -69,84 +72,84 @@ public class BigLightUpdate {
                             this.y1 = 127;
                         }
 
-                        for(int var28 = this.y0; var28 <= this.y1; ++var28) {
-                            int var16 = level.getBrightness(this.type, var10, var28, var11);
-                            int var17 = 0;
-                            int var18 = level.getTile(var10, var28, var11);
-                            int var19 = Tile.lightBlock[var18];
-                            if (var19 == 0) {
-                                var19 = 1;
+                        for(int y = this.y0; y <= this.y1; ++y) {
+                            int oldBr = level.getBrightness(this.type, x, y, z);
+                            int newBr = 0;
+                            int t = level.getTile(x, y, z);
+                            int blockLight = Tile.lightBlock[t];
+                            if (blockLight == 0) {
+                                blockLight = 1;
                             }
 
-                            int var20 = 0;
+                            int emissionLevel = 0;
                             if (this.type == LightLayer.SKY) {
-                                if (level.isSkyLit(var10, var28, var11)) {
-                                    var20 = 15;
+                                if (level.isSkyLit(x, y, z)) {
+                                    emissionLevel = 15;
                                 }
                             } else if (this.type == LightLayer.BLOCK) {
-                                var20 = Tile.lightEmission[var18];
+                                emissionLevel = Tile.lightEmission[t];
                             }
 
-                            if (var19 >= 15 && var20 == 0) {
-                                var17 = 0;
+                            if (blockLight >= 15 && emissionLevel == 0) {
+                                newBr = 0;
                             } else {
-                                int var21 = level.getBrightness(this.type, var10.subtract(BigInteger.ONE), var28, var11);
-                                int var22 = level.getBrightness(this.type, var10.add(BigInteger.ONE), var28, var11);
-                                int var23 = level.getBrightness(this.type, var10, var28 - 1, var11);
-                                int var24 = level.getBrightness(this.type, var10, var28 + 1, var11);
-                                int var25 = level.getBrightness(this.type, var10, var28, var11.subtract(BigInteger.ONE));
-                                int var26 = level.getBrightness(this.type, var10, var28, var11.add(BigInteger.ONE));
-                                var17 = var21;
-                                if (var22 > var21) {
-                                    var17 = var22;
+                                int westBr = level.getBrightness(this.type, x.subtract(BigInteger.ONE), y, z);
+                                int eastBr = level.getBrightness(this.type, x.add(BigInteger.ONE), y, z);
+                                int downBr = level.getBrightness(this.type, x, y - 1, z);
+                                int upBr = level.getBrightness(this.type, x, y + 1, z);
+                                int northBr = level.getBrightness(this.type, x, y, z.subtract(BigInteger.ONE));
+                                int southBr = level.getBrightness(this.type, x, y, z.add(BigInteger.ONE));
+                                newBr = westBr;
+                                if (eastBr > westBr) {
+                                    newBr = eastBr;
                                 }
 
-                                if (var23 > var17) {
-                                    var17 = var23;
+                                if (downBr > newBr) {
+                                    newBr = downBr;
                                 }
 
-                                if (var24 > var17) {
-                                    var17 = var24;
+                                if (upBr > newBr) {
+                                    newBr = upBr;
                                 }
 
-                                if (var25 > var17) {
-                                    var17 = var25;
+                                if (northBr > newBr) {
+                                    newBr = northBr;
                                 }
 
-                                if (var26 > var17) {
-                                    var17 = var26;
+                                if (southBr > newBr) {
+                                    newBr = southBr;
                                 }
 
-                                var17 -= var19;
-                                if (var17 < 0) {
-                                    var17 = 0;
+                                newBr -= blockLight;
+                                if (newBr < 0) {
+                                    newBr = 0;
                                 }
 
-                                if (var20 > var17) {
-                                    var17 = var20;
+                                if (emissionLevel > newBr) {
+                                    newBr = emissionLevel;
                                 }
                             }
 
-                            if (var16 != var17) {
-                                level.setBrightness(this.type, var10, var28, var11, var17);
-                                int var31 = var17 - 1;
-                                if (var31 < 0) {
-                                    var31 = 0;
+                            if (oldBr != newBr) {
+                                level.setBrightness(this.type, x, y, z, newBr);
+                                int l = newBr - 1;
+                                if (l < 0) {
+                                    l = 0;
                                 }
 
-                                level.updateLightIfOtherThan(this.type, var10.subtract(BigInteger.ONE), var28, var11, var31);
-                                level.updateLightIfOtherThan(this.type, var10, var28 - 1, var11, var31);
-                                level.updateLightIfOtherThan(this.type, var10, var28, var11.subtract(BigInteger.ONE), var31);
-                                if (var10.add(BigInteger.ONE).compareTo(this.x1) >= 0) {
-                                    level.updateLightIfOtherThan(this.type, var10.add(BigInteger.ONE), var28, var11, var31);
+                                level.updateLightIfOtherThan(this.type, x.subtract(BigInteger.ONE), y, z, l);
+                                level.updateLightIfOtherThan(this.type, x, y - 1, z, l);
+                                level.updateLightIfOtherThan(this.type, x, y, z.subtract(BigInteger.ONE), l);
+                                if (x.add(BigInteger.ONE).compareTo(this.x1) >= 0) {
+                                    level.updateLightIfOtherThan(this.type, x.add(BigInteger.ONE), y, z, l);
                                 }
 
-                                if (var28 + 1 >= this.y1) {
-                                    level.updateLightIfOtherThan(this.type, var10, var28 + 1, var11, var31);
+                                if (y + 1 >= this.y1) {
+                                    level.updateLightIfOtherThan(this.type, x, y + 1, z, l);
                                 }
 
-                                if (var11.add(BigInteger.ONE).compareTo(this.z1) >= 0) {
-                                    level.updateLightIfOtherThan(this.type, var10, var28, var11.add(BigInteger.ONE), var31);
+                                if (z.add(BigInteger.ONE).compareTo(this.z1) >= 0) {
+                                    level.updateLightIfOtherThan(this.type, x, y, z.add(BigInteger.ONE), l);
                                 }
                             }
                         }

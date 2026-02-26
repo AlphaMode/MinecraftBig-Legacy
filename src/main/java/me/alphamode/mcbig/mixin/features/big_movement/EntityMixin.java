@@ -95,6 +95,8 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
     @Shadow
     public abstract void setPos(double x, double y, double z);
 
+    private static final int ENTITY_SCALE = 12;
+
     public BigDecimal xoBig = BigDecimal.ZERO;
     public BigDecimal zoBig = BigDecimal.ZERO;
     public BigDecimal xBig = BigDecimal.ZERO;
@@ -191,9 +193,9 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
 //        }
         if (this.noPhysics) {
             this.bbBig.grow(xa, ya, za);
-            this.setX(this.bbBig.x0.add(this.bbBig.x1).divide(BigConstants.TWO));
-            this.y = this.bbBig.y0 + this.heightOffset - this.ySlideOffset;
-            this.setZ(this.bbBig.z0.add(this.bbBig.z1).divide(BigConstants.TWO));
+            this.setX(this.bbBig.x0().add(this.bbBig.x1()).divide(BigConstants.TWO, RoundingMode.HALF_EVEN));
+            this.y = this.bbBig.y0() + this.heightOffset - this.ySlideOffset;
+            this.setZ(this.bbBig.z0().add(this.bbBig.z1()).divide(BigConstants.TWO, RoundingMode.HALF_EVEN));
         } else {
             this.ySlideOffset *= 0.4F;
             BigDecimal var7 = this.getX();
@@ -337,16 +339,16 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
                     za = var25;
                     this.bbBig.copyFrom(var27);
                 } else {
-                    double var51 = this.bbBig.y0 - (int)this.bbBig.y0;
+                    double var51 = this.bbBig.y0() - (int)this.bbBig.y0();
                     if (var51 > 0.0) {
                         this.ySlideOffset = (float)(this.ySlideOffset + (var51 + 0.01));
                     }
                 }
             }
 
-            this.setX(this.bbBig.x0.add(this.bbBig.x1, BigMath.CONTEXT).divide(BigConstants.TWO, RoundingMode.HALF_EVEN));
-            this.y = this.bbBig.y0 + this.heightOffset - this.ySlideOffset;
-            this.setZ(this.bbBig.z0.add(this.bbBig.z1).divide(BigConstants.TWO, RoundingMode.HALF_EVEN));
+            this.setX(this.bbBig.x0().add(this.bbBig.x1(), BigMath.CONTEXT).divide(BigConstants.TWO, RoundingMode.HALF_EVEN));
+            this.y = this.bbBig.y0() + this.heightOffset - this.ySlideOffset;
+            this.setZ(this.bbBig.z0().add(this.bbBig.z1()).divide(BigConstants.TWO, RoundingMode.HALF_EVEN));
 
             this.horizontalCollision = txa != xa || tza != za;
             this.verticalCollision = tya != ya;
@@ -392,12 +394,12 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
             }
 
             BigDecimal elision = BigDecimal.valueOf(0.001);
-            BigInteger x0 = BigMath.floor(this.bbBig.x0.add(elision));
-            int y0 = Mth.floor(this.bbBig.y0 + 0.001);
-            BigInteger z0 = BigMath.floor(this.bbBig.z0.add(elision));
-            BigInteger x1 = BigMath.floor(this.bbBig.x1.subtract(elision));
-            int y1 = Mth.floor(this.bbBig.y1 - 0.001);
-            BigInteger z1 = BigMath.floor(this.bbBig.z1.subtract(elision));
+            BigInteger x0 = BigMath.floor(this.bbBig.x0().add(elision));
+            int y0 = Mth.floor(this.bbBig.y0() + 0.001);
+            BigInteger z0 = BigMath.floor(this.bbBig.z0().add(elision));
+            BigInteger x1 = BigMath.floor(this.bbBig.x1().subtract(elision));
+            int y1 = Mth.floor(this.bbBig.y1() - 0.001);
+            BigInteger z1 = BigMath.floor(this.bbBig.z1().subtract(elision));
             if (this.level.hasChunksAt(x0, y0, z0, x1, y1, z1)) {
                 for (BigInteger x = x0; x.compareTo(x1) <= 0; x = x.add(BigInteger.ONE)) {
                     for (int y = y0; y <= y1; y++) {
@@ -970,14 +972,14 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
     @Override
     public void setX(BigDecimal x) {
         assert isBigMovementEnabled();
-        this.xBig = x;
+        this.xBig = x.setScale(ENTITY_SCALE, RoundingMode.HALF_EVEN);
         this.x = x.doubleValue();
     }
 
     @Override
     public void setZ(BigDecimal z) {
         assert isBigMovementEnabled();
-        this.zBig = z;
+        this.zBig = z.setScale(ENTITY_SCALE, RoundingMode.HALF_EVEN);
         this.z = z.doubleValue();
     }
 
@@ -996,14 +998,14 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
     @Override
     public void setXO(BigDecimal x) {
         assert isBigMovementEnabled();
-        this.xoBig = x;
+        this.xoBig = x.setScale(ENTITY_SCALE, RoundingMode.HALF_EVEN);
         this.xo = x.doubleValue();
     }
 
     @Override
     public void setZO(BigDecimal z) {
         assert isBigMovementEnabled();
-        this.zoBig = z;
+        this.zoBig = z.setScale(ENTITY_SCALE, RoundingMode.HALF_EVEN);
         this.zo = z.doubleValue();
     }
 
@@ -1022,14 +1024,14 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
     @Override
     public void setXOld(BigDecimal x) {
         assert isBigMovementEnabled();
-        this.xOldBig = x;
+        this.xOldBig = x.setScale(ENTITY_SCALE, RoundingMode.HALF_EVEN);
         this.xOld = x.doubleValue();
     }
 
     @Override
     public void setZOld(BigDecimal z) {
         assert isBigMovementEnabled();
-        this.zOldBig = z;
+        this.zOldBig = z.setScale(ENTITY_SCALE, RoundingMode.HALF_EVEN);
         this.zOld = z.doubleValue();
     }
 

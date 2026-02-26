@@ -10,9 +10,17 @@ public class BigHitResult extends HitResult {
 
     public BigInteger xBig;
     public BigInteger zBig;
+    public BigVec3 posBig;
+
+    public BigHitResult(BigInteger x, int y, BigInteger z, int face, BigVec3 pos) {
+        super(x.intValue(), y, z.intValue(), face, pos.toVanilla());
+        this.xBig = x;
+        this.zBig = z;
+        this.posBig = pos;
+    }
 
     public BigHitResult(BigInteger x, int y, BigInteger z, int face, Vec3 pos) {
-        super(x.intValue(), y, z.intValue(), face, pos);
+        this(x, y, z, face, BigVec3.fromVanilla(pos));
         this.xBig = x;
         this.zBig = z;
     }

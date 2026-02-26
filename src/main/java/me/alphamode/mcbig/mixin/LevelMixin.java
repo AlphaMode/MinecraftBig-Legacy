@@ -9,6 +9,7 @@ import me.alphamode.mcbig.level.chunk.BigChunkPos;
 import me.alphamode.mcbig.math.BigConstants;
 import me.alphamode.mcbig.math.BigMath;
 import me.alphamode.mcbig.world.phys.BigAABB;
+import me.alphamode.mcbig.world.phys.BigVec3;
 import me.alphamode.mcbig.world.phys.BigVec3i;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -43,6 +44,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Mixin(Level.class)
 public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExtension {
@@ -117,8 +119,7 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
     @Shadow
     private static int maxLoop;
 
-    @Shadow
-    private List<BigLightUpdate> lightUpdates;
+    private List<BigLightUpdate> lightUpdatesBig = new ArrayList<>();
 
     @Shadow
     private int maxRecurse;
@@ -669,6 +670,157 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
         }
     }
 
+    @Override
+    public HitResult clip(BigVec3 from, BigVec3 to, boolean checkLiquid, boolean bl2) {
+        if (Double.isNaN(from.y)) {
+            return null;
+        } else if (!Double.isNaN(to.y)) {
+            BigInteger toX = BigMath.floor(to.x);
+            int toY = Mth.floor(to.y);
+            BigInteger toZ = BigMath.floor(to.z);
+            BigInteger fromX = BigMath.floor(from.x);
+            int fromY = Mth.floor(from.y);
+            BigInteger fromZ = BigMath.floor(from.z);
+            int tileId = getTile(fromX, fromY, fromZ);
+            int data = this.getData(fromX, fromY, fromZ);
+            Tile tile = Tile.tiles[tileId];
+            if ((!bl2 || tile == null || tile.getAABB((Level) (Object) this, fromX, fromY, fromZ) != null) && tileId > 0 && tile.mayPick(data, checkLiquid)) {
+                HitResult var14 = tile.clip((Level) (Object) this, fromX, fromY, fromZ, from, to);
+                if (var14 != null) {
+                    return var14;
+                }
+            }
+
+            tileId = 200;
+
+            while (tileId-- >= 0) {
+                if (Double.isNaN(from.y)) {
+                    return null;
+                }
+
+                if (fromX.equals(toX) && fromY == toY && fromZ.equals(toZ)) {
+                    return null;
+                }
+
+                boolean var40 = true;
+                boolean var41 = true;
+                boolean var42 = true;
+                BigDecimal var15 = BigConstants.CLIP;
+                double var17 = 999.0;
+                BigDecimal var19 = BigConstants.CLIP;
+                if (toX.compareTo(fromX) > 0) {
+                    var15 = new BigDecimal(fromX).add(BigDecimal.ONE);
+                } else if (toX.compareTo(fromX) < 0) {
+                    var15 = new BigDecimal(fromX);
+                } else {
+                    var40 = false;
+                }
+
+                if (toY > fromY) {
+                    var17 = (double) fromY + 1.0;
+                } else if (toY < fromY) {
+                    var17 = (double) fromY + 0.0;
+                } else {
+                    var41 = false;
+                }
+
+                if (toZ.compareTo(fromZ) > 0) {
+                    var19 = new BigDecimal(fromZ).add(BigDecimal.ONE);
+                } else if (toZ.compareTo(fromZ) < 0) {
+                    var19 = new BigDecimal(fromZ);
+                } else {
+                    var42 = false;
+                }
+
+                double var21 = 999.0;
+                double var23 = 999.0;
+                double var25 = 999.0;
+                double var27 = to.x.subtract(from.x).doubleValue();
+                double var29 = to.y - from.y;
+                double var31 = to.z.subtract(from.z).doubleValue();
+                if (var40) {
+                    var21 = (var15.subtract(from.x)).doubleValue() / var27;
+                }
+
+                if (var41) {
+                    var23 = (var17 - from.y) / var29;
+                }
+
+                if (var42) {
+                    var25 = (var19.subtract(from.z)).doubleValue() / var31;
+                }
+
+                byte facing = 0;
+                if (var21 < var23 && var21 < var25) {
+                    if (toX.compareTo(fromX) > 0) {
+                        facing = Facing.WEST;
+                    } else {
+                        facing = Facing.EAST;
+                    }
+
+                    from.x = var15;
+                    from.y += var29 * var21;
+                    from.z = from.z.add(BigMath.decimal(var31 * var21));
+                } else if (var23 < var25) {
+                    if (toY > fromY) {
+                        facing = 0;
+                    } else {
+                        facing = 1;
+                    }
+
+                    from.x = from.x.add(BigMath.decimal(var27 * var23));
+                    from.y = var17;
+                    from.z = from.z.add(BigMath.decimal(var31 * var23));
+                } else {
+                    if (toZ.compareTo(fromZ) > 0) {
+                        facing = Facing.NORTH;
+                    } else {
+                        facing = Facing.SOUTH;
+                    }
+
+                    from.x = from.x.add(BigMath.decimal(var27 * var25));
+                    from.y += var29 * var25;
+                    from.z = var19;
+                }
+
+                BigVec3 var34 = BigVec3.newTemp(from.x, from.y, from.z);
+                fromX = BigMath.floor(from.x);
+                var34.x = new BigDecimal(fromX);
+                if (facing == 5) {
+                    fromX = fromX.subtract(BigInteger.ONE);
+                    var34.x = var34.x.add(BigDecimal.ONE);
+                }
+
+                fromY = (int) (var34.y = (double) Mth.floor(from.y));
+                if (facing == 1) {
+                    --fromY;
+                    ++var34.y;
+                }
+
+                fromZ = BigMath.floor(from.z);
+                var34.z = new BigDecimal(fromZ);
+                if (facing == Facing.SOUTH) {
+                    fromZ = fromZ.subtract(BigInteger.ONE);
+                    var34.z = var34.z.add(BigDecimal.ONE);
+                }
+
+                int var35 = this.getTile(fromX, fromY, fromZ);
+                int var36 = this.getData(fromX, fromY, fromZ);
+                Tile var37 = Tile.tiles[var35];
+                if ((!bl2 || var37 == null || var37.getAABB((Level) (Object) this, fromX, fromY, fromZ) != null) && var35 > 0 && var37.mayPick(var36, checkLiquid)) {
+                    HitResult var38 = var37.clip((Level) (Object) this, fromX, fromY, fromZ, from, to);
+                    if (var38 != null) {
+                        return var38;
+                    }
+                }
+            }
+
+            return null;
+        } else {
+            return null;
+        }
+    }
+
     /**
      * @author
      * @reason
@@ -1010,10 +1162,10 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
     @Override
     public List<Entity> getEntities(Entity entity, BigAABB area) {
         this.es.clear();
-        BigInteger x0 = BigMath.floor(area.x0.subtract(BigConstants.TWO).divide(BigConstants.SIXTEEN_F));
-        BigInteger x1 = BigMath.floor(area.x1.add(BigConstants.TWO).divide(BigConstants.SIXTEEN_F));
-        BigInteger z0 = BigMath.floor(area.z0.subtract(BigConstants.TWO).divide(BigConstants.SIXTEEN_F));
-        BigInteger z1 = BigMath.floor(area.z1.add(BigConstants.TWO).divide(BigConstants.SIXTEEN_F));
+        BigInteger x0 = BigMath.floor(area.x0().subtract(BigConstants.TWO).divide(BigConstants.SIXTEEN_F));
+        BigInteger x1 = BigMath.floor(area.x1().add(BigConstants.TWO).divide(BigConstants.SIXTEEN_F));
+        BigInteger z0 = BigMath.floor(area.z0().subtract(BigConstants.TWO).divide(BigConstants.SIXTEEN_F));
+        BigInteger z1 = BigMath.floor(area.z1().add(BigConstants.TWO).divide(BigConstants.SIXTEEN_F));
 
         for (BigInteger x = x0; x.compareTo(x1) <= 0; x = x.add(BigInteger.ONE)) {
             for (BigInteger z = z0; z.compareTo(z1) <= 0; z = z.add(BigInteger.ONE)) {
@@ -1249,12 +1401,12 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
             try {
                 int maxUpdates = 500;
 
-                while (this.lightUpdates.size() > 0) {
+                while (this.lightUpdatesBig.size() > 0) {
                     if (--maxUpdates <= 0) {
                         return true;
                     }
 
-                    this.lightUpdates.remove(this.lightUpdates.size() - 1).update((Level) (Object) this);
+                    this.lightUpdatesBig.remove(this.lightUpdatesBig.size() - 1).update((Level) (Object) this);
                 }
 
                 return false;
@@ -1275,7 +1427,7 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
     }
 
     @Override
-    public void updateLight(LightLayer type, BigInteger x0, int y0, BigInteger z0, BigInteger x1, int y1, BigInteger z1, boolean bl) {
+    public void updateLight(LightLayer type, BigInteger x0, int y0, BigInteger z0, BigInteger x1, int y1, BigInteger z1, boolean expand) {
         if (!this.dimension.hasCeiling || type != LightLayer.SKY) {
             ++maxLoop;
 
@@ -1285,26 +1437,26 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
                     BigInteger z = (z1.add(z0)).divide(BigInteger.TWO);
                     if (hasChunkAt(x, 64, z)) {
                         if (!getChunkAt(x, z).isEmpty()) {
-                            int var11 = this.lightUpdates.size();
-                            if (bl) {
-                                int var12 = 5;
-                                if (var12 > var11) {
-                                    var12 = var11;
+                            int size = this.lightUpdatesBig.size();
+                            if (expand) {
+                                int maxSize = 5;
+                                if (maxSize > size) {
+                                    maxSize = size;
                                 }
 
-                                for (int var13 = 0; var13 < var12; ++var13) {
-                                    BigLightUpdate update = this.lightUpdates.get(this.lightUpdates.size() - var13 - 1);
+                                for (int i = 0; i < maxSize; ++i) {
+                                    BigLightUpdate update = this.lightUpdatesBig.get(this.lightUpdatesBig.size() - i - 1);
                                     if (update.type == type && update.expandToContain(x0, y0, z0, x1, y1, z1)) {
                                         return;
                                     }
                                 }
                             }
 
-                            this.lightUpdates.add(new BigLightUpdate(type, x0, y0, z0, x1, y1, z1));
+                            this.lightUpdatesBig.add(new BigLightUpdate(type, x0, y0, z0, x1, y1, z1));
                             int updates = 1000000;
-                            if (this.lightUpdates.size() > 1000000) {
+                            if (this.lightUpdatesBig.size() > 1000000) {
                                 System.out.println("More than " + updates + " updates, aborting lighting updates");
-                                this.lightUpdates.clear();
+                                this.lightUpdatesBig.clear();
                             }
                         }
                     }
@@ -1318,12 +1470,12 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
     @Override
     public List<BigAABB> getCubes(Entity entity, BigAABB area) {
         this.bigBoxes.clear();
-        BigInteger x0 = BigMath.floor(area.x0);
-        BigInteger x1 = BigMath.floor(area.x1.add(BigDecimal.ONE));
-        int y0 = Mth.floor(area.y0);
-        int y1 = Mth.floor(area.y1 + 1.0);
-        BigInteger z0 = BigMath.floor(area.z0);
-        BigInteger z1 = BigMath.floor(area.z1.add(BigDecimal.ONE));
+        BigInteger x0 = BigMath.floor(area.x0());
+        BigInteger x1 = BigMath.floor(area.x1().add(BigDecimal.ONE));
+        int y0 = Mth.floor(area.y0());
+        int y1 = Mth.floor(area.y1() + 1.0);
+        BigInteger z0 = BigMath.floor(area.z0());
+        BigInteger z1 = BigMath.floor(area.z1().add(BigDecimal.ONE));
 
         for (BigInteger x = x0; x.compareTo(x1) < 0; x = x.add(BigInteger.ONE)) {
             for (BigInteger z = z0; z.compareTo(z1) < 0; z = z.add(BigInteger.ONE)) {
@@ -1460,6 +1612,40 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
         }
 
         if (area.z0 < 0.0) {
+            z0 = z0.subtract(BigInteger.ONE);
+        }
+
+        for (BigInteger x = x0; x.compareTo(x1) < 0; x = x.add(BigInteger.ONE)) {
+            for (int y = y0; y < y1; ++y) {
+                for (BigInteger z = z0; z.compareTo(z1) < 0; z = z.add(BigInteger.ONE)) {
+                    Tile tile = Tile.tiles[getTile(x, y, z)];
+                    if (tile != null) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean containsAnyTiles(BigAABB area) {
+        BigInteger x0 = BigMath.floor(area.x0());
+        BigInteger x1 = BigMath.floor(area.x1().add(BigDecimal.ONE));
+        int y0 = Mth.floor(area.y0());
+        int y1 = Mth.floor(area.y1() + 1.0);
+        BigInteger z0 = BigMath.floor(area.z0());
+        BigInteger z1 = BigMath.floor(area.z1().add(BigDecimal.ONE));
+        if (area.x0().compareTo(BigDecimal.ZERO) < 0) {
+            x0 = x0.subtract(BigInteger.ONE);
+        }
+
+        if (area.y0() < 0.0) {
+            --y0;
+        }
+
+        if (area.z0().compareTo(BigDecimal.ZERO) < 0) {
             z0 = z0.subtract(BigInteger.ONE);
         }
 

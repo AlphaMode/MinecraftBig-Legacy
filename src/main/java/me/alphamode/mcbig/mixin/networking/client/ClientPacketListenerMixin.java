@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 @Mixin(ClientPacketListener.class)
 public abstract class ClientPacketListenerMixin extends PacketListener implements PayloadPacketListenerExtension {
@@ -47,6 +48,9 @@ public abstract class ClientPacketListenerMixin extends PacketListener implement
     @Shadow
     public abstract void send(Packet packet);
 
+    @Shadow
+    public abstract void handleMovePlayer(MovePlayerPacket packet);
+
     @Override
     public void sendPayload(Payload payload) {
         send(new McBigPayloadPacket(payload));
@@ -65,6 +69,7 @@ public abstract class ClientPacketListenerMixin extends PacketListener implement
             onDisconnect("Unsupported McBig protocol version: " + payload.protocolVersion() + "\n Server is on: " + McBigNetworking.PROTOCOL_VERSION, new Object[0]);
         }
         this.connection.setFeatures(payload.features());
+        this.connection.setBigConnection(true);
 
         List<Features> features = new ArrayList<>();
         for (Features feature : Features.values()) {
@@ -109,17 +114,17 @@ public abstract class ClientPacketListenerMixin extends PacketListener implement
         bigPlayer.absMoveTo(x, y, z, yRot, xRot);
         switch (payload) {
             case BigMovePlayerPayload.Pos pos -> {
-                this.connection.sendPayload(new BigMovePlayerPayload.Pos(bigPlayer.getX(), player.bb.y0, player.y, bigPlayer.getZ(), pos.onGround()));
+                this.connection.sendPayload(new BigMovePlayerPayload.Pos(bigPlayer.getX(), bigPlayer.getBigBB().y0(), player.y, bigPlayer.getZ(), pos.onGround()));
             }
             case BigMovePlayerPayload.PosRot posRot -> {
-                this.connection.sendPayload(new BigMovePlayerPayload.PosRot(bigPlayer.getX(), player.bb.y0, player.y, bigPlayer.getZ(), posRot.yRot(), posRot.xRot(), posRot.onGround()));
+                this.connection.sendPayload(new BigMovePlayerPayload.PosRot(bigPlayer.getX(), bigPlayer.getBigBB().y0(), player.y, bigPlayer.getZ(), posRot.yRot(), posRot.xRot(), posRot.onGround()));
             }
             default -> this.connection.sendPayload(payload);
         }
         if (!this.started) {
-            this.minecraft.player.xo = this.minecraft.player.x;
+            bigPlayer.setXO(bigPlayer.getX());
             this.minecraft.player.yo = this.minecraft.player.y;
-            this.minecraft.player.zo = this.minecraft.player.z;
+            bigPlayer.setZO(bigPlayer.getZ());
             this.started = true;
             this.minecraft.setScreen(null);
         }

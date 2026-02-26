@@ -1,7 +1,10 @@
 package me.alphamode.mcbig.mixin.client;
 
+import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
+import me.alphamode.mcbig.extensions.features.big_movement.BigMobExtension;
 import me.alphamode.mcbig.math.BigMath;
 import me.alphamode.mcbig.world.phys.BigHitResult;
+import me.alphamode.mcbig.world.phys.BigVec3;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gamemode.CreativeMode;
 import net.minecraft.client.renderer.GameRenderer;
@@ -91,9 +94,10 @@ public abstract class GameRendererMixin {
                 double pickRange = this.mc.gameMode.getPickRange();
                 this.mc.hitResult = this.mc.cameraEntity.pick(pickRange, partialTick);
                 double pickDistance = pickRange;
-                Vec3 cameraPos = this.mc.cameraEntity.getPos(partialTick);
+                BigEntityExtension bigCamera = (BigEntityExtension) this.mc.cameraEntity;
+                BigVec3 cameraPos = ((BigMobExtension)this.mc.cameraEntity).getBigPos(partialTick);
                 if (this.mc.hitResult != null) {
-                    pickDistance = this.mc.hitResult.pos.distanceTo(cameraPos);
+                    pickDistance = ((BigHitResult) this.mc.hitResult).posBig.distanceTo(cameraPos);
                 }
 
                 if (this.mc.gameMode instanceof CreativeMode) {
@@ -108,7 +112,7 @@ public abstract class GameRendererMixin {
                 }
 
                 Vec3 view = this.mc.cameraEntity.getViewVector(partialTick);
-                Vec3 pickVec = cameraPos.add(view.x * pickRange, view.y * pickRange, view.z * pickRange);
+                BigVec3 pickVec = cameraPos.add(view.x * pickRange, view.y * pickRange, view.z * pickRange);
                 this.hovered = null;
                 float range = 1.0F;
                 List<Entity> entities = this.mc
@@ -123,14 +127,14 @@ public abstract class GameRendererMixin {
                     if (entity.isPickable()) {
                         float pickRadius = entity.getPickRadius();
                         AABB bb = entity.bb.inflate(pickRadius, pickRadius, pickRadius);
-                        HitResult hit = bb.clip(cameraPos, pickVec);
-                        if (bb.intersects(cameraPos)) {
+                        BigHitResult hit = (BigHitResult) bb.clip(cameraPos.toVanilla(), pickVec.toVanilla());
+                        if (bb.intersects(cameraPos.toVanilla())) {
                             if (0.0 < var11 || var11 == 0.0) {
                                 this.hovered = entity;
                                 var11 = 0.0;
                             }
                         } else if (hit != null) {
-                            double var18 = cameraPos.distanceTo(hit.pos);
+                            double var18 = cameraPos.distanceTo(hit.posBig);
                             if (var18 < var11 || var11 == 0.0) {
                                 this.hovered = entity;
                                 var11 = var18;

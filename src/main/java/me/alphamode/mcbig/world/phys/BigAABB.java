@@ -4,26 +4,63 @@ import me.alphamode.mcbig.math.BigMath;
 import net.minecraft.world.phys.AABB;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 
 public class BigAABB {
-    public BigDecimal x0;
-    public double y0;
-    public BigDecimal z0;
-    public BigDecimal x1;
-    public double y1;
-    public BigDecimal z1;
+    private static final int SCALE = 12;
+    protected BigDecimal x0;
+    protected double y0;
+    protected BigDecimal z0;
+    protected BigDecimal x1;
+    protected double y1;
+    protected BigDecimal z1;
 
     public static BigAABB create(BigDecimal x0, double y0, BigDecimal z0, BigDecimal x1, double y1, BigDecimal z1) {
         return new BigAABB(x0, y0, z0, x1, y1, z1);
     }
 
-    public BigAABB(BigDecimal minX, double minY, BigDecimal minZ, BigDecimal maxX, double maxY, BigDecimal maxZ) {
-        this.x0 = minX;
+    protected BigAABB(BigDecimal minX, double minY, BigDecimal minZ, BigDecimal maxX, double maxY, BigDecimal maxZ) {
+        this.x0 = minX.setScale(SCALE, RoundingMode.HALF_EVEN);
         this.y0 = minY;
-        this.z0 = minZ;
-        this.x1 = maxX;
+        this.z0 = minZ.setScale(SCALE, RoundingMode.HALF_EVEN);
+        this.x1 = maxX.setScale(SCALE, RoundingMode.HALF_EVEN);
         this.y1 = maxY;
-        this.z1 = maxZ;
+        this.z1 = maxZ.setScale(SCALE, RoundingMode.HALF_EVEN);
+    }
+
+    public BigDecimal x0() {
+        return this.x0;
+    }
+
+    public double y0() {
+        return this.y0;
+    }
+
+    public BigDecimal z0() {
+        return this.z0;
+    }
+
+    public BigDecimal x1() {
+        return this.x1;
+    }
+
+    public double y1() {
+        return this.y1;
+    }
+
+    public BigDecimal z1() {
+        return this.z1;
+    }
+
+    public BigAABB deflate(double xa, double ya, double za) {
+        BigDecimal nx0 = BigMath.addD(this.x0, xa);
+        double ny0 = this.y0 + ya;
+        BigDecimal nz0 = BigMath.addD(this.z0, za);
+        BigDecimal nx1 = BigMath.subD(this.x1, xa);
+        double ny1 = this.y1 - ya;
+        BigDecimal nz1 = BigMath.subD(this.z1, za);
+        return new BigAABB(nx0, ny0, nz0, nx1, ny1, nz1);
     }
 
     public BigAABB copy() {
@@ -31,12 +68,12 @@ public class BigAABB {
     }
 
     public BigAABB set(BigDecimal x0, double y0, BigDecimal z0, BigDecimal x1, double y1, BigDecimal z1) {
-        this.x0 = x0;
+        this.x0 = x0.setScale(SCALE, RoundingMode.HALF_EVEN);
         this.y0 = y0;
-        this.z0 = z0;
-        this.x1 = x1;
+        this.z0 = z0.setScale(SCALE, RoundingMode.HALF_EVEN);
+        this.x1 = x1.setScale(SCALE, RoundingMode.HALF_EVEN);
         this.y1 = y1;
-        this.z1 = z1;
+        this.z1 = z1.setScale(SCALE, RoundingMode.HALF_EVEN);
         return this;
     }
 
@@ -123,40 +160,40 @@ public class BigAABB {
         }
     }
 
-    public BigAABB expand(double x, double y, double z) {
-        BigDecimal bigX = BigMath.decimal(x);
-        BigDecimal bigZ = BigMath.decimal(z);
-        BigDecimal var7 = this.x0;
-        double var9 = this.y0;
-        BigDecimal var11 = this.z0;
-        BigDecimal var13 = this.x1;
-        double var15 = this.y1;
-        BigDecimal var17 = this.z1;
-        if (x < 0.0) {
-            var7 = BigMath.addD(var7, bigX);
+    public BigAABB expand(double xa, double ya, double za) {
+        BigDecimal bigX = new BigDecimal(xa, MathContext.DECIMAL64);
+        BigDecimal bigZ = new BigDecimal(za, MathContext.DECIMAL64);
+        BigDecimal x0 = this.x0;
+        double y0 = this.y0;
+        BigDecimal z0 = this.z0;
+        BigDecimal x1 = this.x1;
+        double y1 = this.y1;
+        BigDecimal z1 = this.z1;
+        if (xa < 0.0) {
+            x0 = x0.add(bigX);
         }
 
-        if (x > 0.0) {
-            var13 = BigMath.addD(var13, bigX);
+        if (xa > 0.0) {
+            x1 = x1.add(bigX);
         }
 
-        if (y < 0.0) {
-            var9 += y;
+        if (ya < 0.0) {
+            y0 += ya;
         }
 
-        if (y > 0.0) {
-            var15 += y;
+        if (ya > 0.0) {
+            y1 += ya;
         }
 
-        if (z < 0.0) {
-            var11 = BigMath.addD(var11, bigZ);
+        if (za < 0.0) {
+            z0 = z0.add(bigZ);
         }
 
-        if (z > 0.0) {
-            var17 = BigMath.addD(var17, bigZ);
+        if (za > 0.0) {
+            z1 = z1.add(bigZ);
         }
 
-        return create(var7, var9, var11, var13, var15, var17);
+        return create(x0, y0, z0, x1, y1, z1);
     }
 
     public BigAABB inflate(double x, double y, double z) {
@@ -194,12 +231,12 @@ public class BigAABB {
     }
 
     public BigAABB grow(BigDecimal x, double y, BigDecimal z) {
-        this.x0 = this.x0.add(x);
+        this.x0 = this.x0.add(x).setScale(SCALE, RoundingMode.HALF_EVEN);
         this.y0 += y;
-        this.z0 = this.z0.add(z);
-        this.x1 = this.x1.add(x);
+        this.z0 = this.z0.add(z).setScale(SCALE, RoundingMode.HALF_EVEN);
+        this.x1 = this.x1.add(x).setScale(SCALE, RoundingMode.HALF_EVEN);
         this.y1 += y;
-        this.z1 = this.z1.add(z);
+        this.z1 = this.z1.add(z).setScale(SCALE, RoundingMode.HALF_EVEN);
         return this;
     }
 
@@ -221,12 +258,12 @@ public class BigAABB {
     }
 
     public void copyFrom(AABB c) {
-        this.x0 = BigMath.decimal(c.x0);
+        this.x0 = BigMath.decimal(c.x0).setScale(SCALE, RoundingMode.HALF_EVEN);
         this.y0 = c.y0;
-        this.z0 = BigMath.decimal(c.z0);
-        this.x1 = BigMath.decimal(c.x1);
+        this.z0 = BigMath.decimal(c.z0).setScale(SCALE, RoundingMode.HALF_EVEN);
+        this.x1 = BigMath.decimal(c.x1).setScale(SCALE, RoundingMode.HALF_EVEN);
         this.y1 = c.y1;
-        this.z1 = BigMath.decimal(c.z1);
+        this.z1 = BigMath.decimal(c.z1).setScale(SCALE, RoundingMode.HALF_EVEN);
     }
 
     @Override

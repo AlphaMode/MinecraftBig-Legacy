@@ -1,5 +1,6 @@
 package me.alphamode.mcbig.mixin.networking.server;
 
+import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
 import me.alphamode.mcbig.networking.McBigNetworking;
 import me.alphamode.mcbig.networking.packets.McBigPayloadPacket;
 import me.alphamode.mcbig.networking.payload.ConfigurePayload;
@@ -55,6 +56,7 @@ public abstract class ServerLoginPacketListenerMixin extends PacketListener {
             disconnect("Unsupported McBig protocol version: " + payload.protocolVersion() + "\n Server is on: " + McBigNetworking.PROTOCOL_VERSION);
         }
         this.connection.setFeatures(payload.features());
+        this.connection.setBigConnection(true);
         this.handleAcceptedBigLogin(this.pendingLoginPacket);
         this.pendingLoginPacket = null;
 
@@ -75,7 +77,8 @@ public abstract class ServerLoginPacketListenerMixin extends PacketListener {
             this.server.playerList.sendLevelInfo(player, level);
             this.server.playerList.broadcastAll(new ChatPacket("§e" + player.name + " joined the game."));
             this.server.playerList.addPlayer(player);
-            gamePacketListener.teleport(player.x, player.y, player.z, player.yRot, player.xRot);
+            BigEntityExtension bigPlayer = (BigEntityExtension) player;
+            gamePacketListener.teleport(bigPlayer.getX(), player.y, bigPlayer.getZ(), player.yRot, player.xRot);
             this.server.connection.addConnection(gamePacketListener);
             gamePacketListener.send(new SetTimePacket(level.getTime()));
             player.initMenu();

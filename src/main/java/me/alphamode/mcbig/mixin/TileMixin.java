@@ -1,8 +1,10 @@
 package me.alphamode.mcbig.mixin;
 
 import me.alphamode.mcbig.extensions.BigTileExtension;
+import me.alphamode.mcbig.math.BigMath;
 import me.alphamode.mcbig.world.phys.BigAABB;
 import me.alphamode.mcbig.world.phys.BigHitResult;
+import me.alphamode.mcbig.world.phys.BigVec3;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.Facing;
 import net.minecraft.world.ItemInstance;
@@ -263,6 +265,110 @@ public abstract class TileMixin implements BigTileExtension {
             }
 
             return new BigHitResult(x, y, z, face, var13.add((double)x.doubleValue(), (double)y, (double)z.doubleValue()));
+        }
+    }
+
+    private boolean containsX(BigVec3 vec) {
+        return vec == null ? false : vec.y >= this.yy0 && vec.y <= this.yy1 && vec.z.doubleValue() >= this.zz0 && vec.z.doubleValue() <= this.zz1;
+    }
+
+    private boolean containsY(BigVec3 vec) {
+        return vec == null ? false : vec.x.doubleValue() >= this.xx0 && vec.x.doubleValue() <= this.xx1 && vec.z.doubleValue() >= this.zz0 && vec.z.doubleValue() <= this.zz1;
+    }
+
+    private boolean containsZ(BigVec3 vec) {
+        return vec == null ? false : vec.x.doubleValue() >= this.xx0 && vec.x.doubleValue() <= this.xx1 && vec.y >= this.yy0 && vec.y <= this.yy1;
+    }
+
+    @Override
+    public HitResult clip(Level level, BigInteger x, int y, BigInteger z, BigVec3 vec1, BigVec3 vec2) {
+        updateShape(level, x, y, z);
+        vec1 = vec1.add(new BigDecimal(x.negate()), (double)(-y), new BigDecimal(z.negate()));
+        vec2 = vec2.add(new BigDecimal(x.negate()), (double)(-y), new BigDecimal(z.negate()));
+        BigVec3 var7 = vec1.clipX(vec2, this.xx0);
+        BigVec3 var8 = vec1.clipX(vec2, this.xx1);
+        BigVec3 var9 = vec1.clipY(vec2, this.yy0);
+        BigVec3 var10 = vec1.clipY(vec2, this.yy1);
+        BigVec3 var11 = vec1.clipZ(vec2, this.zz0);
+        BigVec3 var12 = vec1.clipZ(vec2, this.zz1);
+        if (!this.containsX(var7)) {
+            var7 = null;
+        }
+
+        if (!containsX(var8)) {
+            var8 = null;
+        }
+
+        if (!containsY(var9)) {
+            var9 = null;
+        }
+
+        if (!containsY(var10)) {
+            var10 = null;
+        }
+
+        if (!containsZ(var11)) {
+            var11 = null;
+        }
+
+        if (!containsZ(var12)) {
+            var12 = null;
+        }
+
+        BigVec3 var13 = null;
+        if (var7 != null && (var13 == null || vec1.distanceTo(var7) < vec1.distanceTo(var13))) {
+            var13 = var7;
+        }
+
+        if (var8 != null && (var13 == null || vec1.distanceTo(var8) < vec1.distanceTo(var13))) {
+            var13 = var8;
+        }
+
+        if (var9 != null && (var13 == null || vec1.distanceTo(var9) < vec1.distanceTo(var13))) {
+            var13 = var9;
+        }
+
+        if (var10 != null && (var13 == null || vec1.distanceTo(var10) < vec1.distanceTo(var13))) {
+            var13 = var10;
+        }
+
+        if (var11 != null && (var13 == null || vec1.distanceTo(var11) < vec1.distanceTo(var13))) {
+            var13 = var11;
+        }
+
+        if (var12 != null && (var13 == null || vec1.distanceTo(var12) < vec1.distanceTo(var13))) {
+            var13 = var12;
+        }
+
+        if (var13 == null) {
+            return null;
+        } else {
+            byte face = -1;
+            if (var13 == var7) {
+                face = Facing.WEST;
+            }
+
+            if (var13 == var8) {
+                face = Facing.EAST;
+            }
+
+            if (var13 == var9) {
+                face = Facing.DOWN;
+            }
+
+            if (var13 == var10) {
+                face = Facing.UP;
+            }
+
+            if (var13 == var11) {
+                face = Facing.NORTH;
+            }
+
+            if (var13 == var12) {
+                face = Facing.SOUTH;
+            }
+
+            return new BigHitResult(x, y, z, face, var13.add(new BigDecimal(x), (double)y, new BigDecimal(z)));
         }
     }
 }

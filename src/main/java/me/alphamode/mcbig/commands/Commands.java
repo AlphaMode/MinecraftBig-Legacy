@@ -51,6 +51,7 @@ public class Commands {
         GiveCommand.register(DISPATCHER);
         SetBlockCommand.register(DISPATCHER);
         FlyCommand.register(DISPATCHER);
+        FlySpeedCommand.register(DISPATCHER);
         TimeCommand.register(DISPATCHER);
         WeatherCommand.register(DISPATCHER);
         SetSpawnCommand.register(DISPATCHER);

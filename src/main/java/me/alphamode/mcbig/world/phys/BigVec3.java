@@ -3,9 +3,12 @@ package me.alphamode.mcbig.world.phys;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+
+import me.alphamode.mcbig.math.BigMath;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 
 public class BigVec3 {
     public static final BigVec3 ZERO = create(BigDecimal.ZERO, 0, BigDecimal.ZERO);
@@ -72,6 +75,10 @@ public class BigVec3 {
         return newTemp(this.x.add(BigDecimal.valueOf(xOff)), this.y + yOff, this.z.add(BigDecimal.valueOf(zOff)));
     }
 
+    public BigVec3 add(BigDecimal xOff, double yOff, BigDecimal zOff) {
+        return newTemp(this.x.add(xOff), this.y + yOff, this.z.add(zOff));
+    }
+
     public double distanceTo(BigVec3 to) {
         double d = to.x.subtract(this.x).doubleValue();
         double e = to.y - this.y;
@@ -131,6 +138,14 @@ public class BigVec3 {
             double g = (z - this.z.doubleValue()) / f;
             return !(g < 0.0) && !(g > 1.0) ? newTemp(this.x.add(BigDecimal.valueOf(d * g)), this.y + e * g, this.z.add(BigDecimal.valueOf(f * g))) : null;
         }
+    }
+
+    public Vec3 toVanilla() {
+        return Vec3.create(this.x.doubleValue(), this.y, this.z.doubleValue());
+    }
+
+    public static BigVec3 fromVanilla(Vec3 v) {
+        return create(BigMath.decimal(v.x), v.y, BigMath.decimal(v.z));
     }
 
     public String toString() {

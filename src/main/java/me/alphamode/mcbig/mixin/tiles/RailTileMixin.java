@@ -3,6 +3,7 @@ package me.alphamode.mcbig.mixin.tiles;
 import me.alphamode.mcbig.extensions.BigTileExtension;
 import me.alphamode.mcbig.extensions.tiles.BigRailTileExtension;
 import me.alphamode.mcbig.world.phys.BigAABB;
+import me.alphamode.mcbig.world.phys.BigVec3;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelSource;
 import net.minecraft.world.level.material.Material;
@@ -39,6 +40,12 @@ public abstract class RailTileMixin extends Tile implements BigTileExtension {
 
     @Override
     public HitResult clip(Level level, BigInteger x, int y, BigInteger z, Vec3 vec1, Vec3 vec2) {
+        this.updateShape(level, x, y, z);
+        return super.clip(level, x, y, z, vec1, vec2);
+    }
+
+    @Override
+    public HitResult clip(Level level, BigInteger x, int y, BigInteger z, BigVec3 vec1, BigVec3 vec2) {
         this.updateShape(level, x, y, z);
         return super.clip(level, x, y, z, vec1, vec2);
     }

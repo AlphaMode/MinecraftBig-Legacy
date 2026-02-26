@@ -1,6 +1,7 @@
 package me.alphamode.mcbig.extensions;
 
 import me.alphamode.mcbig.world.phys.BigAABB;
+import me.alphamode.mcbig.world.phys.BigVec3;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.ItemInstance;
 import net.minecraft.world.entity.Entity;
@@ -139,6 +140,10 @@ public interface BigTileExtension {
     }
 
     default HitResult clip(Level level, BigInteger x, int y, BigInteger z, Vec3 vec1, Vec3 vec2) {
+        throw new UnsupportedOperationException();
+    }
+
+    default HitResult clip(Level level, BigInteger x, int y, BigInteger z, BigVec3 vec1, BigVec3 vec2) {
         throw new UnsupportedOperationException();
     }
 }

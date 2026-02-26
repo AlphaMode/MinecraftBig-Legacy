@@ -508,66 +508,66 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
         GL11.glDisable(GL11.GL_ALPHA_TEST);
     }
 
-//    /**
-//     * @author
-//     * @reason
-//     */
-//    @Overwrite
-//    public void renderHitOutline(Player player, HitResult r, int mode, ItemInstance inventoryItem, float a) {
-//        BigHitResult result = (BigHitResult) r;
-//        if (mode == 0 && result.hitType == HitType.TILE) {
-//            GL11.glEnable(GL11.GL_BLEND);
-//            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-//            GL11.glColor4f(0.0F, 0.0F, 0.0F, 0.4F);
-//            GL11.glLineWidth(2.0F);
-//            GL11.glDisable(GL11.GL_TEXTURE_2D);
-//            GL11.glDepthMask(false);
-//            float ss = 0.002F;
-//            int tile = this.level.getTile(result.xBig, result.y, result.zBig);
-//            if (tile > 0) {
-//                Tile.tiles[tile].updateShape(this.level, result.xBig, result.y, result.zBig);
-//                BigDecimal bigA = new BigDecimal(a);
-//                BigEntityExtension bigPlayer = (BigEntityExtension) player;
-//                BigDecimal xc = bigPlayer.getXOld().add(bigPlayer.getX().subtract(bigPlayer.getXOld())).multiply(bigA);
-//                double yc = player.yOld + (player.y - player.yOld) * (double)a;
-//                BigDecimal zc = bigPlayer.getZOld().add(bigPlayer.getZ().subtract(bigPlayer.getZOld())).multiply(bigA);
-//                this.render(
-//                        Tile.tiles[tile].getTileBigAABB(this.level, result.xBig, result.y, result.zBig).inflate(ss, ss, ss).offset(xc.negate(), -yc, zc.negate())
-//                );
-//            }
-//
-//            GL11.glDepthMask(true);
-//            GL11.glEnable(GL11.GL_TEXTURE_2D);
-//            GL11.glDisable(GL11.GL_BLEND);
-//        }
-//    }
+    /**
+     * @author
+     * @reason
+     */
+    @Overwrite
+    public void renderHitOutline(Player player, HitResult r, int mode, ItemInstance inventoryItem, float a) {
+        BigHitResult result = (BigHitResult) r;
+        if (mode == 0 && result.hitType == HitResult.HitType.TILE) {
+            GL11.glEnable(GL11.GL_BLEND);
+                        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            GL11.glColor4f(0.0F, 0.0F, 0.0F, 0.4F);
+            GL11.glLineWidth(2.0F);
+            GL11.glDisable(GL11.GL_TEXTURE_2D);
+            GL11.glDepthMask(false);
+            float ss = 0.002F;
+            int tile = this.level.getTile(result.xBig, result.y, result.zBig);
+            if (tile > 0) {
+                Tile.tiles[tile].updateShape(this.level, result.xBig, result.y, result.zBig);
+                BigDecimal bigA = new BigDecimal(a);
+                BigEntityExtension bigPlayer = (BigEntityExtension) player;
+                BigDecimal xc = bigPlayer.getXOld().add(bigPlayer.getX().subtract(bigPlayer.getXOld()).multiply(bigA));
+                double yc = player.yOld + (player.y - player.yOld) * (double)a;
+                BigDecimal zc = bigPlayer.getZOld().add(bigPlayer.getZ().subtract(bigPlayer.getZOld()).multiply(bigA));
+                this.render(
+                        Tile.tiles[tile].getTileBigAABB(this.level, result.xBig, result.y, result.zBig).inflate(ss, ss, ss).offset(xc.negate(), -yc, zc.negate())
+                );
+            }
+
+            GL11.glDepthMask(true);
+            GL11.glEnable(GL11.GL_TEXTURE_2D);
+            GL11.glDisable(GL11.GL_BLEND);
+        }
+    }
 
     @Override
     public void render(BigAABB aabb) {
         Tesselator t = Tesselator.instance;
         t.begin(3);
-        t.vertex(aabb.x0, aabb.y0, aabb.z0);
-        t.vertex(aabb.x1, aabb.y0, aabb.z0);
-        t.vertex(aabb.x1, aabb.y0, aabb.z1);
-        t.vertex(aabb.x0, aabb.y0, aabb.z1);
-        t.vertex(aabb.x0, aabb.y0, aabb.z0);
+        t.vertex(aabb.x0(), aabb.y0(), aabb.z0());
+        t.vertex(aabb.x1(), aabb.y0(), aabb.z0());
+        t.vertex(aabb.x1(), aabb.y0(), aabb.z1());
+        t.vertex(aabb.x0(), aabb.y0(), aabb.z1());
+        t.vertex(aabb.x0(), aabb.y0(), aabb.z0());
         t.end();
         t.begin(3);
-        t.vertex(aabb.x0, aabb.y1, aabb.z0);
-        t.vertex(aabb.x1, aabb.y1, aabb.z0);
-        t.vertex(aabb.x1, aabb.y1, aabb.z1);
-        t.vertex(aabb.x0, aabb.y1, aabb.z1);
-        t.vertex(aabb.x0, aabb.y1, aabb.z0);
+        t.vertex(aabb.x0(), aabb.y1(), aabb.z0());
+        t.vertex(aabb.x1(), aabb.y1(), aabb.z0());
+        t.vertex(aabb.x1(), aabb.y1(), aabb.z1());
+        t.vertex(aabb.x0(), aabb.y1(), aabb.z1());
+        t.vertex(aabb.x0(), aabb.y1(), aabb.z0());
         t.end();
         t.begin(1);
-        t.vertex(aabb.x0, aabb.y0, aabb.z0);
-        t.vertex(aabb.x0, aabb.y1, aabb.z0);
-        t.vertex(aabb.x1, aabb.y0, aabb.z0);
-        t.vertex(aabb.x1, aabb.y1, aabb.z0);
-        t.vertex(aabb.x1, aabb.y0, aabb.z1);
-        t.vertex(aabb.x1, aabb.y1, aabb.z1);
-        t.vertex(aabb.x0, aabb.y0, aabb.z1);
-        t.vertex(aabb.x0, aabb.y1, aabb.z1);
+        t.vertex(aabb.x0(), aabb.y0(), aabb.z0());
+        t.vertex(aabb.x0(), aabb.y1(), aabb.z0());
+        t.vertex(aabb.x1(), aabb.y0(), aabb.z0());
+        t.vertex(aabb.x1(), aabb.y1(), aabb.z0());
+        t.vertex(aabb.x1(), aabb.y0(), aabb.z1());
+        t.vertex(aabb.x1(), aabb.y1(), aabb.z1());
+        t.vertex(aabb.x0(), aabb.y0(), aabb.z1());
+        t.vertex(aabb.x0(), aabb.y1(), aabb.z1());
         t.end();
     }
 

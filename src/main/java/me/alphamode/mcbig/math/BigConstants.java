@@ -21,4 +21,5 @@ public class BigConstants {
     public static final BigDecimal POINT_FIVE = BigDecimal.valueOf(0.5);
     public static final BigDecimal EPSILON = new BigDecimal(0.0625F, MathContext.DECIMAL32);
     public static final BigDecimal NEGATIVE_EPSILON = EPSILON.negate();
+    public static final BigDecimal CLIP = BigMath.decimal(999.0);
 }

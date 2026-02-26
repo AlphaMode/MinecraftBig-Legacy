@@ -127,15 +127,15 @@ public abstract class GameRendererMixin {
                 double var18 = -Mth.sin(var33 / 180.0F * (float) Math.PI) * var30;
 
                 for (int var20 = 0; var20 < 8; var20++) {
-                    float var21 = (var20 & 1) * 2 - 1;
-                    float var22 = (var20 >> 1 & 1) * 2 - 1;
-                    float var23 = (var20 >> 2 & 1) * 2 - 1;
-                    var21 *= 0.1F;
-                    var22 *= 0.1F;
-                    var23 *= 0.1F;
+                    float xa = (var20 & 1) * 2 - 1;
+                    float ya = (var20 >> 1 & 1) * 2 - 1;
+                    float za = (var20 >> 2 & 1) * 2 - 1;
+                    xa *= 0.1F;
+                    ya *= 0.1F;
+                    za *= 0.1F;
                     HitResult var24 = this.mc
                             .level
-                            .clip(Vec3.newTemp(xo.doubleValue() + var21, yo + var22, zo.doubleValue() + var23), Vec3.newTemp(xo.doubleValue() - var14 + var21 + var23, yo - var18 + var22, zo.doubleValue() - var16 + var23));
+                            .clip(Vec3.newTemp(xo.doubleValue() + xa, yo + ya, zo.doubleValue() + za), Vec3.newTemp(xo.doubleValue() - var14 + xa + za, yo - var18 + ya, zo.doubleValue() - var16 + za));
                     if (var24 != null) {
                         double var25 = var24.pos.distanceTo(Vec3.newTemp(xo.doubleValue(), yo, zo.doubleValue()));
                         if (var25 < var30) {
