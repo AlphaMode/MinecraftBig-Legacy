@@ -1,4 +1,4 @@
-package me.alphamode.mcbig.testing;
+package me.alphamode.mcbig.world.level.levelgen;
 
 import me.alphamode.mcbig.level.chunk.BigLevelChunk;
 import net.minecraft.util.ProgressListener;
@@ -8,13 +8,12 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.tile.Tile;
 
 import java.math.BigInteger;
-import java.util.Arrays;
 
-public class FlatLevelSource implements ChunkSource {
+public class FlatLevelSource implements McBigChunkSource {
 
     private final Level level;
 
-    public FlatLevelSource(Level level) {
+    public FlatLevelSource(Level level, long seed) {
         this.level = level;
     }
 
@@ -54,26 +53,6 @@ public class FlatLevelSource implements ChunkSource {
     @Override
     public void postProcess(ChunkSource generator, BigInteger x, BigInteger z) {
 
-    }
-
-    @Override
-    public boolean hasChunk(int x, int z) {
-        return true;
-    }
-
-    @Override
-    public LevelChunk getChunk(int x, int z) {
-        return getChunk(BigInteger.valueOf(x), BigInteger.valueOf(z));
-    }
-
-    @Override
-    public LevelChunk loadChunk(int x, int z) {
-        return loadChunk(BigInteger.valueOf(x), BigInteger.valueOf(z));
-    }
-
-    @Override
-    public void postProcess(ChunkSource generator, int x, int z) {
-        postProcess(generator, BigInteger.valueOf(x), BigInteger.valueOf(z));
     }
 
     @Override
