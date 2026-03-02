@@ -4,19 +4,17 @@ import me.alphamode.mcbig.extensions.server.BigServerPlayerExtension;
 import me.alphamode.mcbig.level.chunk.BigChunkPos;
 import me.alphamode.mcbig.math.BigConstants;
 import me.alphamode.mcbig.networking.payload.BigBlockRegionUpdatePayload;
-import net.minecraft.network.packets.BlockRegionUpdatePacket;
 import net.minecraft.network.packets.Packet;
 import net.minecraft.network.packets.SetHealthPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.ServerGamePacketListener;
+import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.world.ItemInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ComplexItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.chunk.ChunkPos;
 import net.minecraft.world.level.tile.entity.TileEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -31,7 +29,7 @@ import java.util.Set;
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin extends Player implements BigServerPlayerExtension {
     @Shadow
-    public ServerGamePacketListener connection;
+    public PlayerConnection connection;
     @Shadow
     public MinecraftServer server;
 
@@ -99,7 +97,7 @@ public abstract class ServerPlayerMixin extends Player implements BigServerPlaye
         }
 
         if (this.isInsidePortal) {
-            if (this.server.properties.getBool("allow-nether", true)) {
+            if (this.server.settings.getBoolean("allow-nether", true)) {
                 if (this.containerMenu != this.inventoryMenu) {
                     this.closeContainer();
                 }
@@ -111,7 +109,7 @@ public abstract class ServerPlayerMixin extends Player implements BigServerPlaye
                     if (this.portalTime >= 1.0F) {
                         this.portalTime = 1.0F;
                         this.changingDimensionDelay = 10;
-                        this.server.playerList.changeDimension((ServerPlayer) (Object) this);
+                        this.server.players.toggleDimension((ServerPlayer) (Object) this);
                     }
                 }
 

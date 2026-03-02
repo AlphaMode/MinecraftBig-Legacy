@@ -3,11 +3,11 @@ package me.alphamode.mcbig.mixin.networking.server;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
-import me.alphamode.mcbig.extensions.networking.server.BigChunkMapExtension;
+import me.alphamode.mcbig.extensions.networking.server.BigPlayerChunkMapExtension;
 import me.alphamode.mcbig.level.chunk.BigChunkPos;
 import me.alphamode.mcbig.math.BigConstants;
-import me.alphamode.mcbig.server.level.BigServerChunk;
-import net.minecraft.server.level.ChunkMap;
+import me.alphamode.mcbig.server.level.BigPlayerChunk;
+import net.minecraft.server.level.PlayerChunkMap;
 import net.minecraft.server.level.ServerPlayer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,26 +18,26 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-@Mixin(ChunkMap.class)
-public class ChunkMapMixin implements BigChunkMapExtension {
+@Mixin(PlayerChunkMap.class)
+public class PlayerChunkMapMixin implements BigPlayerChunkMapExtension {
     @Shadow
-    private int viewRadius;
+    private int radius;
     @Shadow
     @Final
-    private int[][] f_53881052;
+    private int[][] direction;
     @Shadow
     public List<ServerPlayer> players;
-    private final Object2ObjectMap<BigChunkPos, BigServerChunk> bigChunkMap = new Object2ObjectOpenHashMap<>();
-    private List<BigServerChunk> bigChunks = new ArrayList<>();
+    private final Object2ObjectMap<BigChunkPos, BigPlayerChunk> bigChunks = new Object2ObjectOpenHashMap<>();
+    private List<BigPlayerChunk> bigChangedChunks = new ArrayList<>();
 
     @Override
-    public Object2ObjectMap<BigChunkPos, BigServerChunk> getChunkMap() {
-        return this.bigChunkMap;
+    public Object2ObjectMap<BigChunkPos, BigPlayerChunk> getBigChunks() {
+        return this.bigChunks;
     }
 
     @Override
-    public List<BigServerChunk> getBigChunks() {
-        return this.bigChunks;
+    public List<BigPlayerChunk> getBigChangedChunks() {
+        return this.bigChangedChunks;
     }
 
     /**
@@ -46,19 +46,19 @@ public class ChunkMapMixin implements BigChunkMapExtension {
      */
     @Overwrite
     public void tick() {
-        for(int i = 0; i < this.bigChunks.size(); ++i) {
-            this.bigChunks.get(i).broadcastChanges();
+        for(int i = 0; i < this.bigChangedChunks.size(); ++i) {
+            this.bigChangedChunks.get(i).broadcastChanges();
         }
 
-        this.bigChunks.clear();
+        this.bigChangedChunks.clear();
     }
 
-    private BigServerChunk getChunk(BigInteger x, BigInteger z, boolean force) {
+    private BigPlayerChunk getChunk(BigInteger x, BigInteger z, boolean force) {
         BigChunkPos pos = new BigChunkPos(x, z);
-        BigServerChunk serverChunk = this.bigChunkMap.get(pos);
+        BigPlayerChunk serverChunk = this.bigChunks.get(pos);
         if (serverChunk == null && force) {
-            serverChunk = new BigServerChunk((ChunkMap) (Object) this, x, z);
-            this.bigChunkMap.put(pos, serverChunk);
+            serverChunk = new BigPlayerChunk((PlayerChunkMap) (Object) this, x, z);
+            this.bigChunks.put(pos, serverChunk);
         }
 
         return serverChunk;
@@ -68,9 +68,9 @@ public class ChunkMapMixin implements BigChunkMapExtension {
     public void blockChanged(BigInteger x, int y, BigInteger z) {
         BigInteger xc = x.shiftRight(4);
         BigInteger zc = z.shiftRight(4);
-        BigServerChunk chunk = this.getChunk(xc, zc, false);
+        BigPlayerChunk chunk = this.getChunk(xc, zc, false);
         if (chunk != null) {
-            chunk.blockChanged(x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue());
+            chunk.tileChanged(x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue());
         }
     }
 
@@ -95,19 +95,19 @@ public class ChunkMapMixin implements BigChunkMapExtension {
         player.setLastX(bigPlayer.getX());
         player.setLastZ(bigPlayer.getZ());
         int var4 = 0;
-        int var5 = this.viewRadius;
+        int var5 = this.radius;
         int xo = 0;
         int zo = 0;
-        this.getChunk(xc, zc, true).addPlayer(player);
+        this.getChunk(xc, zc, true).add(player);
 
         for (int var8 = 1; var8 <= var5 * 2; var8++) {
             for (int var9 = 0; var9 < 2; var9++) {
-                int[] var10 = this.f_53881052[var4++ % 4];
+                int[] var10 = this.direction[var4++ % 4];
 
                 for (int var11 = 0; var11 < var8; var11++) {
                     xo += var10[0];
                     zo += var10[1];
-                    this.getChunk(xc.add(BigInteger.valueOf(xo)), zc.add(BigInteger.valueOf(zo)), true).addPlayer(player);
+                    this.getChunk(xc.add(BigInteger.valueOf(xo)), zc.add(BigInteger.valueOf(zo)), true).add(player);
                 }
             }
         }
@@ -115,9 +115,9 @@ public class ChunkMapMixin implements BigChunkMapExtension {
         var4 %= 4;
 
         for (int var13 = 0; var13 < var5 * 2; var13++) {
-            xo += this.f_53881052[var4][0];
-            zo += this.f_53881052[var4][1];
-            this.getChunk(xc.add(BigInteger.valueOf(xo)), zc.add(BigInteger.valueOf(zo)), true).addPlayer(player);
+            xo += this.direction[var4][0];
+            zo += this.direction[var4][1];
+            this.getChunk(xc.add(BigInteger.valueOf(xo)), zc.add(BigInteger.valueOf(zo)), true).add(player);
         }
 
         this.players.add(player);
@@ -132,13 +132,13 @@ public class ChunkMapMixin implements BigChunkMapExtension {
         BigInteger xc = player.getLastX().toBigInteger().shiftRight(4);
         BigInteger zc = player.getLastZ().toBigInteger().shiftRight(4);
 
-        BigInteger bigViewRadius = BigInteger.valueOf(this.viewRadius);
+        BigInteger bigViewRadius = BigInteger.valueOf(this.radius);
 
         for (BigInteger x = xc.subtract(bigViewRadius); x.compareTo(xc.add(bigViewRadius)) <= 0; x = x.add(BigInteger.ONE)) {
             for (BigInteger z = zc.subtract(bigViewRadius); z.compareTo(zc.add(bigViewRadius)) <= 0; z = z.add(BigInteger.ONE)) {
-                BigServerChunk chunk = this.getChunk(x, z, false);
+                BigPlayerChunk chunk = this.getChunk(x, z, false);
                 if (chunk != null) {
-                    chunk.removePlayer(player);
+                    chunk.remove(player);
                 }
             }
         }
@@ -149,7 +149,7 @@ public class ChunkMapMixin implements BigChunkMapExtension {
     private boolean inRange(BigInteger x0, BigInteger z0, BigInteger x1, BigInteger z1) {
         int xd = x0.subtract(x1).intValue();
         int zd = z0.subtract(z1).intValue();
-        return xd < -this.viewRadius || xd > this.viewRadius ? false : zd >= -this.viewRadius && zd <= this.viewRadius;
+        return xd < -this.radius || xd > this.radius ? false : zd >= -this.radius && zd <= this.radius;
     }
 
     /**
@@ -170,17 +170,17 @@ public class ChunkMapMixin implements BigChunkMapExtension {
             BigInteger xOff = x0.subtract(x1);
             BigInteger zOff = z0.subtract(z1);
             if (!xOff.equals(BigInteger.ZERO) || !zOff.equals(BigInteger.ZERO)) {
-                BigInteger bigViewRadius = BigInteger.valueOf(this.viewRadius);
+                BigInteger bigViewRadius = BigInteger.valueOf(this.radius);
                 for (BigInteger x = x0.subtract(bigViewRadius); x.compareTo(x0.add(bigViewRadius)) <= 0; x = x.add(BigInteger.ONE)) {
                     for (BigInteger z = z0.subtract(bigViewRadius); z.compareTo(z0.add(bigViewRadius)) <= 0; z = z.add(BigInteger.ONE)) {
                         if (!this.inRange(x, z, x1, z1)) {
-                            this.getChunk(x, z, true).addPlayer(player);
+                            this.getChunk(x, z, true).add(player);
                         }
 
                         if (!this.inRange(x.subtract(xOff), z.subtract(zOff), x0, z0)) {
-                            BigServerChunk chunk = this.getChunk(x.subtract(xOff), z.subtract(zOff), false);
+                            BigPlayerChunk chunk = this.getChunk(x.subtract(xOff), z.subtract(zOff), false);
                             if (chunk != null) {
-                                chunk.removePlayer(player);
+                                chunk.remove(player);
                             }
                         }
                     }

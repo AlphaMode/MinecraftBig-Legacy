@@ -12,7 +12,7 @@ public interface BigItemInstanceExtension {
     default boolean useOn(Player player, Level level, BigInteger x, int y, BigInteger z, int face) {
         boolean used = ((ItemInstance) this).getItem().useOn((ItemInstance) this, player, level, x, y, z, face);
         if (used) {
-            player.awardStat(Stats.STAT_ITEM_USED[((ItemInstance) this).id], 1);
+            player.awardStat(Stats.itemUsed[((ItemInstance) this).id], 1);
         }
 
         return used;
@@ -21,7 +21,7 @@ public interface BigItemInstanceExtension {
     default void mineBlock(int tile, BigInteger x, int y, BigInteger z, Player player) {
         boolean mined = Item.items[((ItemInstance) this).id].mineBlock((ItemInstance) this, tile, x, y, z, player);
         if (mined) {
-            player.awardStat(Stats.STAT_ITEM_USED[((ItemInstance) this).id], 1);
+            player.awardStat(Stats.itemUsed[((ItemInstance) this).id], 1);
         }
     }
 }

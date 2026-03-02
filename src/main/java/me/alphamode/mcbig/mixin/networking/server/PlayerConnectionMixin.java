@@ -1,7 +1,7 @@
 package me.alphamode.mcbig.mixin.networking.server;
 
 import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
-import me.alphamode.mcbig.extensions.networking.BigServerGamePacketListenerExtension;
+import me.alphamode.mcbig.extensions.networking.BigPlayerConnectionExtension;
 import me.alphamode.mcbig.extensions.networking.PayloadPacketListenerExtension;
 import me.alphamode.mcbig.networking.packets.McBigPayloadPacket;
 import me.alphamode.mcbig.networking.payload.BigMovePlayerPayload;
@@ -9,18 +9,13 @@ import me.alphamode.mcbig.networking.payload.BigPlayerActionPayload;
 import me.alphamode.mcbig.networking.payload.BigTileUpdatePayload;
 import me.alphamode.mcbig.networking.payload.Payload;
 import me.alphamode.mcbig.world.phys.BigAABB;
-import net.minecraft.network.packets.MovePlayerPacket;
 import net.minecraft.network.packets.Packet;
-import net.minecraft.network.packets.PlayerActionPacket;
-import net.minecraft.network.packets.TileUpdatePacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.ServerGamePacketListener;
-import net.minecraft.util.Facing;
+import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Vec3i;
-import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
@@ -28,8 +23,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.logging.Logger;
 
-@Mixin(ServerGamePacketListener.class)
-public abstract class ServerGamePacketListenerMixin implements BigServerGamePacketListenerExtension, PayloadPacketListenerExtension {
+@Mixin(PlayerConnection.class)
+public abstract class PlayerConnectionMixin implements BigPlayerConnectionExtension, PayloadPacketListenerExtension {
     @Shadow
     public abstract void send(Packet packet);
 
@@ -58,7 +53,7 @@ public abstract class ServerGamePacketListenerMixin implements BigServerGamePack
     private boolean clientIsFloating;
 
     @Shadow
-    public static Logger LOGGER;
+    public static Logger logger;
 
     @Shadow
     public abstract void disconnect(String reason);
@@ -117,7 +112,7 @@ public abstract class ServerGamePacketListenerMixin implements BigServerGamePack
                     this.player.riding.positionRider();
                 }
 
-                this.server.playerList.move(this.player);
+                this.server.players.move(this.player);
                 this.lastGoodBigX = bigPlayer.getX();
                 this.lastGoodY = this.player.y;
                 this.lastGoodBigZ = bigPlayer.getZ();
@@ -153,7 +148,7 @@ public abstract class ServerGamePacketListenerMixin implements BigServerGamePack
                 double var13 = payload.yView() - payload.y();
                 if (!this.player.isSleeping() && (var13 > 1.65 || var13 < 0.1)) {
                     this.disconnect("Illegal stance");
-                    LOGGER.warning(this.player.name + " had an illegal stance: " + var13);
+                    logger.warning(this.player.name + " had an illegal stance: " + var13);
                     return true;
                 }
 
@@ -181,7 +176,7 @@ public abstract class ServerGamePacketListenerMixin implements BigServerGamePack
             double var17 = var9.subtract(bigPlayer.getZ()).doubleValue();
             double dist = var32 * var32 + var15 * var15 + var17 * var17;
             if (dist > 100.0) {
-                LOGGER.warning(this.player.name + " moved too quickly!");
+                logger.warning(this.player.name + " moved too quickly!");
 //                this.disconnect("You moved too quickly :( (Hacking?)");
 //                return true;
             }
@@ -200,7 +195,7 @@ public abstract class ServerGamePacketListenerMixin implements BigServerGamePack
             boolean var23 = false;
             if (dist > 0.0625 && !this.player.isSleeping()) {
                 var23 = true;
-                LOGGER.warning(this.player.name + " moved wrongly!");
+                logger.warning(this.player.name + " moved wrongly!");
                 System.out.println("Got position " + var5 + ", " + var7 + ", " + var9);
                 System.out.println("Expected " + this.player.x + ", " + this.player.y + ", " + this.player.z);
             }
@@ -218,14 +213,14 @@ public abstract class ServerGamePacketListenerMixin implements BigServerGamePack
             } else if (var15 >= -0.03125) {
                 this.aboveGroundTickCount++;
                 if (this.aboveGroundTickCount > 80) {
-                    LOGGER.warning(this.player.name + " was kicked for floating too long!");
+                    logger.warning(this.player.name + " was kicked for floating too long!");
                     this.disconnect("Flying is not enabled on this server");
                     return true;
                 }
             }
 
             this.player.onGround = payload.onGround();
-            this.server.playerList.move(this.player);
+            this.server.players.move(this.player);
             this.player.doCheckFallDamage(this.player.y - var26, payload.onGround());
         }
         return true;
@@ -251,7 +246,7 @@ public abstract class ServerGamePacketListenerMixin implements BigServerGamePack
         if (payload.action() == BigPlayerActionPayload.DROP_ITEM) {
             this.player.drop();
         } else {
-            boolean canUpdate = level.f_55807453 = level.dimension.id != 0 || this.server.playerList.isOp(this.player.name);
+            boolean canUpdate = level.canEditSpawn = level.dimension.id != 0 || this.server.players.isOp(this.player.name);
             boolean var4 = false;
             if (payload.action() == BigPlayerActionPayload.START_DESTROY_BLOCK) {
                 var4 = true;
@@ -302,7 +297,7 @@ public abstract class ServerGamePacketListenerMixin implements BigServerGamePack
                 }
             }
 
-            level.f_55807453 = false;
+            level.canEditSpawn = false;
         }
 
         return true;

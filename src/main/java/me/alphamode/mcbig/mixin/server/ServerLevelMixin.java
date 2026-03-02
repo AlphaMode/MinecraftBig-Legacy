@@ -10,7 +10,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.Dimension;
-import net.minecraft.world.level.storage.LevelIO;
+import net.minecraft.world.level.storage.LevelStorage;
 import net.minecraft.world.level.tile.entity.TileEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -24,8 +24,8 @@ public abstract class ServerLevelMixin extends Level implements BigServerLevelEx
     @Shadow
     private MinecraftServer server;
 
-    public ServerLevelMixin(LevelIO levelIo, String name, Dimension dimension, long seed) {
-        super(levelIo, name, dimension, seed);
+    public ServerLevelMixin(LevelStorage levelStorage, String name, Dimension dimension, long seed) {
+        super(levelStorage, name, dimension, seed);
     }
 
     @Override
@@ -50,12 +50,12 @@ public abstract class ServerLevelMixin extends Level implements BigServerLevelEx
             rZ = rX;
         }
 
-        return rZ.compareTo(BigConstants.SIXTEEN) > 0 || this.server.playerList.isOp(player.name);
+        return rZ.compareTo(BigConstants.SIXTEEN) > 0 || this.server.players.isOp(player.name);
     }
 
     @Override
     public void tileEvent(BigInteger x, int y, BigInteger z, int b0, int b1) {
         super.tileEvent(x, y, z, b0, b1);
-        this.server.playerList.broadcastToAllInRange((double) x.doubleValue(), (double) y, (double) z.doubleValue(), (double) 64.0F, this.dimension.id, new McBigPayloadPacket(new BigTileEventPayload(x, y, z, b0, b1)));
+        this.server.players.broadcastToAllInRange((double) x.doubleValue(), (double) y, (double) z.doubleValue(), (double) 64.0F, this.dimension.id, new McBigPayloadPacket(new BigTileEventPayload(x, y, z, b0, b1)));
     }
 }

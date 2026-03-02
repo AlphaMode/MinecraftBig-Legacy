@@ -20,7 +20,7 @@ public interface BigRedStoneDustTileExtension {
             return false;
         } else {
             int d = level.getData(x, y, z);
-            return direction == Directions.f_32166371[d & 3];
+            return direction == Directions.DIRECTION_OPPOSITE[d & 3];
         }
     }
 }

@@ -108,7 +108,7 @@ public abstract class LocalPlayerMixin extends Player implements PlayerExtension
 
         if (isFlying()) {
             int j = 0;
-            if (this.input.isSneaking) {
+            if (this.input.sneaking) {
                 j--;
             }
 

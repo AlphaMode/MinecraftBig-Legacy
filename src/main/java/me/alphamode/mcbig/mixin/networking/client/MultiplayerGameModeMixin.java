@@ -3,9 +3,8 @@ package me.alphamode.mcbig.mixin.networking.client;
 import me.alphamode.mcbig.networking.payload.BigPlayerActionPayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gamemode.GameMode;
-import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.multiplayer.ClientConnection;
 import net.minecraft.client.multiplayer.MultiplayerGameMode;
-import net.minecraft.network.packets.PlayerActionPacket;
 import net.minecraft.network.packets.UseItemPacket;
 import net.minecraft.world.ItemInstance;
 import net.minecraft.world.entity.player.Player;
@@ -36,7 +35,7 @@ public abstract class MultiplayerGameModeMixin extends GameMode {
     @Shadow
     private boolean hasDelayedDestroy;
     @Shadow
-    private ClientPacketListener connection;
+    private ClientConnection connection;
 
     private BigInteger destroyPosXBig = BigInteger.ONE.negate();
     private BigInteger destroyPosZBig = BigInteger.ONE.negate();

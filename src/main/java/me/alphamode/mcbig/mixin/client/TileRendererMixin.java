@@ -372,9 +372,9 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
         t.vertexUV(x1, y0, z0, var38, var42);
         t.vertexUV(x0, y0, z0, var40, var44);
         t.vertexUV(x0, y0, z1, var48, var52);
-        tex = Directions.f_97201411[dir];
+        tex = Directions.DIRECTION_FACING[dir];
         if (headPiece) {
-            tex = Directions.f_97201411[Directions.f_32166371[dir]];
+            tex = Directions.DIRECTION_FACING[Directions.DIRECTION_OPPOSITE[dir]];
         }
 
         byte var67 = 4;

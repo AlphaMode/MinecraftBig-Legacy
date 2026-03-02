@@ -4,16 +4,13 @@ import me.alphamode.mcbig.client.networking.level.BigResetInfo;
 import me.alphamode.mcbig.extensions.networking.client.BigMultiPlayerLevelExtension;
 import me.alphamode.mcbig.extensions.networking.client.BigMultiplayerChunkCacheExtension;
 import me.alphamode.mcbig.math.BigConstants;
-import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.multiplayer.ClientConnection;
 import net.minecraft.client.multiplayer.MultiPlayerLevel;
 import net.minecraft.client.multiplayer.MultiplayerChunkCache;
-import net.minecraft.util.Vec3i;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelListener;
-import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.dimension.Dimension;
-import net.minecraft.world.level.storage.LevelIO;
+import net.minecraft.world.level.storage.LevelStorage;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -29,11 +26,11 @@ public abstract class MultiPlayerLevelMixin extends Level implements BigMultiPla
     @Shadow
     private Set<Entity> reEntries;
     @Shadow
-    private ClientPacketListener connection;
+    private ClientConnection connection;
     private LinkedList<BigResetInfo> updatesToResetBig = new LinkedList<>();
 
-    public MultiPlayerLevelMixin(LevelIO levelIo, String name, Dimension dimension, long seed) {
-        super(levelIo, name, dimension, seed);
+    public MultiPlayerLevelMixin(LevelStorage levelStorage, String name, Dimension dimension, long seed) {
+        super(levelStorage, name, dimension, seed);
     }
 
     /**

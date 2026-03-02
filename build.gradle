@@ -38,7 +38,7 @@ dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings ploceus.layeredMappings {
         mappings("me.alphamode:nostalgia:${project.nostalgia_mappings}:v2", {
-//            containsUnpick() Waiting for unpick v4
+            containsUnpick()
         })
     }
 

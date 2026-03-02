@@ -2,9 +2,7 @@ package me.alphamode.mcbig.mixin.networking.server;
 
 import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
 import me.alphamode.mcbig.networking.McBigNetworking;
-import me.alphamode.mcbig.networking.packets.McBigPayloadPacket;
 import me.alphamode.mcbig.networking.payload.ConfigurePayload;
-import me.alphamode.mcbig.networking.payload.Payload;
 import me.alphamode.mcbig.networking.payload.BigSetSpawnPositionPayload;
 import me.alphamode.mcbig.prelaunch.Features;
 import me.alphamode.mcbig.world.phys.BigVec3i;
@@ -16,8 +14,8 @@ import net.minecraft.network.packets.SetTimePacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.ServerGamePacketListener;
-import net.minecraft.server.network.ServerLoginPacketListener;
+import net.minecraft.server.network.PendingConnection;
+import net.minecraft.server.network.PlayerConnection;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -28,8 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-@Mixin(ServerLoginPacketListener.class)
-public abstract class ServerLoginPacketListenerMixin extends PacketListener {
+@Mixin(PendingConnection.class)
+public abstract class PendingConnectionMixin extends PacketListener {
     @Shadow
     public Connection connection;
 
@@ -42,13 +40,13 @@ public abstract class ServerLoginPacketListenerMixin extends PacketListener {
     public static Logger LOGGER;
 
     @Shadow
-    public abstract String m_53213659();
+    public abstract String getName();
 
     @Shadow
-    public boolean disconnected;
+    public boolean done;
     private boolean isBigClient = false;
 
-    private LoginPacket pendingLoginPacket;
+    private LoginPacket acceptedBigLogin;
 
     @Override
     public boolean handleConfigure(ConfigurePayload payload) {
@@ -57,26 +55,26 @@ public abstract class ServerLoginPacketListenerMixin extends PacketListener {
         }
         this.connection.setFeatures(payload.features());
         this.connection.setBigConnection(true);
-        this.handleAcceptedBigLogin(this.pendingLoginPacket);
-        this.pendingLoginPacket = null;
+        this.handleAcceptedBigLogin(this.acceptedBigLogin);
+        this.acceptedBigLogin = null;
 
         return true;
     }
 
     public void handleAcceptedBigLogin(LoginPacket packet) {
-        ServerPlayer player = this.server.playerList.getPlayerForLogin((ServerLoginPacketListener) (Object) this, packet.userName);
+        ServerPlayer player = this.server.players.getPlayerForLogin((PendingConnection) (Object) this, packet.userName);
         if (player != null) {
-            this.server.playerList.loadPlayer(player);
+            this.server.players.load(player);
             player.setLevel(this.server.getLevel(player.dimension));
-            LOGGER.info(this.m_53213659() + " logged in with entity id " + player.id + " at (" + player.x + ", " + player.y + ", " + player.z + ")");
+            LOGGER.info(this.getName() + " logged in with entity id " + player.id + " at (" + player.x + ", " + player.y + ", " + player.z + ")");
             ServerLevel level = this.server.getLevel(player.dimension);
             BigVec3i spawnPos = level.getBigSpawnPos();
-            ServerGamePacketListener gamePacketListener = new ServerGamePacketListener(this.server, this.connection, player);
+            PlayerConnection gamePacketListener = new PlayerConnection(this.server, this.connection, player);
             gamePacketListener.send(new LoginPacket("", player.id, level.getSeed(), (byte)level.dimension.id));
             gamePacketListener.sendPayload(new BigSetSpawnPositionPayload(spawnPos.x(), spawnPos.y(), spawnPos.z()));
-            this.server.playerList.sendLevelInfo(player, level);
-            this.server.playerList.broadcastAll(new ChatPacket("§e" + player.name + " joined the game."));
-            this.server.playerList.addPlayer(player);
+            this.server.players.sendLevelInfo(player, level);
+            this.server.players.broadcastAll(new ChatPacket("§e" + player.name + " joined the game."));
+            this.server.players.addPlayer(player);
             BigEntityExtension bigPlayer = (BigEntityExtension) player;
             gamePacketListener.teleport(bigPlayer.getX(), player.y, bigPlayer.getZ(), player.yRot, player.xRot);
             this.server.connection.addConnection(gamePacketListener);
@@ -84,7 +82,7 @@ public abstract class ServerLoginPacketListenerMixin extends PacketListener {
             player.initMenu();
         }
 
-        this.disconnected = true;
+        this.done = true;
     }
 
     @Inject(method = "handleLogin", at = @At("HEAD"), cancellable = true)
@@ -92,7 +90,7 @@ public abstract class ServerLoginPacketListenerMixin extends PacketListener {
         this.isBigClient = packet.seed == McBigNetworking.MC_BIG_VERSION_MAGIC;
 
         if (this.isBigClient) {
-            this.pendingLoginPacket = packet;
+            this.acceptedBigLogin = packet;
             handleMcBigClient();
             ci.cancel();
         }

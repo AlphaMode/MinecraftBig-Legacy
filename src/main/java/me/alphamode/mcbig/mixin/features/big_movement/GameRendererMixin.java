@@ -100,7 +100,7 @@ public abstract class GameRendererMixin {
         if (player.isSleeping()) {
             eyeHeight = (float)(eyeHeight + 1.0);
             GL11.glTranslatef(0.0F, 0.3F, 0.0F);
-            if (!this.mc.options.lockCamera) {
+            if (!this.mc.options.fixedCamera) {
                 int var10 = this.mc.level.getTile(Mth.floor(player.x), Mth.floor(player.y), Mth.floor(player.z));
                 if (var10 == Tile.BED.id) {
                     int var11 = this.mc.level.getData(Mth.floor(player.x), Mth.floor(player.y), Mth.floor(player.z));
@@ -113,7 +113,7 @@ public abstract class GameRendererMixin {
             }
         } else if (this.mc.options.thirdPersonView) {
             double var30 = this.oldZOff + (this.zOff - this.oldZOff) * a;
-            if (this.mc.options.lockCamera) {
+            if (this.mc.options.fixedCamera) {
                 float var31 = this.yRotO + (this.yRot - this.yRotO) * a;
                 float var13 = this.xRotO + (this.xRot - this.xRotO) * a;
                 GL11.glTranslatef(0.0F, 0.0F, (float)(-var30));
@@ -154,7 +154,7 @@ public abstract class GameRendererMixin {
             GL11.glTranslatef(0.0F, 0.0F, -0.1F);
         }
 
-        if (!this.mc.options.lockCamera) {
+        if (!this.mc.options.fixedCamera) {
             GL11.glRotatef(player.xRotO + (player.xRot - player.xRotO) * a, 1.0F, 0.0F, 0.0F);
             GL11.glRotatef(player.yRotO + (player.yRot - player.yRotO) * a + 180.0F, 0.0F, 1.0F, 0.0F);
         }

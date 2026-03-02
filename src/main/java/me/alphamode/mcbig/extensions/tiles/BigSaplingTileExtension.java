@@ -19,7 +19,7 @@ public interface BigSaplingTileExtension {
         } else {
             tree = new TreeFeature();
             if (random.nextInt(10) == 0) {
-                tree = new BigTreeFeature();
+                tree = new BasicTree();
             }
         }
 

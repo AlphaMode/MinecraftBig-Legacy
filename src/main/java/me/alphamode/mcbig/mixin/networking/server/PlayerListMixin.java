@@ -3,7 +3,7 @@ package me.alphamode.mcbig.mixin.networking.server;
 import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerList;
-import net.minecraft.server.level.ChunkMap;
+import net.minecraft.server.level.PlayerChunkMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import org.spongepowered.asm.mixin.Mixin;
@@ -21,7 +21,7 @@ public abstract class PlayerListMixin {
     private MinecraftServer server;
 
     @Shadow
-    protected abstract ChunkMap getChunkMap(int dimension);
+    protected abstract PlayerChunkMap getChunkMap(int dimension);
 
     /**
      * @author
@@ -39,6 +39,6 @@ public abstract class PlayerListMixin {
         }
 
         level.addEntity(player);
-        this.getChunkMap(player.dimension).addPlayer(player);
+        this.getChunkMap(player.dimension).add(player);
     }
 }

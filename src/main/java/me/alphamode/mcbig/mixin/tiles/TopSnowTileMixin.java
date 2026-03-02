@@ -82,7 +82,7 @@ public abstract class TopSnowTileMixin extends Tile implements BigTileExtension 
         e.throwTime = 10;
         level.addEntity(e);
         level.setTile(x, y, z, 0);
-        player.awardStat(Stats.STAT_MINE_BLOCK[this.id], 1);
+        player.awardStat(Stats.blockMined[this.id], 1);
     }
 
     @Override

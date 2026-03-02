@@ -14,8 +14,6 @@ accessible field net/minecraft/world/level/chunk/storage/RegionFileCache cache L
 
 accessible method net/minecraft/client/Minecraft getPlatform ()Lnet/minecraft/client/Minecraft$OS;
 
-accessible class net/minecraft/server/level/ChunkMap$ServerChunk
-
 accessible field net/minecraft/network/packets/BlockRegionUpdatePacket size I
 
 accessible method net/minecraft/world/level/Level stopWeather ()V
@@ -55,8 +53,8 @@ inject-interface net/minecraft/server/level/ServerPlayerGameMode me/alphamode/mc
 inject-interface net/minecraft/server/level/ServerChunkCache me/alphamode/mcbig/extensions/server/BigServerChunkCacheExtension
 inject-interface net/minecraft/server/level/ServerLevel me/alphamode/mcbig/extensions/server/BigServerLevelExtension
 inject-interface net/minecraft/server/level/ServerPlayer me/alphamode/mcbig/extensions/server/BigServerPlayerExtension
-inject-interface net/minecraft/server/level/ChunkMap me/alphamode/mcbig/extensions/networking/server/BigChunkMapExtension
-inject-interface net/minecraft/server/network/ServerGamePacketListener me/alphamode/mcbig/extensions/networking/BigServerGamePacketListenerExtension
+inject-interface net/minecraft/server/level/PlayerChunkMap me/alphamode/mcbig/extensions/networking/server/BigPlayerChunkMapExtension
+inject-interface net/minecraft/server/network/PlayerConnection me/alphamode/mcbig/extensions/networking/BigPlayerConnectionExtension
 
 # Client
 inject-interface net/minecraft/client/gamemode/GameMode me/alphamode/mcbig/extensions/BigGameModeExtension

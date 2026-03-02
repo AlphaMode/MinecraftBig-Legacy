@@ -10,7 +10,7 @@ import me.alphamode.mcbig.networking.packets.McBigPayloadPacket;
 import me.alphamode.mcbig.networking.payload.*;
 import me.alphamode.mcbig.prelaunch.Features;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.multiplayer.ClientConnection;
 import net.minecraft.client.multiplayer.MultiPlayerLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.Connection;
@@ -26,10 +26,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
-@Mixin(ClientPacketListener.class)
-public abstract class ClientPacketListenerMixin extends PacketListener implements PayloadPacketListenerExtension {
+@Mixin(ClientConnection.class)
+public abstract class ClientConnectionMixin extends PacketListener implements PayloadPacketListenerExtension {
     @Shadow
     public abstract void onDisconnect(String reason, Object[] args);
 

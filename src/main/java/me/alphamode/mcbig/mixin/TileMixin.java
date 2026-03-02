@@ -138,7 +138,7 @@ public abstract class TileMixin implements BigTileExtension {
 
     @Override
     public void playerDestroy(Level level, Player player, BigInteger x, int y, BigInteger z, int meta) {
-        player.awardStat(Stats.STAT_MINE_BLOCK[this.id], 1);
+        player.awardStat(Stats.blockMined[this.id], 1);
         this.dropResources(level, x, y, z, meta);
     }
 

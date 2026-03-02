@@ -156,7 +156,7 @@ public class LeafTileMixin extends TransparentTile implements BigTileExtension {
     @Override
     public void playerDestroy(Level level, Player player, BigInteger x, int y, BigInteger z, int meta) {
         if (!level.isClientSide && player.getSelectedItem() != null && player.getSelectedItem().id == Item.SHEARS.id) {
-            player.awardStat(Stats.STAT_MINE_BLOCK[this.id], 1);
+            player.awardStat(Stats.blockMined[this.id], 1);
             this.popResource(level, x, y, z, new ItemInstance(Tile.LEAVES.id, 1, meta & 3));
         } else {
             super.playerDestroy(level, player, x, y, z, meta);

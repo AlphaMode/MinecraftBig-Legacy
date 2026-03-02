@@ -6,7 +6,7 @@ import me.alphamode.mcbig.world.level.levelgen.FoliageCoords;
 import me.alphamode.mcbig.world.phys.BigVec3i;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.levelgen.feature.BigTreeFeature;
+import net.minecraft.world.level.levelgen.feature.BasicTree;
 import net.minecraft.world.level.tile.Tile;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,8 +19,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
-@Mixin(BigTreeFeature.class)
-public abstract class BigTreeFeatureMixin implements BigFeatureExtension {
+@Mixin(BasicTree.class)
+public abstract class BasicTreeMixin implements BigFeatureExtension {
     private static final double TRUNK_HEIGHT_SCALE = 0.618;
     private static final double CLUSTER_DENSITY_MAGIC = 1.382;
     private static final double BRANCH_SLOPE = 0.381;

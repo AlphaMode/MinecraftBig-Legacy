@@ -5,7 +5,7 @@ import me.alphamode.mcbig.math.BigMath;
 import me.alphamode.mcbig.networking.payload.BigMovePlayerPayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
-import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.multiplayer.ClientConnection;
 import net.minecraft.client.multiplayer.MultiplayerLocalPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.packets.PlayerCommandPacket;
@@ -28,7 +28,7 @@ public abstract class MultiplayerLocalPlayerMixin extends LocalPlayer implements
     private boolean lastSneaked;
 
     @Shadow
-    public ClientPacketListener connection;
+    public ClientConnection connection;
 
     @Shadow
     private int noSendTime;
