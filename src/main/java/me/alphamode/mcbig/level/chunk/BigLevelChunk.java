@@ -91,7 +91,7 @@ public class BigLevelChunk extends LevelChunk {
             this.lightGaps(x, z);
             this.data.set(x, y, z, meta);
             if (id != 0) {
-                Tile.tiles[id].onPlace(this.level, xt, y, zt);
+//                Tile.tiles[id].onPlace(this.level, xt, y, zt);
             }
 
             this.unsaved = true;
@@ -146,8 +146,8 @@ public class BigLevelChunk extends LevelChunk {
             }
 
             TileEntityTile teTile = (TileEntityTile)Tile.tiles[tile];
-            teTile.onPlace(this.level, this.bigX.multiply(BigConstants.SIXTEEN).add(BigInteger.valueOf(x)), y, this.bigZ.multiply(BigConstants.SIXTEEN).add(BigInteger.valueOf(z)));
-            te = this.tileEntities.get(pos);
+//            teTile.onPlace(this.level, this.bigX.multiply(BigConstants.SIXTEEN).add(BigInteger.valueOf(x)), y, this.bigZ.multiply(BigConstants.SIXTEEN).add(BigInteger.valueOf(z)));
+//            te = this.tileEntities.get(pos);
         }
 
         if (te != null && te.isRemoved()) {

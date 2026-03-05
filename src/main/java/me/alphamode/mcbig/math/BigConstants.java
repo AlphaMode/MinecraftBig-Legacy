@@ -13,6 +13,7 @@ public class BigConstants {
     public static final BigInteger THIRTY_ONE = BigInteger.valueOf(31);
     public static final BigInteger REGION_MASK = BigInteger.valueOf(63);
     public static final BigInteger CHUNK_OFFSET = BigInteger.valueOf(1023);
+    public static final BigInteger NOISE_MASK = BigInteger.valueOf(255);
 
     public static final BigDecimal TWO = BigDecimal.valueOf(2);
     public static final BigDecimal POINT_TWO = BigDecimal.valueOf(0.2);

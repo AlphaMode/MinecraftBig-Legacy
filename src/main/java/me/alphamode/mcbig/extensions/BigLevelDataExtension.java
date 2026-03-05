@@ -1,5 +1,7 @@
 package me.alphamode.mcbig.extensions;
 
+import me.alphamode.mcbig.world.level.levelgen.WorldType;
+
 import java.math.BigInteger;
 
 public interface BigLevelDataExtension {
@@ -20,6 +22,14 @@ public interface BigLevelDataExtension {
     }
 
     default void setBigSpawnXYZ(BigInteger x, int y, BigInteger z) {
+        throw new UnsupportedOperationException();
+    }
+
+    default WorldType getWorldType() {
+        throw new UnsupportedOperationException();
+    }
+
+    default void setWorldType(WorldType type) {
         throw new UnsupportedOperationException();
     }
 }

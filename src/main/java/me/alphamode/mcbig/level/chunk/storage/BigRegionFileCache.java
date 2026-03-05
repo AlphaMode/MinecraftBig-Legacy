@@ -15,7 +15,7 @@ public class BigRegionFileCache {
     public static synchronized RegionFile getRegionFile(File basePath, BigInteger x, BigInteger z) {
         File var3 = new File(basePath, "region");
         File var4 = new File(var3, "r." + (x.shiftRight(5)) + "." + (z.shiftRight(5)) + ".mcr");
-        Reference<RegionFile> var5 = (Reference<RegionFile>) RegionFileCache.cache.get(var4);
+        Reference<RegionFile> var5 = RegionFileCache.cache.get(var4);
         if (var5 != null) {
             RegionFile var6 = var5.get();
             if (var6 != null) {

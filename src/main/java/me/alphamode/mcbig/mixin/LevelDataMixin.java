@@ -2,6 +2,7 @@ package me.alphamode.mcbig.mixin;
 
 import com.mojang.nbt.CompoundTag;
 import me.alphamode.mcbig.extensions.BigLevelDataExtension;
+import me.alphamode.mcbig.world.level.levelgen.WorldType;
 import net.minecraft.world.level.storage.LevelData;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -13,6 +14,7 @@ import java.math.BigInteger;
 
 @Mixin(LevelData.class)
 public class LevelDataMixin implements BigLevelDataExtension {
+    private WorldType worldType = WorldType.VANILLA;
     @Shadow
     private int spawnX;
     @Shadow
@@ -24,6 +26,9 @@ public class LevelDataMixin implements BigLevelDataExtension {
 
     @Inject(method = "<init>(Lcom/mojang/nbt/CompoundTag;)V", at = @At("TAIL"))
     private void readBigSpawn(CompoundTag tag, CallbackInfo ci) {
+        if (tag.hasKey("WorldType")) {
+            this.worldType = WorldType.parse(tag.getString("WorldType"));
+        }
         if (tag.hasKey("BigSpawnX")) {
             this.spawnXBig = new BigInteger(tag.getString("BigSpawnX"));
         } else {
@@ -37,16 +42,35 @@ public class LevelDataMixin implements BigLevelDataExtension {
         }
     }
 
+    @Inject(method = "<init>(JLjava/lang/String;)V", at = @At("TAIL"))
+    private void addWorldType(long seed, String levelName, CallbackInfo ci) {
+        this.worldType = WorldType.SELECTED;
+        // Reset selected back to vanilla
+        WorldType.SELECTED = WorldType.VANILLA;
+    }
+
     @Inject(method = "<init>(Lnet/minecraft/world/level/storage/LevelData;)V", at = @At("TAIL"))
     private void getBigSpawnData(LevelData data, CallbackInfo ci) {
+        this.worldType = data.getWorldType();
         this.spawnXBig = data.getBigSpawnX();
         this.spawnZBig = data.getBigSpawnZ();
     }
 
     @Inject(method = "save(Lcom/mojang/nbt/CompoundTag;Lcom/mojang/nbt/CompoundTag;)V", at = @At("TAIL"))
     private void saveBigSpawn(CompoundTag base, CompoundTag player, CallbackInfo ci) {
+        base.putString("WorldType", this.worldType.getType());
         base.putString("BigSpawnX", this.spawnXBig.toString());
         base.putString("BigSpawnZ", this.spawnZBig.toString());
+    }
+
+    @Override
+    public WorldType getWorldType() {
+        return this.worldType;
+    }
+
+    @Override
+    public void setWorldType(WorldType type) {
+        this.worldType = type;
     }
 
     @Override

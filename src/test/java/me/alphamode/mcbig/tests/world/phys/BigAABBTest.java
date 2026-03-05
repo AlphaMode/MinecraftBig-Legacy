@@ -1,5 +1,6 @@
-package me.alphamode.mcbig.world.phys;
+package me.alphamode.mcbig.tests.world.phys;
 
+import me.alphamode.mcbig.world.phys.BigAABB;
 import net.minecraft.world.level.tile.Tile;
 import net.minecraft.world.phys.AABB;
 import org.junit.jupiter.api.DisplayName;

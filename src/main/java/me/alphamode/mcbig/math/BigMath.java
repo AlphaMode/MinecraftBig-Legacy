@@ -25,6 +25,16 @@ public class BigMath {
         return new BigDecimal(value, CONTEXT);
     }
 
+    public static BigDecimal decimal(int value) {
+        return new BigDecimal(value, CONTEXT);
+    }
+
+    public static final int WORLD_GEN_DECIMAL_SCALE = 10;
+
+    public static BigDecimal decimalW(BigInteger value) {
+        return new BigDecimal(value);
+    }
+
     public static BigDecimal addD(BigDecimal a, BigInteger b) {
         return a.add(new BigDecimal(b, CONTEXT));
     }

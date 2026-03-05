@@ -14,6 +14,7 @@ import net.minecraft.world.level.Region;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.tile.Tile;
 import net.minecraft.world.level.tile.entity.TileEntity;
+import net.minecraft.world.level.tile.piston.PistonHeadTile;
 import net.minecraft.world.phys.AABB;
 import org.lwjgl.opengl.GL11;
 
@@ -102,7 +103,7 @@ public class BigChunk extends Chunk {
             }
 
             LevelChunk.touchedSky = false;
-            HashSet<TileEntity> oldTileEntities = new HashSet();
+            HashSet<TileEntity> oldTileEntities = new HashSet<>();
             oldTileEntities.addAll(this.renderableTileEntities);
             this.renderableTileEntities.clear();
             int r = 1;
@@ -145,6 +146,9 @@ public class BigChunk extends Chunk {
                                 if (renderLayer != l) {
                                     renderNextLayer = true;
                                 } else if (renderLayer == l) {
+                                    if (tile instanceof PistonHeadTile) {
+                                        continue;
+                                    }
                                     rendered |= tileRenderer.tesselateInWorld(tile, x, y, z);
                                 }
                             }
