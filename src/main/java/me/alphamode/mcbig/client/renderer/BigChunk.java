@@ -146,9 +146,6 @@ public class BigChunk extends Chunk {
                                 if (renderLayer != l) {
                                     renderNextLayer = true;
                                 } else if (renderLayer == l) {
-                                    if (tile instanceof PistonHeadTile) {
-                                        continue;
-                                    }
                                     rendered |= tileRenderer.tesselateInWorld(tile, x, y, z);
                                 }
                             }
