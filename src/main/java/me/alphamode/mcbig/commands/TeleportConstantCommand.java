@@ -11,9 +11,12 @@ import net.minecraft.world.entity.Entity;
 import java.math.BigDecimal;
 
 public class TeleportConstantCommand {
+    private static final BigDecimal CHUNK_MULTIPLY_FACTOR = new BigDecimal(16);
+
     // Minecraft Limits
     public static final BigDecimal STRIPE_LANDS = new BigDecimal("9007199254740992");
     public static final BigDecimal FAR_LANDS = new BigDecimal("12550821");
+    public static final BigDecimal FRINGE_LANDS_VISIBLE = new BigDecimal("1E49");
 
     // Primitive Limits
     public static final BigDecimal MIN_INT_LIMIT = new BigDecimal(Integer.MAX_VALUE);
@@ -24,6 +27,11 @@ public class TeleportConstantCommand {
     public static final BigDecimal MAX_FLOAT_LIMIT = new BigDecimal(Float.MAX_VALUE);
     public static final BigDecimal MIN_DOUBLE_LIMIT = new BigDecimal(Double.MAX_VALUE);
     public static final BigDecimal MAX_DOUBLE_LIMIT = new BigDecimal(Double.MAX_VALUE);
+
+    // Chunk overwrite limits
+    public static final BigDecimal CHUNK_OVERWRITE_LIMIT_32BIT = MAX_INT_LIMIT.multiply(CHUNK_MULTIPLY_FACTOR);
+    public static final BigDecimal CHUNK_OVERWRITE_LIMIT_64BIT = MAX_LONG_LIMIT.multiply(CHUNK_MULTIPLY_FACTOR);
+    public static final BigDecimal CHUNK_OVERWRITE_LIMIT_DOUBLE = MAX_DOUBLE_LIMIT.multiply(CHUNK_MULTIPLY_FACTOR);
 
     public static void register(CommandDispatcher<CommandSource> dispatcher) {
         var command = Commands.literal("tpconstant")
@@ -66,7 +74,12 @@ public class TeleportConstantCommand {
         MIN_FLOAT_LIMIT(TeleportConstantCommand.MIN_FLOAT_LIMIT),
         MAX_FLOAT_LIMIT(TeleportConstantCommand.MAX_FLOAT_LIMIT),
         MIN_DOUBLE_LIMIT(TeleportConstantCommand.MIN_DOUBLE_LIMIT),
-        MAX_DOUBLE_LIMIT(TeleportConstantCommand.MAX_DOUBLE_LIMIT);
+        MAX_DOUBLE_LIMIT(TeleportConstantCommand.MAX_DOUBLE_LIMIT),
+        CHUNK_OVERWRITE_LIMIT_32BIT(TeleportConstantCommand.CHUNK_OVERWRITE_LIMIT_32BIT),
+        CHUNK_OVERWRITE_LIMIT_64BIT(TeleportConstantCommand.CHUNK_OVERWRITE_LIMIT_64BIT),
+        CHUNK_OVERWRITE_LIMIT_DOUBLE(TeleportConstantCommand.CHUNK_OVERWRITE_LIMIT_DOUBLE),
+        FRINGE_LANDS_VISIBLE(TeleportConstantCommand.FRINGE_LANDS_VISIBLE)
+        ;
 
         private final BigDecimal value;
         private final String description;
