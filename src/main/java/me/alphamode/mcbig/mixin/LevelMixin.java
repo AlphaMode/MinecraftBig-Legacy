@@ -678,144 +678,144 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
     }
 
     @Override
-    public HitResult clip(BigVec3 from, BigVec3 to, boolean checkLiquid, boolean bl2) {
-        if (Double.isNaN(from.y)) {
+    public HitResult clip(BigVec3 a, BigVec3 b, boolean checkLiquid, boolean bl2) {
+        if (Double.isNaN(a.y)) {
             return null;
-        } else if (!Double.isNaN(to.y)) {
-            BigInteger toX = BigMath.floor(to.x);
-            int toY = Mth.floor(to.y);
-            BigInteger toZ = BigMath.floor(to.z);
-            BigInteger fromX = BigMath.floor(from.x);
-            int fromY = Mth.floor(from.y);
-            BigInteger fromZ = BigMath.floor(from.z);
-            int tileId = getTile(fromX, fromY, fromZ);
-            int data = this.getData(fromX, fromY, fromZ);
+        } else if (!Double.isNaN(b.y)) {
+            BigInteger xTile1 = BigMath.floor(b.x);
+            int yTile1 = Mth.floor(b.y);
+            BigInteger zTile1 = BigMath.floor(b.z);
+            BigInteger xTile0 = BigMath.floor(a.x);
+            int yTile0 = Mth.floor(a.y);
+            BigInteger zTile0 = BigMath.floor(a.z);
+            int tileId = getTile(xTile0, yTile0, zTile0);
+            int data = this.getData(xTile0, yTile0, zTile0);
             Tile tile = Tile.tiles[tileId];
-            if ((!bl2 || tile == null || tile.getAABB((Level) (Object) this, fromX, fromY, fromZ) != null) && tileId > 0 && tile.mayPick(data, checkLiquid)) {
-                HitResult var14 = tile.clip((Level) (Object) this, fromX, fromY, fromZ, from, to);
+            if ((!bl2 || tile == null || tile.getAABB((Level) (Object) this, xTile0, yTile0, zTile0) != null) && tileId > 0 && tile.mayPick(data, checkLiquid)) {
+                HitResult var14 = tile.clip((Level) (Object) this, xTile0, yTile0, zTile0, a, b);
                 if (var14 != null) {
                     return var14;
                 }
             }
 
-            tileId = 200;
+            int maxIterations = 200;
 
-            while (tileId-- >= 0) {
-                if (Double.isNaN(from.y)) {
+            while (maxIterations-- >= 0) {
+                if (Double.isNaN(a.y)) {
                     return null;
                 }
 
-                if (fromX.equals(toX) && fromY == toY && fromZ.equals(toZ)) {
+                if (xTile0.equals(xTile1) && yTile0 == yTile1 && zTile0.equals(zTile1)) {
                     return null;
                 }
 
                 boolean var40 = true;
                 boolean var41 = true;
                 boolean var42 = true;
-                BigDecimal var15 = BigConstants.CLIP;
-                double var17 = 999.0;
-                BigDecimal var19 = BigConstants.CLIP;
-                if (toX.compareTo(fromX) > 0) {
-                    var15 = new BigDecimal(fromX).add(BigDecimal.ONE);
-                } else if (toX.compareTo(fromX) < 0) {
-                    var15 = new BigDecimal(fromX);
+                BigDecimal xClip = BigConstants.CLIP;
+                double yClip = 999.0;
+                BigDecimal zClip = BigConstants.CLIP;
+                if (xTile1.compareTo(xTile0) > 0) {
+                    xClip = new BigDecimal(xTile0).add(BigDecimal.ONE);
+                } else if (xTile1.compareTo(xTile0) < 0) {
+                    xClip = new BigDecimal(xTile0);
                 } else {
                     var40 = false;
                 }
 
-                if (toY > fromY) {
-                    var17 = (double) fromY + 1.0;
-                } else if (toY < fromY) {
-                    var17 = (double) fromY + 0.0;
+                if (yTile1 > yTile0) {
+                    yClip = (double) yTile0 + 1.0;
+                } else if (yTile1 < yTile0) {
+                    yClip = (double) yTile0 + 0.0;
                 } else {
                     var41 = false;
                 }
 
-                if (toZ.compareTo(fromZ) > 0) {
-                    var19 = new BigDecimal(fromZ).add(BigDecimal.ONE);
-                } else if (toZ.compareTo(fromZ) < 0) {
-                    var19 = new BigDecimal(fromZ);
+                if (zTile1.compareTo(zTile0) > 0) {
+                    zClip = new BigDecimal(zTile0).add(BigDecimal.ONE);
+                } else if (zTile1.compareTo(zTile0) < 0) {
+                    zClip = new BigDecimal(zTile0);
                 } else {
                     var42 = false;
                 }
 
-                double var21 = 999.0;
-                double var23 = 999.0;
-                double var25 = 999.0;
-                double var27 = to.x.subtract(from.x).doubleValue();
-                double var29 = to.y - from.y;
-                double var31 = to.z.subtract(from.z).doubleValue();
+                double xDist = 999.0;
+                double yDist = 999.0;
+                double zDist = 999.0;
+                double xd = b.x.subtract(a.x).doubleValue();
+                double yd = b.y - a.y;
+                double zd = b.z.subtract(a.z).doubleValue();
                 if (var40) {
-                    var21 = (var15.subtract(from.x)).doubleValue() / var27;
+                    xDist = (xClip.subtract(a.x)).doubleValue() / xd;
                 }
 
                 if (var41) {
-                    var23 = (var17 - from.y) / var29;
+                    yDist = (yClip - a.y) / yd;
                 }
 
                 if (var42) {
-                    var25 = (var19.subtract(from.z)).doubleValue() / var31;
+                    zDist = (zClip.subtract(a.z)).doubleValue() / zd;
                 }
 
-                byte facing = 0;
-                if (var21 < var23 && var21 < var25) {
-                    if (toX.compareTo(fromX) > 0) {
-                        facing = Facing.WEST;
+                int face = 0;
+                if (xDist < yDist && xDist < zDist) {
+                    if (xTile1.compareTo(xTile0) > 0) {
+                        face = Facing.WEST;
                     } else {
-                        facing = Facing.EAST;
+                        face = Facing.EAST;
                     }
 
-                    from.x = var15;
-                    from.y += var29 * var21;
-                    from.z = from.z.add(BigMath.decimal(var31 * var21));
-                } else if (var23 < var25) {
-                    if (toY > fromY) {
-                        facing = 0;
+                    a.x = xClip;
+                    a.y += yd * xDist;
+                    a.z = a.z.add(BigMath.decimal(zd * xDist));
+                } else if (yDist < zDist) {
+                    if (yTile1 > yTile0) {
+                        face = 0;
                     } else {
-                        facing = 1;
+                        face = 1;
                     }
 
-                    from.x = from.x.add(BigMath.decimal(var27 * var23));
-                    from.y = var17;
-                    from.z = from.z.add(BigMath.decimal(var31 * var23));
+                    a.x = a.x.add(BigMath.decimal(xd * yDist));
+                    a.y = yClip;
+                    a.z = a.z.add(BigMath.decimal(zd * yDist));
                 } else {
-                    if (toZ.compareTo(fromZ) > 0) {
-                        facing = Facing.NORTH;
+                    if (zTile1.compareTo(zTile0) > 0) {
+                        face = Facing.NORTH;
                     } else {
-                        facing = Facing.SOUTH;
+                        face = Facing.SOUTH;
                     }
 
-                    from.x = from.x.add(BigMath.decimal(var27 * var25));
-                    from.y += var29 * var25;
-                    from.z = var19;
+                    a.x = a.x.add(BigMath.decimal(xd * zDist));
+                    a.y += yd * zDist;
+                    a.z = zClip;
                 }
 
-                BigVec3 var34 = BigVec3.newTemp(from.x, from.y, from.z);
-                fromX = BigMath.floor(from.x);
-                var34.x = new BigDecimal(fromX);
-                if (facing == 5) {
-                    fromX = fromX.subtract(BigInteger.ONE);
+                BigVec3 var34 = BigVec3.newTemp(a.x, a.y, a.z);
+                xTile0 = BigMath.floor(a.x);
+                var34.x = new BigDecimal(xTile0);
+                if (face == 5) {
+                    xTile0 = xTile0.subtract(BigInteger.ONE);
                     var34.x = var34.x.add(BigDecimal.ONE);
                 }
 
-                fromY = (int) (var34.y = (double) Mth.floor(from.y));
-                if (facing == 1) {
-                    --fromY;
+                yTile0 = (int) (var34.y = (double) Mth.floor(a.y));
+                if (face == 1) {
+                    --yTile0;
                     ++var34.y;
                 }
 
-                fromZ = BigMath.floor(from.z);
-                var34.z = new BigDecimal(fromZ);
-                if (facing == Facing.SOUTH) {
-                    fromZ = fromZ.subtract(BigInteger.ONE);
+                zTile0 = BigMath.floor(a.z);
+                var34.z = new BigDecimal(zTile0);
+                if (face == Facing.SOUTH) {
+                    zTile0 = zTile0.subtract(BigInteger.ONE);
                     var34.z = var34.z.add(BigDecimal.ONE);
                 }
 
-                int var35 = this.getTile(fromX, fromY, fromZ);
-                int var36 = this.getData(fromX, fromY, fromZ);
-                Tile var37 = Tile.tiles[var35];
-                if ((!bl2 || var37 == null || var37.getAABB((Level) (Object) this, fromX, fromY, fromZ) != null) && var35 > 0 && var37.mayPick(var36, checkLiquid)) {
-                    HitResult var38 = var37.clip((Level) (Object) this, fromX, fromY, fromZ, from, to);
+                int t = this.getTile(xTile0, yTile0, zTile0);
+                int var36 = this.getData(xTile0, yTile0, zTile0);
+                Tile var37 = Tile.tiles[t];
+                if ((!bl2 || var37 == null || var37.getAABB((Level) (Object) this, xTile0, yTile0, zTile0) != null) && t > 0 && var37.mayPick(var36, checkLiquid)) {
+                    HitResult var38 = var37.clip((Level) (Object) this, xTile0, yTile0, zTile0, a, b);
                     if (var38 != null) {
                         return var38;
                     }
@@ -833,7 +833,7 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
      * @reason
      */
     @Overwrite
-    public HitResult clip(Vec3 from, Vec3 to, boolean checkLiquid, boolean bl2) {
+    public HitResult clip(Vec3 from, Vec3 to, boolean liquid, boolean solidOnly) {
         if (Double.isNaN(from.x) || Double.isNaN(from.y) || Double.isNaN(from.z)) {
             return null;
         } else if (!Double.isNaN(to.x) && !Double.isNaN(to.y) && !Double.isNaN(to.z)) {
@@ -846,7 +846,7 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
             int tileId = getTile(fromX, fromY, fromZ);
             int data = this.getData(fromX, fromY, fromZ);
             Tile tile = Tile.tiles[tileId];
-            if ((!bl2 || tile == null || tile.getAABB((Level) (Object) this, fromX, fromY, fromZ) != null) && tileId > 0 && tile.mayPick(data, checkLiquid)) {
+            if ((!solidOnly || tile == null || tile.getAABB((Level) (Object) this, fromX, fromY, fromZ) != null) && tileId > 0 && tile.mayPick(data, liquid)) {
                 HitResult var14 = tile.clip((Level) (Object) this, fromX, fromY, fromZ, from, to);
                 if (var14 != null) {
                     return var14;
@@ -967,7 +967,7 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
                 int var35 = this.getTile(fromX, fromY, fromZ);
                 int var36 = this.getData(fromX, fromY, fromZ);
                 Tile var37 = Tile.tiles[var35];
-                if ((!bl2 || var37 == null || var37.getAABB((Level) (Object) this, fromX, fromY, fromZ) != null) && var35 > 0 && var37.mayPick(var36, checkLiquid)) {
+                if ((!solidOnly || var37 == null || var37.getAABB((Level) (Object) this, fromX, fromY, fromZ) != null) && var35 > 0 && var37.mayPick(var36, liquid)) {
                     HitResult var38 = var37.clip((Level) (Object) this, fromX, fromY, fromZ, from, to);
                     if (var38 != null) {
                         return var38;
@@ -1169,10 +1169,10 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
     @Override
     public List<Entity> getEntities(Entity entity, BigAABB area) {
         this.es.clear();
-        BigInteger x0 = BigMath.floor(area.x0().subtract(BigDecimal.TWO).divide(BigConstants.SIXTEEN_F));
-        BigInteger x1 = BigMath.floor(area.x1().add(BigDecimal.TWO).divide(BigConstants.SIXTEEN_F));
-        BigInteger z0 = BigMath.floor(area.z0().subtract(BigDecimal.TWO).divide(BigConstants.SIXTEEN_F));
-        BigInteger z1 = BigMath.floor(area.z1().add(BigDecimal.TWO).divide(BigConstants.SIXTEEN_F));
+        BigInteger x0 = BigMath.floor(area.x0().subtract(BigDecimal.TWO).divide(BigConstants.SIXTEEN_F, RoundingMode.HALF_EVEN));
+        BigInteger x1 = BigMath.floor(area.x1().add(BigDecimal.TWO).divide(BigConstants.SIXTEEN_F, RoundingMode.HALF_EVEN));
+        BigInteger z0 = BigMath.floor(area.z0().subtract(BigDecimal.TWO).divide(BigConstants.SIXTEEN_F, RoundingMode.HALF_EVEN));
+        BigInteger z1 = BigMath.floor(area.z1().add(BigDecimal.TWO).divide(BigConstants.SIXTEEN_F, RoundingMode.HALF_EVEN));
 
         for (BigInteger x = x0; x.compareTo(x1) <= 0; x = x.add(BigInteger.ONE)) {
             for (BigInteger z = z0; z.compareTo(z1) <= 0; z = z.add(BigInteger.ONE)) {

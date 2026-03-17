@@ -63,6 +63,7 @@ inject-interface net/minecraft/client/player/LocalPlayer me/alphamode/mcbig/exte
 inject-interface net/minecraft/client/multiplayer/MultiPlayerLevel me/alphamode/mcbig/extensions/networking/client/BigMultiPlayerLevelExtension
 inject-interface net/minecraft/client/gui/Gui me/alphamode/mcbig/extensions/features/commands/GuiExtension
 inject-interface net/minecraft/client/gui/Font me/alphamode/mcbig/extensions/features/commands/FontExtension
+inject-interface net/minecraft/client/Minecraft me/alphamode/mcbig/extensions/features/commands/ChatMinecraftExtension
 inject-interface net/minecraft/client/renderer/TileRenderer me/alphamode/mcbig/extensions/BigTileRendererExtension
 inject-interface net/minecraft/client/renderer/TileRenderer me/alphamode/mcbig/extensions/features/fix_stripelands/BigTileRendererExtension
 inject-interface net/minecraft/client/renderer/OffsettedRenderList me/alphamode/mcbig/extensions/BigOffsettedRenderListExtension

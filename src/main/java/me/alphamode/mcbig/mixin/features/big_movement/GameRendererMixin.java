@@ -1,8 +1,14 @@
 package me.alphamode.mcbig.mixin.features.big_movement;
 
 import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
+import me.alphamode.mcbig.extensions.features.big_movement.BigMobExtension;
+import me.alphamode.mcbig.math.BigMath;
+import me.alphamode.mcbig.world.phys.BigAABB;
+import me.alphamode.mcbig.world.phys.BigHitResult;
+import me.alphamode.mcbig.world.phys.BigVec3;
 import net.minecraft.client.Lighting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gamemode.CreativeMode;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -16,6 +22,7 @@ import net.minecraft.world.level.chunk.ChunkCache;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.tile.Tile;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.lwjgl.opengl.GL11;
@@ -24,14 +31,79 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
     @Shadow
     private Minecraft mc;
 
-    @Shadow
-    public abstract void pick(float partialTick);
+    /**
+     * @author
+     * @reason
+     */
+    @Overwrite
+    public void pick(float partialTick) {
+        if (this.mc.cameraEntity != null) {
+            if (this.mc.level != null) {
+                double pickRange = this.mc.gameMode.getPickRange();
+                this.mc.hitResult = this.mc.cameraEntity.pick(pickRange, partialTick);
+                double pickDistance = pickRange;
+                BigEntityExtension bigCamera = (BigEntityExtension) this.mc.cameraEntity;
+                BigVec3 cameraPos = ((BigMobExtension)this.mc.cameraEntity).getBigPos(partialTick);
+                if (this.mc.hitResult != null) {
+                    pickDistance = ((BigHitResult) this.mc.hitResult).posBig.distanceTo(cameraPos);
+                }
+
+                if (this.mc.gameMode instanceof CreativeMode) {
+                    pickRange = 32.0;
+                    pickDistance = 32.0;
+                } else {
+                    if (pickDistance > 3.0) {
+                        pickDistance = 3.0;
+                    }
+
+                    pickRange = pickDistance;
+                }
+
+                Vec3 view = this.mc.cameraEntity.getViewVector(partialTick);
+                BigVec3 pickVec = cameraPos.add(view.x * pickRange, view.y * pickRange, view.z * pickRange);
+                this.hovered = null;
+                float range = 1.0F;
+                List<Entity> entities = this.mc
+                        .level
+                        .getEntities(
+                                this.mc.cameraEntity, bigCamera.getBigBB().expand(view.x * pickRange, view.y * pickRange, view.z * pickRange).inflate(range, range, range)
+                        );
+                double var11 = 0.0;
+
+                for(int i = 0; i < entities.size(); ++i) {
+                    Entity entity = entities.get(i);
+                    if (entity.isPickable()) {
+                        float pickRadius = entity.getPickRadius();
+                        AABB bb = entity.bb.inflate(pickRadius, pickRadius, pickRadius);
+                        BigHitResult hit = (BigHitResult) BigAABB.from(bb).clip(cameraPos, pickVec);
+                        if (bb.intersects(cameraPos.toVanilla())) {
+                            if (0.0 < var11 || var11 == 0.0) {
+                                this.hovered = entity;
+                                var11 = 0.0;
+                            }
+                        } else if (hit != null) {
+                            double var18 = cameraPos.distanceTo(hit.posBig);
+                            if (var18 < var11 || var11 == 0.0) {
+                                this.hovered = entity;
+                                var11 = var18;
+                            }
+                        }
+                    }
+                }
+
+                if (this.hovered != null && !(this.mc.gameMode instanceof CreativeMode)) {
+                    this.mc.hitResult = new BigHitResult(this.hovered);
+                }
+            }
+        }
+    }
 
     @Shadow
     public static int currentRenderLayer;
@@ -93,62 +165,62 @@ public abstract class GameRendererMixin {
         BigDecimal bigAlpha = BigDecimal.valueOf(a);
         BigEntityExtension bigPlayer = (BigEntityExtension) player;
         float eyeHeight = player.heightOffset - 1.62F;
-        BigDecimal xo = bigPlayer.getXO().add(bigPlayer.getX().subtract(bigPlayer.getXO()).multiply(bigAlpha));
-        double yo = player.yo + (player.y - player.yo) * a - eyeHeight;
-        BigDecimal zo = bigPlayer.getZO().add(bigPlayer.getZ().subtract(bigPlayer.getZO().multiply(bigAlpha)));
+        BigDecimal x = bigPlayer.getXO().add(bigPlayer.getX().subtract(bigPlayer.getXO()).multiply(bigAlpha));
+        double y = player.yo + (player.y - player.yo) * a - eyeHeight;
+        BigDecimal z = bigPlayer.getZO().add(bigPlayer.getZ().subtract(bigPlayer.getZO().multiply(bigAlpha)));
         GL11.glRotatef(this.camTiltO + (this.camTilt - this.camTiltO) * a, 0.0F, 0.0F, 1.0F);
         if (player.isSleeping()) {
             eyeHeight = (float)(eyeHeight + 1.0);
             GL11.glTranslatef(0.0F, 0.3F, 0.0F);
             if (!this.mc.options.fixedCamera) {
-                int var10 = this.mc.level.getTile(Mth.floor(player.x), Mth.floor(player.y), Mth.floor(player.z));
-                if (var10 == Tile.BED.id) {
-                    int var11 = this.mc.level.getData(Mth.floor(player.x), Mth.floor(player.y), Mth.floor(player.z));
-                    int var12 = var11 & 3;
-                    GL11.glRotatef(var12 * 90, 0.0F, 1.0F, 0.0F);
+                int t = this.mc.level.getTile(Mth.floor(player.x), Mth.floor(player.y), Mth.floor(player.z));
+                if (t == Tile.BED.id) {
+                    int data = this.mc.level.getData(Mth.floor(player.x), Mth.floor(player.y), Mth.floor(player.z));
+                    int direction = data & 3;
+                    GL11.glRotatef(direction * 90, 0.0F, 1.0F, 0.0F);
                 }
 
                 GL11.glRotatef(player.yRotO + (player.yRot - player.yRotO) * a + 180.0F, 0.0F, -1.0F, 0.0F);
                 GL11.glRotatef(player.xRotO + (player.xRot - player.xRotO) * a, -1.0F, 0.0F, 0.0F);
             }
         } else if (this.mc.options.thirdPersonView) {
-            double var30 = this.oldZOff + (this.zOff - this.oldZOff) * a;
+            double cameraDist = this.oldZOff + (this.zOff - this.oldZOff) * a;
             if (this.mc.options.fixedCamera) {
-                float var31 = this.yRotO + (this.yRot - this.yRotO) * a;
-                float var13 = this.xRotO + (this.xRot - this.xRotO) * a;
-                GL11.glTranslatef(0.0F, 0.0F, (float)(-var30));
-                GL11.glRotatef(var13, 1.0F, 0.0F, 0.0F);
-                GL11.glRotatef(var31, 0.0F, 1.0F, 0.0F);
+                float rotationY = this.yRotO + (this.yRot - this.yRotO) * a;
+                float xRot = this.xRotO + (this.xRot - this.xRotO) * a;
+                GL11.glTranslatef(0.0F, 0.0F, (float)(-cameraDist));
+                GL11.glRotatef(xRot, 1.0F, 0.0F, 0.0F);
+                GL11.glRotatef(rotationY, 0.0F, 1.0F, 0.0F);
             } else {
-                float var32 = player.yRot;
-                float var33 = player.xRot;
-                double var14 = -Mth.sin(var32 / 180.0F * (float) Math.PI) * Mth.cos(var33 / 180.0F * (float) Math.PI) * var30;
-                double var16 = Mth.cos(var32 / 180.0F * (float) Math.PI) * Mth.cos(var33 / 180.0F * (float) Math.PI) * var30;
-                double var18 = -Mth.sin(var33 / 180.0F * (float) Math.PI) * var30;
+                float yRot = player.yRot;
+                float xRot = player.xRot;
+                double xd = -Mth.sin(yRot / 180.0F * (float) Math.PI) * Mth.cos(xRot / 180.0F * (float) Math.PI) * cameraDist;
+                double zd = Mth.cos(yRot / 180.0F * (float) Math.PI) * Mth.cos(xRot / 180.0F * (float) Math.PI) * cameraDist;
+                double yd = -Mth.sin(xRot / 180.0F * (float) Math.PI) * cameraDist;
 
-                for (int var20 = 0; var20 < 8; var20++) {
-                    float xa = (var20 & 1) * 2 - 1;
-                    float ya = (var20 >> 1 & 1) * 2 - 1;
-                    float za = (var20 >> 2 & 1) * 2 - 1;
-                    xa *= 0.1F;
-                    ya *= 0.1F;
-                    za *= 0.1F;
-                    HitResult var24 = this.mc
+                for (int i = 0; i < 8; i++) {
+                    float xo = (i & 1) * 2 - 1;
+                    float yo = (i >> 1 & 1) * 2 - 1;
+                    float zo = (i >> 2 & 1) * 2 - 1;
+                    xo *= 0.1F;
+                    yo *= 0.1F;
+                    zo *= 0.1F;
+                    HitResult hr = this.mc
                             .level
-                            .clip(Vec3.newTemp(xo.doubleValue() + xa, yo + ya, zo.doubleValue() + za), Vec3.newTemp(xo.doubleValue() - var14 + xa + za, yo - var18 + ya, zo.doubleValue() - var16 + za));
-                    if (var24 != null) {
-                        double var25 = var24.pos.distanceTo(Vec3.newTemp(xo.doubleValue(), yo, zo.doubleValue()));
-                        if (var25 < var30) {
-                            var30 = var25;
+                            .clip(BigVec3.newTemp(x.add(BigMath.decimal(xo)), y + yo, z.add(BigMath.decimal(zo))), BigVec3.newTemp(x.subtract(BigMath.decimal(xd + xo + zo)), y - yd + yo, z.subtract(BigMath.decimal(zd + zo))));
+                    if (hr != null) {
+                        double dist = ((BigHitResult)hr).posBig.distanceTo(BigVec3.newTemp(x, y, z));
+                        if (dist < cameraDist) {
+                            cameraDist = dist;
                         }
                     }
                 }
 
-                GL11.glRotatef(player.xRot - var33, 1.0F, 0.0F, 0.0F);
-                GL11.glRotatef(player.yRot - var32, 0.0F, 1.0F, 0.0F);
-                GL11.glTranslatef(0.0F, 0.0F, (float)(-var30));
-                GL11.glRotatef(var32 - player.yRot, 0.0F, 1.0F, 0.0F);
-                GL11.glRotatef(var33 - player.xRot, 1.0F, 0.0F, 0.0F);
+                GL11.glRotatef(player.xRot - xRot, 1.0F, 0.0F, 0.0F);
+                GL11.glRotatef(player.yRot - yRot, 0.0F, 1.0F, 0.0F);
+                GL11.glTranslatef(0.0F, 0.0F, (float)(-cameraDist));
+                GL11.glRotatef(yRot - player.yRot, 0.0F, 1.0F, 0.0F);
+                GL11.glRotatef(xRot - player.xRot, 1.0F, 0.0F, 0.0F);
             }
         } else {
             GL11.glTranslatef(0.0F, 0.0F, -0.1F);

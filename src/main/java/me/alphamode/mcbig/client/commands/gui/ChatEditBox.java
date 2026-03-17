@@ -150,6 +150,7 @@ public class ChatEditBox extends GuiComponent {
 
     public void setValue(String input) {
         this.valueSetter.accept(input);
+        this.moveCursorToEnd(false);
     }
 
     public void setValueWithUpdate(String input) {

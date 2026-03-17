@@ -10,12 +10,12 @@ import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Deque;
 
-public class ChatHistory {
+public class CommandHistory {
     private static final int MAX_PERSISTED_COMMAND_HISTORY = 50;
     private final Path commandsPath;
     private final Deque<String> lastCommands = new ArrayDeque<>(MAX_PERSISTED_COMMAND_HISTORY);
 
-    public ChatHistory(final Path gameFolder) {
+    public CommandHistory(final Path gameFolder) {
         this.commandsPath = gameFolder.resolve("command_history.txt");
         if (Files.exists(this.commandsPath)) {
             try {

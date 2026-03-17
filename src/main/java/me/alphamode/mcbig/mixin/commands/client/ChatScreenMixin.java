@@ -36,6 +36,7 @@ public class ChatScreenMixin extends Screen {
 
     @Inject(method = "init", at = @At("TAIL"))
     private void initSuggestions(CallbackInfo ci) {
+        this.historyPos = this.minecraft.gui.getChat().getRecentChat().size();
         this.editBox = new ChatEditBox(this.font, 4, this.height - 12, this.width - 4, 12, newValue -> message = newValue, () -> message);
         this.editBox.setResponder(this::onEdited);
         this.commandSuggestions = new CommandSuggestions(this.minecraft, this, this.editBox, this.font, 1, 10, -805306368);
@@ -129,6 +130,7 @@ public class ChatScreenMixin extends Screen {
             String trimmed = this.message.trim();
             if (trimmed.length() > 0) {
                 String message = this.message.trim();
+                this.minecraft.gui.getChat().addRecentChat(message);
                 if (this.minecraft.isCommand(message)) {
                     executeCommand(message.substring(1));
                 } else {
@@ -174,7 +176,7 @@ public class ChatScreenMixin extends Screen {
                     this.historyBuffer = this.message;
                 }
 
-                this.message = this.minecraft.gui.getChat().getRecentChat().get(newPos);
+                this.editBox.setValue(this.minecraft.gui.getChat().getRecentChat().get(newPos));
                 this.commandSuggestions.setAllowSuggestions(false);
                 this.historyPos = newPos;
             }

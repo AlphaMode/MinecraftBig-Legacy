@@ -2,8 +2,11 @@ package me.alphamode.mcbig.world.phys;
 
 import me.alphamode.mcbig.math.BigMath;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
@@ -246,6 +249,105 @@ public class BigAABB {
 
     public AABB toVanilla() {
         return AABB.create(x0.doubleValue(), y0, z0.doubleValue(), x1.doubleValue(), y1, z1.doubleValue());
+    }
+
+    private boolean containsX(BigVec3 v) {
+        return v == null ? false : v.y >= this.y0 && v.y <= this.y1 && v.z.compareTo(this.z0) >= 0 && v.z.compareTo(this.z1) <= 0;
+    }
+
+    private boolean containsY(BigVec3 v) {
+        return v == null ? false : v.x.compareTo(this.x0) >= 0 && v.x.compareTo(this.x1) <= 0 && v.z.compareTo(this.z0) >= 0 && v.z.compareTo(this.z1) <= 0;
+    }
+
+    private boolean containsZ(BigVec3 v) {
+        return v == null ? false : v.x.compareTo(this.x0) >= 0 && v.x.compareTo(this.x1) <= 0 && v.y >= this.y0 && v.y <= this.y1;
+    }
+
+    public HitResult clip(BigVec3 a, BigVec3 b) {
+        BigVec3 xh0 = a.clipX(b, this.x0);
+        BigVec3 xh1 = a.clipX(b, this.x1);
+        BigVec3 yh0 = a.clipY(b, this.y0);
+        BigVec3 yh1 = a.clipY(b, this.y1);
+        BigVec3 zh0 = a.clipZ(b, this.z0);
+        BigVec3 zh1 = a.clipZ(b, this.z1);
+        if (!this.containsX(xh0)) {
+            xh0 = null;
+        }
+
+        if (!this.containsX(xh1)) {
+            xh1 = null;
+        }
+
+        if (!this.containsY(yh0)) {
+            yh0 = null;
+        }
+
+        if (!this.containsY(yh1)) {
+            yh1 = null;
+        }
+
+        if (!this.containsZ(zh0)) {
+            zh0 = null;
+        }
+
+        if (!this.containsZ(zh1)) {
+            zh1 = null;
+        }
+
+        BigVec3 closest = null;
+        if (xh0 != null && (closest == null || a.distanceToSqr(xh0) < a.distanceToSqr(closest))) {
+            closest = xh0;
+        }
+
+        if (xh1 != null && (closest == null || a.distanceToSqr(xh1) < a.distanceToSqr(closest))) {
+            closest = xh1;
+        }
+
+        if (yh0 != null && (closest == null || a.distanceToSqr(yh0) < a.distanceToSqr(closest))) {
+            closest = yh0;
+        }
+
+        if (yh1 != null && (closest == null || a.distanceToSqr(yh1) < a.distanceToSqr(closest))) {
+            closest = yh1;
+        }
+
+        if (zh0 != null && (closest == null || a.distanceToSqr(zh0) < a.distanceToSqr(closest))) {
+            closest = zh0;
+        }
+
+        if (zh1 != null && (closest == null || a.distanceToSqr(zh1) < a.distanceToSqr(closest))) {
+            closest = zh1;
+        }
+
+        if (closest == null)
+            return null;
+
+        int face = -1;
+        if (closest == xh0) {
+            face = 4;
+        }
+
+        if (closest == xh1) {
+            face = 5;
+        }
+
+        if (closest == yh0) {
+            face = 0;
+        }
+
+        if (closest == yh1) {
+            face = 1;
+        }
+
+        if (closest == zh0) {
+            face = 2;
+        }
+
+        if (closest == zh1) {
+            face = 3;
+        }
+
+        return new BigHitResult(BigInteger.ZERO, 0, BigInteger.ZERO, face, closest);
     }
 
     public void copyFrom(BigAABB c) {

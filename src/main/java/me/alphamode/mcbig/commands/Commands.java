@@ -6,20 +6,20 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import me.alphamode.mcbig.client.commands.ChatHistory;
+import me.alphamode.mcbig.client.commands.CommandHistory;
 import me.alphamode.mcbig.world.phys.BigAABB;
 import org.jetbrains.annotations.Nullable;
 
 public class Commands {
     public static final CommandDispatcher<CommandSource> DISPATCHER = new CommandDispatcher<>();
 
-    private final ChatHistory chatHistory;
+    private final CommandHistory chatHistory;
 
-    public Commands(ChatHistory chatHistory) {
+    public Commands(CommandHistory chatHistory) {
         this.chatHistory = chatHistory;
     }
 
-    public ChatHistory chatHistory() {
+    public CommandHistory chatHistory() {
         return chatHistory;
     }
 

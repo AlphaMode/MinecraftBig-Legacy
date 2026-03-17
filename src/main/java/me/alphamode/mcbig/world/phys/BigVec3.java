@@ -104,39 +104,63 @@ public class BigVec3 {
         return Mth.sqrt(this.x.doubleValue() * this.x.doubleValue() + this.y * this.y + this.z.doubleValue() * this.z.doubleValue());
     }
 
-    public BigVec3 clipX(BigVec3 other, double x) {
-        double d = other.x.subtract(this.x).doubleValue();
-        double e = other.y - this.y;
-        double f = other.z.subtract(this.z).doubleValue();
-        if (d * d < 1.0E-7F) {
+    public BigVec3 clipX(BigVec3 b, double xt) {
+        double xd = b.x.subtract(this.x).doubleValue();
+        double yd = b.y - this.y;
+        double zd = b.z.subtract(this.z).doubleValue();
+        if (xd * xd < 1.0E-7F) {
             return null;
         } else {
-            double g = (x - this.x.doubleValue()) / d;
-            return !(g < 0.0) && !(g > 1.0) ? newTemp(this.x.add(BigDecimal.valueOf(d * g)), this.y + e * g, this.z.add(BigDecimal.valueOf(f * g))) : null;
+            double d = (xt - this.x.doubleValue()) / xd;
+            return !(d < 0.0) && !(d > 1.0) ? newTemp(this.x.add(BigDecimal.valueOf(xd * d)), this.y + yd * d, this.z.add(BigDecimal.valueOf(zd * d))) : null;
         }
     }
 
-    public BigVec3 clipY(BigVec3 other, double y) {
-        double d = other.x.subtract(this.x).doubleValue();
-        double e = other.y - this.y;
-        double f = other.z.subtract(this.z).doubleValue();
-        if (e * e < 1.0E-7F) {
+    public BigVec3 clipX(BigVec3 b, BigDecimal xt) {
+        double xd = b.x.subtract(this.x).doubleValue();
+        double yd = b.y - this.y;
+        double zd = b.z.subtract(this.z).doubleValue();
+        if (xd * xd < 1.0E-7F) {
             return null;
         } else {
-            double g = (y - this.y) / e;
-            return !(g < 0.0) && !(g > 1.0) ? newTemp(this.x.add(BigDecimal.valueOf(d * g)), this.y + e * g, this.z.add(BigDecimal.valueOf(f * g))) : null;
+            double d = (xt.subtract(this.x)).doubleValue() / xd;
+            return !(d < 0.0) && !(d > 1.0) ? newTemp(this.x.add(BigDecimal.valueOf(xd * d)), this.y + yd * d, this.z.add(BigDecimal.valueOf(zd * d))) : null;
         }
     }
 
-    public BigVec3 clipZ(BigVec3 other, double z) {
-        double d = other.x.subtract(this.x).doubleValue();
-        double e = other.y - this.y;
-        double f = other.z.subtract(this.z).doubleValue();
-        if (f * f < 1.0E-7F) {
+    public BigVec3 clipY(BigVec3 b, double yt) {
+        double xd = b.x.subtract(this.x).doubleValue();
+        double yd = b.y - this.y;
+        double zd = b.z.subtract(this.z).doubleValue();
+        if (yd * yd < 1.0E-7F) {
             return null;
         } else {
-            double g = (z - this.z.doubleValue()) / f;
-            return !(g < 0.0) && !(g > 1.0) ? newTemp(this.x.add(BigDecimal.valueOf(d * g)), this.y + e * g, this.z.add(BigDecimal.valueOf(f * g))) : null;
+            double d = (yt - this.y) / yd;
+            return !(d < 0.0) && !(d > 1.0) ? newTemp(this.x.add(BigDecimal.valueOf(xd * d)), this.y + yd * d, this.z.add(BigDecimal.valueOf(zd * d))) : null;
+        }
+    }
+
+    public BigVec3 clipZ(BigVec3 b, double zt) {
+        double xd = b.x.subtract(this.x).doubleValue();
+        double yd = b.y - this.y;
+        double zd = b.z.subtract(this.z).doubleValue();
+        if (zd * zd < 1.0E-7F) {
+            return null;
+        } else {
+            double d = (zt - this.z.doubleValue()) / zd;
+            return !(d < 0.0) && !(d > 1.0) ? newTemp(this.x.add(BigDecimal.valueOf(xd * d)), this.y + yd * d, this.z.add(BigDecimal.valueOf(zd * d))) : null;
+        }
+    }
+
+    public BigVec3 clipZ(BigVec3 b, BigDecimal zt) {
+        double xd = b.x.subtract(this.x).doubleValue();
+        double yd = b.y - this.y;
+        double zd = b.z.subtract(this.z).doubleValue();
+        if (zd * zd < 1.0E-7F) {
+            return null;
+        } else {
+            double d = (zt.subtract(this.z)).doubleValue() / zd;
+            return !(d < 0.0) && !(d > 1.0) ? newTemp(this.x.add(BigDecimal.valueOf(xd * d)), this.y + yd * d, this.z.add(BigDecimal.valueOf(zd * d))) : null;
         }
     }
 

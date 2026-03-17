@@ -69,8 +69,16 @@ public abstract class LevelChunkMixin implements BigLevelChunkExtension {
 
             for (int i = 0; i < entityBlock.size(); ++i) {
                 Entity e = entityBlock.get(i);
-                if (e != ignore && ((BigEntityExtension)e).getBigBB().intersects(area)) {
-                    entities.add(e);
+                if (e != ignore) {
+                    if (e.isBigMovementEnabled()) {
+                        if (((BigEntityExtension)e).getBigBB().intersects(area)) {
+                            entities.add(e);
+                        }
+                    } else {
+                        if (e.bb.intersects(area.toVanilla())) {
+                            entities.add(e);
+                        }
+                    }
                 }
             }
         }

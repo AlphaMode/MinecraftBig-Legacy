@@ -78,6 +78,9 @@ public class CommandSuggestions extends GuiComponent {
         } else if (this.allowHiding && !isVisible) {
             return false;
         } else {
+            if (input.getValue().isEmpty()) {
+                return true;
+            }
             this.showSuggestions();
             return true;
         }
@@ -114,6 +117,8 @@ public class CommandSuggestions extends GuiComponent {
     public void hide() {
         this.suggestions = null;
     }
+
+
 
     private List<Suggestion> sortSuggestions(final Suggestions suggestions) {
         String partialCommand = this.input.getValue().substring(0, this.input.getCursorPosition());
