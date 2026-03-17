@@ -85,83 +85,57 @@ public abstract class LiquidTileMixin extends Tile implements BigTileExtension, 
 
     @Override
     public Vec3 getFlow(LevelSource level, BigInteger x, int y, BigInteger z) {
-        Vec3 var5 = Vec3.newTemp(0.0, 0.0, 0.0);
-        int var6 = this.getRenderedDepth(level, x, y, z);
+        Vec3 flow = Vec3.newTemp(0.0, 0.0, 0.0);
+        int mid = this.getRenderedDepth(level, x, y, z);
 
-        for(int dir = 0; dir < 4; ++dir) {
-            BigInteger var8 = x;
-            BigInteger var10 = z;
-            if (dir == 0) {
-                var8 = x.subtract(BigInteger.ONE);
+        for(int d = 0; d < 4; ++d) {
+            BigInteger xt = x;
+            BigInteger zt = z;
+            if (d == 0) {
+                xt = x.subtract(BigInteger.ONE);
             }
 
-            if (dir == 1) {
-                var10 = z.subtract(BigInteger.ONE);
+            if (d == 1) {
+                zt = z.subtract(BigInteger.ONE);
             }
 
-            if (dir == 2) {
-                var8 = var8.add(BigInteger.ONE);
+            if (d == 2) {
+                xt = xt.add(BigInteger.ONE);
             }
 
-            if (dir == 3) {
-                var10 = var10.add(BigInteger.ONE);
+            if (d == 3) {
+                zt = zt.add(BigInteger.ONE);
             }
 
-            int var11 = this.getRenderedDepth(level, var8, y, var10);
-            if (var11 < 0) {
-                if (!level.getMaterial(var8, y, var10).blocksMotion()) {
-                    var11 = this.getRenderedDepth(level, var8, y - 1, var10);
-                    if (var11 >= 0) {
-                        int var12 = var11 - (var6 - 8);
-                        var5 = var5.add((double)((var8.subtract(x)).doubleValue() * var12), (double)((y - y) * var12), (double)((var10.subtract(z)).doubleValue() * var12));
+            int t = this.getRenderedDepth(level, xt, y, zt);
+            if (t < 0) {
+                if (!level.getMaterial(xt, y, zt).blocksMotion()) {
+                    t = this.getRenderedDepth(level, xt, y - 1, zt);
+                    if (t >= 0) {
+                        int dir = t - (mid - 8);
+                        flow = flow.add((double)((xt.subtract(x)).doubleValue() * dir), (double)((y - y) * dir), (double)((zt.subtract(z)).doubleValue() * dir));
                     }
                 }
-            } else if (var11 >= 0) {
-                int var15 = var11 - var6;
-                var5 = var5.add((double)((var8.subtract(x)).doubleValue() * var15), (double)((y - y) * var15), (double)((var10.subtract(z)).doubleValue() * var15));
+            } else if (t >= 0) {
+                int dir = t - mid;
+                flow = flow.add((double)((xt.subtract(x)).doubleValue() * dir), (double)((y - y) * dir), (double)((zt.subtract(z)).doubleValue() * dir));
             }
         }
 
         if (level.getData(x, y, z) >= 8) {
-            boolean var13 = false;
-            if (var13 || this.isSolid(level, x, y, z.subtract(BigInteger.ONE), Facing.NORTH)) {
-                var13 = true;
-            }
-
-            if (var13 || this.isSolid(level, x, y, z.add(BigInteger.ONE), Facing.SOUTH)) {
-                var13 = true;
-            }
-
-            if (var13 || this.isSolid(level, x.subtract(BigInteger.ONE), y, z, Facing.WEST)) {
-                var13 = true;
-            }
-
-            if (var13 || this.isSolid(level, x.add(BigInteger.ONE), y, z, Facing.EAST)) {
-                var13 = true;
-            }
-
-            if (var13 || this.isSolid(level, x, y + 1, z.subtract(BigInteger.ONE), Facing.NORTH)) {
-                var13 = true;
-            }
-
-            if (var13 || this.isSolid(level, x, y + 1, z.add(BigInteger.ONE), Facing.SOUTH)) {
-                var13 = true;
-            }
-
-            if (var13 || this.isSolid(level, x.subtract(BigInteger.ONE), y + 1, z, Facing.WEST)) {
-                var13 = true;
-            }
-
-            if (var13 || this.isSolid(level, x.add(BigInteger.ONE), y + 1, z, Facing.EAST)) {
-                var13 = true;
-            }
-
-            if (var13) {
-                var5 = var5.normalize().add(0.0, -6.0, 0.0);
-            }
+            boolean ok = false;
+            if (ok || this.isSolid(level, x, y, z.subtract(BigInteger.ONE), Facing.NORTH)) ok = true;
+            if (ok || this.isSolid(level, x, y, z.add(BigInteger.ONE), Facing.SOUTH)) ok = true;
+            if (ok || this.isSolid(level, x.subtract(BigInteger.ONE), y, z, Facing.WEST)) ok = true;
+            if (ok || this.isSolid(level, x.add(BigInteger.ONE), y, z, Facing.EAST)) ok = true;
+            if (ok || this.isSolid(level, x, y + 1, z.subtract(BigInteger.ONE), Facing.NORTH)) ok = true;
+            if (ok || this.isSolid(level, x, y + 1, z.add(BigInteger.ONE), Facing.SOUTH)) ok = true;
+            if (ok || this.isSolid(level, x.subtract(BigInteger.ONE), y + 1, z, Facing.WEST)) ok = true;
+            if (ok || this.isSolid(level, x.add(BigInteger.ONE), y + 1, z, Facing.EAST)) ok = true;
+            if (ok) flow = flow.normalize().add(0.0, -6.0, 0.0);
         }
 
-        return var5.normalize();
+        return flow.normalize();
     }
 
     @Override
@@ -174,16 +148,16 @@ public abstract class LiquidTileMixin extends Tile implements BigTileExtension, 
 
     @Override
     public float getBrightness(LevelSource level, BigInteger x, int y, BigInteger z) {
-        float var5 = level.getBrightness(x, y, z);
-        float var6 = level.getBrightness(x, y + 1, z);
-        return var5 > var6 ? var5 : var6;
+        float a = level.getBrightness(x, y, z);
+        float b = level.getBrightness(x, y + 1, z);
+        return a > b ? a : b;
     }
 
     @Override
     public void animateTick(Level level, BigInteger x, int y, BigInteger z, Random random) {
         if (this.material == Material.WATER && random.nextInt(64) == 0) {
-            int var6 = level.getData(x, y, z);
-            if (var6 > 0 && var6 < 8) {
+            int d = level.getData(x, y, z);
+            if (d > 0 && d < 8) {
                 level.playSound(
                         (double)(x.doubleValue() + 0.5F),
                         (double)((float)y + 0.5F),
@@ -196,10 +170,10 @@ public abstract class LiquidTileMixin extends Tile implements BigTileExtension, 
         }
 
         if (this.material == Material.LAVA && level.getMaterial(x, y + 1, z) == Material.AIR && !level.isSolidTile(x, y + 1, z) && random.nextInt(100) == 0) {
-            double var12 = (double)(x.doubleValue() + random.nextFloat());
-            double var8 = (double)y + this.yy1;
-            double var10 = (double)(z.doubleValue() + random.nextFloat());
-            level.addParticle("lava", var12, var8, var10, 0.0, 0.0, 0.0);
+            double xx = (double)(x.doubleValue() + random.nextFloat());
+            double yy = (double)y + this.yy1;
+            double zz = (double)(z.doubleValue() + random.nextFloat());
+            level.addParticle("lava", xx, yy, zz, 0.0, 0.0, 0.0);
         }
     }
 
@@ -214,41 +188,26 @@ public abstract class LiquidTileMixin extends Tile implements BigTileExtension, 
     }
 
     private void updateLiquid(Level level, BigInteger x, int y, BigInteger z) {
-//        if (level.getTile(x, y, z) == this.id) {
-//            if (this.material == Material.LAVA) {
-//                boolean var5 = false;
-//                if (var5 || level.getMaterial(x, y, z.subtract(BigInteger.ONE)) == Material.WATER) {
-//                    var5 = true;
-//                }
-//
-//                if (var5 || level.getMaterial(x, y, z.add(BigInteger.ONE)) == Material.WATER) {
-//                    var5 = true;
-//                }
-//
-//                if (var5 || level.getMaterial(x.subtract(BigInteger.ONE), y, z) == Material.WATER) {
-//                    var5 = true;
-//                }
-//
-//                if (var5 || level.getMaterial(x.add(BigInteger.ONE), y, z) == Material.WATER) {
-//                    var5 = true;
-//                }
-//
-//                if (var5 || level.getMaterial(x, y + 1, z) == Material.WATER) {
-//                    var5 = true;
-//                }
-//
-//                if (var5) {
-//                    int var6 = level.getData(x, y, z);
-//                    if (var6 == 0) {
-//                        level.setTile(x, y, z, Tile.OBSIDIAN.id);
-//                    } else if (var6 <= 4) {
-//                        level.setTile(x, y, z, Tile.COBBLESTONE.id);
-//                    }
-//
-//                    this.fizz(level, x, y, z);
-//                }
-//            }
-//        }
+        if (level.getTile(x, y, z) != this.id) return;
+        if (this.material == Material.LAVA) {
+            boolean water = false;
+            if (water || level.getMaterial(x, y, z.subtract(BigInteger.ONE)) == Material.WATER) water = true;
+            if (water || level.getMaterial(x, y, z.add(BigInteger.ONE)) == Material.WATER) water = true;
+            if (water || level.getMaterial(x.subtract(BigInteger.ONE), y, z) == Material.WATER) water = true;
+            if (water || level.getMaterial(x.add(BigInteger.ONE), y, z) == Material.WATER) water = true;
+            if (water || level.getMaterial(x, y + 1, z) == Material.WATER) water = true;
+
+            if (water) {
+                int data = level.getData(x, y, z);
+                if (data == 0) {
+                    level.setTile(x, y, z, Tile.OBSIDIAN.id);
+                } else if (data <= 4) {
+                    level.setTile(x, y, z, Tile.COBBLESTONE.id);
+                }
+
+                this.fizz(level, x, y, z);
+            }
+        }
     }
 
     @Override

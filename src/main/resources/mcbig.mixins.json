@@ -5,6 +5,9 @@
   "plugin": "me.alphamode.mcbig.mixin.McBigMixinPlugin",
   "compatibilityLevel": "JAVA_8",
   "mixinPriority": 900,
+  "mixinextras": {
+    "minVersion": "0.5.0"
+  },
   "mixins": [
     "BiomeSourceMixin",
     "ChunkSourceMixin",
@@ -116,7 +119,6 @@
     "client.ChunkMixin",
     "client.EntityRendererMixin",
     "client.GameModeMixin",
-    "client.GameRendererMixin",
     "client.GuiMixin",
     "client.ItemInHandRendererMixin",
     "client.MinecraftMixin",

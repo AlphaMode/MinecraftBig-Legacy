@@ -4,16 +4,12 @@ import me.alphamode.mcbig.level.entity.EntityManager;
 import me.alphamode.mcbig.world.phys.BigAABB;
 import me.alphamode.mcbig.world.phys.BigVec3;
 import me.alphamode.mcbig.world.phys.BigVec3i;
-import net.minecraft.util.Vec3i;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.LevelListener;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.tile.entity.TileEntity;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -227,7 +223,7 @@ public interface BigLevelExtension {
         throw new UnsupportedOperationException();
     }
 
-    default boolean containsAnyTiles(BigAABB area) {
+    default boolean containsAnyBlocks(BigAABB area) {
         throw new UnsupportedOperationException();
     }
 

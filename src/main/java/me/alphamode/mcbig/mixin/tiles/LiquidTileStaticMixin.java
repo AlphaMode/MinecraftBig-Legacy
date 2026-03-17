@@ -25,9 +25,9 @@ public abstract class LiquidTileStaticMixin extends Tile implements BigTileExten
     }
 
     private void setDynamic(Level level, BigInteger x, int y, BigInteger z) {
-        int var5 = level.getData(x, y, z);
+        int d = level.getData(x, y, z);
         level.noNeighborUpdate = true;
-        level.setTileAndDataNoUpdate(x, y, z, this.id - 1, var5);
+        level.setTileAndDataNoUpdate(x, y, z, this.id - 1, d);
         level.setTilesDirty(x, y, z, x, y, z);
         level.addToTickNextTick(x, y, z, this.id - 1, this.getTickDelay());
         level.noNeighborUpdate = false;
@@ -36,14 +36,14 @@ public abstract class LiquidTileStaticMixin extends Tile implements BigTileExten
     @Override
     public void tick(Level level, BigInteger x, int y, BigInteger z, Random random) {
         if (this.material == Material.LAVA) {
-            int var6 = random.nextInt(3);
+            int h = random.nextInt(3);
 
-            for(int var7 = 0; var7 < var6; ++var7) {
+            for(int i = 0; i < h; ++i) {
                 x = x.add(BigInteger.valueOf(random.nextInt(3) - 1));
-                ++y;
+                y++;
                 z = z.add(BigInteger.valueOf(random.nextInt(3) - 1));
-                int var8 = level.getTile(x, y, z);
-                if (var8 == 0) {
+                int t = level.getTile(x, y, z);
+                if (t == 0) {
                     if (this.isFlammable(level, x.subtract(BigInteger.ONE), y, z)
                             || this.isFlammable(level, x.add(BigInteger.ONE), y, z)
                             || this.isFlammable(level, x, y, z.subtract(BigInteger.ONE))
@@ -53,7 +53,7 @@ public abstract class LiquidTileStaticMixin extends Tile implements BigTileExten
                         level.setTile(x, y, z, Tile.FIRE.id);
                         return;
                     }
-                } else if (Tile.tiles[var8].material.blocksMotion()) {
+                } else if (Tile.tiles[t].material.blocksMotion()) {
                     return;
                 }
             }

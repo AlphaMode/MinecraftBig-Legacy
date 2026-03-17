@@ -208,7 +208,7 @@ public abstract class PlayerConnectionMixin implements BigPlayerConnectionExtens
             }
 
             BigAABB var25 = bigPlayer.getBigBB().copy().inflate(var21, var21, var21).expand(0.0, -0.55, 0.0);
-            if (this.server.allowFlight || var2.containsAnyTiles(var25)) {
+            if (this.server.allowFlight || var2.containsAnyBlocks(var25)) {
                 this.aboveGroundTickCount = 0;
             } else if (var15 >= -0.03125) {
                 this.aboveGroundTickCount++;

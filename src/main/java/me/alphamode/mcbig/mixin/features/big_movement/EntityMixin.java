@@ -1045,4 +1045,12 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
             setZOld(new BigDecimal(z));
         }
     }
+
+    @Override
+    public double distanceToSqr(BigDecimal x, double y, BigDecimal z) {
+        double xd = this.getX().subtract(x).doubleValue();
+        double yd = this.y - y;
+        double zd = this.getZ().subtract(z).doubleValue();
+        return xd * xd + yd * yd + zd * zd;
+    }
 }

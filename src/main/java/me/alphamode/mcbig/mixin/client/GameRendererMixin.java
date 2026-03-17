@@ -74,12 +74,80 @@ public abstract class GameRendererMixin {
             this.mc.cameraEntity = this.mc.player;
         }
 
-        float br = this.mc.level.getBrightness(BigMath.floor(this.mc.cameraEntity.x), Mth.floor(this.mc.cameraEntity.y), BigMath.floor(this.mc.cameraEntity.z));
-        float distance = (float)(3 - this.mc.options.viewDistance) / 3.0F;
-        float var3 = br * (1.0F - distance) + distance;
-        this.fogBr += (var3 - this.fogBr) * 0.1F;
+        BigEntityExtension bigCamera = (BigEntityExtension) this.mc.cameraEntity;
+        float br = this.mc.level.getBrightness(BigMath.floor(bigCamera.getX()), Mth.floor(this.mc.cameraEntity.y), BigMath.floor(bigCamera.getZ()));
+        float whiteness = (float)(3 - this.mc.options.viewDistance) / 3.0F;
+        float fogBrT = br * (1.0F - whiteness) + whiteness;
+        this.fogBr += (fogBrT - this.fogBr) * 0.1F;
         ++this.tick;
         this.itemInHandRenderer.tick();
         this.tickRain();
+    }
+
+    /**
+     * @author
+     * @reason
+     */
+    @Overwrite
+    public void pick(float partialTick) {
+        if (this.mc.cameraEntity != null) {
+            if (this.mc.level != null) {
+                double pickRange = this.mc.gameMode.getPickRange();
+                this.mc.hitResult = this.mc.cameraEntity.pick(pickRange, partialTick);
+                double pickDistance = pickRange;
+                BigEntityExtension bigCamera = (BigEntityExtension) this.mc.cameraEntity;
+                BigVec3 cameraPos = ((BigMobExtension)this.mc.cameraEntity).getBigPos(partialTick);
+                if (this.mc.hitResult != null) {
+                    pickDistance = ((BigHitResult) this.mc.hitResult).posBig.distanceTo(cameraPos);
+                }
+
+                if (this.mc.gameMode instanceof CreativeMode) {
+                    pickRange = 32.0;
+                    pickDistance = 32.0;
+                } else {
+                    if (pickDistance > 3.0) {
+                        pickDistance = 3.0;
+                    }
+
+                    pickRange = pickDistance;
+                }
+
+                Vec3 view = this.mc.cameraEntity.getViewVector(partialTick);
+                BigVec3 pickVec = cameraPos.add(view.x * pickRange, view.y * pickRange, view.z * pickRange);
+                this.hovered = null;
+                float range = 1.0F;
+                List<Entity> entities = this.mc
+                        .level
+                        .getEntities(
+                                this.mc.cameraEntity, this.mc.cameraEntity.bb.expand(view.x * pickRange, view.y * pickRange, view.z * pickRange).inflate(range, range, range)
+                        );
+                double var11 = 0.0;
+
+                for(int i = 0; i < entities.size(); ++i) {
+                    Entity entity = entities.get(i);
+                    if (entity.isPickable()) {
+                        float pickRadius = entity.getPickRadius();
+                        AABB bb = entity.bb.inflate(pickRadius, pickRadius, pickRadius);
+                        BigHitResult hit = (BigHitResult) bb.clip(cameraPos.toVanilla(), pickVec.toVanilla());
+                        if (bb.intersects(cameraPos.toVanilla())) {
+                            if (0.0 < var11 || var11 == 0.0) {
+                                this.hovered = entity;
+                                var11 = 0.0;
+                            }
+                        } else if (hit != null) {
+                            double var18 = cameraPos.distanceTo(hit.posBig);
+                            if (var18 < var11 || var11 == 0.0) {
+                                this.hovered = entity;
+                                var11 = var18;
+                            }
+                        }
+                    }
+                }
+
+                if (this.hovered != null && !(this.mc.gameMode instanceof CreativeMode)) {
+                    this.mc.hitResult = new BigHitResult(this.hovered);
+                }
+            }
+        }
     }
 }
