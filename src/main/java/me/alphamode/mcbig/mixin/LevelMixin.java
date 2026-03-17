@@ -1169,10 +1169,10 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
     @Override
     public List<Entity> getEntities(Entity entity, BigAABB area) {
         this.es.clear();
-        BigInteger x0 = BigMath.floor(area.x0().subtract(BigConstants.TWO).divide(BigConstants.SIXTEEN_F));
-        BigInteger x1 = BigMath.floor(area.x1().add(BigConstants.TWO).divide(BigConstants.SIXTEEN_F));
-        BigInteger z0 = BigMath.floor(area.z0().subtract(BigConstants.TWO).divide(BigConstants.SIXTEEN_F));
-        BigInteger z1 = BigMath.floor(area.z1().add(BigConstants.TWO).divide(BigConstants.SIXTEEN_F));
+        BigInteger x0 = BigMath.floor(area.x0().subtract(BigDecimal.TWO).divide(BigConstants.SIXTEEN_F));
+        BigInteger x1 = BigMath.floor(area.x1().add(BigDecimal.TWO).divide(BigConstants.SIXTEEN_F));
+        BigInteger z0 = BigMath.floor(area.z0().subtract(BigDecimal.TWO).divide(BigConstants.SIXTEEN_F));
+        BigInteger z1 = BigMath.floor(area.z1().add(BigDecimal.TWO).divide(BigConstants.SIXTEEN_F));
 
         for (BigInteger x = x0; x.compareTo(x1) <= 0; x = x.add(BigInteger.ONE)) {
             for (BigInteger z = z0; z.compareTo(z1) <= 0; z = z.add(BigInteger.ONE)) {
@@ -2069,74 +2069,74 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
      * @reason
      */
     @Overwrite
-    public void tick(Entity entity, boolean tick) {
-        if (entity instanceof Player && entity instanceof BigEntityExtension bigEntity) {
-            tickPlayer((Player) entity, tick);
+    public void tick(Entity e, boolean actual) {
+        if (e instanceof Player && e instanceof BigEntityExtension bigEntity) {
+            tickPlayer((Player) e, actual);
             return;
         }
-        BigInteger var3 = BigMath.floor(entity.x);
-        BigInteger var4 = BigMath.floor(entity.z);
-        BigInteger var5 = BigInteger.valueOf(32);
-        if (!tick || this.hasChunksAt(var3.subtract(var5), 0, var4.subtract(var5), var3.add(var5), 128, var4.add(var5))) {
-            entity.xOld = entity.x;
-            entity.yOld = entity.y;
-            entity.zOld = entity.z;
-            if (entity instanceof BigEntityExtension bigEntity && entity.isBigMovementEnabled()) {
+        BigInteger xc = BigMath.floor(e.x);
+        BigInteger zc = BigMath.floor(e.z);
+        BigInteger r = BigInteger.valueOf(32);
+        if (!actual || this.hasChunksAt(xc.subtract(r), 0, zc.subtract(r), xc.add(r), 128, zc.add(r))) {
+            e.xOld = e.x;
+            e.yOld = e.y;
+            e.zOld = e.z;
+            if (e instanceof BigEntityExtension bigEntity && e.isBigMovementEnabled()) {
                 bigEntity.setXOld(bigEntity.getX());
                 bigEntity.setZOld(bigEntity.getZ());
             }
-            entity.yRotO = entity.yRot;
-            entity.xRotO = entity.xRot;
-            if (tick && entity.inChunk) {
-                if (entity.riding != null) {
-                    entity.rideTick();
+            e.yRotO = e.yRot;
+            e.xRotO = e.xRot;
+            if (actual && e.inChunk) {
+                if (e.riding != null) {
+                    e.rideTick();
                 } else {
-                    entity.tick();
+                    e.tick();
                 }
             }
 
-            if (Double.isNaN(entity.x) || Double.isInfinite(entity.x)) {
-                entity.x = entity.xOld;
+            if (Double.isNaN(e.x) || Double.isInfinite(e.x)) {
+                e.x = e.xOld;
             }
 
-            if (Double.isNaN(entity.y) || Double.isInfinite(entity.y)) {
-                entity.y = entity.yOld;
+            if (Double.isNaN(e.y) || Double.isInfinite(e.y)) {
+                e.y = e.yOld;
             }
 
-            if (Double.isNaN(entity.z) || Double.isInfinite(entity.z)) {
-                entity.z = entity.zOld;
+            if (Double.isNaN(e.z) || Double.isInfinite(e.z)) {
+                e.z = e.zOld;
             }
 
-            if (Double.isNaN((double) entity.xRot) || Double.isInfinite((double) entity.xRot)) {
-                entity.xRot = entity.xRotO;
+            if (Double.isNaN(e.xRot) || Double.isInfinite(e.xRot)) {
+                e.xRot = e.xRotO;
             }
 
-            if (Double.isNaN((double) entity.yRot) || Double.isInfinite((double) entity.yRot)) {
-                entity.yRot = entity.yRotO;
+            if (Double.isNaN(e.yRot) || Double.isInfinite(e.yRot)) {
+                e.yRot = e.yRotO;
             }
 
-            BigInteger xc = BigMath.floor(entity.x / 16.0);
-            int yc = Mth.floor(entity.y / 16.0);
-            BigInteger zc = BigMath.floor(entity.z / 16.0);
-            if (!entity.inChunk || !entity.getXChunk().equals(xc) || entity.yChunk != yc || !entity.getZChunk().equals(zc)) {
-                if (entity.inChunk && this.hasChunk(entity.getXChunk(), entity.getZChunk())) {
-                    this.getChunk(entity.getXChunk(), entity.getZChunk()).removeEntity(entity, entity.yChunk);
+            BigInteger xcn = BigMath.floor(e.x / 16.0);
+            int ycn = Mth.floor(e.y / 16.0);
+            BigInteger zcn = BigMath.floor(e.z / 16.0);
+            if (!e.inChunk || !e.getXChunk().equals(xcn) || e.yChunk != ycn || !e.getZChunk().equals(zcn)) {
+                if (e.inChunk && this.hasChunk(e.getXChunk(), e.getZChunk())) {
+                    this.getChunk(e.getXChunk(), e.getZChunk()).removeEntity(e, e.yChunk);
                 }
 
-                if (this.hasChunk(xc, zc)) {
-                    entity.inChunk = true;
-                    this.getChunk(xc, zc).addEntity(entity);
+                if (this.hasChunk(xcn, zcn)) {
+                    e.inChunk = true;
+                    this.getChunk(xcn, zcn).addEntity(e);
                 } else {
-                    entity.inChunk = false;
+                    e.inChunk = false;
                 }
             }
 
-            if (tick && entity.inChunk && entity.rider != null) {
-                if (!entity.rider.removed && entity.rider.riding == entity) {
-                    this.tick(entity.rider);
+            if (actual && e.inChunk && e.rider != null) {
+                if (!e.rider.removed && e.rider.riding == e) {
+                    this.tick(e.rider);
                 } else {
-                    entity.rider.riding = null;
-                    entity.rider = null;
+                    e.rider.riding = null;
+                    e.rider = null;
                 }
             }
         }

@@ -42,11 +42,11 @@ public class BigRegion extends Region implements BigLevelSourceExtension {
         } else if (y >= 128) {
             return 0;
         } else {
-            int var4 = (x.shiftRight(4)).subtract(this.xc1).intValue();
-            int var5 = (z.shiftRight(4)).subtract(this.zc1).intValue();
-            if (var4 >= 0 && var4 < this.chunks.length && var5 >= 0 && var5 < this.chunks[var4].length) {
-                LevelChunk var6 = this.chunks[var4][var5];
-                return var6 == null ? 0 : var6.getTile(x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue());
+            int xc = (x.shiftRight(4)).subtract(this.xc1).intValue();
+            int zc = (z.shiftRight(4)).subtract(this.zc1).intValue();
+            if (xc >= 0 && xc < this.chunks.length && zc >= 0 && zc < this.chunks[xc].length) {
+                LevelChunk lc = this.chunks[xc][zc];
+                return lc == null ? 0 : lc.getTile(x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue());
             } else {
                 return 0;
             }
@@ -55,9 +55,9 @@ public class BigRegion extends Region implements BigLevelSourceExtension {
 
     @Override
     public TileEntity getTileEntity(BigInteger x, int y, BigInteger z) {
-        int var4 = (x.shiftRight(4)).subtract(this.xc1).intValue();
-        int var5 = (z.shiftRight(4)).subtract(this.zc1).intValue();
-        return this.chunks[var4][var5].getTileEntity(x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue());
+        int xc = (x.shiftRight(4)).subtract(this.xc1).intValue();
+        int zc = (z.shiftRight(4)).subtract(this.zc1).intValue();
+        return this.chunks[xc][zc].getTileEntity(x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue());
     }
 
     @Override
@@ -81,48 +81,48 @@ public class BigRegion extends Region implements BigLevelSourceExtension {
     }
 
     @Environment(EnvType.CLIENT)
-    public int getRawBrightness(BigInteger x, int y, BigInteger z, boolean checkNeighbors) {
-        if (checkNeighbors) {
-            int var5 = this.getTile(x, y, z);
-            if (var5 == Tile.SLAB.id || var5 == Tile.FARMLAND.id || var5 == Tile.WOOD_STAIRS.id || var5 == Tile.COBBLESTONE_STAIRS.id) {
-                int var13 = this.getRawBrightness(x, y + 1, z, false);
-                int var7 = this.getRawBrightness(x.add(BigInteger.ONE), y, z, false);
-                int var8 = this.getRawBrightness(x.subtract(BigInteger.ONE), y, z, false);
-                int var9 = this.getRawBrightness(x, y, z.add(BigInteger.ONE), false);
-                int var10 = this.getRawBrightness(x, y, z.subtract(BigInteger.ONE), false);
-                if (var7 > var13) {
-                    var13 = var7;
+    public int getRawBrightness(BigInteger x, int y, BigInteger z, boolean propagate) {
+        if (propagate) {
+            int id = this.getTile(x, y, z);
+            if (id == Tile.SLAB.id || id == Tile.FARMLAND.id || id == Tile.WOOD_STAIRS.id || id == Tile.COBBLESTONE_STAIRS.id) {
+                int br = this.getRawBrightness(x, y + 1, z, false);
+                int br1 = this.getRawBrightness(x.add(BigInteger.ONE), y, z, false);
+                int br2 = this.getRawBrightness(x.subtract(BigInteger.ONE), y, z, false);
+                int br3 = this.getRawBrightness(x, y, z.add(BigInteger.ONE), false);
+                int br4 = this.getRawBrightness(x, y, z.subtract(BigInteger.ONE), false);
+                if (br1 > br) {
+                    br = br1;
                 }
 
-                if (var8 > var13) {
-                    var13 = var8;
+                if (br2 > br) {
+                    br = br2;
                 }
 
-                if (var9 > var13) {
-                    var13 = var9;
+                if (br3 > br) {
+                    br = br3;
                 }
 
-                if (var10 > var13) {
-                    var13 = var10;
+                if (br4 > br) {
+                    br = br4;
                 }
 
-                return var13;
+                return br;
             }
         }
 
         if (y < 0) {
             return 0;
         } else if (y >= 128) {
-            int var12 = 15 - this.level.skyDarken;
-            if (var12 < 0) {
-                var12 = 0;
+            int br = 15 - this.level.skyDarken;
+            if (br < 0) {
+                br = 0;
             }
 
-            return var12;
+            return br;
         } else {
-            int var11 = (x.shiftRight(4)).subtract(this.xc1).intValue();
-            int var6 = (z.shiftRight(4)).subtract(this.zc1).intValue();
-            return this.chunks[var11][var6].getRawBrightness(x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue(), this.level.skyDarken);
+            int xc = (x.shiftRight(4)).subtract(this.xc1).intValue();
+            int zc = (z.shiftRight(4)).subtract(this.zc1).intValue();
+            return this.chunks[xc][zc].getRawBrightness(x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue(), this.level.skyDarken);
         }
     }
 
@@ -133,16 +133,16 @@ public class BigRegion extends Region implements BigLevelSourceExtension {
         } else if (y >= 128) {
             return 0;
         } else {
-            int var4 = (x.shiftRight(4)).subtract(this.xc1).intValue();
-            int var5 = (z.shiftRight(4)).subtract(this.zc1).intValue();
-            return this.chunks[var4][var5].getData(x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue());
+            int xc = (x.shiftRight(4)).subtract(this.xc1).intValue();
+            int zc = (z.shiftRight(4)).subtract(this.zc1).intValue();
+            return this.chunks[xc][zc].getData(x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue());
         }
     }
 
     @Override
     public Material getMaterial(BigInteger x, int y, BigInteger z) {
-        int tile = getTile(x, y, z);
-        return tile == 0 ? Material.AIR : Tile.tiles[tile].material;
+        int t = getTile(x, y, z);
+        return t == 0 ? Material.AIR : Tile.tiles[t].material;
     }
 
     @Override

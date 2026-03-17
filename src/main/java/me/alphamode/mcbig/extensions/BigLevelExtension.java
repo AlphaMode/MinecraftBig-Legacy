@@ -1,5 +1,6 @@
 package me.alphamode.mcbig.extensions;
 
+import me.alphamode.mcbig.level.entity.EntityManager;
 import me.alphamode.mcbig.world.phys.BigAABB;
 import me.alphamode.mcbig.world.phys.BigVec3;
 import me.alphamode.mcbig.world.phys.BigVec3i;
@@ -62,13 +63,21 @@ public interface BigLevelExtension {
         throw new UnsupportedOperationException();
     }
 
-    boolean isEmptyTile(BigInteger x, int y, BigInteger z);
+    default boolean isEmptyTile(BigInteger x, int y, BigInteger z) {
+        throw new UnsupportedOperationException();
+    }
 
-    boolean hasChunkAt(BigInteger x, int y, BigInteger z);
+    default boolean hasChunkAt(BigInteger x, int y, BigInteger z) {
+        throw new UnsupportedOperationException();
+    }
 
-    boolean hasChunksAt(BigInteger x, int y, BigInteger z, int range);
+    default boolean hasChunksAt(BigInteger x, int y, BigInteger z, int range) {
+        throw new UnsupportedOperationException();
+    }
 
-    boolean hasChunksAt(BigInteger minX, int minY, BigInteger minZ, BigInteger maxX, int maxY, BigInteger maxZ);
+    default boolean hasChunksAt(BigInteger minX, int minY, BigInteger minZ, BigInteger maxX, int maxY, BigInteger maxZ) {
+        throw new UnsupportedOperationException();
+    }
 
     default LevelChunk getChunk(BigInteger x, BigInteger z) {
         throw new UnsupportedOperationException();
@@ -231,6 +240,10 @@ public interface BigLevelExtension {
     }
 
     default HitResult clip(BigVec3 from, BigVec3 to, boolean checkLiquid, boolean bl) {
+        throw new UnsupportedOperationException();
+    }
+
+    default EntityManager getEntityManager() {
         throw new UnsupportedOperationException();
     }
 }

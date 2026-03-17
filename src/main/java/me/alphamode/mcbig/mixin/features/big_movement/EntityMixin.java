@@ -193,13 +193,14 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
 //        }
         if (this.noPhysics) {
             this.bbBig.grow(xa, ya, za);
-            this.setX(this.bbBig.x0().add(this.bbBig.x1()).divide(BigConstants.TWO, RoundingMode.HALF_EVEN));
+            this.setX(this.bbBig.x0().add(this.bbBig.x1()).divide(BigDecimal.TWO, RoundingMode.HALF_EVEN));
             this.y = this.bbBig.y0() + this.heightOffset - this.ySlideOffset;
-            this.setZ(this.bbBig.z0().add(this.bbBig.z1()).divide(BigConstants.TWO, RoundingMode.HALF_EVEN));
+            this.setZ(this.bbBig.z0().add(this.bbBig.z1()).divide(BigDecimal.TWO, RoundingMode.HALF_EVEN));
         } else {
             this.ySlideOffset *= 0.4F;
-            BigDecimal var7 = this.getX();
-            BigDecimal var9 = this.getZ();
+            BigDecimal xo = this.getX();
+            BigDecimal zo = this.getZ();
+
             if (this.stuckInBlock) {
                 this.stuckInBlock = false;
                 xa *= 0.25;
@@ -210,55 +211,56 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
                 this.zd = 0.0;
             }
 
-            double txa = xa;
-            double tya = ya;
-            double tza = za;
-            BigAABB var17 = this.bbBig.copy();
-            boolean slowWalking = this.onGround && this.isSneaking();
-            if (slowWalking) {
-                double var19;
-                for (var19 = 0.05; xa != 0.0 && this.level.getCubes((Entity) (Object) this, this.bbBig.offset(xa, -1.0, 0.0)).size() == 0; txa = xa) {
-                    if (xa < var19 && xa >= -var19) {
+            double xaOrg = xa;
+            double yaOrg = ya;
+            double zaOrg = za;
+            BigAABB bbOrg = this.bbBig.copy();
+            boolean sneaking = this.onGround && this.isSneaking();
+            if (sneaking) {
+                double d;
+                for (d = 0.05; xa != 0.0 && this.level.getCubes((Entity) (Object) this, this.bbBig.offset(xa, -1.0, 0.0)).size() == 0; xaOrg = xa) {
+                    if (xa < d && xa >= -d) {
                         xa = 0.0;
                     } else if (xa > 0.0) {
-                        xa -= var19;
+                        xa -= d;
                     } else {
-                        xa += var19;
+                        xa += d;
                     }
                 }
 
-                for (; za != 0.0 && this.level.getCubes((Entity) (Object) this, this.bbBig.offset(0.0, -1.0, za)).size() == 0; tza = za) {
-                    if (za < var19 && za >= -var19) {
+                for (; za != 0.0 && this.level.getCubes((Entity) (Object) this, this.bbBig.offset(0.0, -1.0, za)).size() == 0; zaOrg = za) {
+                    if (za < d && za >= -d) {
                         za = 0.0;
                     } else if (za > 0.0) {
-                        za -= var19;
+                        za -= d;
                     } else {
-                        za += var19;
+                        za += d;
                     }
                 }
             }
 
             List<BigAABB> cubes = this.level.getCubes((Entity) (Object) this, this.bbBig.expand(xa, ya, za));
 
+            // LAND FIRST, then x and z
             for (int i = 0; i < cubes.size(); i++) {
                 ya = cubes.get(i).clipYCollide(this.bbBig, ya);
             }
 
             this.bbBig.grow(0.0, ya, 0.0);
-            if (!this.slide && tya != ya) {
+            if (!this.slide && yaOrg != ya) {
                 za = 0.0;
                 ya = 0.0;
                 xa = 0.0;
             }
 
-            boolean walking = this.onGround || tya != ya && tya < 0.0;
+            boolean og = this.onGround || yaOrg != ya && yaOrg < 0.0;
 
             for (int i = 0; i < cubes.size(); i++) {
                 xa = cubes.get(i).clipXCollide(this.bbBig, xa);
             }
 
             this.bbBig.grow(xa, 0.0, 0.0);
-            if (!this.slide && txa != xa) {
+            if (!this.slide && xaOrg != xa) {
                 za = 0.0;
                 ya = 0.0;
                 xa = 0.0;
@@ -269,29 +271,30 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
             }
 
             this.bbBig.grow(0.0, 0.0, za);
-            if (!this.slide && tza != za) {
+            if (!this.slide && zaOrg != za) {
                 za = 0.0;
                 ya = 0.0;
                 xa = 0.0;
             }
 
-            if (this.footSize > 0.0F && walking && (slowWalking || this.ySlideOffset < 0.05F) && (txa != xa || tza != za)) {
-                double var40 = xa;
-                double var23 = ya;
-                double var25 = za;
-                xa = txa;
+            if (this.footSize > 0.0F && og && (sneaking || this.ySlideOffset < 0.05F) && (xaOrg != xa || zaOrg != za)) {
+                double xaN = xa;
+                double yaN = ya;
+                double zaN = za;
+                xa = xaOrg;
                 ya = this.footSize;
-                za = tza;
+                za = zaOrg;
                 BigAABB var27 = this.bbBig.copy();
-                this.bbBig.copyFrom(var17);
-                cubes = this.level.getCubes((Entity) (Object) this, this.bbBig.expand(txa, ya, tza));
+                this.bbBig.copyFrom(bbOrg);
+                cubes = this.level.getCubes((Entity) (Object) this, this.bbBig.expand(xaOrg, ya, zaOrg));
 
+                // LAND FIRST, then x and z
                 for (int i = 0; i < cubes.size(); i++) {
                     ya = cubes.get(i).clipYCollide(this.bbBig, ya);
                 }
 
                 this.bbBig.grow(0.0, ya, 0.0);
-                if (!this.slide && tya != ya) {
+                if (!this.slide && yaOrg != ya) {
                     za = 0.0;
                     ya = 0.0;
                     xa = 0.0;
@@ -302,7 +305,7 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
                 }
 
                 this.bbBig.grow(xa, 0.0, 0.0);
-                if (!this.slide && txa != xa) {
+                if (!this.slide && xaOrg != xa) {
                     za = 0.0;
                     ya = 0.0;
                     xa = 0.0;
@@ -313,13 +316,13 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
                 }
 
                 this.bbBig.grow(0.0, 0.0, za);
-                if (!this.slide && tza != za) {
+                if (!this.slide && zaOrg != za) {
                     za = 0.0;
                     ya = 0.0;
                     xa = 0.0;
                 }
 
-                if (!this.slide && tya != ya) {
+                if (!this.slide && yaOrg != ya) {
                     za = 0.0;
                     ya = 0.0;
                     xa = 0.0;
@@ -333,10 +336,10 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
                     this.bbBig.grow(0.0, ya, 0.0);
                 }
 
-                if (var40 * var40 + var25 * var25 >= xa * xa + za * za) {
-                    xa = var40;
-                    ya = var23;
-                    za = var25;
+                if (xaN * xaN + zaN * zaN >= xa * xa + za * za) {
+                    xa = xaN;
+                    ya = yaN;
+                    za = zaN;
                     this.bbBig.copyFrom(var27);
                 } else {
                     double var51 = this.bbBig.y0() - (int)this.bbBig.y0();
@@ -346,50 +349,50 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
                 }
             }
 
-            this.setX(this.bbBig.x0().add(this.bbBig.x1(), BigMath.CONTEXT).divide(BigConstants.TWO, RoundingMode.HALF_EVEN));
+            this.setX(this.bbBig.x0().add(this.bbBig.x1(), BigMath.CONTEXT).divide(BigDecimal.TWO, RoundingMode.HALF_EVEN));
             this.y = this.bbBig.y0() + this.heightOffset - this.ySlideOffset;
-            this.setZ(this.bbBig.z0().add(this.bbBig.z1()).divide(BigConstants.TWO, RoundingMode.HALF_EVEN));
+            this.setZ(this.bbBig.z0().add(this.bbBig.z1()).divide(BigDecimal.TWO, RoundingMode.HALF_EVEN));
 
-            this.horizontalCollision = txa != xa || tza != za;
-            this.verticalCollision = tya != ya;
-            this.onGround = tya != ya && tya < 0.0;
+            this.horizontalCollision = xaOrg != xa || zaOrg != za;
+            this.verticalCollision = yaOrg != ya;
+            this.onGround = yaOrg != ya && yaOrg < 0.0;
             this.collision = this.horizontalCollision || this.verticalCollision;
             this.checkFallDamage(ya, this.onGround);
-            if (txa != xa) {
+            if (xaOrg != xa) {
                 this.xd = 0.0;
             }
 
-            if (tya != ya) {
+            if (yaOrg != ya) {
                 this.yd = 0.0;
             }
 
-            if (tza != za) {
+            if (zaOrg != za) {
                 this.zd = 0.0;
             }
 
-            double var41 = this.getX().subtract(var7).doubleValue();
-            double var42 = this.getZ().subtract(var9).doubleValue();
-            if (this.isMovementNoisy() && !slowWalking && this.riding == null) {
-                this.walkDist = (float)(this.walkDist + Mth.sqrt(var41 * var41 + var42 * var42) * 0.6);
-                BigInteger x = BigMath.floor(this.getX());
-                int y = Mth.floor(this.y - 0.2F - this.heightOffset);
-                BigInteger z = BigMath.floor(this.getZ());
-                int t = this.level.getTile(x, y, z);
-                if (this.level.getTile(x, y - 1, z) == Tile.OAK_FENCE.id) {
-                    t = this.level.getTile(x, y - 1, z);
+            double xm = this.getX().subtract(xo).doubleValue();
+            double zm = this.getZ().subtract(zo).doubleValue();
+            if (this.isMovementNoisy() && !sneaking && this.riding == null) {
+                this.walkDist = (float)(this.walkDist + Mth.sqrt(xm * xm + zm * zm) * 0.6);
+                BigInteger xt = BigMath.floor(this.getX());
+                int yt = Mth.floor(this.y - 0.2F - this.heightOffset);
+                BigInteger zt = BigMath.floor(this.getZ());
+                int t = this.level.getTile(xt, yt, zt);
+                if (this.level.getTile(xt, yt - 1, zt) == Tile.OAK_FENCE.id) {
+                    t = this.level.getTile(xt, yt - 1, zt);
                 }
 
                 if (this.walkDist > this.nextStep && t > 0) {
                     this.nextStep++;
                     Tile.SoundType soundType = Tile.tiles[t].soundType;
-                    if (this.level.getTile(x, y + 1, z) == Tile.SNOW_LAYER.id) {
+                    if (this.level.getTile(xt, yt + 1, zt) == Tile.SNOW_LAYER.id) {
                         soundType = Tile.SNOW_LAYER.soundType;
                         this.level.playSound((Entity) (Object) this, soundType.getStepSound(), soundType.getVolume() * 0.15F, soundType.getPitch());
                     } else if (!Tile.tiles[t].material.isLiquid()) {
                         this.level.playSound((Entity) (Object) this, soundType.getStepSound(), soundType.getVolume() * 0.15F, soundType.getPitch());
                     }
 
-                    Tile.tiles[t].stepOn(this.level, x, y, z, (Entity) (Object) this);
+                    Tile.tiles[t].stepOn(this.level, xt, yt, zt, (Entity) (Object) this);
                 }
             }
 

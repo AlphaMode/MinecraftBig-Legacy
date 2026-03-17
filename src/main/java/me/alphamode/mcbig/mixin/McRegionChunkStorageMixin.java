@@ -53,25 +53,25 @@ public class McRegionChunkStorageMixin implements BigChunkStorageExtension {
     public BigLevelChunk load(Level level, BigInteger x, BigInteger z) throws IOException {
         InputStream var4 = BigRegionFileCache.getChunkDataInputStream(this.basePath, x, z);
         if (var4 != null) {
-            CompoundTag var5 = NbtIo.read(var4);
-            if (!var5.hasKey("Level")) {
+            CompoundTag tag = NbtIo.read(var4);
+            if (!tag.hasKey("Level")) {
                 System.out.println("Chunk file at " + x + "," + z + " is missing level data, skipping");
                 return null;
-            } else if (!var5.getCompoundTag("Level").hasKey("Blocks")) {
+            } else if (!tag.getCompoundTag("Level").hasKey("Blocks")) {
                 System.out.println("Chunk file at " + x + "," + z + " is missing block data, skipping");
                 return null;
             } else {
-                BigLevelChunk var6 = (BigLevelChunk) OldChunkStorage.load(level, var5.getCompoundTag("Level"));
-                if (!var6.isAt(x, z)) {
+                BigLevelChunk chunk = (BigLevelChunk) OldChunkStorage.load(level, tag.getCompoundTag("Level"));
+                if (!chunk.isAt(x, z)) {
                     System.out
-                            .println("Chunk file at " + x + "," + z + " is in the wrong location; relocating. (Expected " + x + ", " + z + ", got " + var6.x + ", " + var6.z + ")");
-                    var5.putString("xPos", x.toString());
-                    var5.putString("zPos", z.toString());
-                    var6 = (BigLevelChunk) OldChunkStorage.load(level, var5.getCompoundTag("Level"));
+                            .println("Chunk file at " + x + "," + z + " is in the wrong location; relocating. (Expected " + x + ", " + z + ", got " + chunk.x + ", " + chunk.z + ")");
+                    tag.putString("xPos", x.toString());
+                    tag.putString("zPos", z.toString());
+                    chunk = (BigLevelChunk) OldChunkStorage.load(level, tag.getCompoundTag("Level"));
                 }
 
-                var6.onLoad();
-                return var6;
+                chunk.onLoad();
+                return chunk;
             }
         } else {
             return null;

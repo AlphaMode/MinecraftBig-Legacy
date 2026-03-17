@@ -6,6 +6,7 @@ import me.alphamode.mcbig.level.chunk.BigLevelChunk;
 import me.alphamode.mcbig.world.phys.BigAABB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.EmptyLevelChunk;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
@@ -15,13 +16,34 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.math.BigInteger;
 import java.util.List;
 
 @Mixin(LevelChunk.class)
 public abstract class LevelChunkMixin implements BigLevelChunkExtension {
+
+    private BigInteger vanillaX;
+    private BigInteger vanillaZ;
+
     @Shadow public abstract int getHeightmap(int x, int z);
 
     @Shadow public List<Entity>[] entityBlocks;
+
+    @Inject(method = "<init>(Lnet/minecraft/world/level/Level;II)V", at = @At("TAIL"))
+    private void initVanillaPos(Level level, int x, int z, CallbackInfo ci) {
+        this.vanillaX = BigInteger.valueOf(x);
+        this.vanillaZ = BigInteger.valueOf(z);
+    }
+
+    @Override
+    public BigInteger getX() {
+        return this.vanillaX;
+    }
+
+    @Override
+    public BigInteger getZ() {
+        return this.vanillaZ;
+    }
 
     @Inject(method = {"<init>(Lnet/minecraft/world/level/Level;II)V", "<init>(Lnet/minecraft/world/level/Level;[BII)V"}, at = @At("TAIL"))
     private void throwOnVanillaInit(CallbackInfo ci) {

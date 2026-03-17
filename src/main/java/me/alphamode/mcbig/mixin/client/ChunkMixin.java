@@ -23,13 +23,13 @@ import java.util.List;
 public abstract class ChunkMixin {
     @Shadow public boolean[] empty;
 
-    @Shadow public List globalRenderableTileEntities;
+    @Shadow public List<TileEntity> globalRenderableTileEntities;
 
     @Shadow public boolean skyLit;
 
     @Shadow public boolean compiled;
 
-    @Shadow public List renderableTileEntities;
+    @Shadow public List<TileEntity> renderableTileEntities;
 
     @Shadow public static Tesselator tesselator;
 
@@ -63,38 +63,38 @@ public abstract class ChunkMixin {
     public void rebuild() {
         if (this.dirty) {
             ++updates;
-            int var1 = this.x;
-            int var2 = this.y;
-            int var3 = this.z;
-            int var4 = this.x + this.xs;
-            int var5 = this.y + this.ys;
-            int var6 = this.z + this.zs;
+            int x0 = this.x;
+            int y0 = this.y;
+            int z0 = this.z;
+            int x1 = this.x + this.xs;
+            int y1 = this.y + this.ys;
+            int z1 = this.z + this.zs;
 
-            for(int var7 = 0; var7 < 2; ++var7) {
-                this.empty[var7] = true;
+            for(int i = 0; i < 2; ++i) {
+                this.empty[i] = true;
             }
 
             LevelChunk.touchedSky = false;
-            HashSet var21 = new HashSet();
+            HashSet<TileEntity> var21 = new HashSet<>();
             var21.addAll(this.renderableTileEntities);
             this.renderableTileEntities.clear();
-            byte var8 = 1;
-            BigRegion var9 = new BigRegion(this.level, BigInteger.valueOf(var1 - var8), var2 - var8, BigInteger.valueOf(var3 - var8), BigInteger.valueOf(var4 + var8), var5 + var8, BigInteger.valueOf(var6 + var8));
-            TileRenderer var10 = new TileRenderer(var9);
+            int r = 1;
+            BigRegion region = new BigRegion(this.level, BigInteger.valueOf(x0 - r), y0 - r, BigInteger.valueOf(z0 - r), BigInteger.valueOf(x1 + r), y1 + r, BigInteger.valueOf(z1 + r));
+            TileRenderer tileRenderer = new TileRenderer(region);
 
-            for(int var11 = 0; var11 < 2; ++var11) {
-                boolean var12 = false;
-                boolean var13 = false;
-                boolean var14 = false;
+            for(int l = 0; l < 2; ++l) {
+                boolean renderNextLayer = false;
+                boolean rendered = false;
+                boolean started = false;
 
-                for(int var15 = var2; var15 < var5; ++var15) {
-                    for(int var16 = var3; var16 < var6; ++var16) {
-                        for(int var17 = var1; var17 < var4; ++var17) {
-                            int var18 = var9.getTile(var17, var15, var16);
+                for(int var15 = y0; var15 < y1; ++var15) {
+                    for(int var16 = z0; var16 < z1; ++var16) {
+                        for(int var17 = x0; var17 < x1; ++var17) {
+                            int var18 = region.getTile(var17, var15, var16);
                             if (var18 > 0) {
-                                if (!var14) {
-                                    var14 = true;
-                                    GL11.glNewList(this.lists + var11, 4864);
+                                if (!started) {
+                                    started = true;
+                                    GL11.glNewList(this.lists + l, 4864);
                                     GL11.glPushMatrix();
                                     this.translateToPos();
                                     float var19 = 1.000001F;
@@ -105,44 +105,44 @@ public abstract class ChunkMixin {
                                     tesselator.offset((double)(-this.x), (double)(-this.y), (double)(-this.z));
                                 }
 
-                                if (var11 == 0 && Tile.isEntityTile[var18]) {
-                                    TileEntity var23 = var9.getTileEntity(var17, var15, var16);
+                                if (l == 0 && Tile.isEntityTile[var18]) {
+                                    TileEntity var23 = region.getTileEntity(var17, var15, var16);
                                     if (TileEntityRenderDispatcher.instance.hasTileEntityRenderer(var23)) {
                                         this.renderableTileEntities.add(var23);
                                     }
                                 }
 
-                                Tile var24 = Tile.tiles[var18];
-                                int var20 = var24.getRenderLayer();
-                                if (var20 != var11) {
-                                    var12 = true;
-                                } else if (var20 == var11) {
-                                    var13 |= var10.tesselateInWorld(var24, var17, var15, var16);
+                                Tile tile = Tile.tiles[var18];
+                                int renderLayer = tile.getRenderLayer();
+                                if (renderLayer != l) {
+                                    renderNextLayer = true;
+                                } else if (renderLayer == l) {
+                                    rendered |= tileRenderer.tesselateInWorld(tile, var17, var15, var16);
                                 }
                             }
                         }
                     }
                 }
 
-                if (var14) {
+                if (started) {
                     tesselator.end();
                     GL11.glPopMatrix();
                     GL11.glEndList();
                     tesselator.offset(0.0, 0.0, 0.0);
                 } else {
-                    var13 = false;
+                    rendered = false;
                 }
 
-                if (var13) {
-                    this.empty[var11] = false;
+                if (rendered) {
+                    this.empty[l] = false;
                 }
 
-                if (!var12) {
+                if (!renderNextLayer) {
                     break;
                 }
             }
 
-            HashSet var22 = new HashSet();
+            HashSet<TileEntity> var22 = new HashSet<TileEntity>();
             var22.addAll(this.renderableTileEntities);
             var22.removeAll(var21);
             this.globalRenderableTileEntities.addAll(var22);

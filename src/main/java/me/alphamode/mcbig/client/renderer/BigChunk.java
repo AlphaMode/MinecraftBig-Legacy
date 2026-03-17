@@ -172,7 +172,7 @@ public class BigChunk extends Chunk {
                 }
             }
 
-            HashSet<TileEntity> newTileEntities = new HashSet();
+            HashSet<TileEntity> newTileEntities = new HashSet<>();
             newTileEntities.addAll(this.renderableTileEntities);
             newTileEntities.removeAll(oldTileEntities);
             this.globalRenderableTileEntities.addAll(newTileEntities);

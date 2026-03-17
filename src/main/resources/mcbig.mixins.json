@@ -4,6 +4,7 @@
   "package": "me.alphamode.mcbig.mixin",
   "plugin": "me.alphamode.mcbig.mixin.McBigMixinPlugin",
   "compatibilityLevel": "JAVA_8",
+  "mixinPriority": 900,
   "mixins": [
     "BiomeSourceMixin",
     "ChunkSourceMixin",
@@ -129,6 +130,7 @@
     "commands.client.GuiMixin",
     "commands.client.LocalPlayerMixin",
     "commands.client.MinecraftMixin",
+    "entities.MemoryLevelStorageMixin",
     "features.big_movement.FrustumCullerMixin",
     "features.big_movement.GameRendererMixin",
     "features.big_movement.LevelRendererMixin",

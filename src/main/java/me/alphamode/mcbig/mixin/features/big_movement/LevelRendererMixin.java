@@ -67,9 +67,9 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
 
     @Shadow private int zMaxChunk;
 
-    @Shadow private List dirtyChunks;
+    @Shadow private List<Chunk> dirtyChunks;
 
-    @Shadow public List renderableTileEntities;
+    @Shadow public List<TileEntity> renderableTileEntities;
 
     @Shadow private Level level;
 
@@ -117,7 +117,7 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
 
     @Shadow private OffsettedRenderList[] renderLists;
 
-    @Shadow private List renderChunks;
+    @Shadow private List<Chunk> renderChunks;
 
     @Shadow public abstract void renderSameAsLast(int layer, double alpha);
 
@@ -157,23 +157,23 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
         Tile.LEAVES.setFancy(this.mc.options.fancyGraphics);
         this.lastViewDistance = this.mc.options.viewDistance;
         if (this.chunks != null) {
-            for(int var1 = 0; var1 < this.chunks.length; ++var1) {
-                this.chunks[var1].delete();
+            for(int i = 0; i < this.chunks.length; ++i) {
+                this.chunks[i].delete();
             }
         }
 
-        int var7 = 64 << 3 - this.lastViewDistance;
-        if (var7 > 400) {
-            var7 = 400;
+        int dist = 64 << 3 - this.lastViewDistance;
+        if (dist > 400) {
+            dist = 400;
         }
 
-        this.xChunks = var7 / 16 + 1;
+        this.xChunks = dist / 16 + 1;
         this.yChunks = 8;
-        this.zChunks = var7 / 16 + 1;
+        this.zChunks = dist / 16 + 1;
         this.chunks = new BigChunk[this.xChunks * this.yChunks * this.zChunks];
         this.sortedChunks = new BigChunk[this.xChunks * this.yChunks * this.zChunks];
-        int var2 = 0;
-        int var3 = 0;
+        int id = 0;
+        int count = 0;
         this.xMinChunk = 0;
         this.yMinChunk = 0;
         this.zMinChunk = 0;
@@ -181,31 +181,31 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
         this.yMaxChunk = this.yChunks;
         this.zMaxChunk = this.zChunks;
 
-        for(int var4 = 0; var4 < this.dirtyChunks.size(); ++var4) {
-            ((Chunk)this.dirtyChunks.get(var4)).dirty = false;
+        for(int i = 0; i < this.dirtyChunks.size(); ++i) {
+            this.dirtyChunks.get(i).dirty = false;
         }
 
         this.dirtyChunks.clear();
         this.renderableTileEntities.clear();
 
-        for(int var8 = 0; var8 < this.xChunks; ++var8) {
-            for(int var5 = 0; var5 < this.yChunks; ++var5) {
-                for(int var6 = 0; var6 < this.zChunks; ++var6) {
-                    this.chunks[(var6 * this.yChunks + var5) * this.xChunks + var8] = new BigChunk(
-                            this.level, this.renderableTileEntities, var8 * 16, var5 * 16, var6 * 16, 16, this.chunkLists + var2
+        for(int x = 0; x < this.xChunks; ++x) {
+            for(int y = 0; y < this.yChunks; ++y) {
+                for(int z = 0; z < this.zChunks; ++z) {
+                    this.chunks[(z * this.yChunks + y) * this.xChunks + x] = new BigChunk(
+                            this.level, this.renderableTileEntities, x * 16, y * 16, z * 16, 16, this.chunkLists + id
                     );
                     if (this.occlusionCheck) {
-                        this.chunks[(var6 * this.yChunks + var5) * this.xChunks + var8].occlusion_id = this.occlusionCheckIds.get(var3);
+                        this.chunks[(z * this.yChunks + y) * this.xChunks + x].occlusion_id = this.occlusionCheckIds.get(count);
                     }
 
-                    this.chunks[(var6 * this.yChunks + var5) * this.xChunks + var8].occlusion_querying = false;
-                    this.chunks[(var6 * this.yChunks + var5) * this.xChunks + var8].occlusion_visible = true;
-                    this.chunks[(var6 * this.yChunks + var5) * this.xChunks + var8].visible = true;
-                    this.chunks[(var6 * this.yChunks + var5) * this.xChunks + var8].id = var3++;
-                    this.chunks[(var6 * this.yChunks + var5) * this.xChunks + var8].setDirty();
-                    this.sortedChunks[(var6 * this.yChunks + var5) * this.xChunks + var8] = this.chunks[(var6 * this.yChunks + var5) * this.xChunks + var8];
-                    this.dirtyChunks.add(this.chunks[(var6 * this.yChunks + var5) * this.xChunks + var8]);
-                    var2 += 3;
+                    this.chunks[(z * this.yChunks + y) * this.xChunks + x].occlusion_querying = false;
+                    this.chunks[(z * this.yChunks + y) * this.xChunks + x].occlusion_visible = true;
+                    this.chunks[(z * this.yChunks + y) * this.xChunks + x].visible = true;
+                    this.chunks[(z * this.yChunks + y) * this.xChunks + x].id = count++;
+                    this.chunks[(z * this.yChunks + y) * this.xChunks + x].setDirty();
+                    this.sortedChunks[(z * this.yChunks + y) * this.xChunks + x] = this.chunks[(z * this.yChunks + y) * this.xChunks + x];
+                    this.dirtyChunks.add(this.chunks[(z * this.yChunks + y) * this.xChunks + x]);
+                    id += 3;
                 }
             }
         }
@@ -696,15 +696,15 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
 
         for(int i = from; i < to; ++i) {
             if (layer == 0) {
-                ++this.totalChunks;
+                this.totalChunks++;
                 if (this.sortedChunks[i].empty[layer]) {
-                    ++this.emptyChunks;
+                    this.emptyChunks++;
                 } else if (!this.sortedChunks[i].visible) {
-                    ++this.offscreenChunks;
+                    this.offscreenChunks++;
                 } else if (this.occlusionCheck && !this.sortedChunks[i].occlusion_visible) {
-                    ++this.occludedChunks;
+                    this.occludedChunks++;
                 } else {
-                    ++this.renderedChunks;
+                    this.renderedChunks++;
                 }
             }
 

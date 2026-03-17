@@ -33,6 +33,16 @@ public class BigLevelChunk extends LevelChunk {
         this.bigZ = z;
     }
 
+    @Override
+    public BigInteger getX() {
+        return this.bigX;
+    }
+
+    @Override
+    public BigInteger getZ() {
+        return this.bigZ;
+    }
+
     public boolean isAt(BigInteger x, BigInteger z) {
         return x.equals(this.bigX) && z.equals(this.bigZ);
     }

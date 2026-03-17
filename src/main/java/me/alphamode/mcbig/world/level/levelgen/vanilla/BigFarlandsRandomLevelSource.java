@@ -4,6 +4,8 @@ import me.alphamode.mcbig.level.chunk.BigLevelChunk;
 import me.alphamode.mcbig.math.BigConstants;
 import me.alphamode.mcbig.math.BigMath;
 import me.alphamode.mcbig.world.level.levelgen.McBigChunkSource;
+import me.alphamode.mcbig.world.level.levelgen.synth.BigFarlandsImprovedNoise;
+import me.alphamode.mcbig.world.level.levelgen.synth.BigFarlandsPerlinNoise;
 import me.alphamode.mcbig.world.level.levelgen.synth.BigPerlinNoise;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -21,52 +23,53 @@ import net.minecraft.world.level.tile.Tile;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.Random;
 
-public class BigRandomLevelSource implements McBigChunkSource {
+public class BigFarlandsRandomLevelSource implements McBigChunkSource {
     public static final int CHUNK_HEIGHT = 8;
     public static final int CHUNK_WIDTH = 4;
     private static final BigDecimal GRAVEL_Y = new BigDecimal("109.0134");
     private Random random;
-    private BigPerlinNoise lperlinNoise1;
-    private BigPerlinNoise lperlinNoise2;
-    private BigPerlinNoise perlinNoise1;
+    private BigFarlandsPerlinNoise lperlinNoise1;
+    private BigFarlandsPerlinNoise lperlinNoise2;
+    private BigFarlandsPerlinNoise perlinNoise1;
     private BigPerlinNoise perlinNoise2;
     private BigPerlinNoise perlinNoise3;
-    public BigPerlinNoise scaleNoise;
-    public BigPerlinNoise depthNoise;
+    public BigFarlandsPerlinNoise scaleNoise;
+    public BigFarlandsPerlinNoise depthNoise;
     public BigPerlinNoise forestNoise;
     private Level level;
-    private double[] buffer;
+    private BigDecimal[] buffer;
     private double[] sandBuffer = new double[256];
     private double[] gravelBuffer = new double[256];
     private double[] depthBuffer = new double[256];
     private LargeFeature caveFeature = new LargeCaveFeature();
     private Biome[] biomes;
-    double[] pnr;
-    double[] ar;
-    double[] br;
-    double[] sr;
-    double[] dr;
+    BigDecimal[] pnr;
+    BigDecimal[] ar;
+    BigDecimal[] br;
+    BigDecimal[] sr;
+    BigDecimal[] dr;
     int[][] waterDepths = new int[32][32];
     private double[] temperatures;
 
-    public BigRandomLevelSource(Level level, long seed) {
+    public BigFarlandsRandomLevelSource(Level level, long seed) {
         this.level = level;
         this.random = new Random(seed);
-        this.lperlinNoise1 = new BigPerlinNoise(this.random, 16);
-        this.lperlinNoise2 = new BigPerlinNoise(this.random, 16);
-        this.perlinNoise1 = new BigPerlinNoise(this.random, 8);
+        this.lperlinNoise1 = new BigFarlandsPerlinNoise(this.random, 16);
+        this.lperlinNoise2 = new BigFarlandsPerlinNoise(this.random, 16);
+        this.perlinNoise1 = new BigFarlandsPerlinNoise(this.random, 8);
         this.perlinNoise2 = new BigPerlinNoise(this.random, 4);
         this.perlinNoise3 = new BigPerlinNoise(this.random, 4);
-        this.scaleNoise = new BigPerlinNoise(this.random, 10);
-        this.depthNoise = new BigPerlinNoise(this.random, 16);
+        this.scaleNoise = new BigFarlandsPerlinNoise(this.random, 10);
+        this.depthNoise = new BigFarlandsPerlinNoise(this.random, 16);
         this.forestNoise = new BigPerlinNoise(this.random, 8);
     }
 
-    private double[] getHeights(double[] buffer, BigInteger x, int y, BigInteger z, int xSize, int ySize, int zSize) {
+    private BigDecimal[] getHeights(BigDecimal[] buffer, BigInteger x, int y, BigInteger z, int xSize, int ySize, int zSize) {
         if (buffer == null) {
-            buffer = new double[xSize * ySize * zSize];
+            buffer = new BigDecimal[xSize * ySize * zSize];
         }
 
         // Scale
@@ -102,67 +105,68 @@ public class BigRandomLevelSource implements McBigChunkSource {
                 dd *= dd;
                 dd *= dd;
                 dd = 1.0 - dd;
-                double scale = (this.sr[pp] + 256.0) / 512.0;
-                scale *= dd;
-                if (scale > 1.0) {
-                    scale = 1.0;
+                BigDecimal scale = (this.sr[pp].add(BigConstants.TWO_HUNDRED_FIFTY_SIX)).divide(BigConstants.FIVE_HUNDRED_TWELVE, RoundingMode.HALF_EVEN);
+                scale = scale.multiply(BigMath.decimal(dd));
+                if (scale.compareTo(BigDecimal.ONE) > 0) {
+                    scale = BigDecimal.ONE;
                 }
 
-                double depth = this.dr[pp] / 8000.0;
-                if (depth < 0.0) {
-                    depth = -depth * 0.3;
+                BigDecimal depth = this.dr[pp].divide(BigConstants.EIGHT_THOUSAND);
+                if (depth.compareTo(BigDecimal.ZERO) < 0.0) {
+                    depth = depth.negate().multiply(BigConstants.POINT_THREE);
                 }
 
-                depth = depth * 3.0 - 2.0;
-                if (depth < 0.0) {
-                    depth /= 2.0;
-                    if (depth < -1.0) {
-                        depth = -1.0;
+                depth = depth.multiply(BigConstants.THREE_F).subtract(BigDecimal.TWO);
+                if (depth.compareTo(BigDecimal.ZERO) < 0.0) {
+                    depth = depth.divide(BigDecimal.TWO);
+                    if (depth.compareTo(BigDecimal.ONE.negate()) < 0) {
+                        depth = BigDecimal.ONE.negate();
                     }
 
-                    depth /= 1.4;
-                    depth /= 2.0;
-                    scale = 0.0;
+                    depth = depth.divide(BigConstants.ONE_POINT_FOUR, RoundingMode.HALF_EVEN);
+                    depth = depth.divide(BigDecimal.TWO, RoundingMode.HALF_EVEN);
+                    scale = BigDecimal.ZERO;
                 } else {
-                    if (depth > 1.0) {
-                        depth = 1.0;
+                    if (depth.compareTo(BigDecimal.ONE) > 0) {
+                        depth = BigDecimal.ONE;
                     }
 
-                    depth /= 8.0;
+                    depth = depth.divide(BigConstants.EIGHT_F, RoundingMode.HALF_EVEN);
                 }
 
-                if (scale < 0.0) {
-                    scale = 0.0;
+                if (scale.compareTo(BigDecimal.ZERO) < 0) {
+                    scale = BigDecimal.ZERO;
                 }
 
-                scale += 0.5;
-                depth = depth * (double)ySize / 16.0;
-                double yCenter = (double)ySize / 2.0 + depth * 4.0;
+                scale = scale.add(BigConstants.POINT_FIVE);
+                depth = depth.multiply(BigMath.decimal((double)ySize / 16.0));
+                BigDecimal yCenter = BigMath.decimal(ySize).divide(BigDecimal.TWO, RoundingMode.HALF_EVEN).add(depth.multiply(BigConstants.FOUR_F));
                 ++pp;
 
                 for(int yy = 0; yy < ySize; ++yy) {
-                    double val = 0.0;
-                    double yOffs = ((double)yy - yCenter) * 12.0 / scale;
-                    if (yOffs < 0.0) {
-                        yOffs *= 4.0;
+                    BigDecimal val = BigDecimal.ZERO;
+                    BigDecimal yOffs = (BigMath.decimal(yy).subtract(yCenter)).multiply(BigConstants.TWELVE_F).divide(scale, RoundingMode.HALF_EVEN);
+                    if (yOffs.compareTo(BigDecimal.ZERO) < 0) {
+                        yOffs = yOffs.multiply(BigConstants.FOUR_F);
                     }
 
-                    double bb = this.ar[p] / 512.0;
-                    double cc = this.br[p] / 512.0;
-                    double v = (this.pnr[p] / 10.0 + 1.0) / 2.0;
-
-                    if (v < 0.0) {
+                    BigDecimal bb = this.ar[p].divide(BigConstants.FIVE_HUNDRED_TWELVE, RoundingMode.HALF_EVEN);
+                    BigDecimal cc = this.br[p].divide(BigConstants.FIVE_HUNDRED_TWELVE, RoundingMode.HALF_EVEN);
+                    BigDecimal v = (this.pnr[p].divide(BigDecimal.TEN, RoundingMode.HALF_EVEN).add(BigDecimal.ONE)).divide(BigDecimal.TWO, RoundingMode.HALF_EVEN);
+//                    IO.println("BB: " + bb);
+//                    IO.println("CC: " + cc);
+                    if (v.compareTo(BigDecimal.ZERO) < 0) {
                         val = bb;
-                    } else if (v > 1.0) {
+                    } else if (v.compareTo(BigDecimal.ONE) > 0) {
                         val = cc;
                     } else {
-                        val = bb + (cc - bb) * v;
+                        val = bb.add((cc.subtract(bb)).multiply(v));
                     }
 
-                    val -= yOffs;
+                    val = val.subtract(yOffs);
                     if (yy > ySize - 4) {
-                        double slide = (float)(yy - (ySize - 4)) / 3.0F;
-                        val = val * (1.0 - slide) + -10.0 * slide;
+                        BigDecimal slide = BigDecimal.valueOf((float)(yy - (ySize - 4)) / 3.0F);
+                        val = val.multiply((BigDecimal.ONE.subtract(slide))).add(BigDecimal.TEN.negate().multiply(slide));
                     }
 
                     buffer[p] = val;
@@ -186,31 +190,31 @@ public class BigRandomLevelSource implements McBigChunkSource {
         for(int xc = 0; xc < xChunks; ++xc) {
             for(int zc = 0; zc < xChunks; ++zc) {
                 for(int yc = 0; yc < 16; ++yc) {
-                    double yStep = 1 / (double) CHUNK_HEIGHT;
-                    double s0 = this.buffer[((xc + 0) * zSize + zc + 0) * ySize + yc + 0];
-                    double s1 = this.buffer[((xc + 0) * zSize + zc + 1) * ySize + yc + 0];
-                    double s2 = this.buffer[((xc + 1) * zSize + zc + 0) * ySize + yc + 0];
-                    double s3 = this.buffer[((xc + 1) * zSize + zc + 1) * ySize + yc + 0];
+                    BigDecimal yStep = new BigDecimal(1 / (double) CHUNK_HEIGHT);
+                    BigDecimal s0 = this.buffer[((xc + 0) * zSize + zc + 0) * ySize + yc + 0];
+                    BigDecimal s1 = this.buffer[((xc + 0) * zSize + zc + 1) * ySize + yc + 0];
+                    BigDecimal s2 = this.buffer[((xc + 1) * zSize + zc + 0) * ySize + yc + 0];
+                    BigDecimal s3 = this.buffer[((xc + 1) * zSize + zc + 1) * ySize + yc + 0];
 
-                    double s0a = (this.buffer[((xc + 0) * zSize + zc + 0) * ySize + yc + 1] - s0) * yStep;
-                    double s1a = (this.buffer[((xc + 0) * zSize + zc + 1) * ySize + yc + 1] - s1) * yStep;
-                    double s2a = (this.buffer[((xc + 1) * zSize + zc + 0) * ySize + yc + 1] - s2) * yStep;
-                    double s3a = (this.buffer[((xc + 1) * zSize + zc + 1) * ySize + yc + 1] - s3) * yStep;
+                    BigDecimal s0a = (this.buffer[((xc + 0) * zSize + zc + 0) * ySize + yc + 1].subtract(s0)).multiply(yStep);
+                    BigDecimal s1a = (this.buffer[((xc + 0) * zSize + zc + 1) * ySize + yc + 1].subtract(s1)).multiply(yStep);
+                    BigDecimal s2a = (this.buffer[((xc + 1) * zSize + zc + 0) * ySize + yc + 1].subtract(s2)).multiply(yStep);
+                    BigDecimal s3a = (this.buffer[((xc + 1) * zSize + zc + 1) * ySize + yc + 1].subtract(s3)).multiply(yStep);
 
                     for(int y = 0; y < CHUNK_HEIGHT; ++y) {
-                        double xStep = 1 / (double) CHUNK_WIDTH;
+                        BigDecimal xStep = new BigDecimal(1 / (double) CHUNK_WIDTH);
 
-                        double _s0 = s0;
-                        double _s1 = s1;
-                        double _s0a = (s2 - s0) * xStep;
-                        double _s1a = (s3 - s1) * xStep;
+                        BigDecimal _s0 = s0;
+                        BigDecimal _s1 = s1;
+                        BigDecimal _s0a = (s2.subtract(s0)).multiply(xStep);
+                        BigDecimal _s1a = (s3.subtract(s1)).multiply(xStep);
 
                         for(int x = 0; x < CHUNK_WIDTH; ++x) {
                             int offs = x + xc * CHUNK_WIDTH << 11 | 0 + zc * CHUNK_WIDTH << 7 | yc * CHUNK_HEIGHT + y;
                             int step = 1 << 7;
-                            double zStep = 1 / (double) CHUNK_WIDTH;
-                            double val = _s0;
-                            double vala = (_s1 - _s0) * zStep;
+                            BigDecimal zStep = new BigDecimal(1 / (double) CHUNK_WIDTH);
+                            BigDecimal val = _s0;
+                            BigDecimal vala = (_s1.subtract(_s0)).multiply(zStep);
 
                             for(int z = 0; z < CHUNK_WIDTH; ++z) {
                                 double temp = temperatures[(xc * 4 + x) * 16 + zc * 4 + z];
@@ -223,23 +227,23 @@ public class BigRandomLevelSource implements McBigChunkSource {
                                     }
                                 }
 
-                                if (val > 0.0) {
+                                if (val.compareTo(BigDecimal.ZERO) > 0) {
                                     tileId = Tile.STONE.id;
                                 }
 
                                 blocks[offs] = (byte)tileId;
                                 offs += step;
-                                val += vala;
+                                val = val.add(vala);
                             }
 
-                            _s0 += _s0a;
-                            _s1 += _s1a;
+                            _s0 = _s0.add(_s0a);
+                            _s1 = _s1.add(_s1a);
                         }
 
-                        s0 += s0a;
-                        s1 += s1a;
-                        s2 += s2a;
-                        s3 += s3a;
+                        s0 = s0.add(s0a);
+                        s1 = s1.add(s1a);
+                        s2 = s2.add(s2a);
+                        s3 = s3.add(s3a);
                     }
                 }
             }

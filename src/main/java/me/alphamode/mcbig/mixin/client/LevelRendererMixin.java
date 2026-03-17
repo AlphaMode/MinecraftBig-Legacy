@@ -65,7 +65,7 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension {
 
     @Shadow private int zMaxChunk;
 
-    @Shadow private List dirtyChunks;
+    @Shadow private List<Chunk> dirtyChunks;
 
     @Shadow public List renderableTileEntities;
 
@@ -128,19 +128,19 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension {
         Tile.LEAVES.setFancy(this.mc.options.fancyGraphics);
         this.lastViewDistance = this.mc.options.viewDistance;
         if (this.chunks != null) {
-            for(int var1 = 0; var1 < this.chunks.length; ++var1) {
-                this.chunks[var1].delete();
+            for(int i = 0; i < this.chunks.length; ++i) {
+                this.chunks[i].delete();
             }
         }
 
-        int var7 = 64 << 3 - this.lastViewDistance;
-        if (var7 > 400) {
-            var7 = 400;
+        int dist = 64 << 3 - this.lastViewDistance;
+        if (dist > 400) {
+            dist = 400;
         }
 
-        this.xChunks = var7 / 16 + 1;
+        this.xChunks = dist / 16 + 1;
         this.yChunks = 8;
-        this.zChunks = var7 / 16 + 1;
+        this.zChunks = dist / 16 + 1;
         this.chunks = new BigChunk[this.xChunks * this.yChunks * this.zChunks];
         this.sortedChunks = new BigChunk[this.xChunks * this.yChunks * this.zChunks];
         int var2 = 0;
@@ -153,7 +153,7 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension {
         this.zMaxChunk = this.zChunks;
 
         for(int i = 0; i < this.dirtyChunks.size(); ++i) {
-            ((Chunk)this.dirtyChunks.get(i)).dirty = false;
+            this.dirtyChunks.get(i).dirty = false;
         }
 
         this.dirtyChunks.clear();

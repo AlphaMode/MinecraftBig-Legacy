@@ -25,6 +25,7 @@ inject-interface net/minecraft/network/Connection me/alphamode/mcbig/extensions/
 inject-interface net/minecraft/network/PacketListener me/alphamode/mcbig/extensions/networking/PayloadPacketListenerExtension
 inject-interface net/minecraft/world/level/chunk/LevelChunk me/alphamode/mcbig/extensions/BigLevelChunkExtension
 inject-interface net/minecraft/world/level/chunk/ChunkSource me/alphamode/mcbig/extensions/BigChunkSourceExtension
+inject-interface net/minecraft/world/level/storage/LevelStorage me/alphamode/mcbig/extensions/entities/BigLevelStorageExtension
 inject-interface net/minecraft/world/level/chunk/storage/ChunkStorage me/alphamode/mcbig/extensions/BigChunkStorageExtension
 inject-interface net/minecraft/world/level/storage/LevelData me/alphamode/mcbig/extensions/BigLevelDataExtension
 inject-interface net/minecraft/world/level/LevelSource me/alphamode/mcbig/extensions/BigLevelSourceExtension

@@ -16,9 +16,13 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Mixin(ServerChunkCache.class)
 public abstract class ServerChunkCacheMixin implements ChunkSource, BigChunkSourceExtension {
+    private static final ExecutorService CHUNK_LOADING_EXECUTOR = Executors.newSingleThreadExecutor();
     @Shadow
     private Map<BigChunkPos, LevelChunk> cache;
 
@@ -122,6 +126,12 @@ public abstract class ServerChunkCacheMixin implements ChunkSource, BigChunkSour
     public LevelChunk getChunk(BigInteger x, BigInteger z) {
         LevelChunk chunk = this.cache.get(new BigChunkPos(x, z));
         return chunk == null ? this.loadChunk(x, z) : chunk;
+    }
+
+    @Override
+    public CompletableFuture<LevelChunk> getChunkFuture(BigInteger x, BigInteger z) {
+        LevelChunk chunk = this.cache.get(new BigChunkPos(x, z));
+        return chunk == null ? CompletableFuture.supplyAsync(() -> this.loadChunk(x, z), CHUNK_LOADING_EXECUTOR) : CompletableFuture.completedFuture(chunk);
     }
 
     /**
