@@ -438,8 +438,8 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
         if (mode == 0) {
             if (this.destroyProgress > 0.0F) {
                 GL11.glBlendFunc(GL11.GL_DST_COLOR, GL11.GL_SRC_COLOR);
-                int tex = this.textures.loadTexture("/terrain.png");
-                GL11.glBindTexture(GL11.GL_TEXTURE_2D, tex);
+                int id = this.textures.loadTexture("/terrain.png");
+                GL11.glBindTexture(GL11.GL_TEXTURE_2D, id);
                 GL11.glColor4f(1.0F, 1.0F, 1.0F, 0.5F);
                 GL11.glPushMatrix();
                 int tileId = this.level.getTile(result.xBig, result.y, result.zBig);
@@ -447,10 +447,10 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
                 GL11.glDisable(GL11.GL_ALPHA_TEST);
                 GL11.glPolygonOffset(-3.0F, -3.0F);
                 GL11.glEnable(GL11.GL_POLYGON_OFFSET_FILL);
-                BigDecimal bigA = new BigDecimal(a);
-                BigDecimal xOff = player.getXOld().add((player.getX().subtract(player.getXOld())).multiply(bigA));
+                BigDecimal aBig = new BigDecimal(a);
+                BigDecimal xOff = player.getXOld().add((player.getX().subtract(player.getXOld())).multiply(aBig));
                 double yOff = p.yOld + (p.y - p.yOld) * (double)a;
-                BigDecimal zOff = player.getZOld().add((player.getZ().subtract(player.getZOld())).multiply(bigA));
+                BigDecimal zOff = player.getZOld().add((player.getZ().subtract(player.getZOld())).multiply(aBig));
                 if (tt == null) {
                     tt = Tile.STONE;
                 }
@@ -472,36 +472,25 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
             }
         } else if (item != null) {
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-            float c = Mth.sin((float)System.currentTimeMillis() / 100.0F) * 0.2F + 0.8F;
-            GL11.glColor4f(c, c, c, Mth.sin((float)System.currentTimeMillis() / 200.0F) * 0.2F + 0.5F);
-            int tex = this.textures.loadTexture("/terrain.png");
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, tex);
-            int xt = result.x;
-            int yt = result.y;
-            int zt = result.z;
-            if (result.face == 0) {
-                --yt;
-            }
+            float br = Mth.sin((float)System.currentTimeMillis() / 100.0F) * 0.2F + 0.8F;
+            GL11.glColor4f(br, br, br, Mth.sin((float)System.currentTimeMillis() / 200.0F) * 0.2F + 0.5F);
 
-            if (result.face == 1) {
-                ++yt;
-            }
+            int id = this.textures.loadTexture("/terrain.png");
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, id);
+            int x = result.x;
+            int y = result.y;
+            int z = result.z;
+            if (result.face == 0) y--;
+            if (result.face == 1) y++;
+            if (result.face == 2) z--;
+            if (result.face == 3) z++;
+            if (result.face == 4) x--;
+            if (result.face == 5) x++;
 
-            if (result.face == 2) {
-                --zt;
-            }
-
-            if (result.face == 3) {
-                ++zt;
-            }
-
-            if (result.face == 4) {
-                --xt;
-            }
-
-            if (result.face == 5) {
-                ++xt;
-            }
+            /*
+            * t.begin(); t.noColor(); Tile.tiles[tileType].tesselate(level, x,
+            * * y, z, t); t.end();
+            * */
         }
 
         GL11.glDisable(GL11.GL_BLEND);
@@ -523,16 +512,16 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
             GL11.glDisable(GL11.GL_TEXTURE_2D);
             GL11.glDepthMask(false);
             float ss = 0.002F;
-            int tile = this.level.getTile(result.xBig, result.y, result.zBig);
-            if (tile > 0) {
-                Tile.tiles[tile].updateShape(this.level, result.xBig, result.y, result.zBig);
-                BigDecimal bigA = new BigDecimal(a);
+            int tileId = this.level.getTile(result.xBig, result.y, result.zBig);
+            if (tileId > 0) {
+                Tile.tiles[tileId].updateShape(this.level, result.xBig, result.y, result.zBig);
+                BigDecimal aBig = new BigDecimal(a);
                 BigEntityExtension bigPlayer = (BigEntityExtension) player;
-                BigDecimal xc = bigPlayer.getXOld().add(bigPlayer.getX().subtract(bigPlayer.getXOld()).multiply(bigA));
+                BigDecimal xc = bigPlayer.getXOld().add(bigPlayer.getX().subtract(bigPlayer.getXOld()).multiply(aBig));
                 double yc = player.yOld + (player.y - player.yOld) * (double)a;
-                BigDecimal zc = bigPlayer.getZOld().add(bigPlayer.getZ().subtract(bigPlayer.getZOld()).multiply(bigA));
+                BigDecimal zc = bigPlayer.getZOld().add(bigPlayer.getZ().subtract(bigPlayer.getZOld()).multiply(aBig));
                 this.render(
-                        Tile.tiles[tile].getTileBigAABB(this.level, result.xBig, result.y, result.zBig).inflate(ss, ss, ss).offset(xc.negate(), -yc, zc.negate())
+                        Tile.tiles[tileId].getTileBigAABB(this.level, result.xBig, result.y, result.zBig).inflate(ss, ss, ss).offset(xc.negate(), -yc, zc.negate())
                 );
             }
 

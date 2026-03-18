@@ -15,21 +15,21 @@ public class ReedsFeatureMixin implements BigFeatureExtension {
     @Override
     public boolean place(Level level, Random random, BigInteger x, int y, BigInteger z) {
         for (int i = 0; i < 20; i++) {
-            BigInteger xt = x.add(BigInteger.valueOf(random.nextInt(4) - random.nextInt(4)));
-            int yt = y;
-            BigInteger zt = z.add(BigInteger.valueOf(random.nextInt(4) - random.nextInt(4)));
-            if (level.isEmptyTile(xt, y, zt)
+            BigInteger x2 = x.add(BigInteger.valueOf(random.nextInt(4) - random.nextInt(4)));
+            int y2 = y;
+            BigInteger z2 = z.add(BigInteger.valueOf(random.nextInt(4) - random.nextInt(4)));
+            if (level.isEmptyTile(x2, y, z2)
                     && (
-                    level.getMaterial(xt.subtract(BigInteger.ONE), y - 1, zt) == Material.WATER
-                            || level.getMaterial(xt.add(BigInteger.ONE), y - 1, zt) == Material.WATER
-                            || level.getMaterial(xt, y - 1, zt.subtract(BigInteger.ONE)) == Material.WATER
-                            || level.getMaterial(xt, y - 1, zt.add(BigInteger.ONE)) == Material.WATER
+                    level.getMaterial(x2.subtract(BigInteger.ONE), y - 1, z2) == Material.WATER
+                            || level.getMaterial(x2.add(BigInteger.ONE), y - 1, z2) == Material.WATER
+                            || level.getMaterial(x2, y - 1, z2.subtract(BigInteger.ONE)) == Material.WATER
+                            || level.getMaterial(x2, y - 1, z2.add(BigInteger.ONE)) == Material.WATER
             )) {
-                int var10 = 2 + random.nextInt(random.nextInt(3) + 1);
+                int h = 2 + random.nextInt(random.nextInt(3) + 1);
 
-                for (int var11 = 0; var11 < var10; var11++) {
-                    if (Tile.REEDS.canPlace(level, xt, yt + var11, zt)) {
-                        level.setTileNoUpdate(xt, yt + var11, zt, Tile.REEDS.id);
+                for (int yy = 0; yy < h; yy++) {
+                    if (Tile.REEDS.canPlace(level, x2, y2 + yy, z2)) {
+                        level.setTileNoUpdate(x2, y2 + yy, z2, Tile.REEDS.id);
                     }
                 }
             }

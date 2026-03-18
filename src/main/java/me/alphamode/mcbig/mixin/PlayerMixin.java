@@ -18,6 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Player.class)
 public abstract class PlayerMixin extends Entity implements PlayerExtension {
 
+    private boolean noclip = false;
     private boolean canFly = false;
     private boolean flying = false;
     private float flyingSpeed = 0.05F;
@@ -54,6 +55,16 @@ public abstract class PlayerMixin extends Entity implements PlayerExtension {
     @Override
     public float getFlySpeed() {
         return this.flyingSpeed;
+    }
+
+    @Override
+    public void setNoclip(boolean noclip) {
+        this.noclip = noclip;
+    }
+
+    @Override
+    public boolean canNoclip() {
+        return this.noclip;
     }
 
     @Inject(method = "aiStep", at = @At("HEAD"))

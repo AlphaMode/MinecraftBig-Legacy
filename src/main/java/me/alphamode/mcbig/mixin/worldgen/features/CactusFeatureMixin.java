@@ -14,15 +14,15 @@ public class CactusFeatureMixin implements BigFeatureExtension {
     @Override
     public boolean place(Level level, Random random, BigInteger x, int y, BigInteger z) {
         for (int i = 0; i < 10; i++) {
-            BigInteger xt = x.add(BigInteger.valueOf(random.nextInt(8) - random.nextInt(8)));
-            int yt = y + random.nextInt(4) - random.nextInt(4);
-            BigInteger zt = z.add(BigInteger.valueOf(random.nextInt(8) - random.nextInt(8)));
-            if (level.isEmptyTile(xt, yt, zt)) {
-                int maxHeight = 1 + random.nextInt(random.nextInt(3) + 1);
+            BigInteger x2 = x.add(BigInteger.valueOf(random.nextInt(8) - random.nextInt(8)));
+            int y2 = y + random.nextInt(4) - random.nextInt(4);
+            BigInteger z2 = z.add(BigInteger.valueOf(random.nextInt(8) - random.nextInt(8)));
+            if (level.isEmptyTile(x2, y2, z2)) {
+                int h = 1 + random.nextInt(random.nextInt(3) + 1);
 
-                for (int height = 0; height < maxHeight; height++) {
-                    if (Tile.CACTUS.canPlace(level, xt, yt + height, zt)) {
-                        level.setTileNoUpdate(xt, yt + height, zt, Tile.CACTUS.id);
+                for (int yy = 0; yy < h; yy++) {
+                    if (Tile.CACTUS.canPlace(level, x2, y2 + yy, z2)) {
+                        level.setTileNoUpdate(x2, y2 + yy, z2, Tile.CACTUS.id);
                     }
                 }
             }

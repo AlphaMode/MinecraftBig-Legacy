@@ -11,18 +11,18 @@ import java.math.BigInteger;
 import java.util.Random;
 
 @Mixin(FlowerFeature.class)
-public class FlowerFeatureMixin implements BigFeatureExtension {
+public abstract class FlowerFeatureMixin implements BigFeatureExtension {
     @Shadow
     private int tile;
 
     @Override
     public boolean place(Level level, Random random, BigInteger x, int y, BigInteger z) {
         for (int i = 0; i < 64; i++) {
-            BigInteger xt = x.add(BigInteger.valueOf(random.nextInt(8) - random.nextInt(8)));
-            int yt = y + random.nextInt(4) - random.nextInt(4);
-            BigInteger zt = z.add(BigInteger.valueOf(random.nextInt(8) - random.nextInt(8)));
-            if (level.isEmptyTile(xt, yt, zt) && Tile.tiles[this.tile].canPlace(level, xt, yt, zt)) {
-                level.setTileNoUpdate(xt, yt, zt, this.tile);
+            BigInteger x2 = x.add(BigInteger.valueOf(random.nextInt(8) - random.nextInt(8)));
+            int y2 = y + random.nextInt(4) - random.nextInt(4);
+            BigInteger z2 = z.add(BigInteger.valueOf(random.nextInt(8) - random.nextInt(8)));
+            if (level.isEmptyTile(x2, y2, z2) && Tile.tiles[this.tile].canPlace(level, x2, y2, z2)) {
+                level.setTileNoUpdate(x2, y2, z2, this.tile);
             }
         }
 

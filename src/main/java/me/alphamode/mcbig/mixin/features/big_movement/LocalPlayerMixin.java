@@ -105,6 +105,9 @@ public abstract class LocalPlayerMixin extends Player implements PlayerExtension
      */
     @Overwrite
     public boolean checkInBlock(double x, double y, double z) {
+        if (canNoclip()) {
+            return false;
+        }
         BigInteger xt = BigMath.floor(x);
         int yt = Mth.floor(y);
         BigInteger zt = BigMath.floor(z);

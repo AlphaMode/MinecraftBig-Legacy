@@ -57,6 +57,8 @@ public class Commands {
         SetSpawnCommand.register(DISPATCHER);
         HealthCommand.register(DISPATCHER);
         SeedCommand.register(DISPATCHER);
+        DimensionCommand.register(DISPATCHER);
+        NoclipCommand.register(DISPATCHER);
         DISPATCHER.register(literal("debug").executes(context -> {
             BigAABB.USE_VANILLA = !BigAABB.USE_VANILLA;
             return 1;

@@ -17,55 +17,30 @@ public class SpringFeatureMixin implements BigFeatureExtension {
 
     @Override
     public boolean place(Level level, Random random, BigInteger x, int y, BigInteger z) {
-        if (level.getTile(x, y + 1, z) != Tile.STONE.id) {
-            return false;
-        } else if (level.getTile(x, y - 1, z) != Tile.STONE.id) {
-            return false;
-        } else if (level.getTile(x, y, z) != 0 && level.getTile(x, y, z) != Tile.STONE.id) {
-            return false;
-        } else {
-            int var6 = 0;
-            if (level.getTile(x.subtract(BigInteger.ONE), y, z) == Tile.STONE.id) {
-                var6++;
-            }
+        if (level.getTile(x, y + 1, z) != Tile.STONE.id) return false;
+        if (level.getTile(x, y - 1, z) != Tile.STONE.id) return false;
 
-            if (level.getTile(x.add(BigInteger.ONE), y, z) == Tile.STONE.id) {
-                var6++;
-            }
+        if (level.getTile(x, y, z) != 0 && level.getTile(x, y, z) != Tile.STONE.id) return false;
 
-            if (level.getTile(x, y, z.subtract(BigInteger.ONE)) == Tile.STONE.id) {
-                var6++;
-            }
+        int rockCount = 0;
+        if (level.getTile(x.subtract(BigInteger.ONE), y, z) == Tile.STONE.id) rockCount++;
+        if (level.getTile(x.add(BigInteger.ONE), y, z) == Tile.STONE.id) rockCount++;
+        if (level.getTile(x, y, z.subtract(BigInteger.ONE)) == Tile.STONE.id) rockCount++;
+        if (level.getTile(x, y, z.add(BigInteger.ONE)) == Tile.STONE.id) rockCount++;
 
-            if (level.getTile(x, y, z.add(BigInteger.ONE)) == Tile.STONE.id) {
-                var6++;
-            }
+        int holeCount = 0;
+        if (level.isEmptyTile(x.subtract(BigInteger.ONE), y, z)) holeCount++;
+        if (level.isEmptyTile(x.add(BigInteger.ONE), y, z)) holeCount++;
+        if (level.isEmptyTile(x, y, z.subtract(BigInteger.ONE))) holeCount++;
+        if (level.isEmptyTile(x, y, z.add(BigInteger.ONE))) holeCount++;
 
-            int var7 = 0;
-            if (level.isEmptyTile(x.subtract(BigInteger.ONE), y, z)) {
-                var7++;
-            }
-
-            if (level.isEmptyTile(x.add(BigInteger.ONE), y, z)) {
-                var7++;
-            }
-
-            if (level.isEmptyTile(x, y, z.subtract(BigInteger.ONE))) {
-                var7++;
-            }
-
-            if (level.isEmptyTile(x, y, z.add(BigInteger.ONE))) {
-                var7++;
-            }
-
-            if (var6 == 3 && var7 == 1) {
-                level.setTile(x, y, z, this.tile);
-                level.instaTick = true;
-                Tile.tiles[this.tile].tick(level, x, y, z, random);
-                level.instaTick = false;
-            }
-
-            return true;
+        if (rockCount == 3 && holeCount == 1) {
+            level.setTile(x, y, z, this.tile);
+            level.instaTick = true;
+            Tile.tiles[this.tile].tick(level, x, y, z, random);
+            level.instaTick = false;
         }
+
+        return true;
     }
 }

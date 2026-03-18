@@ -24,98 +24,87 @@ public abstract class MonsterRoomFeatureMixin implements BigFeatureExtension {
 
     @Override
     public boolean place(Level level, Random random, BigInteger x, int y, BigInteger z) {
-        byte var6 = 3;
-        int irX = random.nextInt(2) + 2;
-        int irZ = random.nextInt(2) + 2;
-        BigInteger rX = BigInteger.valueOf(irX);
-        BigInteger rZ = BigInteger.valueOf(irZ);
-        int var9 = 0;
+        int hr = 3;
+        int xr = random.nextInt(2) + 2;
+        int zr = random.nextInt(2) + 2;
+        BigInteger xrBig = BigInteger.valueOf(xr);
+        BigInteger zrBig = BigInteger.valueOf(zr);
 
-        for (BigInteger xt = x.subtract(rX).subtract(BigInteger.ONE); xt.compareTo(x.add(rX).add(BigInteger.ONE)) <= 0; xt = xt.add(BigInteger.ONE)) {
-            for (int yt = y - 1; yt <= y + var6 + 1; yt++) {
-                for (BigInteger zt = z.subtract(rZ).subtract(BigInteger.ONE); zt.compareTo(z.add(rZ).add(BigInteger.ONE)) <= 0; zt = zt.add(BigInteger.ONE)) {
-                    Material var13 = level.getMaterial(xt, yt, zt);
-                    if (yt == y - 1 && !var13.isSolid()) {
-                        return false;
-                    }
+        int holeCount = 0;
+        for (BigInteger xx = x.subtract(xrBig).subtract(BigInteger.ONE); xx.compareTo(x.add(xrBig).add(BigInteger.ONE)) <= 0; xx = xx.add(BigInteger.ONE)) {
+            for (int yy = y - 1; yy <= y + hr + 1; yy++) {
+                for (BigInteger zz = z.subtract(zrBig).subtract(BigInteger.ONE); zz.compareTo(z.add(zrBig).add(BigInteger.ONE)) <= 0; zz = zz.add(BigInteger.ONE)) {
+                    Material m = level.getMaterial(xx, yy, zz);
+                    if (yy == y - 1 && !m.isSolid()) return false;
+                    if (yy == y + hr + 1 && !m.isSolid()) return false;
 
-                    if (yt == y + var6 + 1 && !var13.isSolid()) {
-                        return false;
-                    }
-
-                    if ((xt.equals(x.subtract(rX).subtract(BigInteger.ONE)) || xt.equals(x.add(rX).add(BigInteger.ONE)) || zt.equals(z.subtract(rZ).subtract(BigInteger.ONE)) || zt.equals(z.add(rZ).add(BigInteger.ONE)))
-                            && yt == y
-                            && level.isEmptyTile(xt, yt, zt)
-                            && level.isEmptyTile(xt, yt + 1, zt)) {
-                        var9++;
+                    if (( xx.equals(x.subtract(xrBig).subtract(BigInteger.ONE))
+                            || xx.equals(x.add(xrBig).add(BigInteger.ONE))
+                            || zz.equals(z.subtract(zrBig).subtract(BigInteger.ONE))
+                            || zz.equals(z.add(zrBig).add(BigInteger.ONE)) )
+                            && yy == y
+                            && level.isEmptyTile(xx, yy, zz)
+                            && level.isEmptyTile(xx, yy + 1, zz)) {
+                        holeCount++;
                     }
                 }
             }
         }
 
-        if (var9 >= 1 && var9 <= 5) {
-            for (BigInteger xt = x.subtract(rX).subtract(BigInteger.ONE); xt.compareTo(x.add(rX).add(BigInteger.ONE)) <= 0; xt = xt.add(BigInteger.ONE)) {
-                for (int yt = y + var6; yt >= y - 1; yt--) {
-                    for (BigInteger zt = z.subtract(rZ).subtract(BigInteger.ONE); zt.compareTo(z.add(rZ).add(BigInteger.ONE)) <= 0; zt = zt.add(BigInteger.ONE)) {
-                        if (!xt.equals(x.subtract(rX).subtract(BigInteger.ONE)) && yt != y - 1 && !zt.equals(z.subtract(rZ).subtract(BigInteger.ONE)) && !xt.equals(x.add(rX).add(BigInteger.ONE)) && yt != y + var6 + 1 && !zt.equals(z.add(rZ).add(BigInteger.ONE))) {
-                            level.setTile(xt, yt, zt, 0);
-                        } else if (yt >= 0 && !level.getMaterial(xt, yt - 1, zt).isSolid()) {
-                            level.setTile(xt, yt, zt, 0);
-                        } else if (level.getMaterial(xt, yt, zt).isSolid()) {
-                            if (yt == y - 1 && random.nextInt(4) != 0) {
-                                level.setTile(xt, yt, zt, Tile.MOSS_STONE.id);
-                            } else {
-                                level.setTile(xt, yt, zt, Tile.COBBLESTONE.id);
-                            }
+        if (holeCount < 1 || holeCount > 5) return false;
+
+        for (BigInteger xx = x.subtract(xrBig).subtract(BigInteger.ONE); xx.compareTo(x.add(xrBig).add(BigInteger.ONE)) <= 0; xx = xx.add(BigInteger.ONE)) {
+            for (int yy = y + hr; yy >= y - 1; yy--) {
+                for (BigInteger zz = z.subtract(zrBig).subtract(BigInteger.ONE); zz.compareTo(z.add(zrBig).add(BigInteger.ONE)) <= 0; zz = zz.add(BigInteger.ONE)) {
+                    if (!xx.equals(x.subtract(xrBig).subtract(BigInteger.ONE))
+                        && yy != y - 1
+                        && !zz.equals(z.subtract(zrBig).subtract(BigInteger.ONE))
+                        && !xx.equals(x.add(xrBig).add(BigInteger.ONE))
+                        && yy != y + hr + 1
+                        && !zz.equals(z.add(zrBig).add(BigInteger.ONE))
+                    ) {
+                        level.setTile(xx, yy, zz, 0);
+                    } else if (yy >= 0 && !level.getMaterial(xx, yy - 1, zz).isSolid()) {
+                        level.setTile(xx, yy, zz, 0);
+                    } else if (level.getMaterial(xx, yy, zz).isSolid()) {
+                        if (yy == y - 1 && random.nextInt(4) != 0) {
+                            level.setTile(xx, yy, zz, Tile.MOSS_STONE.id);
+                        } else {
+                            level.setTile(xx, yy, zz, Tile.COBBLESTONE.id);
                         }
                     }
                 }
             }
-
-            for (int var20 = 0; var20 < 2; var20++) {
-                for (int var23 = 0; var23 < 3; var23++) {
-                    BigInteger xt = x.add(BigInteger.valueOf(random.nextInt(irX * 2 + 1) - irX));
-                    BigInteger zt = z.add(BigInteger.valueOf(random.nextInt(irZ * 2 + 1) - irZ));
-                    if (level.isEmptyTile(xt, y, zt)) {
-                        int var15 = 0;
-                        if (level.getMaterial(xt.subtract(BigInteger.ONE), y, zt).isSolid()) {
-                            var15++;
-                        }
-
-                        if (level.getMaterial(xt.add(BigInteger.ONE), y, zt).isSolid()) {
-                            var15++;
-                        }
-
-                        if (level.getMaterial(xt, y, zt.subtract(BigInteger.ONE)).isSolid()) {
-                            var15++;
-                        }
-
-                        if (level.getMaterial(xt, y, zt.add(BigInteger.ONE)).isSolid()) {
-                            var15++;
-                        }
-
-                        if (var15 == 1) {
-                            level.setTile(xt, y, zt, Tile.CHEST.id);
-                            ChestTileEntity chest = (ChestTileEntity)level.getTileEntity(xt, y, zt);
-
-                            for (int var17 = 0; var17 < 8; var17++) {
-                                ItemInstance var18 = this.generateLoot(random);
-                                if (var18 != null) {
-                                    chest.setItem(random.nextInt(chest.getContainerSize()), var18);
-                                }
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
-
-            level.setTile(x, y, z, Tile.SPAWNER.id);
-            MobSpawnerTileEntity var21 = (MobSpawnerTileEntity)level.getTileEntity(x, y, z);
-            var21.setEntityId(this.randomEntityId(random));
-            return true;
-        } else {
-            return false;
         }
+
+        for (int cc = 0; cc < 2; cc++) {
+            for (int i = 0; i < 3; i++) {
+                BigInteger xc = x.add(BigInteger.valueOf(random.nextInt(xr * 2 + 1) - xr));
+                BigInteger zc = z.add(BigInteger.valueOf(random.nextInt(zr * 2 + 1) - zr));
+                if (!level.isEmptyTile(xc, y, zc)) continue;
+
+                int count = 0;
+                if (level.getMaterial(xc.subtract(BigInteger.ONE), y, zc).isSolid()) count++;
+                if (level.getMaterial(xc.add(BigInteger.ONE), y, zc).isSolid()) count++;
+                if (level.getMaterial(xc, y, zc.subtract(BigInteger.ONE)).isSolid()) count++;
+                if (level.getMaterial(xc, y, zc.add(BigInteger.ONE)).isSolid()) count++;
+
+                if (count != 1) continue;
+
+                level.setTile(xc, y, zc, Tile.CHEST.id);
+                ChestTileEntity chest = (ChestTileEntity) level.getTileEntity(xc, y, zc);
+
+                for (int j = 0; j < 8; j++) {
+                    ItemInstance item = generateLoot(random);
+                    if (item != null) chest.setItem(random.nextInt(chest.getContainerSize()), item);
+                }
+                break;
+            }
+        }
+
+        level.setTile(x, y, z, Tile.SPAWNER.id);
+        MobSpawnerTileEntity entity = (MobSpawnerTileEntity) level.getTileEntity(x, y, z);
+        entity.setEntityId(randomEntityId(random));
+        return true;
     }
 }

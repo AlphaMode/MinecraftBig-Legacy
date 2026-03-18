@@ -21,48 +21,57 @@ public class LakeFeatureMixin implements BigFeatureExtension {
     @Override
     public boolean place(Level level, Random random, BigInteger x, int y, BigInteger z) {
         x = x.subtract(BigConstants.EIGHT);
+        z = z.subtract(BigConstants.EIGHT);
 
-        for (z = z.subtract(BigConstants.EIGHT); y > 0 && level.isEmptyTile(x, y, z); --y) {
-        }
+        while (y > 0 && level.isEmptyTile(x, y, z))
+            y--;
 
         y -= 4;
-        boolean[] var6 = new boolean[2048];
-        int var7 = random.nextInt(4) + 4;
 
-        for (int var8 = 0; var8 < var7; ++var8) {
-            double var9 = random.nextDouble() * (double) 6.0F + (double) 3.0F;
-            double var11 = random.nextDouble() * (double) 4.0F + (double) 2.0F;
-            double var13 = random.nextDouble() * (double) 6.0F + (double) 3.0F;
-            double var15 = random.nextDouble() * ((double) 16.0F - var9 - (double) 2.0F) + (double) 1.0F + var9 / (double) 2.0F;
-            double var17 = random.nextDouble() * ((double) 8.0F - var11 - (double) 4.0F) + (double) 2.0F + var11 / (double) 2.0F;
-            double var19 = random.nextDouble() * ((double) 16.0F - var13 - (double) 2.0F) + (double) 1.0F + var13 / (double) 2.0F;
+        boolean[] grid = new boolean[/*2048*/16 * 16 * 8];
+        int spots = random.nextInt(4) + 4;
 
-            for (int var21 = 1; var21 < 15; ++var21) {
-                for (int var22 = 1; var22 < 15; ++var22) {
-                    for (int var23 = 1; var23 < 7; ++var23) {
-                        double var24 = ((double) var21 - var15) / (var9 / (double) 2.0F);
-                        double var26 = ((double) var23 - var17) / (var11 / (double) 2.0F);
-                        double var28 = ((double) var22 - var19) / (var13 / (double) 2.0F);
-                        double var30 = var24 * var24 + var26 * var26 + var28 * var28;
-                        if (var30 < (double) 1.0F) {
-                            var6[(var21 * 16 + var22) * 8 + var23] = true;
+        for (int i = 0; i < spots; ++i) {
+            double xr = random.nextDouble() * 6 + 3;
+            double yr = random.nextDouble() * 4 + 2;
+            double zr = random.nextDouble() * 6 + 3;
+
+            double xp = random.nextDouble() * (16 - xr - 2) + 1 + xr / 2;
+            double yp = random.nextDouble() * (8 - yr - 4) + 2 + yr / 2;
+            double zp = random.nextDouble() * (16 - zr - 2) + 1 + zr / 2;
+
+            for (int xx = 1; xx < 15; ++xx) {
+                for (int zz = 1; zz < 15; ++zz) {
+                    for (int yy = 1; yy < 7; ++yy) {
+                        double xd = (xx - xp) / (xr / 2);
+                        double yd = (yy - yp) / (yr / 2);
+                        double zd = (zz - zp) / (zr / 2);
+                        double d = xd * xd + yd * yd + zd * zd;
+                        if (d < (double) 1.0F) {
+                            grid[(xx * 16 + zz) * 8 + yy] = true;
                         }
                     }
                 }
             }
         }
 
-        for (int var35 = 0; var35 < 16; ++var35) {
-            for (int var39 = 0; var39 < 16; ++var39) {
-                for (int var10 = 0; var10 < 8; ++var10) {
-                    boolean var46 = !var6[(var35 * 16 + var39) * 8 + var10] && (var35 < 15 && var6[((var35 + 1) * 16 + var39) * 8 + var10] || var35 > 0 && var6[((var35 - 1) * 16 + var39) * 8 + var10] || var39 < 15 && var6[(var35 * 16 + var39 + 1) * 8 + var10] || var39 > 0 && var6[(var35 * 16 + (var39 - 1)) * 8 + var10] || var10 < 7 && var6[(var35 * 16 + var39) * 8 + var10 + 1] || var10 > 0 && var6[(var35 * 16 + var39) * 8 + (var10 - 1)]);
-                    if (var46) {
-                        Material var12 = level.getMaterial(x.add(BigInteger.valueOf(var35)), y + var10, z.add(BigInteger.valueOf(var39)));
-                        if (var10 >= 4 && var12.isLiquid()) {
+        for (int xx = 0; xx < 16; ++xx) {
+            for (int zz = 0; zz < 16; ++zz) {
+                for (int yy = 0; yy < 8; ++yy) {
+                    boolean check = !grid[(xx * 16 + zz) * 8 + yy] && (
+                            xx < 15 && grid[((xx + 1) * 16 + zz) * 8 + yy]
+                            || xx > 0 && grid[((xx - 1) * 16 + zz) * 8 + yy]
+                            || zz < 15 && grid[(xx * 16 + zz + 1) * 8 + yy]
+                            || zz > 0 && grid[(xx * 16 + (zz - 1)) * 8 + yy]
+                            || yy < 7 && grid[(xx * 16 + zz) * 8 + yy + 1]
+                            || yy > 0 && grid[(xx * 16 + zz) * 8 + (yy - 1)]);
+                    if (check) {
+                        Material m = level.getMaterial(x.add(BigInteger.valueOf(xx)), y + yy, z.add(BigInteger.valueOf(zz)));
+                        if (yy >= 4 && m.isLiquid()) {
                             return false;
                         }
 
-                        if (var10 < 4 && !var12.isSolid() && level.getTile(x.add(BigInteger.valueOf(var35)), y + var10, z.add(BigInteger.valueOf(var39))) != this.tile) {
+                        if (yy < 4 && !m.isSolid() && level.getTile(x.add(BigInteger.valueOf(xx)), y + yy, z.add(BigInteger.valueOf(zz))) != this.tile) {
                             return false;
                         }
                     }
@@ -70,33 +79,39 @@ public class LakeFeatureMixin implements BigFeatureExtension {
             }
         }
 
-        for (int var36 = 0; var36 < 16; ++var36) {
-            for (int var40 = 0; var40 < 16; ++var40) {
-                for (int var43 = 0; var43 < 8; ++var43) {
-                    if (var6[(var36 * 16 + var40) * 8 + var43]) {
-                        level.setTileNoUpdate(x.add(BigInteger.valueOf(var36)), y + var43, z.add(BigInteger.valueOf(var40)), var43 >= 4 ? 0 : this.tile);
+        for (int xx = 0; xx < 16; ++xx) {
+            for (int zz = 0; zz < 16; ++zz) {
+                for (int yy = 0; yy < 8; ++yy) {
+                    if (grid[(xx * 16 + zz) * 8 + yy]) {
+                        level.setTileNoUpdate(x.add(BigInteger.valueOf(xx)), y + yy, z.add(BigInteger.valueOf(zz)), yy >= 4 ? 0 : this.tile);
                     }
                 }
             }
         }
 
-        for (int var37 = 0; var37 < 16; ++var37) {
-            for (int var41 = 0; var41 < 16; ++var41) {
-                for (int var44 = 4; var44 < 8; ++var44) {
-                    if (var6[(var37 * 16 + var41) * 8 + var44] && level.getTile(x.add(BigInteger.valueOf(var37)), y + var44 - 1, z.add(BigInteger.valueOf(var41))) == Tile.DIRT.id && level.getBrightness(LightLayer.SKY, x.add(BigInteger.valueOf(var37)), y + var44, z.add(BigInteger.valueOf(var41))) > 0) {
-                        level.setTileNoUpdate(x.add(BigInteger.valueOf(var37)), y + var44 - 1, z.add(BigInteger.valueOf(var41)), Tile.GRASS.id);
+        for (int xx = 0; xx < 16; ++xx) {
+            for (int zz = 0; zz < 16; ++zz) {
+                for (int yy = 4; yy < 8; ++yy) {
+                    if (grid[(xx * 16 + zz) * 8 + yy] && level.getTile(x.add(BigInteger.valueOf(xx)), y + yy - 1, z.add(BigInteger.valueOf(zz))) == Tile.DIRT.id && level.getBrightness(LightLayer.SKY, x.add(BigInteger.valueOf(xx)), y + yy, z.add(BigInteger.valueOf(zz))) > 0) {
+                        level.setTileNoUpdate(x.add(BigInteger.valueOf(xx)), y + yy - 1, z.add(BigInteger.valueOf(zz)), Tile.GRASS.id);
                     }
                 }
             }
         }
 
         if (Tile.tiles[this.tile].material == Material.LAVA) {
-            for (int var38 = 0; var38 < 16; ++var38) {
-                for (int var42 = 0; var42 < 16; ++var42) {
-                    for (int var45 = 0; var45 < 8; ++var45) {
-                        boolean var47 = !var6[(var38 * 16 + var42) * 8 + var45] && (var38 < 15 && var6[((var38 + 1) * 16 + var42) * 8 + var45] || var38 > 0 && var6[((var38 - 1) * 16 + var42) * 8 + var45] || var42 < 15 && var6[(var38 * 16 + var42 + 1) * 8 + var45] || var42 > 0 && var6[(var38 * 16 + (var42 - 1)) * 8 + var45] || var45 < 7 && var6[(var38 * 16 + var42) * 8 + var45 + 1] || var45 > 0 && var6[(var38 * 16 + var42) * 8 + (var45 - 1)]);
-                        if (var47 && (var45 < 4 || random.nextInt(2) != 0) && level.getMaterial(x.add(BigInteger.valueOf(var38)), y + var45, z.add(BigInteger.valueOf(var42))).isSolid()) {
-                            level.setTileNoUpdate(x.add(BigInteger.valueOf(var38)), y + var45, z.add(BigInteger.valueOf(var42)), Tile.STONE.id);
+            for (int xx = 0; xx < 16; ++xx) {
+                for (int zz = 0; zz < 16; ++zz) {
+                    for (int yy = 0; yy < 8; ++yy) {
+                        boolean check = !grid[(xx * 16 + zz) * 8 + yy] && (
+                                xx < 15 && grid[((xx + 1) * 16 + zz) * 8 + yy]
+                                || xx > 0 && grid[((xx - 1) * 16 + zz) * 8 + yy]
+                                || zz < 15 && grid[(xx * 16 + zz + 1) * 8 + yy]
+                                || zz > 0 && grid[(xx * 16 + (zz - 1)) * 8 + yy]
+                                || yy < 7 && grid[(xx * 16 + zz) * 8 + yy + 1]
+                                || yy > 0 && grid[(xx * 16 + zz) * 8 + (yy - 1)]);
+                        if (check && (yy < 4 || random.nextInt(2) != 0) && level.getMaterial(x.add(BigInteger.valueOf(xx)), y + yy, z.add(BigInteger.valueOf(zz))).isSolid()) {
+                            level.setTileNoUpdate(x.add(BigInteger.valueOf(xx)), y + yy, z.add(BigInteger.valueOf(zz)), Tile.STONE.id);
                         }
                     }
                 }

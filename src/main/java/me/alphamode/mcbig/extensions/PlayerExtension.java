@@ -12,4 +12,8 @@ public interface PlayerExtension {
     void setFlySpeed(float speed);
 
     float getFlySpeed();
+
+    void setNoclip(boolean noclip);
+
+    boolean canNoclip();
 }
