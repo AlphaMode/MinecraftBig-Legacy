@@ -1,5 +1,6 @@
 package me.alphamode.mcbig.mixin.features.big_movement;
 
+import me.alphamode.mcbig.extensions.features.big_movement.BigCullerExtension;
 import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
 import me.alphamode.mcbig.extensions.features.big_movement.BigMobExtension;
 import me.alphamode.mcbig.math.BigConstants;
@@ -310,16 +311,18 @@ public abstract class GameRendererMixin {
 
         pick(a);
         Mob camera = this.mc.cameraEntity;
+        BigEntityExtension cameraBig = (BigEntityExtension) this.mc.cameraEntity;
         LevelRenderer levelRenderer = this.mc.levelRenderer;
         ParticleEngine particleEngine = this.mc.particleEngine;
-        double x = camera.xOld + (camera.x - camera.xOld) * a;
+        BigDecimal aBig = BigDecimal.valueOf(a);
+        BigDecimal x = cameraBig.getXOld().add(cameraBig.getX().subtract(cameraBig.getXOld()).multiply(aBig));
         double y = camera.yOld + (camera.y - camera.yOld) * a;
-        double z = camera.zOld + (camera.z - camera.zOld) * a;
+        BigDecimal z = cameraBig.getZOld().add(cameraBig.getZ().subtract(cameraBig.getZOld()).multiply(aBig));
         ChunkSource source = this.mc.level.getChunkSource();
         if (source instanceof ChunkCache) {
             ChunkCache cache = (ChunkCache) source;
-            int xc = Mth.floor((float) ((int) x)) >> 4;
-            int zc = Mth.floor((float) ((int) z)) >> 4;
+            int xc = Mth.floor((float) ((int) x.doubleValue())) >> 4;
+            int zc = Mth.floor((float) ((int) z.doubleValue())) >> 4;
             cache.centerOn(xc, zc);
         }
 
@@ -351,7 +354,7 @@ public abstract class GameRendererMixin {
             }
 
             FrustumCuller culler = new FrustumCuller();
-            culler.prepare(x, y, z);
+            ((BigCullerExtension)culler).prepare(x, y, z);
             this.mc.levelRenderer.cull(culler, a);
             if (renderLayer == 0) {
                 while (!this.mc.levelRenderer.updateDirtyChunks(camera, false) && nanoTime != 0L) {

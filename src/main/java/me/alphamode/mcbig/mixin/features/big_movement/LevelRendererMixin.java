@@ -3,6 +3,7 @@ package me.alphamode.mcbig.mixin.features.big_movement;
 import me.alphamode.mcbig.client.renderer.BigChunk;
 import me.alphamode.mcbig.client.renderer.BigDistanceChunkSorter;
 import me.alphamode.mcbig.extensions.BigLevelListenerExtension;
+import me.alphamode.mcbig.extensions.features.big_movement.BigCullerExtension;
 import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
 import me.alphamode.mcbig.extensions.features.big_movement.BigLevelRendererExtension;
 import me.alphamode.mcbig.math.BigConstants;
@@ -123,6 +124,7 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
 
     @Shadow private TileRenderer tileRenderer;
     @Shadow public float destroyProgress;
+
     BigDecimal xOldBig = BigDecimal.valueOf(-9999.0);
     BigDecimal zOldBig = BigDecimal.valueOf(-9999.0);
 
@@ -585,7 +587,7 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
             this.totalEntities = entities.size();
 
             for(int i = 0; i < this.level.globalEntities.size(); ++i) {
-                Entity entity = (Entity)this.level.globalEntities.get(i);
+                Entity entity = this.level.globalEntities.get(i);
                 ++this.renderedEntities;
                 if (entity.shouldRender(cam)) {
                     EntityRenderDispatcher.INSTANCE.render(entity, partialTick);
@@ -594,7 +596,7 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
 
             for (Entity entity : entities) {
                 if (entity.shouldRender(cam)
-                        && (entity.noCulling || culler.isVisible(entity.bb))
+                        && (entity.noCulling || (entity.isBigMovementEnabled() ? ((BigCullerExtension)culler).isVisible(((BigEntityExtension)entity).getBigBB()) : culler.isVisible(entity.bb)))
                         && (entity != this.mc.cameraEntity || this.mc.options.thirdPersonView || this.mc.cameraEntity.isSleeping())) {
                     int var8 = Mth.floor(entity.y);
                     if (var8 < 0) {
@@ -738,5 +740,221 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
 
         this.renderSameAsLast(layer, alpha);
         return count;
+    }
+
+    /**
+     * @author
+     * @reason
+     */
+    @Overwrite
+    public void renderAdvancedClouds(float alpha) {
+        GL11.glDisable(GL11.GL_CULL_FACE);
+        float yOffs = (float)(this.mc.cameraEntity.yOld + (this.mc.cameraEntity.y - this.mc.cameraEntity.yOld) * alpha);
+        Tesselator t = Tesselator.instance;
+
+        float ss = 12.0F;
+        float h = 4.0F;
+
+        double time = (this.ticks + alpha);
+        double xo = (this.mc.cameraEntity.xo + (this.mc.cameraEntity.x - this.mc.cameraEntity.xo) * alpha + time * 0.03F) / ss;
+        double zo = (this.mc.cameraEntity.zo + (this.mc.cameraEntity.z - this.mc.cameraEntity.zo) * alpha) / ss + 0.33F;
+        float yy = this.level.dimension.getCloudHeight() - yOffs + 0.33F;
+        int xOffs = Mth.floor(xo / 2048.0);
+        int zOffs = Mth.floor(zo / 2048.0);
+        xo -= xOffs * 2048;
+        zo -= zOffs * 2048;
+
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.textures.loadTexture("/environment/clouds.png"));
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+
+        Vec3 cc = this.level.getCloudColor(alpha);
+        float cr = (float)cc.x;
+        float cg = (float)cc.y;
+        float cb = (float)cc.z;
+
+        if (this.mc.options.anaglyph3d) {
+            float crr = (cr * 30.0F + cg * 59.0F + cb * 11.0F) / 100.0F;
+            float cgg = (cr * 30.0F + cg * 70.0F) / 100.0F;
+            float cbb = (cr * 30.0F + cb * 70.0F) / 100.0F;
+
+            cr = crr;
+            cg = cgg;
+            cb = cbb;
+        }
+
+        float uo = (float) (xo * 0.0);
+        float vo = (float) (zo * 0.0);
+        float scale = 1 / 256.0f;//0.00390625F;
+        uo = Mth.floor(xo) * scale;
+        vo = Mth.floor(zo) * scale;
+        float xoffs = (float)(xo - Mth.floor(xo));
+        float zoffs = (float)(zo - Mth.floor(zo));
+        byte D = 8;
+        byte radius = 3;
+        float e = 1 / 1024.0f;//9.765625E-4F;
+        GL11.glScalef(ss, 1.0F, ss);
+
+        for (int pass = 0; pass < 2; pass++) {
+            if (pass == 0) {
+                GL11.glColorMask(false, false, false, false);
+            } else if (this.mc.options.anaglyph3d) {
+                if (GameRenderer.currentRenderLayer == 0) {
+                    GL11.glColorMask(false, true, true, true);
+                } else {
+                    GL11.glColorMask(true, false, false, true);
+                }
+            } else {
+                GL11.glColorMask(true, true, true, true);
+            }
+
+            for (int xPos = -radius + 1; xPos <= radius; xPos++) {
+                for (int zPos = -radius + 1; zPos <= radius; zPos++) {
+                    t.begin();
+                    float xx = xPos * D;
+                    float zz = zPos * D;
+                    float xp = xx - xoffs;
+                    float zp = zz - zoffs;
+                    if (yy > -h - 1.0F) {
+                        t.color(cr * 0.7F, cg * 0.7F, cb * 0.7F, 0.8F);
+                        t.normal(0.0F, -1.0F, 0.0F);
+                        t.vertexUV(xp + 0.0F, yy + 0.0F, zp + D, (xx + 0.0F) * scale + uo, (zz + D) * scale + vo);
+                        t.vertexUV(xp + D, yy + 0.0F, zp + D, (xx + D) * scale + uo, (zz + D) * scale + vo);
+                        t.vertexUV(xp + D, yy + 0.0F, zp + 0.0F, (xx + D) * scale + uo, (zz + 0.0F) * scale + vo);
+                        t.vertexUV(xp + 0.0F, yy + 0.0F, zp + 0.0F, (xx + 0.0F) * scale + uo, (zz + 0.0F) * scale + vo);
+                    }
+
+                    if (yy <= h + 1.0F) {
+                        t.color(cr, cg, cb, 0.8F);
+                        t.normal(0.0F, 1.0F, 0.0F);
+                        t.vertexUV(xp + 0.0F, yy + h - e, zp + D, (xx + 0.0F) * scale + uo, (zz + D) * scale + vo);
+                        t.vertexUV(xp + D, yy + h - e, zp + D, (xx + D) * scale + uo, (zz + D) * scale + vo);
+                        t.vertexUV(xp + D, yy + h - e, zp + 0.0F, (xx + D) * scale + uo, (zz + 0.0F) * scale + vo);
+                        t.vertexUV(xp + 0.0F, yy + h - e, zp + 0.0F, (xx + 0.0F) * scale + uo, (zz + 0.0F) * scale + vo);
+                    }
+
+                    t.color(cr * 0.9F, cg * 0.9F, cb * 0.9F, 0.8F);
+                    if (xPos > -1) {
+                        t.normal(-1.0F, 0.0F, 0.0F);
+
+                        for (int var32 = 0; var32 < D; var32++) {
+                            t.vertexUV(xp + var32 + 0.0F, yy + 0.0F, zp + D, (xx + var32 + 0.5F) * scale + uo, (zz + D) * scale + vo);
+                            t.vertexUV(xp + var32 + 0.0F, yy + h, zp + D, (xx + var32 + 0.5F) * scale + uo, (zz + D) * scale + vo);
+                            t.vertexUV(xp + var32 + 0.0F, yy + h, zp + 0.0F, (xx + var32 + 0.5F) * scale + uo, (zz + 0.0F) * scale + vo);
+                            t.vertexUV(xp + var32 + 0.0F, yy + 0.0F, zp + 0.0F, (xx + var32 + 0.5F) * scale + uo, (zz + 0.0F) * scale + vo);
+                        }
+                    }
+
+                    if (xPos <= 1) {
+                        t.normal(1.0F, 0.0F, 0.0F);
+
+                        for (int var40 = 0; var40 < D; var40++) {
+                            t.vertexUV(xp + var40 + 1.0F - e, yy + 0.0F, zp + D, (xx + var40 + 0.5F) * scale + uo, (zz + D) * scale + vo);
+                            t.vertexUV(xp + var40 + 1.0F - e, yy + h, zp + D, (xx + var40 + 0.5F) * scale + uo, (zz + D) * scale + vo);
+                            t.vertexUV(xp + var40 + 1.0F - e, yy + h, zp + 0.0F, (xx + var40 + 0.5F) * scale + uo, (zz + 0.0F) * scale + vo);
+                            t.vertexUV(xp + var40 + 1.0F - e, yy + 0.0F, zp + 0.0F, (xx + var40 + 0.5F) * scale + uo, (zz + 0.0F) * scale + vo);
+                        }
+                    }
+
+                    t.color(cr * 0.8F, cg * 0.8F, cb * 0.8F, 0.8F);
+                    if (zPos > -1) {
+                        t.normal(0.0F, 0.0F, -1.0F);
+
+                        for (int var41 = 0; var41 < D; var41++) {
+                            t.vertexUV(xp + 0.0F, yy + h, zp + var41 + 0.0F, (xx + 0.0F) * scale + uo, (zz + var41 + 0.5F) * scale + vo);
+                            t.vertexUV(xp + D, yy + h, zp + var41 + 0.0F, (xx + D) * scale + uo, (zz + var41 + 0.5F) * scale + vo);
+                            t.vertexUV(xp + D, yy + 0.0F, zp + var41 + 0.0F, (xx + D) * scale + uo, (zz + var41 + 0.5F) * scale + vo);
+                            t.vertexUV(xp + 0.0F, yy + 0.0F, zp + var41 + 0.0F, (xx + 0.0F) * scale + uo, (zz + var41 + 0.5F) * scale + vo);
+                        }
+                    }
+
+                    if (zPos <= 1) {
+                        t.normal(0.0F, 0.0F, 1.0F);
+
+                        for (int var42 = 0; var42 < D; var42++) {
+                            t.vertexUV(xp + 0.0F, yy + h, zp + var42 + 1.0F - e, (xx + 0.0F) * scale + uo, (zz + var42 + 0.5F) * scale + vo);
+                            t.vertexUV(xp + D, yy + h, zp + var42 + 1.0F - e, (xx + D) * scale + uo, (zz + var42 + 0.5F) * scale + vo);
+                            t.vertexUV(xp + D, yy + 0.0F, zp + var42 + 1.0F - e, (xx + D) * scale + uo, (zz + var42 + 0.5F) * scale + vo);
+                            t.vertexUV(xp + 0.0F, yy + 0.0F, zp + var42 + 1.0F - e, (xx + 0.0F) * scale + uo, (zz + var42 + 0.5F) * scale + vo);
+                        }
+                    }
+
+                    t.end();
+                }
+            }
+        }
+
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        GL11.glDisable(GL11.GL_BLEND);
+        GL11.glEnable(GL11.GL_CULL_FACE);
+    }
+
+    /**
+     * @author
+     * @reason
+     */
+    @Overwrite
+    public void renderClouds(float alpha) {
+        if (this.mc.level.dimension.natural) return;
+
+        if (this.mc.options.fancyGraphics) {
+            this.renderAdvancedClouds(alpha);
+            return;
+        }
+
+        GL11.glDisable(GL11.GL_CULL_FACE);
+        float yOffs = (float)(this.mc.cameraEntity.yOld + (this.mc.cameraEntity.y - this.mc.cameraEntity.yOld) * alpha);
+        int s = 32;
+        int d = 256 / s;
+        Tesselator t = Tesselator.instance;
+
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.textures.loadTexture("/environment/clouds.png"));
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+
+        Vec3 cc = this.level.getCloudColor(alpha);
+        float cr = (float) cc.x;
+        float cg = (float) cc.y;
+        float cb = (float) cc.z;
+
+        if (this.mc.options.anaglyph3d) {
+            float crr = (cr * 30.0F + cg * 59.0F + cb * 11.0F) / 100.0F;
+            float cgg = (cr * 30.0F + cg * 70.0F) / 100.0F;
+            float cbb = (cr * 30.0F + cb * 70.0F) / 100.0F;
+
+            cr = crr;
+            cg = cgg;
+            cb = cbb;
+        }
+
+        float scale = 1 / 2048.0f;//4.8828125E-4F;
+
+        double time = (this.ticks + alpha);
+        double xo = this.mc.cameraEntity.xo + (this.mc.cameraEntity.x - this.mc.cameraEntity.xo) * alpha + time * 0.03F;
+        double zo = this.mc.cameraEntity.zo + (this.mc.cameraEntity.z - this.mc.cameraEntity.zo) * alpha;
+        int xOffs = Mth.floor(xo / 2048.0);
+        int zOffs = Mth.floor(zo / 2048.0);
+        xo -= xOffs * 2048;
+        zo -= zOffs * 2048;
+
+        float yy = this.level.dimension.getCloudHeight() - yOffs + 0.33F;
+        float uo = (float) (xo * scale);
+        float vo = (float) (zo * scale);
+        t.begin();
+
+        t.color(cr, cg, cb, 0.8F);
+        for (int xx = -s * d; xx < s * d; xx += s) {
+            for (int zz = -s * d; zz < s * d; zz += s) {
+                t.vertexUV(xx + 0, yy, zz + s, (xx + 0) * scale + uo, (zz + s) * scale + vo);
+                t.vertexUV(xx + s, yy, zz + s, (xx + s) * scale + uo, (zz + s) * scale + vo);
+                t.vertexUV(xx + s, yy, zz + 0, (xx + s) * scale + uo, (zz + 0) * scale + vo);
+                t.vertexUV(xx + 0, yy, zz + 0, (xx + 0) * scale + uo, (zz + 0) * scale + vo);
+            }
+        }
+        t.end();
+
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        GL11.glDisable(GL11.GL_BLEND);
+        GL11.glEnable(GL11.GL_CULL_FACE);
     }
 }

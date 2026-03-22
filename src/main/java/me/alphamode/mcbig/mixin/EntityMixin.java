@@ -222,154 +222,158 @@ public abstract class EntityMixin implements BigEntityExtension {
      * @reason
      */
     @Overwrite
-    public void move(double x, double y, double z) {
+    public void move(double xa, double ya, double za) {
         if (this.noPhysics) {
-            this.bb.grow(x, y, z);
+            this.bb.grow(xa, ya, za);
             this.x = (this.bb.x0 + this.bb.x1) / 2.0;
             this.y = this.bb.y0 + (double)this.heightOffset - (double)this.ySlideOffset;
             this.z = (this.bb.z0 + this.bb.z1) / 2.0;
         } else {
             this.ySlideOffset *= 0.4F;
-            double var7 = this.x;
-            double var9 = this.z;
+
+            double xo = this.x;
+            double zo = this.z;
+
             if (this.stuckInBlock) {
                 this.stuckInBlock = false;
-                x *= 0.25;
-                y *= 0.05F;
-                z *= 0.25;
+                xa *= 0.25;
+                ya *= 0.05F;
+                za *= 0.25;
                 this.xd = 0.0;
                 this.yd = 0.0;
                 this.zd = 0.0;
             }
 
-            double var11 = x;
-            double var13 = y;
-            double var15 = z;
-            AABB var17 = this.bb.copy();
-            boolean var18 = this.onGround && this.isSneaking();
-            if (var18) {
-                double var19;
-                for(var19 = 0.05; x != 0.0 && this.level.getCubes((Entity) (Object) this, this.bb.offset(x, -1.0, 0.0)).size() == 0; var11 = x) {
-                    if (x < var19 && x >= -var19) {
-                        x = 0.0;
-                    } else if (x > 0.0) {
-                        x -= var19;
-                    } else {
-                        x += var19;
-                    }
+            double xaOrg = xa;
+            double yaOrg = ya;
+            double zaOrg = za;
+
+            AABB bbOrg = this.bb.copy();
+
+            boolean sneaking = this.onGround && this.isSneaking();
+
+            if (sneaking) {
+                double d = 0.05;
+                while (xa != 0 && this.level.getCubes((Entity) (Object) this, this.bb.offset(xa, -1.0, 0.0)).size() == 0) {
+                    if (xa < d && xa >= -d) xa = 0.0;
+                    else if (xa > 0.0) xa -= d;
+                    else xa += d;
+                    xaOrg = xa;
                 }
 
-                for(; z != 0.0 && this.level.getCubes((Entity) (Object) this, this.bb.offset(0.0, -1.0, z)).size() == 0; var15 = z) {
-                    if (z < var19 && z >= -var19) {
-                        z = 0.0;
-                    } else if (z > 0.0) {
-                        z -= var19;
-                    } else {
-                        z += var19;
-                    }
+                while (za != 0 && this.level.getCubes((Entity) (Object) this, this.bb.offset(0.0, -1.0, za)).size() == 0) {
+                    if (za < d && za >= -d) za = 0.0;
+                    else if (za > 0.0) za -= d;
+                    else za += d;
+                    zaOrg = za;
                 }
             }
 
-            List var36 = this.level.getCubes((Entity) (Object) this, this.bb.expand(x, y, z));
+            List<AABB> aABBs = this.level.getCubes((Entity) (Object) this, this.bb.expand(xa, ya, za));
 
-            for(int var20 = 0; var20 < var36.size(); ++var20) {
-                y = ((AABB)var36.get(var20)).clipYCollide(this.bb, y);
+            // LAND FIRST, then x and z
+            for(int i = 0; i < aABBs.size(); ++i) {
+                ya = aABBs.get(i).clipYCollide(this.bb, ya);
             }
 
-            this.bb.grow(0.0, y, 0.0);
-            if (!this.slide && var13 != y) {
-                z = 0.0;
-                y = 0.0;
-                x = 0.0;
+            this.bb.grow(0.0, ya, 0.0);
+            if (!this.slide && yaOrg != ya) {
+                za = 0.0;
+                ya = 0.0;
+                xa = 0.0;
             }
 
-            boolean var38 = this.onGround || var13 != y && var13 < 0.0;
+            boolean og = this.onGround || yaOrg != ya && yaOrg < 0.0;
 
-            for(int var21 = 0; var21 < var36.size(); ++var21) {
-                x = ((AABB)var36.get(var21)).clipXCollide(this.bb, x);
+            for (int i = 0; i < aABBs.size(); ++i) {
+                xa = aABBs.get(i).clipXCollide(this.bb, xa);
             }
 
-            this.bb.grow(x, 0.0, 0.0);
-            if (!this.slide && var11 != x) {
-                z = 0.0;
-                y = 0.0;
-                x = 0.0;
+            this.bb.grow(xa, 0.0, 0.0);
+
+            if (!this.slide && xaOrg != xa) {
+                za = 0.0;
+                ya = 0.0;
+                xa = 0.0;
             }
 
-            for(int var39 = 0; var39 < var36.size(); ++var39) {
-                z = ((AABB)var36.get(var39)).clipZCollide(this.bb, z);
+            for(int i = 0; i < aABBs.size(); ++i) {
+                za = aABBs.get(i).clipZCollide(this.bb, za);
             }
 
-            this.bb.grow(0.0, 0.0, z);
-            if (!this.slide && var15 != z) {
-                z = 0.0;
-                y = 0.0;
-                x = 0.0;
+            this.bb.grow(0.0, 0.0, za);
+            if (!this.slide && zaOrg != za) {
+                za = 0.0;
+                ya = 0.0;
+                xa = 0.0;
             }
 
-            if (this.footSize > 0.0F && var38 && (var18 || this.ySlideOffset < 0.05F) && (var11 != x || var15 != z)) {
-                double var40 = x;
-                double var23 = y;
-                double var25 = z;
-                x = var11;
-                y = (double)this.footSize;
-                z = var15;
-                AABB var27 = this.bb.copy();
-                this.bb.copyFrom(var17);
-                var36 = this.level.getCubes((Entity) (Object) this, this.bb.expand(var11, y, var15));
+            if (this.footSize > 0.0F && og && (sneaking || this.ySlideOffset < 0.05F) && (xaOrg != xa || zaOrg != za)) {
+                double xaN = xa;
+                double yaN = ya;
+                double zaN = za;
 
-                for(int var28 = 0; var28 < var36.size(); ++var28) {
-                    y = ((AABB)var36.get(var28)).clipYCollide(this.bb, y);
+                xa = xaOrg;
+                ya = this.footSize;
+                za = zaOrg;
+
+                AABB normal = this.bb.copy();
+                this.bb.copyFrom(bbOrg);
+                aABBs = this.level.getCubes((Entity) (Object) this, this.bb.expand(xaOrg, ya, zaOrg));
+
+                // LAND FIRST, then x and z
+                for(int i = 0; i < aABBs.size(); ++i) {
+                    ya = aABBs.get(i).clipYCollide(this.bb, ya);
                 }
 
-                this.bb.grow(0.0, y, 0.0);
-                if (!this.slide && var13 != y) {
-                    z = 0.0;
-                    y = 0.0;
-                    x = 0.0;
+                this.bb.grow(0.0, ya, 0.0);
+                if (!this.slide && yaOrg != ya) {
+                    za = 0.0;
+                    ya = 0.0;
+                    xa = 0.0;
                 }
 
-                for(int var48 = 0; var48 < var36.size(); ++var48) {
-                    x = ((AABB)var36.get(var48)).clipXCollide(this.bb, x);
+                for(int i = 0; i < aABBs.size(); ++i) {
+                    xa = aABBs.get(i).clipXCollide(this.bb, xa);
                 }
 
-                this.bb.grow(x, 0.0, 0.0);
-                if (!this.slide && var11 != x) {
-                    z = 0.0;
-                    y = 0.0;
-                    x = 0.0;
+                this.bb.grow(xa, 0.0, 0.0);
+                if (!this.slide && xaOrg != xa) {
+                    za = 0.0;
+                    ya = 0.0;
+                    xa = 0.0;
                 }
 
-                for(int var49 = 0; var49 < var36.size(); ++var49) {
-                    z = ((AABB)var36.get(var49)).clipZCollide(this.bb, z);
+                for(int i = 0; i < aABBs.size(); ++i) {
+                    za = aABBs.get(i).clipZCollide(this.bb, za);
                 }
 
-                this.bb.grow(0.0, 0.0, z);
-                if (!this.slide && var15 != z) {
-                    z = 0.0;
-                    y = 0.0;
-                    x = 0.0;
+                this.bb.grow(0.0, 0.0, za);
+                if (!this.slide && zaOrg != za) {
+                    za = 0.0;
+                    ya = 0.0;
+                    xa = 0.0;
                 }
 
-                if (!this.slide && var13 != y) {
-                    z = 0.0;
-                    y = 0.0;
-                    x = 0.0;
+                if (!this.slide && yaOrg != ya) {
+                    za = 0.0;
+                    ya = 0.0;
+                    xa = 0.0;
                 } else {
-                    y = (double)(-this.footSize);
+                    ya = -this.footSize;
 
-                    for(int var50 = 0; var50 < var36.size(); ++var50) {
-                        y = ((AABB)var36.get(var50)).clipYCollide(this.bb, y);
+                    for(int i = 0; i < aABBs.size(); ++i) {
+                        ya = aABBs.get(i).clipYCollide(this.bb, ya);
                     }
 
-                    this.bb.grow(0.0, y, 0.0);
+                    this.bb.grow(0.0, ya, 0.0);
                 }
 
-                if (var40 * var40 + var25 * var25 >= x * x + z * z) {
-                    x = var40;
-                    y = var23;
-                    z = var25;
-                    this.bb.copyFrom(var27);
+                if (xaN * xaN + zaN * zaN >= xa * xa + za * za) {
+                    xa = xaN;
+                    ya = yaN;
+                    za = zaN;
+                    this.bb.copyFrom(normal);
                 } else {
                     double var51 = this.bb.y0 - (double)((int)this.bb.y0);
                     if (var51 > 0.0) {
@@ -381,73 +385,76 @@ public abstract class EntityMixin implements BigEntityExtension {
             this.x = (this.bb.x0 + this.bb.x1) / 2.0;
             this.y = this.bb.y0 + (double)this.heightOffset - (double)this.ySlideOffset;
             this.z = (this.bb.z0 + this.bb.z1) / 2.0;
-            this.horizontalCollision = var11 != x || var15 != z;
-            this.verticalCollision = var13 != y;
-            this.onGround = var13 != y && var13 < 0.0;
+            this.horizontalCollision = xaOrg != xa || zaOrg != za;
+            this.verticalCollision = yaOrg != ya;
+            this.onGround = yaOrg != ya && yaOrg < 0.0;
             this.collision = this.horizontalCollision || this.verticalCollision;
-            this.checkFallDamage(y, this.onGround);
-            if (var11 != x) {
+            this.checkFallDamage(ya, this.onGround);
+            if (xaOrg != xa) {
                 this.xd = 0.0;
             }
 
-            if (var13 != y) {
+            if (yaOrg != ya) {
                 this.yd = 0.0;
             }
 
-            if (var15 != z) {
+            if (zaOrg != za) {
                 this.zd = 0.0;
             }
 
-            double var41 = this.x - var7;
-            double var42 = this.z - var9;
-            if (this.isMovementNoisy() && !var18 && this.riding == null) {
-                this.walkDist = (float)((double)this.walkDist + (double)Mth.sqrt(var41 * var41 + var42 * var42) * 0.6);
-                BigInteger var43 = BigMath.floor(this.x);
-                int var26 = Mth.floor(this.y - 0.2F - (double)this.heightOffset);
-                BigInteger var46 = BigMath.floor(this.z);
-                int var52 = this.level.getTile(var43, var26, var46);
-                if (this.level.getTile(var43, var26 - 1, var46) == Tile.OAK_FENCE.id) {
-                    var52 = this.level.getTile(var43, var26 - 1, var46);
+            double xm = this.x - xo;
+            double zm = this.z - zo;
+
+            if (this.isMovementNoisy() && !sneaking && this.riding == null) {
+                this.walkDist = (float)((double)this.walkDist + (double)Mth.sqrt(xm * xm + zm * zm) * 0.6);
+                BigInteger xt = BigMath.floor(this.x);
+                int yt = Mth.floor(this.y - 0.2F - (double)this.heightOffset);
+                BigInteger zt = BigMath.floor(this.z);
+
+                int t = this.level.getTile(xt, yt, zt);
+                if (this.level.getTile(xt, yt - 1, zt) == Tile.OAK_FENCE.id) {
+                    t = this.level.getTile(xt, yt - 1, zt);
                 }
 
-                if (this.walkDist > (float)this.nextStep && var52 > 0) {
+                if (this.walkDist > (float)this.nextStep && t > 0) {
                     ++this.nextStep;
-                    Tile.SoundType var29 = Tile.tiles[var52].soundType;
-                    if (this.level.getTile(var43, var26 + 1, var46) == Tile.SNOW_LAYER.id) {
+                    Tile.SoundType var29 = Tile.tiles[t].soundType;
+                    if (this.level.getTile(xt, yt + 1, zt) == Tile.SNOW_LAYER.id) {
                         var29 = Tile.SNOW_LAYER.soundType;
                         this.level.playSound((Entity) (Object) this, var29.getStepSound(), var29.getVolume() * 0.15F, var29.getPitch());
-                    } else if (!Tile.tiles[var52].material.isLiquid()) {
+                    } else if (!Tile.tiles[t].material.isLiquid()) {
                         this.level.playSound((Entity) (Object) this, var29.getStepSound(), var29.getVolume() * 0.15F, var29.getPitch());
                     }
 
-                    Tile.tiles[var52].stepOn(this.level, var43, var26, var46, (Entity) (Object) this);
+                    Tile.tiles[t].stepOn(this.level, xt, yt, zt, (Entity) (Object) this);
                 }
             }
 
-            BigInteger var44 = BigMath.floor(this.bb.x0 + 0.001);
-            int var45 = Mth.floor(this.bb.y0 + 0.001);
-            BigInteger var47 = BigMath.floor(this.bb.z0 + 0.001);
-            BigInteger var53 = BigMath.floor(this.bb.x1 - 0.001);
-            int var55 = Mth.floor(this.bb.y1 - 0.001);
-            BigInteger var30 = BigMath.floor(this.bb.z1 - 0.001);
-            if (this.level.hasChunksAt(var44, var45, var47, var53, var55, var30)) {
-                for(BigInteger var31 = var44; var31.compareTo(var53) <= 0; var31 = var31.add(BigInteger.ONE)) {
-                    for(int var32 = var45; var32 <= var55; ++var32) {
-                        for(BigInteger var33 = var47; var33.compareTo(var30) <= 0; var33 = var33.add(BigInteger.ONE)) {
-                            int var34 = this.level.getTile(var31, var32, var33);
-                            if (var34 > 0) {
-                                Tile.tiles[var34].entityInside(this.level, var31, var32, var33, (Entity) (Object) this);
+            BigInteger x0 = BigMath.floor(this.bb.x0 + 0.001);
+            int y0 = Mth.floor(this.bb.y0 + 0.001);
+            BigInteger z0 = BigMath.floor(this.bb.z0 + 0.001);
+            BigInteger x1 = BigMath.floor(this.bb.x1 - 0.001);
+            int y1 = Mth.floor(this.bb.y1 - 0.001);
+            BigInteger z1 = BigMath.floor(this.bb.z1 - 0.001);
+
+            if (this.level.hasChunksAt(x0, y0, z0, x1, y1, z1)) {
+                for(BigInteger x = x0; x.compareTo(x1) <= 0; x = x.add(BigInteger.ONE)) {
+                    for(int y = y0; y <= y1; ++y) {
+                        for(BigInteger z = z0; z.compareTo(z1) <= 0; z = z.add(BigInteger.ONE)) {
+                            int t = this.level.getTile(x, y, z);
+                            if (t > 0) {
+                                Tile.tiles[t].entityInside(this.level, x, y, z, (Entity) (Object) this);
                             }
                         }
                     }
                 }
             }
 
-            boolean var56 = this.isInWaterOrRain();
+            boolean water = this.isInWaterOrRain();
             if (this.level.containsFireTile(this.bb.deflate(0.001, 0.001, 0.001))) {
                 this.burn(1);
-                if (!var56) {
-                    ++this.onFire;
+                if (!water) {
+                    this.onFire++;
                     if (this.onFire == 0) {
                         this.onFire = 300;
                     }
@@ -456,7 +463,7 @@ public abstract class EntityMixin implements BigEntityExtension {
                 this.onFire = -this.flameTime;
             }
 
-            if (var56 && this.onFire > 0) {
+            if (water && this.onFire > 0) {
                 this.level.playSound((Entity) (Object) this, "random.fizz", 0.7F, 1.6F + (this.random.nextFloat() - this.random.nextFloat()) * 0.4F);
                 this.onFire = -this.flameTime;
             }

@@ -29,7 +29,7 @@ import java.awt.*;
 import java.math.BigInteger;
 
 @Mixin(Minecraft.class)
-public class MinecraftMixin {
+public abstract class MinecraftMixin {
     @Shadow
     public ProgressRenderer progressRenderer;
 

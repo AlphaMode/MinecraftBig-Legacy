@@ -164,8 +164,8 @@ public class BigAABB {
     }
 
     public BigAABB expand(double xa, double ya, double za) {
-        BigDecimal bigX = new BigDecimal(xa, MathContext.DECIMAL64);
-        BigDecimal bigZ = new BigDecimal(za, MathContext.DECIMAL64);
+        BigDecimal bigX = BigMath.decimal(xa);
+        BigDecimal bigZ = BigMath.decimal(za);
         BigDecimal x0 = this.x0;
         double y0 = this.y0;
         BigDecimal z0 = this.z0;
