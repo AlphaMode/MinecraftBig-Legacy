@@ -1,7 +1,7 @@
 package me.alphamode.mcbig.prelaunch;
 
 public enum Features {
-    BIG_DECIMAL_MOVEMENT("mixin.features.big_movement", "Big Decimal Movement"),
+//    BIG_DECIMAL_MOVEMENT("mixin.features.big_movement", "Big Decimal Movement"),
     FIX_STRIPELANDS("mixin.features.fix_stripelands", "Fix stripelands");
 
     private final String flag;
