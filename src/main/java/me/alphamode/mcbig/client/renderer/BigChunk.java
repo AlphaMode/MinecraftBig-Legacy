@@ -1,5 +1,6 @@
 package me.alphamode.mcbig.client.renderer;
 
+import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
 import me.alphamode.mcbig.level.BigRegion;
 import me.alphamode.mcbig.math.BigConstants;
 import net.minecraft.client.renderer.Chunk;
@@ -81,10 +82,10 @@ public class BigChunk extends Chunk {
 
     @Override
     public float distanceToSqr(Entity entity) {
-        float var2 = (float)(entity.x - (double)this.bigXm.doubleValue());
-        float var3 = (float)(entity.y - (double)this.ym);
-        float var4 = (float)(entity.z - (double)this.bigZm.doubleValue());
-        return var2 * var2 + var3 * var3 + var4 * var4;
+        float xd = (float) (entity.x - (double) this.bigXm.doubleValue());
+        float yd = (float) (entity.y - (double) this.ym);
+        float zd = (float) (entity.z - (double) this.bigZm.doubleValue());
+        return xd * xd + yd * yd + zd * zd;
     }
 
     @Override

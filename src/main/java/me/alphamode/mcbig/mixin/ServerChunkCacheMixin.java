@@ -82,7 +82,7 @@ public abstract class ServerChunkCacheMixin implements ChunkSource, BigChunkSour
             BigInteger zPlusOne = z.add(BigInteger.ONE);
 
             if (!chunk.terrainPopulated && this.hasChunk(xPlusOne, zPlusOne) && this.hasChunk(x, zPlusOne) && this.hasChunk(xPlusOne, z)) {
-                this.postProcess(this, x, z);
+//                this.postProcess(this, x, z);
             }
 
             if (this.hasChunk(xMinusOne, z)
@@ -90,7 +90,7 @@ public abstract class ServerChunkCacheMixin implements ChunkSource, BigChunkSour
                     && this.hasChunk(xMinusOne, zPlusOne)
                     && this.hasChunk(x, zPlusOne)
                     && this.hasChunk(xMinusOne, z)) {
-                this.postProcess(this, xMinusOne, z);
+//                this.postProcess(this, xMinusOne, z);
             }
 
             if (this.hasChunk(x, zMinusOne)
@@ -98,7 +98,7 @@ public abstract class ServerChunkCacheMixin implements ChunkSource, BigChunkSour
                     && this.hasChunk(xPlusOne, zMinusOne)
                     && this.hasChunk(x, zMinusOne)
                     && this.hasChunk(xPlusOne, z)) {
-                this.postProcess(this, x, zMinusOne);
+//                this.postProcess(this, x, zMinusOne);
             }
 
             if (this.hasChunk(xMinusOne, zMinusOne)
@@ -106,7 +106,7 @@ public abstract class ServerChunkCacheMixin implements ChunkSource, BigChunkSour
                     && this.hasChunk(xMinusOne, zMinusOne)
                     && this.hasChunk(x, zMinusOne)
                     && this.hasChunk(xMinusOne, z)) {
-                this.postProcess(this, xMinusOne, zMinusOne);
+//                this.postProcess(this, xMinusOne, zMinusOne);
             }
         }
 
