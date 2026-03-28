@@ -21,6 +21,7 @@ public class McBigWorldOptionsScreen extends Screen {
 
         this.buttons.add(new WorldTypeButton(0, this.width / 2 - 155, this.height / 6 + 24));
         this.buttons.add(new Button(1, this.width / 2 - 100, this.height / 4 + 120 + 12, language.get("gui.done")));
+        this.buttons.add(new Button(3, this.width / 2 - 100, this.height / 4 + 120 - 24, language.get("Preview")));
     }
 
     @Override
@@ -32,6 +33,14 @@ public class McBigWorldOptionsScreen extends Screen {
 
             if (button.id == 1) {
                 this.minecraft.setScreen(this.parent);
+            }
+
+            if (button.id == 2) {
+                this.minecraft.setScreen(this.parent);
+            }
+
+            if (button.id == 3) {
+                this.minecraft.setScreen(new WorldBuilderScreen());
             }
         }
     }

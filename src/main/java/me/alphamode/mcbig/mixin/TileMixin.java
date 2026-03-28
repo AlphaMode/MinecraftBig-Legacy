@@ -1,7 +1,6 @@
 package me.alphamode.mcbig.mixin;
 
 import me.alphamode.mcbig.extensions.BigTileExtension;
-import me.alphamode.mcbig.math.BigMath;
 import me.alphamode.mcbig.world.phys.BigAABB;
 import me.alphamode.mcbig.world.phys.BigHitResult;
 import me.alphamode.mcbig.world.phys.BigVec3;
@@ -127,7 +126,7 @@ public abstract class TileMixin implements BigTileExtension {
         } else if (face == Facing.EAST && this.xx1 < 1.0) {
             return true;
         } else {
-            return !level.isSolidTile(x, y, z);
+            return !level.isSolidRenderTile(x, y, z);
         }
     }
 

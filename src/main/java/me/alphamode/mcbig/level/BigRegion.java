@@ -146,7 +146,7 @@ public class BigRegion extends Region implements BigLevelSourceExtension {
     }
 
     @Override
-    public boolean isSolidTile(BigInteger x, int y, BigInteger z) {
+    public boolean isSolidRenderTile(BigInteger x, int y, BigInteger z) {
         Tile tile = Tile.tiles[this.getTile(x, y, z)];
         return tile == null ? false : tile.isSolidRender();
     }

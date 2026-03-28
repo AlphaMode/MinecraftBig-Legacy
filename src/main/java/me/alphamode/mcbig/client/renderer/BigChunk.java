@@ -122,7 +122,7 @@ public class BigChunk extends Chunk {
                             if (tileId > 0) {
                                 if (!started) {
                                     started = true;
-                                    GL11.glNewList(this.lists + l, 4864);
+                                    GL11.glNewList(this.lists + l, GL11.GL_COMPILE);
                                     GL11.glPushMatrix();
                                     this.translateToPos();
                                     float ss = 1.000001F;

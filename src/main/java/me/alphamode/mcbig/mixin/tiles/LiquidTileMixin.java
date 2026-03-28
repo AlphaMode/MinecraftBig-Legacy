@@ -169,7 +169,7 @@ public abstract class LiquidTileMixin extends Tile implements BigTileExtension, 
             }
         }
 
-        if (this.material == Material.LAVA && level.getMaterial(x, y + 1, z) == Material.AIR && !level.isSolidTile(x, y + 1, z) && random.nextInt(100) == 0) {
+        if (this.material == Material.LAVA && level.getMaterial(x, y + 1, z) == Material.AIR && !level.isSolidRenderTile(x, y + 1, z) && random.nextInt(100) == 0) {
             double xx = (double)(x.doubleValue() + random.nextFloat());
             double yy = (double)y + this.yy1;
             double zz = (double)(z.doubleValue() + random.nextFloat());

@@ -560,7 +560,7 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
     }
 
     @Override
-    public boolean isSolidTile(BigInteger x, int y, BigInteger z) {
+    public boolean isSolidRenderTile(BigInteger x, int y, BigInteger z) {
         Tile tile = Tile.tiles[getTile(x, y, z)];
         return tile == null ? false : tile.isSolidRender();
     }

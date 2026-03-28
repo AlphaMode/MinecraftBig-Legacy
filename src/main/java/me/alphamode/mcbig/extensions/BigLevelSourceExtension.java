@@ -31,7 +31,7 @@ public interface BigLevelSourceExtension {
         throw new UnsupportedOperationException();
     }
 
-    default boolean isSolidTile(BigInteger x, int y, BigInteger z) {
+    default boolean isSolidRenderTile(BigInteger x, int y, BigInteger z) {
         throw new UnsupportedOperationException();
     }
 
