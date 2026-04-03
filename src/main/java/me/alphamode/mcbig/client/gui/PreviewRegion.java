@@ -24,9 +24,10 @@ public class PreviewRegion implements LevelSource {
         this.size = size;
         this.chunks = new BigLevelChunk[size * size];
 
+
         for (int x = 0; x < size; x++) {
             for (int z = 0; z < size; z++) {
-                chunks[x + z * size] = source.getChunk(x, z);
+                chunks[x + z * size] = source.getChunk(BigInteger.valueOf(x), BigInteger.valueOf(z));
             }
         }
 

@@ -2,20 +2,18 @@ package me.alphamode.mcbig.client.gui;
 
 import me.alphamode.mcbig.constants.McBigConstants;
 import me.alphamode.mcbig.world.level.PreviewLevel;
-import me.alphamode.mcbig.world.level.levelgen.vanilla.BigRandomLevelSource;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Lighting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.ScreenSizeCalculator;
 import net.minecraft.client.gui.Screen;
-import org.lwjgl.input.Mouse;
+import net.minecraft.world.level.levelgen.RandomLevelSource;
 import org.lwjgl.opengl.GL11;
 
 import java.math.BigInteger;
 
 public class WorldBuilderScreen extends Screen {
 
-    private final WorldPreviewComponent preview = new WorldPreviewComponent(this, (Minecraft) FabricLoader.getInstance().getGameInstance(), new BigRandomLevelSource(new PreviewLevel(2), 2), 8, BigInteger.ZERO, BigInteger.ZERO);
+    private final WorldPreviewComponent preview = new WorldPreviewComponent(this, (Minecraft) FabricLoader.getInstance().getGameInstance(), new RandomLevelSource(new PreviewLevel(2), 2), 8, BigInteger.ZERO, BigInteger.ZERO);
 
     @Override
     public void render(int xm, int ym, float a) {

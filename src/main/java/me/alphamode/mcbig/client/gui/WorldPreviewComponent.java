@@ -2,20 +2,22 @@ package me.alphamode.mcbig.client.gui;
 
 import net.minecraft.client.MemoryTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.ScreenSizeCalculator;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.Screen;
 import net.minecraft.client.renderer.OffsettedRenderList;
 import net.minecraft.client.renderer.Tesselator;
 import net.minecraft.client.renderer.TileRenderer;
-import net.minecraft.util.SmoothFloat;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.tile.Tile;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.vector.Quaternion;
+import org.lwjgl.util.vector.Vector4f;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.FloatBuffer;
 
 public class WorldPreviewComponent extends GuiComponent {
     public int lists = -1;
@@ -55,23 +57,15 @@ public class WorldPreviewComponent extends GuiComponent {
 
         float center = (this.size * 16) / 2.0F;
         GL11.glTranslatef(center, center, center);
-        GL11.glRotatef(xRot, 1.0F, 0.0F, 0.0F);
-        GL11.glRotatef(yRot, 0.0F, 1.0F, 0.0F);
+
+        GL11.glMultMatrix(toMatrix(rotation));
+
         GL11.glScalef(6.0F, 6.0F, 6.0F);
         GL11.glTranslatef(-center, -center, -center);
-//                GL11.glRotatef(180.0F, 1.0F, 0.0F, 0.0F);
-
-
 
         GL11.glEnable(GL11.GL_DEPTH_TEST);
 
         GL11.glDepthMask(true);
-        //        GL11.glEnable(GL11.GL_TEXTURE_2D);
-        //        GL11.glEnable(GL11.GL_ALPHA_TEST);
-
-        //        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        //        this.setupFog(0, partialTick);
-        //        GL11.glEnable(GL11.GL_BLEND);
         GL11.glDisable(GL11.GL_CULL_FACE);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.mc.textures.loadTexture("/terrain.png"));
 
@@ -81,8 +75,6 @@ public class WorldPreviewComponent extends GuiComponent {
         }
 
         GL11.glPopMatrix();
-        //        renderList.clear();
-        //        renderList.render();
     }
 
     public void build() {
@@ -158,13 +150,9 @@ public class WorldPreviewComponent extends GuiComponent {
     }
 
     private boolean mouseDown = false;
+    private final Quaternion rotation = new Quaternion();
     private float lastMouseX = 0;
     private float lastMouseY = 0;
-
-    private float targetYRot = 45;
-    private float targetXRot = 30;
-    private float yRot = 45;
-    private float xRot = 30;
 
     public void updateMouse(int xm, int ym, float a) {
         if (Mouse.isButtonDown(0)) {
@@ -172,25 +160,61 @@ public class WorldPreviewComponent extends GuiComponent {
                 mouseDown = true;
                 lastMouseX = xm;
                 lastMouseY = ym;
-                targetYRot = yRot;
-                targetXRot = xRot;
-            } else {
-                float dx = xm - lastMouseX;
-                float dy = ym - lastMouseY;
-
-                targetYRot -= dx * 0.5F;
-                targetXRot -= dy * 0.5F;
-
-                lastMouseX = xm;
-                lastMouseY = ym;
+                return;
             }
+
+            float dx = xm - lastMouseX;
+            float dy = ym - lastMouseY;
+
+            lastMouseX = xm;
+            lastMouseY = ym;
+
+            // Reduce sensitivity a lot — quaternion updates are easy to overdo
+            float sensitivity = 0.005F;
+
+            Quaternion yawDelta = fromAxisAngle(0.0F, -1.0F, 0.0F, dx * sensitivity);
+            Quaternion pitchDelta = fromAxisAngle(1.0F, 0.0F, 0.0F, dy * sensitivity);
+
+            Quaternion temp = new Quaternion();
+            Quaternion.mul(rotation, pitchDelta, temp);
+            Quaternion.mul(temp, yawDelta, rotation);
+
+            rotation.normalise(rotation);
         } else {
             mouseDown = false;
         }
+    }
 
-        // Smooth interpolation toward target rotation
-        float smooth = 0.25F;
-        yRot += (targetYRot - yRot) * smooth;
-        xRot += (targetXRot - xRot) * smooth;
+    private static Quaternion fromAxisAngle(float x, float y, float z, float radians) {
+        Quaternion q = new Quaternion();
+        q.setFromAxisAngle(new Vector4f(x, y, z, radians));
+        return q;
+    }
+
+    private static FloatBuffer toMatrix(Quaternion q) {
+        float x = q.x;
+        float y = q.y;
+        float z = q.z;
+        float w = q.w;
+
+        float xx = x * x;
+        float yy = y * y;
+        float zz = z * z;
+        float xy = x * y;
+        float xz = x * z;
+        float yz = y * z;
+        float wx = w * x;
+        float wy = w * y;
+        float wz = w * z;
+
+        FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
+        buffer.put(new float[] {
+                1.0F - 2.0F * (yy + zz), 2.0F * (xy - wz),         2.0F * (xz + wy),         0.0F,
+                2.0F * (xy + wz),         1.0F - 2.0F * (xx + zz), 2.0F * (yz - wx),         0.0F,
+                2.0F * (xz - wy),         2.0F * (yz + wx),         1.0F - 2.0F * (xx + yy), 0.0F,
+                0.0F,                     0.0F,                     0.0F,                     1.0F
+        });
+        buffer.flip();
+        return buffer;
     }
 }
