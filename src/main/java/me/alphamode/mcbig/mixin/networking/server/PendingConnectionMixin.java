@@ -77,7 +77,7 @@ public abstract class PendingConnectionMixin extends PacketListener {
             this.server.players.addPlayer(player);
             BigEntityExtension bigPlayer = (BigEntityExtension) player;
             gamePacketListener.teleport(bigPlayer.getX(), player.y, bigPlayer.getZ(), player.yRot, player.xRot);
-            this.server.connection.addConnection(gamePacketListener);
+            this.server.connection.addPlayerConnection(gamePacketListener);
             gamePacketListener.send(new SetTimePacket(level.getTime()));
             player.initMenu();
         }

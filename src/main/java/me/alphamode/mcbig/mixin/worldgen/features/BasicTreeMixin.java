@@ -186,7 +186,7 @@ public abstract class BasicTreeMixin implements BigFeatureExtension {
 
     private boolean isFree(BigVec3i pos) {
         int tile = this.thisLevel.getTile(pos.x(), pos.y(), pos.z());
-        if (tile != 0 && tile != Tile.LEAVES.id) {
+        if (tile != 0 && tile != Tile.leaves.id) {
             return false;
         }
 

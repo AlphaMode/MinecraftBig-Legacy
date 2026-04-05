@@ -105,7 +105,7 @@ public abstract class RailTileMixin extends Tile implements BigTileExtension {
             if (var8) {
                 this.dropResources(level, x, y, z, level.getData(x, y, z));
                 level.setTile(x, y, z, 0);
-            } else if (this.id == Tile.POWERED_RAIL.id) {
+            } else if (this.id == Tile.goldenRail.id) {
                 boolean var9 = level.hasNeighborSignal(x, y, z) || level.hasNeighborSignal(x, y + 1, z);
                 var9 = var9 || this.findPoweredRailSignal(level, x, y, z, var6, true, 0) || this.findPoweredRailSignal(level, x, y, z, var6, false, 0);
                 boolean var10 = false;
@@ -212,7 +212,7 @@ public abstract class RailTileMixin extends Tile implements BigTileExtension {
 
     private boolean isSameRailWithPower(Level level, BigInteger x, int y, BigInteger z, boolean hasSignal, int power, int railShape) {
         int t = level.getTile(x, y, z);
-        if (t == Tile.POWERED_RAIL.id) {
+        if (t == Tile.goldenRail.id) {
             int d = level.getData(x, y, z);
             int var10 = d & 7;
             if (railShape == 1 && (var10 == 0 || var10 == 4 || var10 == 5)) {

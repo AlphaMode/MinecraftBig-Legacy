@@ -402,7 +402,7 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
     public int getRawBrightness(BigInteger x, int y, BigInteger z, boolean combineNeighbours) {
         if (combineNeighbours) {
             int tile = getTile(x, y, z);
-            if (tile == Tile.SLAB.id || tile == Tile.FARMLAND.id || tile == Tile.COBBLESTONE_STAIRS.id || tile == Tile.WOOD_STAIRS.id) {
+            if (tile == Tile.stoneSlabHalf.id || tile == Tile.farmland.id || tile == Tile.stairs_stone.id || tile == Tile.stairs_wood.id) {
                 int var6 = getRawBrightness(x, y + 1, z, false);
                 int var7 = getRawBrightness(x.add(BigInteger.ONE), y, z, false);
                 int var8 = getRawBrightness(x.subtract(BigInteger.ONE), y, z, false);
@@ -578,7 +578,7 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
     @Override
     public Material getMaterial(BigInteger x, int y, BigInteger z) {
         int tile = getTile(x, y, z);
-        return tile == 0 ? Material.AIR : Tile.tiles[tile].material;
+        return tile == 0 ? Material.air : Tile.tiles[tile].material;
     }
 
     @Override
@@ -995,23 +995,22 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
     }
 
     @Override
-    public boolean mayPlace(int tileId, BigInteger x, int y, BigInteger z, boolean ignoreObstructed, int face) {
-        int var7 = this.getTile(x, y, z);
-        Tile var8 = Tile.tiles[var7];
-        Tile var9 = Tile.tiles[tileId];
-        AABB var10 = var9.getAABB((Level) (Object) this, x, y, z);
-        if (ignoreObstructed) {
-            var10 = null;
-        }
+    public boolean mayPlace(int tileId, BigInteger x, int y, BigInteger z, boolean ignoreEntities, int face) {
+        int targetType = this.getTile(x, y, z);
+        Tile targetTile = Tile.tiles[targetType];
 
-        if (var10 != null && !this.isUnobstructed(var10)) {
+        Tile tile = Tile.tiles[tileId];
+        AABB aabb = tile.getAABB((Level) (Object) this, x, y, z);
+        if (ignoreEntities) aabb = null;
+
+        if (aabb != null && !this.isUnobstructed(aabb)) {
             return false;
         } else {
-            if (var8 == Tile.FLOWING_WATER || var8 == Tile.WATER || var8 == Tile.FLOWING_LAVA || var8 == Tile.LAVA || var8 == Tile.FIRE || var8 == Tile.SNOW_LAYER) {
-                var8 = null;
+            if (targetTile == Tile.water || targetTile == Tile.calmWater || targetTile == Tile.lava || targetTile == Tile.calmLava || targetTile == Tile.fire || targetTile == Tile.topSnow) {
+                targetTile = null;
             }
 
-            return tileId > 0 && var8 == null && var9.canPlace((Level) (Object) this, x, y, z, face);
+            return tileId > 0 && targetTile == null && tile.canPlace((Level) (Object) this, x, y, z, face);
         }
     }
 
@@ -1247,7 +1246,7 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
 
         for (int yt = 127; yt > 0; --yt) {
             int tile = chunk.getTile(xt, yt, zt);
-            Material material = tile == 0 ? Material.AIR : Tile.tiles[tile].material;
+            Material material = tile == 0 ? Material.air : Tile.tiles[tile].material;
             if (material.blocksMotion() || material.isLiquid()) {
                 return yt + 1;
             }
@@ -1382,15 +1381,15 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
                     int tt = lc.getTile(x, y, z);
                     if (isRaining()
                             && tt == 0
-                            && Tile.SNOW_LAYER.mayPlace((Level) (Object) this, x + xo.intValue(), y, z + zo.intValue())
+                            && Tile.topSnow.mayPlace((Level) (Object) this, x + xo.intValue(), y, z + zo.intValue())
                             && belowTile != 0
-                            && belowTile != Tile.ICE.id
+                            && belowTile != Tile.ice.id
                             && Tile.tiles[belowTile].material.blocksMotion()) {
-                        setTile(BigInteger.valueOf(x).add(xo), y, BigInteger.valueOf(z).add(zo), Tile.SNOW_LAYER.id);
+                        setTile(BigInteger.valueOf(x).add(xo), y, BigInteger.valueOf(z).add(zo), Tile.topSnow.id);
                     }
 
-                    if (belowTile == Tile.WATER.id && lc.getData(x, y - 1, z) == 0) {
-                        setTile(BigInteger.valueOf(x).add(xo), y - 1, BigInteger.valueOf(z).add(zo), Tile.ICE.id);
+                    if (belowTile == Tile.calmWater.id && lc.getData(x, y - 1, z) == 0) {
+                        setTile(BigInteger.valueOf(x).add(xo), y - 1, BigInteger.valueOf(z).add(zo), Tile.ice.id);
                     }
                 }
             }
@@ -1740,7 +1739,7 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
                 for (int y = y0; y < y1; ++y) {
                     for (BigInteger z = z0; z.compareTo(z1) < 0; z = z.add(BigInteger.ONE)) {
                         int tile = getTile(x, y, z);
-                        if (tile == Tile.FIRE.id || tile == Tile.FLOWING_LAVA.id || tile == Tile.LAVA.id) {
+                        if (tile == Tile.fire.id || tile == Tile.lava.id || tile == Tile.calmLava.id) {
                             return true;
                         }
                     }
@@ -1884,7 +1883,7 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
             x = x.add(BigInteger.ONE);
         }
 
-        if (getTile(x, y, z) == Tile.FIRE.id) {
+        if (getTile(x, y, z) == Tile.fire.id) {
             levelEvent(player, LevelEvent.SOUND_LAVA_FIZZ, x, y, z, 0);
             setTile(x, y, z, 0);
         }

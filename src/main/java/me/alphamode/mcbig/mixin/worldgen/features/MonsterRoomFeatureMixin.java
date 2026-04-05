@@ -68,9 +68,9 @@ public abstract class MonsterRoomFeatureMixin implements BigFeatureExtension {
                         level.setTile(xx, yy, zz, 0);
                     } else if (level.getMaterial(xx, yy, zz).isSolid()) {
                         if (yy == y - 1 && random.nextInt(4) != 0) {
-                            level.setTile(xx, yy, zz, Tile.MOSS_STONE.id);
+                            level.setTile(xx, yy, zz, Tile.mossyCobblestone.id);
                         } else {
-                            level.setTile(xx, yy, zz, Tile.COBBLESTONE.id);
+                            level.setTile(xx, yy, zz, Tile.cobblestone.id);
                         }
                     }
                 }
@@ -91,7 +91,7 @@ public abstract class MonsterRoomFeatureMixin implements BigFeatureExtension {
 
                 if (count != 1) continue;
 
-                level.setTile(xc, y, zc, Tile.CHEST.id);
+                level.setTile(xc, y, zc, Tile.chest.id);
                 ChestTileEntity chest = (ChestTileEntity) level.getTileEntity(xc, y, zc);
 
                 for (int j = 0; j < 8; j++) {
@@ -102,7 +102,7 @@ public abstract class MonsterRoomFeatureMixin implements BigFeatureExtension {
             }
         }
 
-        level.setTile(x, y, z, Tile.SPAWNER.id);
+        level.setTile(x, y, z, Tile.mobSpawner.id);
         MobSpawnerTileEntity entity = (MobSpawnerTileEntity) level.getTileEntity(x, y, z);
         entity.setEntityId(randomEntityId(random));
         return true;

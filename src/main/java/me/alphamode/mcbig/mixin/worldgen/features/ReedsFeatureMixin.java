@@ -20,16 +20,16 @@ public class ReedsFeatureMixin implements BigFeatureExtension {
             BigInteger z2 = z.add(BigInteger.valueOf(random.nextInt(4) - random.nextInt(4)));
             if (level.isEmptyTile(x2, y, z2)
                     && (
-                    level.getMaterial(x2.subtract(BigInteger.ONE), y - 1, z2) == Material.WATER
-                            || level.getMaterial(x2.add(BigInteger.ONE), y - 1, z2) == Material.WATER
-                            || level.getMaterial(x2, y - 1, z2.subtract(BigInteger.ONE)) == Material.WATER
-                            || level.getMaterial(x2, y - 1, z2.add(BigInteger.ONE)) == Material.WATER
+                    level.getMaterial(x2.subtract(BigInteger.ONE), y - 1, z2) == Material.water
+                            || level.getMaterial(x2.add(BigInteger.ONE), y - 1, z2) == Material.water
+                            || level.getMaterial(x2, y - 1, z2.subtract(BigInteger.ONE)) == Material.water
+                            || level.getMaterial(x2, y - 1, z2.add(BigInteger.ONE)) == Material.water
             )) {
                 int h = 2 + random.nextInt(random.nextInt(3) + 1);
 
                 for (int yy = 0; yy < h; yy++) {
-                    if (Tile.REEDS.canPlace(level, x2, y2 + yy, z2)) {
-                        level.setTileNoUpdate(x2, y2 + yy, z2, Tile.REEDS.id);
+                    if (Tile.reeds.canPlace(level, x2, y2 + yy, z2)) {
+                        level.setTileNoUpdate(x2, y2 + yy, z2, Tile.reeds.id);
                     }
                 }
             }

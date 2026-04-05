@@ -51,11 +51,11 @@ public abstract class PortalTileMixin extends HalfTransparentTile implements Big
     public boolean isPortal(Level level, BigInteger x, int y, BigInteger z) {
         BigInteger xOff = BigInteger.ZERO;
         BigInteger zOff = BigInteger.ZERO;
-        if (level.getTile(x.subtract(BigInteger.ONE), y, z) == Tile.OBSIDIAN.id || level.getTile(x.add(BigInteger.ONE), y, z) == Tile.OBSIDIAN.id) {
+        if (level.getTile(x.subtract(BigInteger.ONE), y, z) == Tile.obsidian.id || level.getTile(x.add(BigInteger.ONE), y, z) == Tile.obsidian.id) {
             xOff = BigInteger.ONE;
         }
 
-        if (level.getTile(x, y, z.subtract(BigInteger.ONE)) == Tile.OBSIDIAN.id || level.getTile(x, y, z.add(BigInteger.ONE)) == Tile.OBSIDIAN.id) {
+        if (level.getTile(x, y, z.subtract(BigInteger.ONE)) == Tile.obsidian.id || level.getTile(x, y, z.add(BigInteger.ONE)) == Tile.obsidian.id) {
             zOff = BigInteger.ONE;
         }
 
@@ -74,10 +74,10 @@ public abstract class PortalTileMixin extends HalfTransparentTile implements Big
                     if (wO != -1 && wO != 2 || hO != -1 && hO != 3) {
                         int tile = level.getTile(x.add(xOff.multiply(bigWO)), y + hO, z.add(zOff.multiply(bigWO)));
                         if (var9) {
-                            if (tile != Tile.OBSIDIAN.id) {
+                            if (tile != Tile.obsidian.id) {
                                 return false;
                             }
-                        } else if (tile != 0 && tile != Tile.FIRE.id) {
+                        } else if (tile != 0 && tile != Tile.fire.id) {
                             return false;
                         }
                     }
@@ -89,7 +89,7 @@ public abstract class PortalTileMixin extends HalfTransparentTile implements Big
             for (int wO = 0; wO < 2; wO++) {
                 BigInteger bigWO = BigInteger.valueOf(wO);
                 for (int hO = 0; hO < 3; hO++) {
-                    level.setTile(x.add(xOff.multiply(bigWO)), y + hO, z.add(zOff.multiply(bigWO)), Tile.PORTAL.id);
+                    level.setTile(x.add(xOff.multiply(bigWO)), y + hO, z.add(zOff.multiply(bigWO)), Tile.portalTile.id);
                 }
             }
 
@@ -112,7 +112,7 @@ public abstract class PortalTileMixin extends HalfTransparentTile implements Big
             --yt;
         }
 
-        if (level.getTile(x, yt - 1, z) != Tile.OBSIDIAN.id) {
+        if (level.getTile(x, yt - 1, z) != Tile.obsidian.id) {
             level.setTile(x, y, z, 0);
         } else {
             int yOff = 1;
@@ -120,12 +120,12 @@ public abstract class PortalTileMixin extends HalfTransparentTile implements Big
                 ++yOff;
             }
 
-            if (yOff == 3 && level.getTile(x, yt + yOff, z) == Tile.OBSIDIAN.id) {
+            if (yOff == 3 && level.getTile(x, yt + yOff, z) == Tile.obsidian.id) {
                 boolean sideSame = level.getTile(x.subtract(BigInteger.ONE), y, z) == this.id || level.getTile(x.add(BigInteger.ONE), y, z) == this.id;
                 boolean endSame = level.getTile(x, y, z.subtract(BigInteger.ONE)) == this.id || level.getTile(x, y, z.add(BigInteger.ONE)) == this.id;
                 if (sideSame && endSame) {
                     level.setTile(x, y, z, 0);
-                } else if ((level.getTile(x.add(xOff), y, z.add(zOff)) != Tile.OBSIDIAN.id || level.getTile(x.subtract(xOff), y, z.subtract(zOff)) != this.id) && (level.getTile(x.subtract(xOff), y, z.subtract(zOff)) != Tile.OBSIDIAN.id || level.getTile(x.add(xOff), y, z.add(zOff)) != this.id)) {
+                } else if ((level.getTile(x.add(xOff), y, z.add(zOff)) != Tile.obsidian.id || level.getTile(x.subtract(xOff), y, z.subtract(zOff)) != this.id) && (level.getTile(x.subtract(xOff), y, z.subtract(zOff)) != Tile.obsidian.id || level.getTile(x.add(xOff), y, z.add(zOff)) != this.id)) {
                     level.setTile(x, y, z, 0);
                 }
             } else {

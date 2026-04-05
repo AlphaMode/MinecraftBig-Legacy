@@ -102,10 +102,10 @@ public abstract class GameRendererMixin {
     private float fogBrO;
 
     @Shadow
-    private float oldFov;
+    private float fovOffsetO;
 
     @Shadow
-    private float fov;
+    private float fovOffset;
 
     @Shadow
     private int tick;
@@ -198,7 +198,7 @@ public abstract class GameRendererMixin {
         this.oldZOff = this.zOff;
         this.yRotO = this.yRot;
         this.xRotO = this.xRot;
-        this.oldFov = this.fov;
+        this.fovOffsetO = this.fovOffset;
         this.camTiltO = this.camTilt;
         if (this.mc.cameraEntity == null) {
             this.mc.cameraEntity = this.mc.player;
@@ -232,7 +232,7 @@ public abstract class GameRendererMixin {
             GL11.glTranslatef(0.0F, 0.3F, 0.0F);
             if (!this.mc.options.fixedCamera) {
                 int t = this.mc.level.getTile(BigMath.floor(bigPlayer.getX()), Mth.floor(player.y), BigMath.floor(bigPlayer.getZ()));
-                if (t == Tile.BED.id) {
+                if (t == Tile.bed.id) {
                     int data = this.mc.level.getData(BigMath.floor(bigPlayer.getX()), Mth.floor(player.y), BigMath.floor(bigPlayer.getZ()));
                     int direction = data & 3;
                     GL11.glRotatef(direction * 90, 0.0F, 1.0F, 0.0F);
@@ -377,7 +377,7 @@ public abstract class GameRendererMixin {
             Lighting.turnOff();
             setupFog(0, a);
             particleEngine.render(camera, a);
-            if (this.mc.hitResult != null && camera.isUnderLiquid(Material.WATER) && camera instanceof Player) {
+            if (this.mc.hitResult != null && camera.isUnderLiquid(Material.water) && camera instanceof Player) {
                 Player player = (Player) camera;
                 GL11.glDisable(GL11.GL_ALPHA_TEST);
                 levelRenderer.renderHit(player, this.mc.hitResult, 0, player.inventory.getSelected(), a);
@@ -419,7 +419,7 @@ public abstract class GameRendererMixin {
             GL11.glDepthMask(true);
             GL11.glEnable(GL11.GL_CULL_FACE);
             GL11.glDisable(GL11.GL_BLEND);
-            if (this.zoom == 1.0 && camera instanceof Player && this.mc.hitResult != null && !camera.isUnderLiquid(Material.WATER)) {
+            if (this.zoom == 1.0 && camera instanceof Player && this.mc.hitResult != null && !camera.isUnderLiquid(Material.water)) {
                 Player player = (Player) camera;
                 GL11.glDisable(GL11.GL_ALPHA_TEST);
                 levelRenderer.renderHit(player, this.mc.hitResult, 0, player.inventory.getSelected(), a);
@@ -488,7 +488,7 @@ public abstract class GameRendererMixin {
                 float xa = this.random.nextFloat();
                 float za = this.random.nextFloat();
                 if (t > 0) {
-                    if (Tile.tiles[t].material == Material.LAVA) {
+                    if (Tile.tiles[t].material == Material.lava) {
                         this.mc.particleEngine.add(new SmokeParticle(level, x.doubleValue() + xa, y + 0.1F - Tile.tiles[t].yy0, z.doubleValue() + za, 0.0, 0.0, 0.0));
                     } else {
                         if (this.random.nextInt(++rainPosSamples) == 0) {

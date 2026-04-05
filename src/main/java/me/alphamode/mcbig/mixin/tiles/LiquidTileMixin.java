@@ -54,7 +54,7 @@ public abstract class LiquidTileMixin extends Tile implements BigTileExtension, 
         Material mat = level.getMaterial(x, y, z);
         if (mat == this.material) {
             return false;
-        } else if (mat == Material.ICE) {
+        } else if (mat == Material.ice) {
             return false;
         } else {
             return face == Facing.UP || super.isSolid(level, x, y, z, face);
@@ -66,7 +66,7 @@ public abstract class LiquidTileMixin extends Tile implements BigTileExtension, 
         Material mat = level.getMaterial(x, y, z);
         if (mat == this.material) {
             return false;
-        } else if (mat == Material.ICE) {
+        } else if (mat == Material.ice) {
             return false;
         } else {
             return face == Facing.UP || super.shouldRenderFace(level, x, y, z, face);
@@ -155,7 +155,7 @@ public abstract class LiquidTileMixin extends Tile implements BigTileExtension, 
 
     @Override
     public void animateTick(Level level, BigInteger x, int y, BigInteger z, Random random) {
-        if (this.material == Material.WATER && random.nextInt(64) == 0) {
+        if (this.material == Material.water && random.nextInt(64) == 0) {
             int d = level.getData(x, y, z);
             if (d > 0 && d < 8) {
                 level.playSound(
@@ -169,7 +169,7 @@ public abstract class LiquidTileMixin extends Tile implements BigTileExtension, 
             }
         }
 
-        if (this.material == Material.LAVA && level.getMaterial(x, y + 1, z) == Material.AIR && !level.isSolidRenderTile(x, y + 1, z) && random.nextInt(100) == 0) {
+        if (this.material == Material.lava && level.getMaterial(x, y + 1, z) == Material.air && !level.isSolidRenderTile(x, y + 1, z) && random.nextInt(100) == 0) {
             double xx = (double)(x.doubleValue() + random.nextFloat());
             double yy = (double)y + this.yy1;
             double zz = (double)(z.doubleValue() + random.nextFloat());
@@ -189,20 +189,20 @@ public abstract class LiquidTileMixin extends Tile implements BigTileExtension, 
 
     private void updateLiquid(Level level, BigInteger x, int y, BigInteger z) {
         if (level.getTile(x, y, z) != this.id) return;
-        if (this.material == Material.LAVA) {
+        if (this.material == Material.lava) {
             boolean water = false;
-            if (water || level.getMaterial(x, y, z.subtract(BigInteger.ONE)) == Material.WATER) water = true;
-            if (water || level.getMaterial(x, y, z.add(BigInteger.ONE)) == Material.WATER) water = true;
-            if (water || level.getMaterial(x.subtract(BigInteger.ONE), y, z) == Material.WATER) water = true;
-            if (water || level.getMaterial(x.add(BigInteger.ONE), y, z) == Material.WATER) water = true;
-            if (water || level.getMaterial(x, y + 1, z) == Material.WATER) water = true;
+            if (water || level.getMaterial(x, y, z.subtract(BigInteger.ONE)) == Material.water) water = true;
+            if (water || level.getMaterial(x, y, z.add(BigInteger.ONE)) == Material.water) water = true;
+            if (water || level.getMaterial(x.subtract(BigInteger.ONE), y, z) == Material.water) water = true;
+            if (water || level.getMaterial(x.add(BigInteger.ONE), y, z) == Material.water) water = true;
+            if (water || level.getMaterial(x, y + 1, z) == Material.water) water = true;
 
             if (water) {
                 int data = level.getData(x, y, z);
                 if (data == 0) {
-                    level.setTile(x, y, z, Tile.OBSIDIAN.id);
+                    level.setTile(x, y, z, Tile.obsidian.id);
                 } else if (data <= 4) {
-                    level.setTile(x, y, z, Tile.COBBLESTONE.id);
+                    level.setTile(x, y, z, Tile.cobblestone.id);
                 }
 
                 this.fizz(level, x, y, z);

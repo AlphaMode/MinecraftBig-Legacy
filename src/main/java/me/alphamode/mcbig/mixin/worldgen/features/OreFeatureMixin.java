@@ -72,7 +72,7 @@ public class OreFeatureMixin implements BigFeatureExtension {
                         if (xd * xd + yd * yd < 1) {
                             for (BigInteger z2 = zt0; z2.compareTo(zt1) <= 0; z2 = z2.add(BigInteger.ONE)) {
                                 double zd = (new BigDecimal(z2, MathContext.DECIMAL64).add(BigConstants.POINT_FIVE).subtract(zz, MathContext.DECIMAL64)).divide(BigDecimal.valueOf(r / 2.0), MathContext.DECIMAL64).doubleValue();
-                                if (xd * xd + yd * yd + zd * zd < 1 && level.getTile(x2, y2, z2) == Tile.STONE.id) {
+                                if (xd * xd + yd * yd + zd * zd < 1 && level.getTile(x2, y2, z2) == Tile.stone.id) {
                                     level.setTileNoUpdate(x2, y2, z2, this.tile);
                                 }
                             }

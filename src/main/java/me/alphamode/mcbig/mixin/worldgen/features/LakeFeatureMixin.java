@@ -92,14 +92,14 @@ public class LakeFeatureMixin implements BigFeatureExtension {
         for (int xx = 0; xx < 16; ++xx) {
             for (int zz = 0; zz < 16; ++zz) {
                 for (int yy = 4; yy < 8; ++yy) {
-                    if (grid[(xx * 16 + zz) * 8 + yy] && level.getTile(x.add(BigInteger.valueOf(xx)), y + yy - 1, z.add(BigInteger.valueOf(zz))) == Tile.DIRT.id && level.getBrightness(LightLayer.SKY, x.add(BigInteger.valueOf(xx)), y + yy, z.add(BigInteger.valueOf(zz))) > 0) {
-                        level.setTileNoUpdate(x.add(BigInteger.valueOf(xx)), y + yy - 1, z.add(BigInteger.valueOf(zz)), Tile.GRASS.id);
+                    if (grid[(xx * 16 + zz) * 8 + yy] && level.getTile(x.add(BigInteger.valueOf(xx)), y + yy - 1, z.add(BigInteger.valueOf(zz))) == Tile.dirt.id && level.getBrightness(LightLayer.SKY, x.add(BigInteger.valueOf(xx)), y + yy, z.add(BigInteger.valueOf(zz))) > 0) {
+                        level.setTileNoUpdate(x.add(BigInteger.valueOf(xx)), y + yy - 1, z.add(BigInteger.valueOf(zz)), Tile.grass.id);
                     }
                 }
             }
         }
 
-        if (Tile.tiles[this.tile].material == Material.LAVA) {
+        if (Tile.tiles[this.tile].material == Material.lava) {
             for (int xx = 0; xx < 16; ++xx) {
                 for (int zz = 0; zz < 16; ++zz) {
                     for (int yy = 0; yy < 8; ++yy) {
@@ -111,7 +111,7 @@ public class LakeFeatureMixin implements BigFeatureExtension {
                                 || yy < 7 && grid[(xx * 16 + zz) * 8 + yy + 1]
                                 || yy > 0 && grid[(xx * 16 + zz) * 8 + (yy - 1)]);
                         if (check && (yy < 4 || random.nextInt(2) != 0) && level.getMaterial(x.add(BigInteger.valueOf(xx)), y + yy, z.add(BigInteger.valueOf(zz))).isSolid()) {
-                            level.setTileNoUpdate(x.add(BigInteger.valueOf(xx)), y + yy, z.add(BigInteger.valueOf(zz)), Tile.STONE.id);
+                            level.setTileNoUpdate(x.add(BigInteger.valueOf(xx)), y + yy, z.add(BigInteger.valueOf(zz)), Tile.stone.id);
                         }
                     }
                 }

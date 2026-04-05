@@ -84,7 +84,7 @@ public class BigRegion extends Region implements BigLevelSourceExtension {
     public int getRawBrightness(BigInteger x, int y, BigInteger z, boolean propagate) {
         if (propagate) {
             int id = this.getTile(x, y, z);
-            if (id == Tile.SLAB.id || id == Tile.FARMLAND.id || id == Tile.WOOD_STAIRS.id || id == Tile.COBBLESTONE_STAIRS.id) {
+            if (id == Tile.stoneSlabHalf.id || id == Tile.farmland.id || id == Tile.stairs_wood.id || id == Tile.stairs_stone.id) {
                 int br = this.getRawBrightness(x, y + 1, z, false);
                 int br1 = this.getRawBrightness(x.add(BigInteger.ONE), y, z, false);
                 int br2 = this.getRawBrightness(x.subtract(BigInteger.ONE), y, z, false);
@@ -142,7 +142,7 @@ public class BigRegion extends Region implements BigLevelSourceExtension {
     @Override
     public Material getMaterial(BigInteger x, int y, BigInteger z) {
         int t = getTile(x, y, z);
-        return t == 0 ? Material.AIR : Tile.tiles[t].material;
+        return t == 0 ? Material.air : Tile.tiles[t].material;
     }
 
     @Override

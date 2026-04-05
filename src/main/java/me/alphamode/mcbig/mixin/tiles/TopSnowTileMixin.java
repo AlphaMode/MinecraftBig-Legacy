@@ -73,7 +73,7 @@ public abstract class TopSnowTileMixin extends Tile implements BigTileExtension 
 
     @Override
     public void playerDestroy(Level level, Player player, BigInteger x, int y, BigInteger z, int meta) {
-        int item = Item.SNOWBALL.id;
+        int item = Item.snowBall.id;
         float itemOffset = 0.7F;
         double xo = level.random.nextFloat() * itemOffset + (1.0F - itemOffset) * 0.5;
         double yo = level.random.nextFloat() * itemOffset + (1.0F - itemOffset) * 0.5;

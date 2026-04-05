@@ -25,7 +25,7 @@ public abstract class BedItemMixin extends Item {
             return false;
         } else {
             y++;
-            BedTile bed = (BedTile) Tile.BED;
+            BedTile bed = (BedTile) Tile.bed;
             int dir = Mth.floor(player.yRot * 4.0F / 360.0F + 0.5) & 3;
             BigInteger xo = BigInteger.ZERO;
             BigInteger zo = BigInteger.ZERO;

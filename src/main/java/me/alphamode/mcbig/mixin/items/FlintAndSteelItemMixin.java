@@ -19,34 +19,17 @@ public abstract class FlintAndSteelItemMixin extends Item {
 
     @Override
     public boolean useOn(ItemInstance item, Player player, Level level, BigInteger x, int y, BigInteger z, int face) {
-        if (face == Facing.DOWN) {
-            y--;
-        }
+        if (face == Facing.DOWN) y--;
+        if (face == Facing.UP) y++;
+        if (face == Facing.NORTH) z = z.subtract(BigInteger.ONE);
+        if (face == Facing.SOUTH) z = z.add(BigInteger.ONE);
+        if (face == Facing.WEST) x = x.subtract(BigInteger.ONE);
+        if (face == Facing.EAST) x = x.add(BigInteger.ONE);
 
-        if (face == Facing.UP) {
-            y++;
-        }
-
-        if (face == Facing.NORTH) {
-            z = z.subtract(BigInteger.ONE);
-        }
-
-        if (face == Facing.SOUTH) {
-            z = z.add(BigInteger.ONE);
-        }
-
-        if (face == Facing.WEST) {
-            x = x.subtract(BigInteger.ONE);
-        }
-
-        if (face == Facing.EAST) {
-            x = x.add(BigInteger.ONE);
-        }
-
-        int t = level.getTile(x, y, z);
-        if (t == 0) {
+        int targetType = level.getTile(x, y, z);
+        if (targetType == 0) {
             level.playSound(x.doubleValue() + 0.5, y + 0.5, z.doubleValue() + 0.5, "fire.ignite", 1.0F, random.nextFloat() * 0.4F + 0.8F);
-            level.setTile(x, y, z, Tile.FIRE.id);
+            level.setTile(x, y, z, Tile.fire.id);
         }
 
         item.hurtAndBreak(1, player);

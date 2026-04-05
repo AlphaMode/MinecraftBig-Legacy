@@ -74,7 +74,7 @@
     "tiles.LiquidTileDynamicMixin",
     "tiles.LiquidTileMixin",
     "tiles.LiquidTileStaticMixin",
-    "tiles.MushroomTileMixin",
+    "tiles.MushroomMixin",
     "tiles.PortalTileMixin",
     "tiles.RailTileMixin",
     "tiles.RecordPlayerTileMixin",

@@ -60,7 +60,7 @@ public class LeafTileMixin extends TransparentTile implements BigTileExtension {
                         BigInteger bigX = x.add(bigXOff);
                         BigInteger bigZ = z.add(bigZOff);
                         int tile = level.getTile(bigX, y + yOff, bigZ);
-                        if (tile == Tile.LEAVES.id) {
+                        if (tile == Tile.leaves.id) {
                             int data = level.getData(bigX, y + yOff, bigZ);
                             level.setDataNoUpdate(bigX, y + yOff, bigZ, data | 8);
                         }
@@ -92,9 +92,9 @@ public class LeafTileMixin extends TransparentTile implements BigTileExtension {
                             BigInteger bigZOff = BigInteger.valueOf(zOff);
                             for (int yOff = -r; yOff <= r; yOff++) {
                                 int tile = level.getTile(x.add(bigXOff), y + yOff, z.add(bigZOff));
-                                if (tile == Tile.LOG.id) {
+                                if (tile == Tile.treeTrunk.id) {
                                     this.checkBuffer[(xOff + var11) * var10 + (yOff + var11) * radius + zOff + var11] = 0;
-                                } else if (tile == Tile.LEAVES.id) {
+                                } else if (tile == Tile.leaves.id) {
                                     this.checkBuffer[(xOff + var11) * var10 + (yOff + var11) * radius + zOff + var11] = -2;
                                 } else {
                                     this.checkBuffer[(xOff + var11) * var10 + (yOff + var11) * radius + zOff + var11] = -1;
@@ -155,9 +155,9 @@ public class LeafTileMixin extends TransparentTile implements BigTileExtension {
 
     @Override
     public void playerDestroy(Level level, Player player, BigInteger x, int y, BigInteger z, int meta) {
-        if (!level.isClientSide && player.getSelectedItem() != null && player.getSelectedItem().id == Item.SHEARS.id) {
+        if (!level.isClientSide && player.getSelectedItem() != null && player.getSelectedItem().id == Item.shears.id) {
             player.awardStat(Stats.blockMined[this.id], 1);
-            this.popResource(level, x, y, z, new ItemInstance(Tile.LEAVES.id, 1, meta & 3));
+            this.popResource(level, x, y, z, new ItemInstance(Tile.leaves.id, 1, meta & 3));
         } else {
             super.playerDestroy(level, player, x, y, z, meta);
         }

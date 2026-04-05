@@ -36,7 +36,7 @@ public class ClayFeatureMixin implements BigFeatureExtension {
 
     @Override
     public boolean place(Level level, Random random, BigInteger x, int y, BigInteger z) {
-        if (level.getMaterial(x, y, z) != Material.WATER) return false;
+        if (level.getMaterial(x, y, z) != Material.water) return false;
 
         float dir = random.nextFloat() * (float) Math.PI;
 
@@ -73,7 +73,7 @@ public class ClayFeatureMixin implements BigFeatureExtension {
                         double zd = (new BigDecimal(zt).add(BigConstants.POINT_FIVE).subtract(zz)).divide(BigDecimal.valueOf(r / 2.0), MathContext.DECIMAL64).doubleValue();
                         if (xd * xd + yd * yd + zd * zd < 1) {
                             int t = level.getTile(x2, yt, zt);
-                            if (t == Tile.SAND.id) level.setTileNoUpdate(x2, yt, zt, this.tile);
+                            if (t == Tile.sand.id) level.setTileNoUpdate(x2, yt, zt, this.tile);
                         }
                     }
                 }

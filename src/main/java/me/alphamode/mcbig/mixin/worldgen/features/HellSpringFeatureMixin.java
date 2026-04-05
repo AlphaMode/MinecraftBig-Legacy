@@ -17,8 +17,8 @@ public abstract class HellSpringFeatureMixin implements BigFeatureExtension {
 
     @Override
     public boolean place(Level level, Random random, BigInteger x, int y, BigInteger z) {
-        if (level.getTile(x, y + 1, z) != Tile.NETHERRACK.id) return false;
-        if (level.getTile(x, y, z) != 0 && level.getTile(x, y, z) != Tile.NETHERRACK.id) return false;
+        if (level.getTile(x, y + 1, z) != Tile.hellRock.id) return false;
+        if (level.getTile(x, y, z) != 0 && level.getTile(x, y, z) != Tile.hellRock.id) return false;
 
         BigInteger xMinusOne = x.subtract(BigInteger.ONE);
         BigInteger xPlusOne = x.add(BigInteger.ONE);
@@ -26,11 +26,11 @@ public abstract class HellSpringFeatureMixin implements BigFeatureExtension {
         BigInteger zPlusOne = z.add(BigInteger.ONE);
 
         int rockCount = 0;
-        if (level.getTile(xMinusOne, y, z) == Tile.NETHERRACK.id) rockCount++;
-        if (level.getTile(xPlusOne, y, z) == Tile.NETHERRACK.id) rockCount++;
-        if (level.getTile(x, y, zMinusOne) == Tile.NETHERRACK.id) rockCount++;
-        if (level.getTile(x, y, zPlusOne) == Tile.NETHERRACK.id) rockCount++;
-        if (level.getTile(x, y - 1, z) == Tile.NETHERRACK.id) rockCount++;
+        if (level.getTile(xMinusOne, y, z) == Tile.hellRock.id) rockCount++;
+        if (level.getTile(xPlusOne, y, z) == Tile.hellRock.id) rockCount++;
+        if (level.getTile(x, y, zMinusOne) == Tile.hellRock.id) rockCount++;
+        if (level.getTile(x, y, zPlusOne) == Tile.hellRock.id) rockCount++;
+        if (level.getTile(x, y - 1, z) == Tile.hellRock.id) rockCount++;
 
         int holeCount = 0;
         if (level.isEmptyTile(xMinusOne, y, z)) holeCount++;

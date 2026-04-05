@@ -207,14 +207,14 @@ public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSou
                                 int var55 = 0;
                                 if (var13 * 8 + var32 < var7) {
                                     if (var53 < 0.5 && var13 * 8 + var32 >= var7 - 1) {
-                                        var55 = Tile.ICE.id;
+                                        var55 = Tile.ice.id;
                                     } else {
-                                        var55 = Tile.WATER.id;
+                                        var55 = Tile.calmWater.id;
                                     }
                                 }
 
                                 if (var48 > 0.0) {
-                                    var55 = Tile.STONE.id;
+                                    var55 = Tile.stone.id;
                                 }
 
                                 tiles[var44] = (byte)var55;
@@ -256,16 +256,16 @@ public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSou
                 for(int var17 = 127; var17 >= 0; --var17) {
                     int pos = (var9 * 16 + var8) * 128 + var17;
                     if (var17 <= 0 + this.random.nextInt(5)) {
-                        tiles[pos] = (byte)Tile.BEDROCK.id;
+                        tiles[pos] = (byte)Tile.unbreakable.id;
                     } else {
                         byte tile = tiles[pos];
                         if (tile == 0) {
                             var14 = -1;
-                        } else if (tile == Tile.STONE.id) {
+                        } else if (tile == Tile.stone.id) {
                             if (var14 == -1) {
                                 if (var13 <= 0) {
                                     var15 = 0;
-                                    var16 = (byte)Tile.STONE.id;
+                                    var16 = (byte)Tile.stone.id;
                                 } else if (var17 >= var5 - 4 && var17 <= var5 + 1) {
                                     var15 = var10.topMaterial;
                                     var16 = var10.material;
@@ -274,20 +274,20 @@ public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSou
                                     }
 
                                     if (var12) {
-                                        var16 = (byte)Tile.GRAVEL.id;
+                                        var16 = (byte)Tile.gravel.id;
                                     }
 
                                     if (var11) {
-                                        var15 = (byte)Tile.SAND.id;
+                                        var15 = (byte)Tile.sand.id;
                                     }
 
                                     if (var11) {
-                                        var16 = (byte)Tile.SAND.id;
+                                        var16 = (byte)Tile.sand.id;
                                     }
                                 }
 
                                 if (var17 < var5 && var15 == 0) {
-                                    var15 = (byte)Tile.WATER.id;
+                                    var15 = (byte)Tile.calmWater.id;
                                 }
 
                                 var14 = var13;
@@ -299,9 +299,9 @@ public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSou
                             } else if (var14 > 0) {
                                 --var14;
                                 tiles[pos] = var16;
-                                if (var14 == 0 && var16 == Tile.SAND.id) {
+                                if (var14 == 0 && var16 == Tile.sand.id) {
                                     var14 = this.random.nextInt(4);
-                                    var16 = (byte)Tile.SANDSTONE.id;
+                                    var16 = (byte)Tile.sandStone.id;
                                 }
                             }
                         }
@@ -350,7 +350,7 @@ public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSou
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            new LakeFeature(Tile.WATER.id).place(this.level, this.random, x, y, z);
+            new LakeFeature(Tile.calmWater.id).place(this.level, this.random, x, y, z);
         }
 
         if (this.random.nextInt(8) == 0) {
@@ -358,7 +358,7 @@ public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSou
             int y = this.random.nextInt(this.random.nextInt(120) + 8);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             if (y < 64 || this.random.nextInt(10) == 0) {
-                new LakeFeature(Tile.LAVA.id).place(this.level, this.random, x, y, z);
+                new LakeFeature(Tile.calmLava.id).place(this.level, this.random, x, y, z);
             }
         }
 
@@ -381,56 +381,56 @@ public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSou
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(128);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16)));
-            new OreFeature(Tile.DIRT.id, 32).place(this.level, this.random, x, y, z);
+            new OreFeature(Tile.dirt.id, 32).place(this.level, this.random, x, y, z);
         }
 
         for(int i = 0; i < 10; ++i) {
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(128);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16)));
-            new OreFeature(Tile.GRAVEL.id, 32).place(this.level, this.random, x, y, z);
+            new OreFeature(Tile.gravel.id, 32).place(this.level, this.random, x, y, z);
         }
 
         for(int i = 0; i < 20; ++i) {
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(128);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16)));
-            new OreFeature(Tile.COAL_ORE.id, 16).place(this.level, this.random, x, y, z);
+            new OreFeature(Tile.coalOre.id, 16).place(this.level, this.random, x, y, z);
         }
 
         for(int i = 0; i < 20; ++i) {
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(64);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16)));
-            new OreFeature(Tile.IRON_ORE.id, 8).place(this.level, this.random, x, y, z);
+            new OreFeature(Tile.ironOre.id, 8).place(this.level, this.random, x, y, z);
         }
 
         for(int i = 0; i < 2; ++i) {
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(32);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16)));
-            new OreFeature(Tile.GOLD_ORE.id, 8).place(this.level, this.random, x, y, z);
+            new OreFeature(Tile.goldOre.id, 8).place(this.level, this.random, x, y, z);
         }
 
         for(int i = 0; i < 8; ++i) {
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(16);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16)));
-            new OreFeature(Tile.REDSTONE_ORE.id, 7).place(this.level, this.random, x, y, z);
+            new OreFeature(Tile.redStoneOre.id, 7).place(this.level, this.random, x, y, z);
         }
 
         for(int i = 0; i < 1; ++i) {
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(16);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16)));
-            new OreFeature(Tile.DIAMOND_ORE.id, 7).place(this.level, this.random, x, y, z);
+            new OreFeature(Tile.diamondOre.id, 7).place(this.level, this.random, x, y, z);
         }
 
         for(int i = 0; i < 1; ++i) {
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(16) + this.random.nextInt(16);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16)));
-            new OreFeature(Tile.LAPIS_ORE.id, 6).place(this.level, this.random, x, y, z);
+            new OreFeature(Tile.lapisOre.id, 6).place(this.level, this.random, x, y, z);
         }
 
         var11 = 0.5;
@@ -440,31 +440,31 @@ public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSou
             ++treeCount;
         }
 
-        if (biome == Biome.FOREST) {
+        if (biome == Biome.forest) {
             treeCount += treeNoise + 5;
         }
 
-        if (biome == Biome.RAINFOREST) {
+        if (biome == Biome.rainForest) {
             treeCount += treeNoise + 5;
         }
 
-        if (biome == Biome.SEASONAL_FOREST) {
+        if (biome == Biome.seasonalForest) {
             treeCount += treeNoise + 2;
         }
 
-        if (biome == Biome.TAIGA) {
+        if (biome == Biome.taiga) {
             treeCount += treeNoise + 5;
         }
 
-        if (biome == Biome.DESERT) {
+        if (biome == Biome.desert) {
             treeCount -= 20;
         }
 
-        if (biome == Biome.TUNDRA) {
+        if (biome == Biome.tundra) {
             treeCount -= 20;
         }
 
-        if (biome == Biome.PLAINS) {
+        if (biome == Biome.plains) {
             treeCount -= 20;
         }
 
@@ -477,19 +477,19 @@ public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSou
         }
 
         int flowerCount = 0;
-        if (biome == Biome.FOREST) {
+        if (biome == Biome.forest) {
             flowerCount = 2;
         }
 
-        if (biome == Biome.SEASONAL_FOREST) {
+        if (biome == Biome.seasonalForest) {
             flowerCount = 4;
         }
 
-        if (biome == Biome.TAIGA) {
+        if (biome == Biome.taiga) {
             flowerCount = 2;
         }
 
-        if (biome == Biome.PLAINS) {
+        if (biome == Biome.plains) {
             flowerCount = 3;
         }
 
@@ -497,44 +497,44 @@ public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSou
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            new FlowerFeature(Tile.FLOWER.id).place(this.level, this.random, x, y, z);
+            new FlowerFeature(Tile.flower.id).place(this.level, this.random, x, y, z);
         }
 
         byte foilageAmount = 0;
-        if (biome == Biome.FOREST) {
+        if (biome == Biome.forest) {
             foilageAmount = 2;
         }
 
-        if (biome == Biome.RAINFOREST) {
+        if (biome == Biome.rainForest) {
             foilageAmount = 10;
         }
 
-        if (biome == Biome.SEASONAL_FOREST) {
+        if (biome == Biome.seasonalForest) {
             foilageAmount = 2;
         }
 
-        if (biome == Biome.TAIGA) {
+        if (biome == Biome.taiga) {
             foilageAmount = 1;
         }
 
-        if (biome == Biome.PLAINS) {
+        if (biome == Biome.plains) {
             foilageAmount = 10;
         }
 
         for(int i = 0; i < foilageAmount; ++i) {
             byte data = 1;
-            if (biome == Biome.RAINFOREST && this.random.nextInt(3) != 0) {
+            if (biome == Biome.rainForest && this.random.nextInt(3) != 0) {
                 data = 2;
             }
 
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            new GrassFeature(Tile.TALL_GRASS.id, data).place(this.level, this.random, x, y, z);
+            new GrassFeature(Tile.tallgrass.id, data).place(this.level, this.random, x, y, z);
         }
 
         foilageAmount = 0;
-        if (biome == Biome.DESERT) {
+        if (biome == Biome.desert) {
             foilageAmount = 2;
         }
 
@@ -542,28 +542,28 @@ public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSou
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            new BushFeature(Tile.DEAD_BUSH.id).place(this.level, this.random, x, y, z);
+            new BushFeature(Tile.deadBush.id).place(this.level, this.random, x, y, z);
         }
 
         if (this.random.nextInt(2) == 0) {
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            new FlowerFeature(Tile.ROSE.id).place(this.level, this.random, x, y, z);
+            new FlowerFeature(Tile.rose.id).place(this.level, this.random, x, y, z);
         }
 
         if (this.random.nextInt(4) == 0) {
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            new FlowerFeature(Tile.BROWN_MUSHROOM.id).place(this.level, this.random, x, y, z);
+            new FlowerFeature(Tile.mushroom1.id).place(this.level, this.random, x, y, z);
         }
 
         if (this.random.nextInt(8) == 0) {
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            new FlowerFeature(Tile.RED_MUSHROOM.id).place(this.level, this.random, x, y, z);
+            new FlowerFeature(Tile.mushroom2.id).place(this.level, this.random, x, y, z);
         }
 
         for(int i = 0; i < 10; ++i) {
@@ -581,7 +581,7 @@ public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSou
         }
 
         int cactusCount = 0;
-        if (biome == Biome.DESERT) {
+        if (biome == Biome.desert) {
             cactusCount += 10;
         }
 
@@ -596,14 +596,14 @@ public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSou
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(this.random.nextInt(120) + 8);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            new SpringFeature(Tile.FLOWING_WATER.id).place(this.level, this.random, x, y, z);
+            new SpringFeature(Tile.water.id).place(this.level, this.random, x, y, z);
         }
 
         for(int i = 0; i < 20; ++i) {
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(this.random.nextInt(this.random.nextInt(112) + 8) + 8);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            new SpringFeature(Tile.FLOWING_LAVA.id).place(this.level, this.random, x, y, z);
+            new SpringFeature(Tile.lava.id).place(this.level, this.random, x, y, z);
         }
 
         this.temperatures = this.level.getBiomeSource().getTemperatureBlock(this.temperatures, xt.add(BigConstants.EIGHT), zt.add(BigConstants.EIGHT), 16, 16);
@@ -621,8 +621,8 @@ public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSou
                         && topTile < 128
                         && this.level.isEmptyTile(x, topTile, z)
                         && this.level.getMaterial(x, topTile - 1, z).blocksMotion()
-                        && this.level.getMaterial(x, topTile - 1, z) != Material.ICE) {
-                    this.level.setTile(x, topTile, z, Tile.SNOW_LAYER.id);
+                        && this.level.getMaterial(x, topTile - 1, z) != Material.ice) {
+                    this.level.setTile(x, topTile, z, Tile.topSnow.id);
                 }
             }
         }

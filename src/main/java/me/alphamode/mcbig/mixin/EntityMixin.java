@@ -412,15 +412,15 @@ public abstract class EntityMixin implements BigEntityExtension {
                 BigInteger zt = BigMath.floor(this.z);
 
                 int t = this.level.getTile(xt, yt, zt);
-                if (this.level.getTile(xt, yt - 1, zt) == Tile.OAK_FENCE.id) {
+                if (this.level.getTile(xt, yt - 1, zt) == Tile.fence.id) {
                     t = this.level.getTile(xt, yt - 1, zt);
                 }
 
                 if (this.walkDist > (float)this.nextStep && t > 0) {
                     ++this.nextStep;
                     Tile.SoundType var29 = Tile.tiles[t].soundType;
-                    if (this.level.getTile(xt, yt + 1, zt) == Tile.SNOW_LAYER.id) {
-                        var29 = Tile.SNOW_LAYER.soundType;
+                    if (this.level.getTile(xt, yt + 1, zt) == Tile.topSnow.id) {
+                        var29 = Tile.topSnow.soundType;
                         this.level.playSound((Entity) (Object) this, var29.getStepSound(), var29.getVolume() * 0.15F, var29.getPitch());
                     } else if (!Tile.tiles[t].material.isLiquid()) {
                         this.level.playSound((Entity) (Object) this, var29.getStepSound(), var29.getVolume() * 0.15F, var29.getPitch());

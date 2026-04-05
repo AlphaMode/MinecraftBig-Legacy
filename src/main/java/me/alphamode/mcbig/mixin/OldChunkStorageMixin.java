@@ -62,12 +62,12 @@ public abstract class OldChunkStorageMixin implements BigChunkStorageExtension {
             try {
                 FileInputStream var5 = new FileInputStream(var4);
                 CompoundTag var6 = NbtIo.read(var5);
-                if (!var6.hasKey("Level")) {
+                if (!var6.contains("Level")) {
                     System.out.println("Chunk file at " + x + "," + z + " is missing level data, skipping");
                     return null;
                 }
 
-                if (!var6.getCompoundTag("Level").hasKey("Blocks")) {
+                if (!var6.getCompoundTag("Level").contains("Blocks")) {
                     System.out.println("Chunk file at " + x + "," + z + " is missing block data, skipping");
                     return null;
                 }

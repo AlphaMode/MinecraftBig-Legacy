@@ -221,14 +221,14 @@ public class BigFarlandsRandomLevelSource implements McBigChunkSource {
                                 int tileId = 0;
                                 if (yc * 8 + y < waterHeight) {
                                     if (temp < 0.5 && yc * 8 + y >= waterHeight - 1) {
-                                        tileId = Tile.ICE.id;
+                                        tileId = Tile.ice.id;
                                     } else {
-                                        tileId = Tile.WATER.id;
+                                        tileId = Tile.calmWater.id;
                                     }
                                 }
 
                                 if (val.compareTo(BigDecimal.ZERO) > 0) {
-                                    tileId = Tile.STONE.id;
+                                    tileId = Tile.stone.id;
                                 }
 
                                 blocks[offs] = (byte)tileId;
@@ -271,16 +271,16 @@ public class BigFarlandsRandomLevelSource implements McBigChunkSource {
                 for(int y = 127; y >= 0; --y) {
                     int offs = (z * 16 + x) * 128 + y;
                     if (y <= 0 + this.random.nextInt(5)) {
-                        blocks[offs] = (byte)Tile.BEDROCK.id;
+                        blocks[offs] = (byte)Tile.unbreakable.id;
                     } else {
                         byte old = blocks[offs];
                         if (old == 0) {
                             run = -1;
-                        } else if (old == Tile.STONE.id) {
+                        } else if (old == Tile.stone.id) {
                             if (run == -1) {
                                 if (runDepth <= 0) {
                                     top = 0;
-                                    material = (byte)Tile.STONE.id;
+                                    material = (byte)Tile.stone.id;
                                 } else if (y >= waterHeight - 4 && y <= waterHeight + 1) {
                                     top = b.topMaterial;
                                     material = b.material;
@@ -289,20 +289,20 @@ public class BigFarlandsRandomLevelSource implements McBigChunkSource {
                                     }
 
                                     if (gravel) {
-                                        material = (byte)Tile.GRAVEL.id;
+                                        material = (byte)Tile.gravel.id;
                                     }
 
                                     if (sand) {
-                                        top = (byte)Tile.SAND.id;
+                                        top = (byte)Tile.sand.id;
                                     }
 
                                     if (sand) {
-                                        material = (byte)Tile.SAND.id;
+                                        material = (byte)Tile.sand.id;
                                     }
                                 }
 
                                 if (y < waterHeight && top == 0) {
-                                    top = (byte)Tile.WATER.id;
+                                    top = (byte)Tile.calmWater.id;
                                 }
 
                                 run = runDepth;
@@ -317,9 +317,9 @@ public class BigFarlandsRandomLevelSource implements McBigChunkSource {
 
                                 // place a few sandstone blocks beneath sand
                                 // runs
-                                if (run == 0 && material == Tile.SAND.id) {
+                                if (run == 0 && material == Tile.sand.id) {
                                     run = this.random.nextInt(4);
-                                    material = (byte)Tile.SANDSTONE.id;
+                                    material = (byte)Tile.sandStone.id;
                                 }
                             }
                         }
@@ -368,7 +368,7 @@ public class BigFarlandsRandomLevelSource implements McBigChunkSource {
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            new LakeFeature(Tile.WATER.id).place(this.level, this.random, x, y, z);
+            new LakeFeature(Tile.calmWater.id).place(this.level, this.random, x, y, z);
         }
 
         if (this.random.nextInt(8) == 0) {
@@ -376,7 +376,7 @@ public class BigFarlandsRandomLevelSource implements McBigChunkSource {
             int y = this.random.nextInt(this.random.nextInt(120) + 8);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             if (y < 64 || this.random.nextInt(10) == 0) {
-                new LakeFeature(Tile.LAVA.id).place(this.level, this.random, x, y, z);
+                new LakeFeature(Tile.calmLava.id).place(this.level, this.random, x, y, z);
             }
         }
 
@@ -399,56 +399,56 @@ public class BigFarlandsRandomLevelSource implements McBigChunkSource {
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(128);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16)));
-            new OreFeature(Tile.DIRT.id, 32).place(this.level, this.random, x, y, z);
+            new OreFeature(Tile.dirt.id, 32).place(this.level, this.random, x, y, z);
         }
 
         for(int i = 0; i < 10; ++i) {
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(128);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16)));
-            new OreFeature(Tile.GRAVEL.id, 32).place(this.level, this.random, x, y, z);
+            new OreFeature(Tile.gravel.id, 32).place(this.level, this.random, x, y, z);
         }
 
         for(int i = 0; i < 20; ++i) {
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(128);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16)));
-            new OreFeature(Tile.COAL_ORE.id, 16).place(this.level, this.random, x, y, z);
+            new OreFeature(Tile.coalOre.id, 16).place(this.level, this.random, x, y, z);
         }
 
         for(int i = 0; i < 20; ++i) {
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(64);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16)));
-            new OreFeature(Tile.IRON_ORE.id, 8).place(this.level, this.random, x, y, z);
+            new OreFeature(Tile.ironOre.id, 8).place(this.level, this.random, x, y, z);
         }
 
         for(int i = 0; i < 2; ++i) {
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(32);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16)));
-            new OreFeature(Tile.GOLD_ORE.id, 8).place(this.level, this.random, x, y, z);
+            new OreFeature(Tile.goldOre.id, 8).place(this.level, this.random, x, y, z);
         }
 
         for(int i = 0; i < 8; ++i) {
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(16);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16)));
-            new OreFeature(Tile.REDSTONE_ORE.id, 7).place(this.level, this.random, x, y, z);
+            new OreFeature(Tile.redStoneOre.id, 7).place(this.level, this.random, x, y, z);
         }
 
         for(int i = 0; i < 1; ++i) {
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(16);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16)));
-            new OreFeature(Tile.DIAMOND_ORE.id, 7).place(this.level, this.random, x, y, z);
+            new OreFeature(Tile.diamondOre.id, 7).place(this.level, this.random, x, y, z);
         }
 
         for(int i = 0; i < 1; ++i) {
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(16) + this.random.nextInt(16);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16)));
-            new OreFeature(Tile.LAPIS_ORE.id, 6).place(this.level, this.random, x, y, z);
+            new OreFeature(Tile.lapisOre.id, 6).place(this.level, this.random, x, y, z);
         }
 
         BigDecimal ss = BigConstants.POINT_FIVE;
@@ -458,31 +458,31 @@ public class BigFarlandsRandomLevelSource implements McBigChunkSource {
             ++forests;
         }
 
-        if (biome == Biome.FOREST) {
+        if (biome == Biome.forest) {
             forests += oFor + 5;
         }
 
-        if (biome == Biome.RAINFOREST) {
+        if (biome == Biome.rainForest) {
             forests += oFor + 5;
         }
 
-        if (biome == Biome.SEASONAL_FOREST) {
+        if (biome == Biome.seasonalForest) {
             forests += oFor + 2;
         }
 
-        if (biome == Biome.TAIGA) {
+        if (biome == Biome.taiga) {
             forests += oFor + 5;
         }
 
-        if (biome == Biome.DESERT) {
+        if (biome == Biome.desert) {
             forests -= 20;
         }
 
-        if (biome == Biome.TUNDRA) {
+        if (biome == Biome.tundra) {
             forests -= 20;
         }
 
-        if (biome == Biome.PLAINS) {
+        if (biome == Biome.plains) {
             forests -= 20;
         }
 
@@ -495,19 +495,19 @@ public class BigFarlandsRandomLevelSource implements McBigChunkSource {
         }
 
         int flowerCount = 0;
-        if (biome == Biome.FOREST) {
+        if (biome == Biome.forest) {
             flowerCount = 2;
         }
 
-        if (biome == Biome.SEASONAL_FOREST) {
+        if (biome == Biome.seasonalForest) {
             flowerCount = 4;
         }
 
-        if (biome == Biome.TAIGA) {
+        if (biome == Biome.taiga) {
             flowerCount = 2;
         }
 
-        if (biome == Biome.PLAINS) {
+        if (biome == Biome.plains) {
             flowerCount = 3;
         }
 
@@ -515,44 +515,44 @@ public class BigFarlandsRandomLevelSource implements McBigChunkSource {
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            new FlowerFeature(Tile.FLOWER.id).place(this.level, this.random, x, y, z);
+            new FlowerFeature(Tile.flower.id).place(this.level, this.random, x, y, z);
         }
 
         byte foilageAmount = 0;
-        if (biome == Biome.FOREST) {
+        if (biome == Biome.forest) {
             foilageAmount = 2;
         }
 
-        if (biome == Biome.RAINFOREST) {
+        if (biome == Biome.rainForest) {
             foilageAmount = 10;
         }
 
-        if (biome == Biome.SEASONAL_FOREST) {
+        if (biome == Biome.seasonalForest) {
             foilageAmount = 2;
         }
 
-        if (biome == Biome.TAIGA) {
+        if (biome == Biome.taiga) {
             foilageAmount = 1;
         }
 
-        if (biome == Biome.PLAINS) {
+        if (biome == Biome.plains) {
             foilageAmount = 10;
         }
 
         for(int i = 0; i < foilageAmount; ++i) {
             byte data = 1;
-            if (biome == Biome.RAINFOREST && this.random.nextInt(3) != 0) {
+            if (biome == Biome.rainForest && this.random.nextInt(3) != 0) {
                 data = 2;
             }
 
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            new GrassFeature(Tile.TALL_GRASS.id, data).place(this.level, this.random, x, y, z);
+            new GrassFeature(Tile.tallgrass.id, data).place(this.level, this.random, x, y, z);
         }
 
         foilageAmount = 0;
-        if (biome == Biome.DESERT) {
+        if (biome == Biome.desert) {
             foilageAmount = 2;
         }
 
@@ -560,28 +560,28 @@ public class BigFarlandsRandomLevelSource implements McBigChunkSource {
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            new BushFeature(Tile.DEAD_BUSH.id).place(this.level, this.random, x, y, z);
+            new BushFeature(Tile.deadBush.id).place(this.level, this.random, x, y, z);
         }
 
         if (this.random.nextInt(2) == 0) {
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            new FlowerFeature(Tile.ROSE.id).place(this.level, this.random, x, y, z);
+            new FlowerFeature(Tile.rose.id).place(this.level, this.random, x, y, z);
         }
 
         if (this.random.nextInt(4) == 0) {
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            new FlowerFeature(Tile.BROWN_MUSHROOM.id).place(this.level, this.random, x, y, z);
+            new FlowerFeature(Tile.mushroom1.id).place(this.level, this.random, x, y, z);
         }
 
         if (this.random.nextInt(8) == 0) {
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            new FlowerFeature(Tile.RED_MUSHROOM.id).place(this.level, this.random, x, y, z);
+            new FlowerFeature(Tile.mushroom2.id).place(this.level, this.random, x, y, z);
         }
 
         for(int i = 0; i < 10; ++i) {
@@ -599,7 +599,7 @@ public class BigFarlandsRandomLevelSource implements McBigChunkSource {
         }
 
         int cactusCount = 0;
-        if (biome == Biome.DESERT) {
+        if (biome == Biome.desert) {
             cactusCount += 10;
         }
 
@@ -614,14 +614,14 @@ public class BigFarlandsRandomLevelSource implements McBigChunkSource {
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(this.random.nextInt(120) + 8);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            new SpringFeature(Tile.FLOWING_WATER.id).place(this.level, this.random, x, y, z);
+            new SpringFeature(Tile.water.id).place(this.level, this.random, x, y, z);
         }
 
         for(int i = 0; i < 20; ++i) {
             BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(this.random.nextInt(this.random.nextInt(112) + 8) + 8);
             BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            new SpringFeature(Tile.FLOWING_LAVA.id).place(this.level, this.random, x, y, z);
+            new SpringFeature(Tile.lava.id).place(this.level, this.random, x, y, z);
         }
 
         this.temperatures = this.level.getBiomeSource().getTemperatureBlock(this.temperatures, xt.add(BigConstants.EIGHT), zt.add(BigConstants.EIGHT), 16, 16);
@@ -639,8 +639,8 @@ public class BigFarlandsRandomLevelSource implements McBigChunkSource {
                         && topTile < 128
                         && this.level.isEmptyTile(x, topTile, z)
                         && this.level.getMaterial(x, topTile - 1, z).blocksMotion()
-                        && this.level.getMaterial(x, topTile - 1, z) != Material.ICE) {
-                    this.level.setTile(x, topTile, z, Tile.SNOW_LAYER.id);
+                        && this.level.getMaterial(x, topTile - 1, z) != Material.ice) {
+                    this.level.setTile(x, topTile, z, Tile.topSnow.id);
                 }
             }
         }

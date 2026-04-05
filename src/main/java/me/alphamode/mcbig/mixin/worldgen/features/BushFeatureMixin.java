@@ -20,7 +20,7 @@ public class BushFeatureMixin implements BigFeatureExtension {
     public boolean place(Level level, Random random, BigInteger x, int y, BigInteger z) {
         int var6 = 0;
 
-        while (((var6 = level.getTile(x, y, z)) == 0 || var6 == Tile.LEAVES.id) && y > 0) {
+        while (((var6 = level.getTile(x, y, z)) == 0 || var6 == Tile.leaves.id) && y > 0) {
             y--;
         }
 

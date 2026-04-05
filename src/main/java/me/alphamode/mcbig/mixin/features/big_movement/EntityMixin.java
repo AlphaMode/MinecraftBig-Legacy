@@ -365,15 +365,15 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
                 int yt = Mth.floor(this.y - 0.2F - this.heightOffset);
                 BigInteger zt = BigMath.floor(this.getZ());
                 int t = this.level.getTile(xt, yt, zt);
-                if (this.level.getTile(xt, yt - 1, zt) == Tile.OAK_FENCE.id) {
+                if (this.level.getTile(xt, yt - 1, zt) == Tile.fence.id) {
                     t = this.level.getTile(xt, yt - 1, zt);
                 }
 
                 if (this.walkDist > this.nextStep && t > 0) {
                     this.nextStep++;
                     Tile.SoundType soundType = Tile.tiles[t].soundType;
-                    if (this.level.getTile(xt, yt + 1, zt) == Tile.SNOW_LAYER.id) {
-                        soundType = Tile.SNOW_LAYER.soundType;
+                    if (this.level.getTile(xt, yt + 1, zt) == Tile.topSnow.id) {
+                        soundType = Tile.topSnow.soundType;
                         this.level.playSound((Entity) (Object) this, soundType.getStepSound(), soundType.getVolume() * 0.15F, soundType.getPitch());
                     } else if (!Tile.tiles[t].material.isLiquid()) {
                         this.level.playSound((Entity) (Object) this, soundType.getStepSound(), soundType.getVolume() * 0.15F, soundType.getPitch());

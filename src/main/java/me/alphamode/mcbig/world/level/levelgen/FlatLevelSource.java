@@ -30,11 +30,11 @@ public class FlatLevelSource implements McBigChunkSource {
         for (int xt = 0; xt < 16; xt++) {
             for (int zt = 0; zt < 16; zt++) {
                 int pos = xt << 11 | zt << 7;
-                tiles[pos | 0] = (byte) Tile.BEDROCK.id;
-                tiles[pos | 60] = (byte) Tile.STONE.id;
-                tiles[pos | 61] = (byte) Tile.STONE.id;
-                tiles[pos | 62] = (byte) Tile.DIRT.id;
-                tiles[pos | 63] = x.equals(BigInteger.ZERO) && z.equals(BigInteger.ZERO) ? (byte) Tile.SAND.id : (byte) Tile.GRASS.id; // Spawn block needs to be sand and between y 63 and 64
+                tiles[pos | 0] = (byte) Tile.unbreakable.id;
+                tiles[pos | 60] = (byte) Tile.stone.id;
+                tiles[pos | 61] = (byte) Tile.stone.id;
+                tiles[pos | 62] = (byte) Tile.dirt.id;
+                tiles[pos | 63] = x.equals(BigInteger.ZERO) && z.equals(BigInteger.ZERO) ? (byte) Tile.sand.id : (byte) Tile.grass.id; // Spawn block needs to be sand and between y 63 and 64
                 if (z.equals(BigInteger.ZERO)) {
 
                 }

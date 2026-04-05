@@ -30,7 +30,7 @@ public abstract class IceTileMixin extends HalfTransparentTile implements BigTil
         super.playerDestroy(level, player, x, y, z, meta);
         Material var7 = level.getMaterial(x, y - 1, z);
         if (var7.blocksMotion() || var7.isLiquid()) {
-            level.setTile(x, y, z, Tile.FLOWING_WATER.id);
+            level.setTile(x, y, z, Tile.water.id);
         }
 
     }
@@ -39,7 +39,7 @@ public abstract class IceTileMixin extends HalfTransparentTile implements BigTil
     public void tick(Level level, BigInteger x, int y, BigInteger z, Random random) {
         if (level.getBrightness(LightLayer.BLOCK, x, y, z) > 11 - Tile.lightBlock[this.id]) {
             this.dropResources(level, x, y, z, level.getData(x, y, z));
-            level.setTile(x, y, z, Tile.WATER.id);
+            level.setTile(x, y, z, Tile.calmWater.id);
         }
     }
 }

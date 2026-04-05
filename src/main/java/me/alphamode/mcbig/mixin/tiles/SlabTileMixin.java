@@ -19,7 +19,7 @@ public abstract class SlabTileMixin extends Tile implements BigTileExtension {
 
     @Override
     public void onPlace(Level level, BigInteger x, int y, BigInteger z) {
-        if (this != Tile.SLAB) {
+        if (this != Tile.stoneSlabHalf) {
             super.onPlace(level, x, y, z);
         }
 
@@ -27,16 +27,16 @@ public abstract class SlabTileMixin extends Tile implements BigTileExtension {
         int var6 = level.getData(x, y, z);
         int var7 = level.getData(x, y - 1, z);
         if (var6 == var7) {
-            if (var5 == SLAB.id) {
+            if (var5 == stoneSlabHalf.id) {
                 level.setTile(x, y, z, 0);
-                level.setTileAndData(x, y - 1, z, Tile.DOUBLE_SLAB.id, var6);
+                level.setTileAndData(x, y - 1, z, Tile.stoneSlab.id, var6);
             }
         }
     }
 
     @Override
     public boolean shouldRenderFace(LevelSource level, BigInteger x, int y, BigInteger z, int face) {
-        if (this != Tile.SLAB) {
+        if (this != Tile.stoneSlabHalf) {
             super.shouldRenderFace(level, x, y, z, face);
         }
 

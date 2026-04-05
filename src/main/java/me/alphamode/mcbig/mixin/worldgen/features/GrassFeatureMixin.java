@@ -22,7 +22,7 @@ public class GrassFeatureMixin implements BigFeatureExtension {
     public boolean place(Level level, Random random, BigInteger x, int y, BigInteger z) {
         int tile = 0;
 
-        while (((tile = level.getTile(x, y, z)) == 0 || tile == Tile.LEAVES.id) && y > 0) {
+        while (((tile = level.getTile(x, y, z)) == 0 || tile == Tile.leaves.id) && y > 0) {
             y--;
         }
 

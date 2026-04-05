@@ -10,11 +10,9 @@ import net.minecraft.client.renderer.tileentity.TileEntityRenderDispatcher;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelSource;
-import net.minecraft.world.level.Region;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.tile.Tile;
 import net.minecraft.world.level.tile.entity.TileEntity;
-import net.minecraft.world.level.tile.piston.PistonHeadTile;
 import net.minecraft.world.phys.AABB;
 import org.lwjgl.opengl.GL11;
 
@@ -22,7 +20,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 
 public class BigChunk extends Chunk {
 

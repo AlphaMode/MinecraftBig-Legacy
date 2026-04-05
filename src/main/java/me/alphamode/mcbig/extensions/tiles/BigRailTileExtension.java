@@ -12,7 +12,7 @@ import java.util.List;
 public interface BigRailTileExtension {
     static boolean isRail(Level level, BigInteger x, int y, BigInteger z) {
         int t = level.getTile(x, y, z);
-        return t == Tile.RAIL.id || t == Tile.POWERED_RAIL.id || t == Tile.DETECTOR_RAIL.id;
+        return t == Tile.rail.id || t == Tile.goldenRail.id || t == Tile.detectorRail.id;
     }
 
     record BigRailState(Level level, BigInteger x, int y, BigInteger z, boolean isStraight, List<BigVec3i> connections) {

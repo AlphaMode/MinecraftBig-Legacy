@@ -6,7 +6,7 @@ import net.minecraft.world.item.DyePowderItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.tile.CropTile;
-import net.minecraft.world.level.tile.SaplingTile;
+import net.minecraft.world.level.tile.Sapling;
 import net.minecraft.world.level.tile.Tile;
 import org.spongepowered.asm.mixin.Mixin;
 
@@ -22,18 +22,18 @@ public abstract class DyePowderItemMixin extends Item {
     public boolean useOn(ItemInstance item, Player player, Level level, BigInteger x, int y, BigInteger z, int face) {
         if (item.getAuxValue() == 15) { // white (bonemeal)
             int t = level.getTile(x, y, z);
-            if (t == Tile.SAPLING.id) {
+            if (t == Tile.sapling.id) {
                 if (!level.isClientSide) {
-                    ((SaplingTile) Tile.SAPLING).growTree(level, x, y, z, level.random);
+                    ((Sapling) Tile.sapling).growTree(level, x, y, z, level.random);
                     item.count--;
                 }
 
                 return true;
             }
 
-            if (t == Tile.WHEAT.id) {
+            if (t == Tile.wheat.id) {
                 if (!level.isClientSide) {
-                    ((CropTile) Tile.WHEAT).growCropsToMax(level, x, y, z);
+                    ((CropTile) Tile.wheat).growCropsToMax(level, x, y, z);
                     item.count--;
                 }
 
@@ -41,7 +41,7 @@ public abstract class DyePowderItemMixin extends Item {
             }
 
             // I'm not even going to try to understand what the decompiler did here
-            if (t == Tile.GRASS.id) {
+            if (t == Tile.grass.id) {
                 if (!level.isClientSide) {
                     item.count--;
 
@@ -55,18 +55,18 @@ public abstract class DyePowderItemMixin extends Item {
                             tx = tx.add(BigInteger.valueOf(random.nextInt(3) - 1));
                             ty += (random.nextInt(3) - 1) * random.nextInt(3) / 2;
                             tz = tz.add(BigInteger.valueOf(random.nextInt(3) - 1));
-                            if (level.getTile(tx, ty - 1, tz) != Tile.GRASS.id || level.isSolidBlockingTile(tx, ty, tz)) {
+                            if (level.getTile(tx, ty - 1, tz) != Tile.grass.id || level.isSolidBlockingTile(tx, ty, tz)) {
                                 continue label53;
                             }
                         }
 
                         if (level.getTile(tx, ty, tz) == 0) {
                             if (random.nextInt(10) != 0) {
-                                level.setTileAndData(tx, ty, tz, Tile.TALL_GRASS.id, 1);
+                                level.setTileAndData(tx, ty, tz, Tile.tallgrass.id, 1);
                             } else if (random.nextInt(3) != 0) {
-                                level.setTile(tx, ty, tz, Tile.FLOWER.id);
+                                level.setTile(tx, ty, tz, Tile.flower.id);
                             } else {
-                                level.setTile(tx, ty, tz, Tile.ROSE.id);
+                                level.setTile(tx, ty, tz, Tile.rose.id);
                             }
                         }
                     }

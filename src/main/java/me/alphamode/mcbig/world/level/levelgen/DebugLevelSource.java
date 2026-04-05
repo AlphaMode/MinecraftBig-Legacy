@@ -37,8 +37,8 @@ public class DebugLevelSource implements McBigChunkSource {
             for (int xt = 0; xt < 16; xt++) {
                 for (int zt = 0; zt < 16; zt++) {
                     int pos = xt << 11 | zt << 7;
-                    tiles[pos | 62] = (byte) Tile.DIRT.id;
-                    tiles[pos | 63] = (byte) Tile.SAND.id;
+                    tiles[pos | 62] = (byte) Tile.dirt.id;
+                    tiles[pos | 63] = (byte) Tile.sand.id;
                 }
             }
         }

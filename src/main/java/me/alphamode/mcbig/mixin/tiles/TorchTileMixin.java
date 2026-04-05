@@ -34,7 +34,7 @@ public abstract class TorchTileMixin extends Tile implements BigTileExtension {
     }
 
     private boolean canSupport(Level level, BigInteger x, int y, BigInteger z) {
-        return level.isSolidBlockingTile(x, y, z) || level.getTile(x, y, z) == Tile.OAK_FENCE.id;
+        return level.isSolidBlockingTile(x, y, z) || level.getTile(x, y, z) == Tile.fence.id;
     }
 
     @Override

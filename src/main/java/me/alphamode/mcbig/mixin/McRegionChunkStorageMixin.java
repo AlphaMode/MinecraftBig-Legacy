@@ -54,10 +54,10 @@ public class McRegionChunkStorageMixin implements BigChunkStorageExtension {
         InputStream var4 = BigRegionFileCache.getChunkDataInputStream(this.basePath, x, z);
         if (var4 != null) {
             CompoundTag tag = NbtIo.read(var4);
-            if (!tag.hasKey("Level")) {
+            if (!tag.contains("Level")) {
                 System.out.println("Chunk file at " + x + "," + z + " is missing level data, skipping");
                 return null;
-            } else if (!tag.getCompoundTag("Level").hasKey("Blocks")) {
+            } else if (!tag.getCompoundTag("Level").contains("Blocks")) {
                 System.out.println("Chunk file at " + x + "," + z + " is missing block data, skipping");
                 return null;
             } else {

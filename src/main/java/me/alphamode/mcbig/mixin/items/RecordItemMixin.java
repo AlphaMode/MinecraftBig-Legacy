@@ -19,12 +19,12 @@ public abstract class RecordItemMixin extends Item {
 
     @Override
     public boolean useOn(ItemInstance item, Player player, Level level, BigInteger x, int y, BigInteger z, int face) {
-        if (level.getTile(x, y, z) != Tile.JUKEBOX.id || level.getData(x, y, z) != 0) {
+        if (level.getTile(x, y, z) != Tile.recordPlayer.id || level.getData(x, y, z) != 0) {
             return false;
         } else if (level.isClientSide) {
             return true;
         } else {
-            ((RecordPlayerTile) Tile.JUKEBOX).setRecord(level, x, y, z, this.id);
+            ((RecordPlayerTile) Tile.recordPlayer).setRecord(level, x, y, z, this.id);
             level.levelEvent(null, 1005, x, y, z, this.id);
             item.count--;
             return true;

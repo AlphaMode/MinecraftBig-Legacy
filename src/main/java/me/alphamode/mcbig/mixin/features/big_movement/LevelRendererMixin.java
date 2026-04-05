@@ -156,7 +156,7 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
      */
     @Overwrite
     public void allChanged() {
-        Tile.LEAVES.setFancy(this.mc.options.fancyGraphics);
+        Tile.leaves.setFancy(this.mc.options.fancyGraphics);
         this.lastViewDistance = this.mc.options.viewDistance;
         if (this.chunks != null) {
             for(int i = 0; i < this.chunks.length; ++i) {
@@ -454,7 +454,7 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
                 double yOff = p.yOld + (p.y - p.yOld) * (double)a;
                 BigDecimal zOff = player.getZOld().add((player.getZ().subtract(player.getZOld())).multiply(aBig));
                 if (tt == null) {
-                    tt = Tile.STONE;
+                    tt = Tile.stone;
                 }
 
                 GL11.glEnable(GL11.GL_ALPHA_TEST);
@@ -895,7 +895,7 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
      */
     @Overwrite
     public void renderClouds(float alpha) {
-        if (this.mc.level.dimension.natural) return;
+        if (this.mc.level.dimension.foggy) return;
 
         if (this.mc.options.fancyGraphics) {
             this.renderAdvancedClouds(alpha);

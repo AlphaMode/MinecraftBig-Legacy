@@ -17,16 +17,16 @@ public class SpringFeatureMixin implements BigFeatureExtension {
 
     @Override
     public boolean place(Level level, Random random, BigInteger x, int y, BigInteger z) {
-        if (level.getTile(x, y + 1, z) != Tile.STONE.id) return false;
-        if (level.getTile(x, y - 1, z) != Tile.STONE.id) return false;
+        if (level.getTile(x, y + 1, z) != Tile.stone.id) return false;
+        if (level.getTile(x, y - 1, z) != Tile.stone.id) return false;
 
-        if (level.getTile(x, y, z) != 0 && level.getTile(x, y, z) != Tile.STONE.id) return false;
+        if (level.getTile(x, y, z) != 0 && level.getTile(x, y, z) != Tile.stone.id) return false;
 
         int rockCount = 0;
-        if (level.getTile(x.subtract(BigInteger.ONE), y, z) == Tile.STONE.id) rockCount++;
-        if (level.getTile(x.add(BigInteger.ONE), y, z) == Tile.STONE.id) rockCount++;
-        if (level.getTile(x, y, z.subtract(BigInteger.ONE)) == Tile.STONE.id) rockCount++;
-        if (level.getTile(x, y, z.add(BigInteger.ONE)) == Tile.STONE.id) rockCount++;
+        if (level.getTile(x.subtract(BigInteger.ONE), y, z) == Tile.stone.id) rockCount++;
+        if (level.getTile(x.add(BigInteger.ONE), y, z) == Tile.stone.id) rockCount++;
+        if (level.getTile(x, y, z.subtract(BigInteger.ONE)) == Tile.stone.id) rockCount++;
+        if (level.getTile(x, y, z.add(BigInteger.ONE)) == Tile.stone.id) rockCount++;
 
         int holeCount = 0;
         if (level.isEmptyTile(x.subtract(BigInteger.ONE), y, z)) holeCount++;

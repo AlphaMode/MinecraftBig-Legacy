@@ -31,7 +31,7 @@ public class PreviewRegion implements LevelSource {
             }
         }
 
-        this.biomeSource = new FixedBiomeSource(Biome.PLAINS, 1, 1);
+        this.biomeSource = new FixedBiomeSource(Biome.plains, 1, 1);
     }
 
     @Override
@@ -65,7 +65,7 @@ public class PreviewRegion implements LevelSource {
     @Override
     public Material getMaterial(BigInteger x, int y, BigInteger z) {
         int t = getTile(x, y, z);
-        return t == 0 ? Material.AIR : Tile.tiles[t].material;
+        return t == 0 ? Material.air : Tile.tiles[t].material;
     }
 
     @Override

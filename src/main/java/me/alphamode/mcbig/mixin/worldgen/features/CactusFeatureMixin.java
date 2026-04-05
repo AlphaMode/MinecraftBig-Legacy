@@ -21,8 +21,8 @@ public class CactusFeatureMixin implements BigFeatureExtension {
                 int h = 1 + random.nextInt(random.nextInt(3) + 1);
 
                 for (int yy = 0; yy < h; yy++) {
-                    if (Tile.CACTUS.canPlace(level, x2, y2 + yy, z2)) {
-                        level.setTileNoUpdate(x2, y2 + yy, z2, Tile.CACTUS.id);
+                    if (Tile.cactus.canPlace(level, x2, y2 + yy, z2)) {
+                        level.setTileNoUpdate(x2, y2 + yy, z2, Tile.cactus.id);
                     }
                 }
             }

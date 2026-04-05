@@ -3,15 +3,15 @@ package me.alphamode.mcbig.mixin.tiles;
 import me.alphamode.mcbig.extensions.BigTileExtension;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.tile.Bush;
-import net.minecraft.world.level.tile.MushroomTile;
+import net.minecraft.world.level.tile.Mushroom;
 import org.spongepowered.asm.mixin.Mixin;
 
 import java.math.BigInteger;
 import java.util.Random;
 
-@Mixin(MushroomTile.class)
-public abstract class MushroomTileMixin extends Bush implements BigTileExtension {
-    protected MushroomTileMixin(int id, int texture) {
+@Mixin(Mushroom.class)
+public abstract class MushroomMixin extends Bush implements BigTileExtension {
+    protected MushroomMixin(int id, int texture) {
         super(id, texture);
     }
 

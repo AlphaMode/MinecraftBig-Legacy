@@ -19,39 +19,20 @@ public abstract class RedStoneItemMixin extends Item {
 
     @Override
     public boolean useOn(ItemInstance item, Player player, Level level, BigInteger x, int y, BigInteger z, int face) {
-        if (level.getTile(x, y, z) != Tile.SNOW_LAYER.id) {
-            if (face == Facing.DOWN) {
-                y--;
-            }
+        if (level.getTile(x, y, z) != Tile.topSnow.id) {
+            if (face == Facing.DOWN) y--;
+            if (face == Facing.UP) y++;
+            if (face == Facing.NORTH) z = z.subtract(BigInteger.ONE);
+            if (face == Facing.SOUTH) z = z.add(BigInteger.ONE);
+            if (face == Facing.WEST) x = x.subtract(BigInteger.ONE);
+            if (face == Facing.EAST) x = x.add(BigInteger.ONE);
 
-            if (face == Facing.UP) {
-                y++;
-            }
-
-            if (face == Facing.NORTH) {
-                z = z.subtract(BigInteger.ONE);
-            }
-
-            if (face == Facing.SOUTH) {
-                z = z.add(BigInteger.ONE);
-            }
-
-            if (face == Facing.WEST) {
-                x = x.subtract(BigInteger.ONE);
-            }
-
-            if (face == Facing.EAST) {
-                x = x.add(BigInteger.ONE);
-            }
-
-            if (!level.isEmptyTile(x, y, z)) {
-                return false;
-            }
+            if (!level.isEmptyTile(x, y, z)) return false;
         }
 
-        if (Tile.REDSTONE.mayPlace(level, x, y, z)) {
+        if (Tile.redStoneDust.mayPlace(level, x, y, z)) {
             item.count--;
-            level.setTile(x, y, z, Tile.REDSTONE.id);
+            level.setTile(x, y, z, Tile.redStoneDust.id);
         }
 
         return true;

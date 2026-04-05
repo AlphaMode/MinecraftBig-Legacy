@@ -44,7 +44,7 @@ public class McRegionEntityStorage implements EntityStorage {
                 if (optionalTag.isEmpty())
                     return new ChunkEntities(pos, List.of());
                 CompoundTag tag = optionalTag.get();
-                if (!tag.hasKey("Entities")) {
+                if (!tag.contains("Entities")) {
                     System.out.println("Chunk file at " + pos.x() + "," + pos.z() + " is missing entity data, skipping");
                     return new ChunkEntities(pos, List.of());
                 }

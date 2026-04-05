@@ -122,11 +122,11 @@ public class HellRandomLevelSourceMixin implements BigChunkSourceExtension {
                             for (int z = 0; z < CHUNK_WIDTH; z++) {
                                 int tileId = 0;
                                 if (yc * 8 + y < waterHeight) {
-                                    tileId = Tile.LAVA.id;
+                                    tileId = Tile.calmLava.id;
                                 }
 
                                 if (val > 0.0) {
-                                    tileId = Tile.NETHERRACK.id;
+                                    tileId = Tile.hellRock.id;
                                 }
 
                                 blocks[offs] = (byte)tileId;
@@ -163,46 +163,46 @@ public class HellRandomLevelSourceMixin implements BigChunkSourceExtension {
 
                 int run = -1;
 
-                byte top = (byte)Tile.NETHERRACK.id;
-                byte material = (byte)Tile.NETHERRACK.id;
+                byte top = (byte)Tile.hellRock.id;
+                byte material = (byte)Tile.hellRock.id;
 
                 for (int y = 127; y >= 0; y--) {
                     int offs = (z * 16 + x) * 128 + y;
                     if (y >= 127 - this.random.nextInt(5)) {
-                        blocks[offs] = (byte)Tile.BEDROCK.id;
+                        blocks[offs] = (byte)Tile.unbreakable.id;
                     } else if (y <= 0 + this.random.nextInt(5)) {
-                        blocks[offs] = (byte)Tile.BEDROCK.id;
+                        blocks[offs] = (byte)Tile.unbreakable.id;
                     } else {
                         byte old = blocks[offs];
                         if (old == 0) {
                             run = -1;
-                        } else if (old == Tile.NETHERRACK.id) {
+                        } else if (old == Tile.hellRock.id) {
                             if (run == -1) {
                                 if (runDepth <= 0) {
                                     top = 0;
-                                    material = (byte)Tile.NETHERRACK.id;
+                                    material = (byte)Tile.hellRock.id;
                                 } else if (y >= waterHeight - 4 && y <= waterHeight + 1) {
-                                    top = (byte)Tile.NETHERRACK.id;
-                                    material = (byte)Tile.NETHERRACK.id;
+                                    top = (byte)Tile.hellRock.id;
+                                    material = (byte)Tile.hellRock.id;
                                     if (gravel) {
-                                        top = (byte)Tile.GRAVEL.id;
+                                        top = (byte)Tile.gravel.id;
                                     }
 
                                     if (gravel) {
-                                        material = (byte)Tile.NETHERRACK.id;
+                                        material = (byte)Tile.hellRock.id;
                                     }
 
                                     if (sand) {
-                                        top = (byte)Tile.SOUL_SAND.id;
+                                        top = (byte)Tile.hellSand.id;
                                     }
 
                                     if (sand) {
-                                        material = (byte)Tile.SOUL_SAND.id;
+                                        material = (byte)Tile.hellSand.id;
                                     }
                                 }
 
                                 if (y < waterHeight && top == 0) {
-                                    top = (byte)Tile.LAVA.id;
+                                    top = (byte)Tile.calmLava.id;
                                 }
 
                                 run = runDepth;
@@ -364,7 +364,7 @@ public class HellRandomLevelSourceMixin implements BigChunkSourceExtension {
             BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(120) + 4;
             BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            new HellSpringFeature(Tile.FLOWING_LAVA.id).place(this.level, this.random, x, y, z);
+            new HellSpringFeature(Tile.lava.id).place(this.level, this.random, x, y, z);
         }
 
         int count = this.random.nextInt(this.random.nextInt(10) + 1) + 1;
@@ -396,14 +396,14 @@ public class HellRandomLevelSourceMixin implements BigChunkSourceExtension {
             BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
             BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            new FlowerFeature(Tile.BROWN_MUSHROOM.id).place(this.level, this.random, x, y, z);
+            new FlowerFeature(Tile.mushroom1.id).place(this.level, this.random, x, y, z);
         }
 
         if (this.random.nextInt(1) == 0) {
             BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
             BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            new FlowerFeature(Tile.RED_MUSHROOM.id).place(this.level, this.random, x, y, z);
+            new FlowerFeature(Tile.mushroom2.id).place(this.level, this.random, x, y, z);
         }
 
         SandTile.instaFall = false;

@@ -1,6 +1,6 @@
 package me.alphamode.mcbig.extensions.tiles;
 
-import net.minecraft.util.Directions;
+import net.minecraft.util.Direction;
 import net.minecraft.world.level.LevelSource;
 import net.minecraft.world.level.tile.Tile;
 
@@ -10,17 +10,17 @@ public interface BigRedStoneDustTileExtension {
 
     static boolean isPowerSourceAt(LevelSource level, BigInteger x, int y, BigInteger z, int direction) {
         int t = level.getTile(x, y, z);
-        if (t == Tile.REDSTONE.id) {
+        if (t == Tile.redStoneDust.id) {
             return true;
         } else if (t == 0) {
             return false;
         } else if (Tile.tiles[t].isSignalSource()) {
             return true;
-        } else if (t != Tile.REPEATER_OFF.id && t != Tile.REPEATER_ON.id) {
+        } else if (t != Tile.diode_off.id && t != Tile.diode_on.id) {
             return false;
         } else {
             int d = level.getData(x, y, z);
-            return direction == Directions.DIRECTION_OPPOSITE[d & 3];
+            return direction == Direction.DIRECTION_OPPOSITE[d & 3];
         }
     }
 }

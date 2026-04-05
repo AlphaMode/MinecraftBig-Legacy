@@ -17,8 +17,8 @@ public abstract class HellFireFeatureMixin implements BigFeatureExtension {
             BigInteger x2 = x.add(BigInteger.valueOf(random.nextInt(8) - random.nextInt(8)));
             int y2 = y + random.nextInt(4) - random.nextInt(4);
             BigInteger z2 = z.add(BigInteger.valueOf(random.nextInt(8) - random.nextInt(8)));
-            if (level.isEmptyTile(x2, y2, z2) && level.getTile(x2, y2 - 1, z2) == Tile.NETHERRACK.id) {
-                level.setTile(x2, y2, z2, Tile.FIRE.id);
+            if (level.isEmptyTile(x2, y2, z2) && level.getTile(x2, y2 - 1, z2) == Tile.hellRock.id) {
+                level.setTile(x2, y2, z2, Tile.fire.id);
             }
         }
 

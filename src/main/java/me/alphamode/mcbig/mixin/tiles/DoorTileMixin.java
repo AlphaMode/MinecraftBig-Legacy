@@ -65,7 +65,7 @@ public abstract class DoorTileMixin extends Tile implements BigTileExtension {
 
     @Override
     public boolean use(Level level, BigInteger x, int y, BigInteger z, Player player) {
-        if (this.material == Material.METAL) {
+        if (this.material == Material.metal) {
             return true;
         } else {
             int var6 = level.getData(x, y, z);

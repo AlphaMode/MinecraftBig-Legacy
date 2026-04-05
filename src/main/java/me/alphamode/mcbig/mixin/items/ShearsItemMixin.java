@@ -17,7 +17,7 @@ public abstract class ShearsItemMixin extends Item {
 
     @Override
     public boolean mineBlock(ItemInstance item, int tile, BigInteger x, int y, BigInteger z, Mob entity) {
-        if (tile == Tile.LEAVES.id || tile == Tile.WEB.id) {
+        if (tile == Tile.leaves.id || tile == Tile.web.id) {
             item.hurtAndBreak(1, entity);
         }
 

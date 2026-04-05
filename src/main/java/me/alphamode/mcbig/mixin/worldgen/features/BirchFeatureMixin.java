@@ -32,7 +32,7 @@ public class BirchFeatureMixin implements BigFeatureExtension {
                     for (BigInteger zt = z.subtract(bigvar9); zt.compareTo(z.add(bigvar9)) <= 0 && var7; zt = zt.add(BigInteger.ONE)) {
                         if (yt >= 0 && yt < 128) {
                             int var12 = level.getTile(xt, yt, zt);
-                            if (var12 != 0 && var12 != Tile.LEAVES.id) {
+                            if (var12 != 0 && var12 != Tile.leaves.id) {
                                 var7 = false;
                             }
                         } else {
@@ -46,8 +46,8 @@ public class BirchFeatureMixin implements BigFeatureExtension {
                 return false;
             } else {
                 int var16 = level.getTile(x, y - 1, z);
-                if ((var16 == Tile.GRASS.id || var16 == Tile.DIRT.id) && y < 128 - height - 1) {
-                    level.setTileNoUpdate(x, y - 1, z, Tile.DIRT.id);
+                if ((var16 == Tile.grass.id || var16 == Tile.dirt.id) && y < 128 - height - 1) {
+                    level.setTileNoUpdate(x, y - 1, z, Tile.dirt.id);
 
                     for (int yt = y - 3 + height; yt <= y + height; yt++) {
                         int var19 = yt - (y + height);
@@ -60,7 +60,7 @@ public class BirchFeatureMixin implements BigFeatureExtension {
                             for (BigInteger zt = z.subtract(bigvar21); zt.compareTo(z.add(bigvar21)) <= 0; zt = zt.add(BigInteger.ONE)) {
                                 int var15 = zt.subtract(z).intValue();
                                 if ((Math.abs(var13) != var21 || Math.abs(var15) != var21 || random.nextInt(2) != 0 && var19 != 0) && !Tile.solid[level.getTile(xt, yt, zt)]) {
-                                    level.setTileAndDataNoUpdate(xt, yt, zt, Tile.LEAVES.id, 2);
+                                    level.setTileAndDataNoUpdate(xt, yt, zt, Tile.leaves.id, 2);
                                 }
                             }
                         }
@@ -68,8 +68,8 @@ public class BirchFeatureMixin implements BigFeatureExtension {
 
                     for (int yOff = 0; yOff < height; yOff++) {
                         int var20 = level.getTile(x, y + yOff, z);
-                        if (var20 == 0 || var20 == Tile.LEAVES.id) {
-                            level.setTileAndDataNoUpdate(x, y + yOff, z, Tile.LOG.id, 2);
+                        if (var20 == 0 || var20 == Tile.leaves.id) {
+                            level.setTileAndDataNoUpdate(x, y + yOff, z, Tile.treeTrunk.id, 2);
                         }
                     }
 

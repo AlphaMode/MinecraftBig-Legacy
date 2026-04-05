@@ -118,7 +118,7 @@ public abstract class SkyLevelSourceMixin implements ChunkSource, BigChunkSource
                             for (int z = 0; z < CHUNK_WIDTH; z++) {
                                 int tileId = 0;
                                 if (val > 0.0) {
-                                    tileId = Tile.STONE.id;
+                                    tileId = Tile.stone.id;
                                 }
 
                                 blocks[offs] = (byte)tileId;
@@ -163,11 +163,11 @@ public abstract class SkyLevelSourceMixin implements ChunkSource, BigChunkSource
                     byte old = blocks[offs];
                     if (old == 0) {
                         run = -1;
-                    } else if (old == Tile.STONE.id) {
+                    } else if (old == Tile.stone.id) {
                         if (run == -1) {
                             if (runDepth <= 0) {
                                 top = 0;
-                                material = (byte)Tile.STONE.id;
+                                material = (byte)Tile.stone.id;
                             }
 
                             run = runDepth;
@@ -179,9 +179,9 @@ public abstract class SkyLevelSourceMixin implements ChunkSource, BigChunkSource
                         } else if (run > 0) {
                             run--;
                             blocks[offs] = material;
-                            if (run == 0 && material == Tile.SAND.id) {
+                            if (run == 0 && material == Tile.sand.id) {
                                 run = this.random.nextInt(4);
-                                material = (byte)Tile.SANDSTONE.id;
+                                material = (byte)Tile.sandStone.id;
                             }
                         }
                     }
@@ -326,7 +326,7 @@ public abstract class SkyLevelSourceMixin implements ChunkSource, BigChunkSource
             BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
             BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            new LakeFeature(Tile.WATER.id).place(this.level, this.random, x, y, z);
+            new LakeFeature(Tile.calmWater.id).place(this.level, this.random, x, y, z);
         }
 
         if (this.random.nextInt(8) == 0) {
@@ -334,7 +334,7 @@ public abstract class SkyLevelSourceMixin implements ChunkSource, BigChunkSource
             int y = this.random.nextInt(this.random.nextInt(120) + 8);
             BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             if (y < 64 || this.random.nextInt(10) == 0) {
-                new LakeFeature(Tile.LAVA.id).place(this.level, this.random, x, y, z);
+                new LakeFeature(Tile.calmLava.id).place(this.level, this.random, x, y, z);
             }
         }
 
@@ -356,56 +356,56 @@ public abstract class SkyLevelSourceMixin implements ChunkSource, BigChunkSource
             BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(128);
             BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16)));
-            new OreFeature(Tile.DIRT.id, 32).place(this.level, this.random, x, y, z);
+            new OreFeature(Tile.dirt.id, 32).place(this.level, this.random, x, y, z);
         }
 
         for (int i = 0; i < 10; i++) {
             BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(128);
             BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16)));
-            new OreFeature(Tile.GRAVEL.id, 32).place(this.level, this.random, x, y, z);
+            new OreFeature(Tile.gravel.id, 32).place(this.level, this.random, x, y, z);
         }
 
         for (int i = 0; i < 20; i++) {
             BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(128);
             BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16)));
-            new OreFeature(Tile.COAL_ORE.id, 16).place(this.level, this.random, x, y, z);
+            new OreFeature(Tile.coalOre.id, 16).place(this.level, this.random, x, y, z);
         }
 
         for (int i = 0; i < 20; i++) {
             BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(64);
             BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16)));
-            new OreFeature(Tile.IRON_ORE.id, 8).place(this.level, this.random, x, y, z);
+            new OreFeature(Tile.ironOre.id, 8).place(this.level, this.random, x, y, z);
         }
 
         for (int i = 0; i < 2; i++) {
             BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(32);
             BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16)));
-            new OreFeature(Tile.GOLD_ORE.id, 8).place(this.level, this.random, x, y, z);
+            new OreFeature(Tile.goldOre.id, 8).place(this.level, this.random, x, y, z);
         }
 
         for (int i = 0; i < 8; i++) {
             BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(16);
             BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16)));
-            new OreFeature(Tile.REDSTONE_ORE.id, 7).place(this.level, this.random, x, y, z);
+            new OreFeature(Tile.redStoneOre.id, 7).place(this.level, this.random, x, y, z);
         }
 
         for (int i = 0; i < 1; i++) {
             BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(16);
             BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16)));
-            new OreFeature(Tile.DIAMOND_ORE.id, 7).place(this.level, this.random, x, y, z);
+            new OreFeature(Tile.diamondOre.id, 7).place(this.level, this.random, x, y, z);
         }
 
         for (int i = 0; i < 1; i++) {
             BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(16) + this.random.nextInt(16);
             BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16)));
-            new OreFeature(Tile.LAPIS_ORE.id, 6).place(this.level, this.random, x, y, z);
+            new OreFeature(Tile.lapisOre.id, 6).place(this.level, this.random, x, y, z);
         }
 
         ss = 0.5;
@@ -413,13 +413,13 @@ public abstract class SkyLevelSourceMixin implements ChunkSource, BigChunkSource
         int forests = 0;
         if (this.random.nextInt(10) == 0) forests++;
 
-        if (biome == Biome.FOREST) forests += oFor + 5;
-        if (biome == Biome.RAINFOREST) forests += oFor + 5;
-        if (biome == Biome.SEASONAL_FOREST) forests += oFor + 2;
-        if (biome == Biome.TAIGA) forests += oFor + 5;
-        if (biome == Biome.DESERT) forests -= 20;
-        if (biome == Biome.TUNDRA) forests -= 20;
-        if (biome == Biome.PLAINS) forests -= 20;
+        if (biome == Biome.forest) forests += oFor + 5;
+        if (biome == Biome.rainForest) forests += oFor + 5;
+        if (biome == Biome.seasonalForest) forests += oFor + 2;
+        if (biome == Biome.taiga) forests += oFor + 5;
+        if (biome == Biome.desert) forests -= 20;
+        if (biome == Biome.tundra) forests -= 20;
+        if (biome == Biome.plains) forests -= 20;
 
         for (int i = 0; i < forests; i++) {
             BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
@@ -433,28 +433,28 @@ public abstract class SkyLevelSourceMixin implements ChunkSource, BigChunkSource
             BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
             BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            new FlowerFeature(Tile.FLOWER.id).place(this.level, this.random, x, y, z);
+            new FlowerFeature(Tile.flower.id).place(this.level, this.random, x, y, z);
         }
 
         if (this.random.nextInt(2) == 0) {
             BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
             BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            new FlowerFeature(Tile.ROSE.id).place(this.level, this.random, x, y, z);
+            new FlowerFeature(Tile.rose.id).place(this.level, this.random, x, y, z);
         }
 
         if (this.random.nextInt(4) == 0) {
             BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
             BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            new FlowerFeature(Tile.BROWN_MUSHROOM.id).place(this.level, this.random, x, y, z);
+            new FlowerFeature(Tile.mushroom1.id).place(this.level, this.random, x, y, z);
         }
 
         if (this.random.nextInt(8) == 0) {
             BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
             BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            new FlowerFeature(Tile.RED_MUSHROOM.id).place(this.level, this.random, x, y, z);
+            new FlowerFeature(Tile.mushroom2.id).place(this.level, this.random, x, y, z);
         }
 
         for (int i = 0; i < 10; i++) {
@@ -472,7 +472,7 @@ public abstract class SkyLevelSourceMixin implements ChunkSource, BigChunkSource
         }
 
         int cacti = 0;
-        if (biome == Biome.DESERT) cacti += 10;
+        if (biome == Biome.desert) cacti += 10;
 
         for (int i = 0; i < cacti; i++) {
             BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
@@ -485,14 +485,14 @@ public abstract class SkyLevelSourceMixin implements ChunkSource, BigChunkSource
             BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(this.random.nextInt(120) + 8);
             BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            new SpringFeature(Tile.FLOWING_WATER.id).place(this.level, this.random, x, y, z);
+            new SpringFeature(Tile.water.id).place(this.level, this.random, x, y, z);
         }
 
         for (int i = 0; i < 20; i++) {
             BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(this.random.nextInt(this.random.nextInt(112) + 8) + 8);
             BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            new SpringFeature(Tile.FLOWING_LAVA.id).place(this.level, this.random, x, y, z);
+            new SpringFeature(Tile.lava.id).place(this.level, this.random, x, y, z);
         }
 
         this.temperatures = this.level.getBiomeSource().getTemperatureBlock(this.temperatures, xo.add(BigConstants.EIGHT), zo.add(BigConstants.EIGHT), 16, 16);
@@ -508,7 +508,7 @@ public abstract class SkyLevelSourceMixin implements ChunkSource, BigChunkSource
                 int y = this.level.getTopSolidBlock(x, z);
                 double temp = this.temperatures[xp * 16 + zp] - (y - 64) / 64.0 * 0.3;
                 if (temp < 0.5 && y > 0 && y < 128 && this.level.isEmptyTile(x, y, z) && this.level.getMaterial(x, y - 1, z).blocksMotion()) {
-                    if (this.level.getMaterial(x, y - 1, z) != Material.ICE) this.level.setTile(x, y, z, Tile.SNOW_LAYER.id);
+                    if (this.level.getMaterial(x, y - 1, z) != Material.ice) this.level.setTile(x, y, z, Tile.topSnow.id);
                 }
             }
         }

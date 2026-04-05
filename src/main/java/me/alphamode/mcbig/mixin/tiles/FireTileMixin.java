@@ -39,7 +39,7 @@ public abstract class FireTileMixin extends Tile implements BigTileExtension, Bi
 
     @Override
     public void tick(Level level, BigInteger x, int y, BigInteger z, Random random) {
-        boolean var6 = level.getTile(x, y - 1, z) == Tile.NETHERRACK.id;
+        boolean var6 = level.getTile(x, y - 1, z) == Tile.hellRock.id;
         if (!this.mayPlace(level, x, y, z)) {
             level.setTile(x, y, z, 0);
         }
@@ -111,7 +111,7 @@ public abstract class FireTileMixin extends Tile implements BigTileExtension, Bi
     private void checkBurn(Level level, BigInteger x, int y, BigInteger z, int chance, Random random, int spreadChance) {
         int odds = this.burnOdds[level.getTile(x, y, z)];
         if (random.nextInt(chance) < odds) {
-            boolean var9 = level.getTile(x, y, z) == Tile.TNT.id;
+            boolean var9 = level.getTile(x, y, z) == Tile.tnt.id;
             if (random.nextInt(spreadChance + 10) < 5 && !level.isRainingAt(x, y, z)) {
                 int data = spreadChance + random.nextInt(5) / 4;
                 if (data > 15) {
@@ -124,7 +124,7 @@ public abstract class FireTileMixin extends Tile implements BigTileExtension, Bi
             }
 
             if (var9) {
-                Tile.TNT.destroy(level, x, y, z, 1);
+                Tile.tnt.destroy(level, x, y, z, 1);
             }
         }
     }
@@ -187,7 +187,7 @@ public abstract class FireTileMixin extends Tile implements BigTileExtension, Bi
 
     @Override
     public void onPlace(Level level, BigInteger x, int y, BigInteger z) {
-        if (level.getTile(x, y - 1, z) != Tile.OBSIDIAN.id || !Tile.PORTAL.isPortal(level, x, y, z)) {
+        if (level.getTile(x, y - 1, z) != Tile.obsidian.id || !Tile.portalTile.isPortal(level, x, y, z)) {
             if (!level.isSolidBlockingTile(x, y - 1, z) && !this.isValidFireLocation(level, x, y, z)) {
                 level.setTile(x, y, z, 0);
             } else {
@@ -202,8 +202,8 @@ public abstract class FireTileMixin extends Tile implements BigTileExtension, Bi
             level.playSound(x.doubleValue() + 0.5F, y + 0.5F, z.doubleValue() + 0.5F, "fire.fire", 1.0F + random.nextFloat(), random.nextFloat() * 0.7F + 0.3F);
         }
 
-        if (!level.isSolidBlockingTile(x, y - 1, z) && !Tile.FIRE.canBurn(level, x, y - 1, z)) {
-            if (Tile.FIRE.canBurn(level, x.subtract(BigInteger.ONE), y, z)) {
+        if (!level.isSolidBlockingTile(x, y - 1, z) && !Tile.fire.canBurn(level, x, y - 1, z)) {
+            if (Tile.fire.canBurn(level, x.subtract(BigInteger.ONE), y, z)) {
                 for (int var10 = 0; var10 < 2; var10++) {
                     float var15 = x.floatValue() + random.nextFloat() * 0.1F;
                     float var20 = y + random.nextFloat();
@@ -212,7 +212,7 @@ public abstract class FireTileMixin extends Tile implements BigTileExtension, Bi
                 }
             }
 
-            if (Tile.FIRE.canBurn(level, x.add(BigInteger.ONE), y, z)) {
+            if (Tile.fire.canBurn(level, x.add(BigInteger.ONE), y, z)) {
                 for (int var11 = 0; var11 < 2; var11++) {
                     float var16 = x.add(BigInteger.ONE).floatValue() - random.nextFloat() * 0.1F;
                     float var21 = y + random.nextFloat();
@@ -221,7 +221,7 @@ public abstract class FireTileMixin extends Tile implements BigTileExtension, Bi
                 }
             }
 
-            if (Tile.FIRE.canBurn(level, x, y, z.subtract(BigInteger.ONE))) {
+            if (Tile.fire.canBurn(level, x, y, z.subtract(BigInteger.ONE))) {
                 for (int var12 = 0; var12 < 2; var12++) {
                     float var17 = x.floatValue() + random.nextFloat();
                     float var22 = y + random.nextFloat();
@@ -230,7 +230,7 @@ public abstract class FireTileMixin extends Tile implements BigTileExtension, Bi
                 }
             }
 
-            if (Tile.FIRE.canBurn(level, x, y, z.add(BigInteger.ONE))) {
+            if (Tile.fire.canBurn(level, x, y, z.add(BigInteger.ONE))) {
                 for (int var13 = 0; var13 < 2; var13++) {
                     float var18 = x.floatValue() + random.nextFloat();
                     float var23 = y + random.nextFloat();
@@ -239,7 +239,7 @@ public abstract class FireTileMixin extends Tile implements BigTileExtension, Bi
                 }
             }
 
-            if (Tile.FIRE.canBurn(level, x, y + 1, z)) {
+            if (Tile.fire.canBurn(level, x, y + 1, z)) {
                 for (int var14 = 0; var14 < 2; var14++) {
                     float var19 = x.floatValue() + random.nextFloat();
                     float var24 = y + 1 - random.nextFloat() * 0.1F;

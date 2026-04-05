@@ -44,14 +44,14 @@ public abstract class ReedTileMixin extends Tile implements BigTileExtension {
         int tt = level.getTile(x, y - 1, z);
         if (tt == this.id) {
             return true;
-        } else if (tt != Tile.GRASS.id && tt != Tile.DIRT.id) {
+        } else if (tt != Tile.grass.id && tt != Tile.dirt.id) {
             return false;
-        } else if (level.getMaterial(x.subtract(BigInteger.ONE), y - 1, z) == Material.WATER) {
+        } else if (level.getMaterial(x.subtract(BigInteger.ONE), y - 1, z) == Material.water) {
             return true;
-        } else if (level.getMaterial(x.add(BigInteger.ONE), y - 1, z) == Material.WATER) {
+        } else if (level.getMaterial(x.add(BigInteger.ONE), y - 1, z) == Material.water) {
             return true;
         } else {
-            return level.getMaterial(x, y - 1, z.subtract(BigInteger.ONE)) == Material.WATER ? true : level.getMaterial(x, y - 1, z.add(BigInteger.ONE)) == Material.WATER;
+            return level.getMaterial(x, y - 1, z.subtract(BigInteger.ONE)) == Material.water ? true : level.getMaterial(x, y - 1, z.add(BigInteger.ONE)) == Material.water;
         }
     }
 

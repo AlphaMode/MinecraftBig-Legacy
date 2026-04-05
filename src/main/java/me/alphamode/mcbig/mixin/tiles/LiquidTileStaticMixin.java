@@ -35,7 +35,7 @@ public abstract class LiquidTileStaticMixin extends Tile implements BigTileExten
 
     @Override
     public void tick(Level level, BigInteger x, int y, BigInteger z, Random random) {
-        if (this.material == Material.LAVA) {
+        if (this.material == Material.lava) {
             int h = random.nextInt(3);
 
             for(int i = 0; i < h; ++i) {
@@ -50,7 +50,7 @@ public abstract class LiquidTileStaticMixin extends Tile implements BigTileExten
                             || this.isFlammable(level, x, y, z.add(BigInteger.ONE))
                             || this.isFlammable(level, x, y - 1, z)
                             || this.isFlammable(level, x, y + 1, z)) {
-                        level.setTile(x, y, z, Tile.FIRE.id);
+                        level.setTile(x, y, z, Tile.fire.id);
                         return;
                     }
                 } else if (Tile.tiles[t].material.blocksMotion()) {

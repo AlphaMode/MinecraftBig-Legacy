@@ -51,12 +51,12 @@ public abstract class RepeaterTileMixin extends Tile implements BigTileExtension
         int data = level.getData(x, y, z);
         boolean on = this.shouldTurnOn(level, x, y, z, data);
         if (this.isOn && !on) {
-            level.setTileAndData(x, y, z, Tile.REPEATER_OFF.id, data);
+            level.setTileAndData(x, y, z, Tile.diode_off.id, data);
         } else if (!this.isOn) {
-            level.setTileAndData(x, y, z, Tile.REPEATER_ON.id, data);
+            level.setTileAndData(x, y, z, Tile.diode_on.id, data);
             if (!on) {
                 int var8 = (data & 12) >> 2;
-                level.addToTickNextTick(x, y, z, Tile.REPEATER_ON.id, DELAYS[var8] * 2);
+                level.addToTickNextTick(x, y, z, Tile.diode_on.id, DELAYS[var8] * 2);
             }
         }
     }
@@ -108,13 +108,13 @@ public abstract class RepeaterTileMixin extends Tile implements BigTileExtension
         int delay = data & 3;
         switch (delay) {
             case 0:
-                return level.getSignal(x, y, z.add(BigInteger.ONE), Facing.SOUTH) || level.getTile(x, y, z.add(BigInteger.ONE)) == Tile.REDSTONE.id && level.getData(x, y, z.add(BigInteger.ONE)) > 0;
+                return level.getSignal(x, y, z.add(BigInteger.ONE), Facing.SOUTH) || level.getTile(x, y, z.add(BigInteger.ONE)) == Tile.redStoneDust.id && level.getData(x, y, z.add(BigInteger.ONE)) > 0;
             case 1:
-                return level.getSignal(x.subtract(BigInteger.ONE), y, z, Facing.WEST) || level.getTile(x.subtract(BigInteger.ONE), y, z) == Tile.REDSTONE.id && level.getData(x.subtract(BigInteger.ONE), y, z) > 0;
+                return level.getSignal(x.subtract(BigInteger.ONE), y, z, Facing.WEST) || level.getTile(x.subtract(BigInteger.ONE), y, z) == Tile.redStoneDust.id && level.getData(x.subtract(BigInteger.ONE), y, z) > 0;
             case 2:
-                return level.getSignal(x, y, z.subtract(BigInteger.ONE), Facing.NORTH) || level.getTile(x, y, z.subtract(BigInteger.ONE)) == Tile.REDSTONE.id && level.getData(x, y, z.subtract(BigInteger.ONE)) > 0;
+                return level.getSignal(x, y, z.subtract(BigInteger.ONE), Facing.NORTH) || level.getTile(x, y, z.subtract(BigInteger.ONE)) == Tile.redStoneDust.id && level.getData(x, y, z.subtract(BigInteger.ONE)) > 0;
             case 3:
-                return level.getSignal(x.add(BigInteger.ONE), y, z, Facing.EAST) || level.getTile(x.add(BigInteger.ONE), y, z) == Tile.REDSTONE.id && level.getData(x.add(BigInteger.ONE), y, z) > 0;
+                return level.getSignal(x.add(BigInteger.ONE), y, z, Facing.EAST) || level.getTile(x.add(BigInteger.ONE), y, z) == Tile.redStoneDust.id && level.getData(x.add(BigInteger.ONE), y, z) > 0;
             default:
                 return false;
         }

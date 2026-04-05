@@ -27,7 +27,7 @@ public abstract class SeedItemMixin extends Item {
             return false;
         } else {
             int t = level.getTile(x, y, z);
-            if (t == Tile.FARMLAND.id && level.isEmptyTile(x, y + 1, z)) {
+            if (t == Tile.farmland.id && level.isEmptyTile(x, y + 1, z)) {
                 level.setTile(x, y + 1, z, this.plantId);
                 item.count--;
                 return true;

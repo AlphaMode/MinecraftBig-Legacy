@@ -14,8 +14,8 @@ public class HellPortalFeatureMixin implements BigFeatureExtension {
     @Override
     public boolean place(Level level, Random random, BigInteger x, int y, BigInteger z) {
         if (!level.isEmptyTile(x, y, z)) return false;
-        if (level.getTile(x, y + 1, z) != Tile.NETHERRACK.id) return false;
-        level.setTile(x, y, z, Tile.GLOWSTONE.id);
+        if (level.getTile(x, y + 1, z) != Tile.hellRock.id) return false;
+        level.setTile(x, y, z, Tile.lightGem.id);
 
         for (int i = 0; i < 1500; i++) {
             BigInteger x2 = x.add(BigInteger.valueOf(random.nextInt(8) - random.nextInt(8)));
@@ -37,10 +37,10 @@ public class HellPortalFeatureMixin implements BigFeatureExtension {
                 if (t == 4) tile = level.getTile(x2, y2, z2MinusOne);
                 if (t == 5) tile = level.getTile(x2, y2, z2PlusOne);
 
-                if (tile == Tile.GLOWSTONE.id) count++;
+                if (tile == Tile.lightGem.id) count++;
             }
 
-            if (count == 1) level.setTile(x2, y2, z2, Tile.GLOWSTONE.id);
+            if (count == 1) level.setTile(x2, y2, z2, Tile.lightGem.id);
         }
 
         return true;

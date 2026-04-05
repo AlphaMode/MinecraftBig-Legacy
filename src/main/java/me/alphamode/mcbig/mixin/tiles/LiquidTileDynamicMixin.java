@@ -35,7 +35,7 @@ public abstract class LiquidTileDynamicMixin extends Tile implements BigTileExte
     public void tick(Level level, BigInteger x, int y, BigInteger z, Random random) {
         int depth = getDepth(level, x, y, z);
         int dropOff = 1;
-        if (this.material == Material.LAVA && !level.dimension.ultraWarm) {
+        if (this.material == Material.lava && !level.dimension.ultraWarm) {
             dropOff = 2;
         }
 
@@ -61,7 +61,7 @@ public abstract class LiquidTileDynamicMixin extends Tile implements BigTileExte
                 }
             }
 
-            if (this.maxCount >= 2 && this.material == Material.WATER) {
+            if (this.maxCount >= 2 && this.material == Material.water) {
                 if (level.getMaterial(x, y - 1, z).isSolid()) {
                     newDepth = 0;
                 } else if (level.getMaterial(x, y - 1, z) == this.material && level.getData(x, y, z) == 0) {
@@ -69,7 +69,7 @@ public abstract class LiquidTileDynamicMixin extends Tile implements BigTileExte
                 }
             }
 
-            if (this.material == Material.LAVA && depth < 8 && newDepth < 8 && newDepth > depth && random.nextInt(4) != 0) {
+            if (this.material == Material.lava && depth < 8 && newDepth < 8 && newDepth > depth && random.nextInt(4) != 0) {
                 newDepth = depth;
                 becomeStatic = false;
             }
@@ -129,7 +129,7 @@ public abstract class LiquidTileDynamicMixin extends Tile implements BigTileExte
         if (canSpreadTo(level, x, y, z)) {
             int old = level.getTile(x, y, z);
             if (old > 0) {
-                if (this.material == Material.LAVA) {
+                if (this.material == Material.lava) {
                     fizz(level, x, y, z);
                 } else {
                     Tile.tiles[old].dropResources(level, x, y, z, level.getData(x, y, z));
@@ -228,7 +228,7 @@ public abstract class LiquidTileDynamicMixin extends Tile implements BigTileExte
 
     private boolean isWaterBlocking(Level level, BigInteger x, int y, BigInteger z) {
         int t = level.getTile(x, y, z);
-        if (t == Tile.DOOR.id || t == Tile.IRON_DOOR.id || t == Tile.SIGN.id || t == Tile.LADDER.id || t == Tile.REEDS.id) {
+        if (t == Tile.door_wood.id || t == Tile.door_iron.id || t == Tile.sign.id || t == Tile.ladder.id || t == Tile.reeds.id) {
             return true;
         } else if (t == 0) {
             return false;
@@ -259,7 +259,7 @@ public abstract class LiquidTileDynamicMixin extends Tile implements BigTileExte
         Material target = level.getMaterial(x, y, z);
         if (target == this.material) {
             return false;
-        } else if (target == Material.LAVA) {
+        } else if (target == Material.lava) {
             return false;
         } else {
             return !this.isWaterBlocking(level, x, y, z);

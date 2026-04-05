@@ -26,7 +26,7 @@ public class GrassTileMixin implements BigTileExtension {
             return 2;
         } else {
             Material var6 = level.getMaterial(x, y + 1, z);
-            return var6 != Material.TOP_SNOW && var6 != Material.SNOW ? 3 : 68;
+            return var6 != Material.topSnow && var6 != Material.snow ? 3 : 68;
         }
     }
 
@@ -47,14 +47,14 @@ public class GrassTileMixin implements BigTileExtension {
                     return;
                 }
 
-                level.setTile(x, y, z, Tile.DIRT.id);
+                level.setTile(x, y, z, Tile.dirt.id);
             } else if (level.getLightLevel(x, y + 1, z) >= 9) {
                 BigInteger xt = x.add(BigInteger.valueOf(random.nextInt(3) - 1));
                 int yt = y + random.nextInt(5) - 3;
                 BigInteger zt = z.add(BigInteger.valueOf(random.nextInt(3) - 1));
                 int tt = level.getTile(xt, yt + 1, zt);
-                if (level.getTile(xt, yt, zt) == Tile.DIRT.id && level.getLightLevel(xt, yt + 1, zt) >= 4 && Tile.lightBlock[tt] <= 2) {
-                    level.setTile(xt, yt, zt, Tile.GRASS.id);
+                if (level.getTile(xt, yt, zt) == Tile.dirt.id && level.getLightLevel(xt, yt + 1, zt) >= 4 && Tile.lightBlock[tt] <= 2) {
+                    level.setTile(xt, yt, zt, Tile.grass.id);
                 }
             }
         }

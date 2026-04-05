@@ -23,7 +23,7 @@ public abstract class TileItemWithoutTranslationMixin extends Item {
 
     @Override
     public boolean useOn(ItemInstance item, Player player, Level level, BigInteger x, int y, BigInteger z, int face) {
-        if (level.getTile(x, y, z) == Tile.SNOW_LAYER.id) {
+        if (level.getTile(x, y, z) == Tile.topSnow.id) {
             face = Facing.DOWN;
         } else {
             if (face == Facing.DOWN) {

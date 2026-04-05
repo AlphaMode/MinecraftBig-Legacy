@@ -26,16 +26,16 @@ public class LevelDataMixin implements BigLevelDataExtension {
 
     @Inject(method = "<init>(Lcom/mojang/nbt/CompoundTag;)V", at = @At("TAIL"))
     private void readBigSpawn(CompoundTag tag, CallbackInfo ci) {
-        if (tag.hasKey("WorldType")) {
+        if (tag.contains("WorldType")) {
             this.worldType = WorldType.parse(tag.getString("WorldType"));
         }
-        if (tag.hasKey("BigSpawnX")) {
+        if (tag.contains("BigSpawnX")) {
             this.spawnXBig = new BigInteger(tag.getString("BigSpawnX"));
         } else {
             this.spawnXBig = BigInteger.valueOf(this.spawnX);
         }
 
-        if (tag.hasKey("BigSpawnZ")) {
+        if (tag.contains("BigSpawnZ")) {
             this.spawnZBig = new BigInteger(tag.getString("BigSpawnZ"));
         } else {
             this.spawnZBig = BigInteger.valueOf(this.spawnZ);

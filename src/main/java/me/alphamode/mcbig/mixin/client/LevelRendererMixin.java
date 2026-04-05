@@ -125,7 +125,7 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension {
      */
     @Overwrite
     public void allChanged() {
-        Tile.LEAVES.setFancy(this.mc.options.fancyGraphics);
+        Tile.leaves.setFancy(this.mc.options.fancyGraphics);
         this.lastViewDistance = this.mc.options.viewDistance;
         if (this.chunks != null) {
             for(int i = 0; i < this.chunks.length; ++i) {

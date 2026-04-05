@@ -94,7 +94,7 @@ public abstract class CactusTileMixin extends Tile implements BigTileExtension {
             return false;
         } else {
             int var5 = level.getTile(x, y - 1, z);
-            return var5 == Tile.CACTUS.id || var5 == Tile.SAND.id;
+            return var5 == Tile.cactus.id || var5 == Tile.sand.id;
         }
     }
 

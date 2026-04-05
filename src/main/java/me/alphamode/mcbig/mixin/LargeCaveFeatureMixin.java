@@ -106,7 +106,7 @@ public abstract class LargeCaveFeatureMixin extends LargeFeature implements BigL
                         for(int yy = y1 + 1; !detectedWater && yy >= y0 - 1; --yy) {
                             int p = (xx * 16 + zz) * 128 + yy;
                             if (yy >= 0 && yy < 128) {
-                                if (blocks[p] == Tile.FLOWING_WATER.id || blocks[p] == Tile.WATER.id) {
+                                if (blocks[p] == Tile.water.id || blocks[p] == Tile.calmWater.id) {
                                     detectedWater = true;
                                 }
 
@@ -131,17 +131,17 @@ public abstract class LargeCaveFeatureMixin extends LargeFeature implements BigL
                                     double yd = ((double)yy + 0.5 - yCave) / yRad;
                                     if (yd > -0.7 && xd * xd + yd * yd + zd * zd < 1.0) {
                                         int block = blocks[p];
-                                        if (block == Tile.GRASS.id) {
+                                        if (block == Tile.grass.id) {
                                             hasGrass = true;
                                         }
 
-                                        if (block == Tile.STONE.id || block == Tile.DIRT.id || block == Tile.GRASS.id) {
+                                        if (block == Tile.stone.id || block == Tile.dirt.id || block == Tile.grass.id) {
                                             if (yy < 10) {
-                                                blocks[p] = (byte)Tile.FLOWING_LAVA.id;
+                                                blocks[p] = (byte)Tile.lava.id;
                                             } else {
                                                 blocks[p] = 0;
-                                                if (hasGrass && blocks[p - 1] == Tile.DIRT.id) {
-                                                    blocks[p - 1] = (byte)Tile.GRASS.id;
+                                                if (hasGrass && blocks[p - 1] == Tile.dirt.id) {
+                                                    blocks[p - 1] = (byte)Tile.grass.id;
                                                 }
                                             }
                                         }
