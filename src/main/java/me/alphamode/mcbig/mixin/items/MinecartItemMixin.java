@@ -15,7 +15,7 @@ import java.math.BigInteger;
 @Mixin(MinecartItem.class)
 public abstract class MinecartItemMixin extends Item {
     @Shadow
-    public int f_66932009;
+    public int type;
 
     protected MinecartItemMixin(int id) {
         super(id);
@@ -26,7 +26,7 @@ public abstract class MinecartItemMixin extends Item {
         int t = level.getTile(x, y, z);
         if (RailTile.isRail(t)) {
             if (!level.isClientSide) {
-                level.addEntity(new Minecart(level, x.doubleValue() + 0.5F, y + 0.5F, z.doubleValue() + 0.5F, this.f_66932009));
+                level.addEntity(new Minecart(level, x.doubleValue() + 0.5F, y + 0.5F, z.doubleValue() + 0.5F, this.type));
             }
 
             item.count--;

@@ -11,6 +11,8 @@ public interface BigEntityExtension {
 
     void absMoveTo(BigDecimal x, double y, BigDecimal z, float yRot, float xRot);
 
+    void moveTo(BigDecimal x, double y, BigDecimal z, float yRot, float xRot);
+
     default BigAABB getBigBB() {
         throw new UnsupportedOperationException();
     }

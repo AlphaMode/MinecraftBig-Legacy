@@ -245,6 +245,12 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
     @Shadow
     private int downFlip;
 
+    @Shadow
+    public abstract void tesselateCrossTexture(Tile tile, int data, double x, double y, double z);
+
+    @Shadow
+    public abstract void tesselateRowTexture(Tile tile, int data, double x, double y, double z);
+
     @Override
     public void tesselateInWorld(Tile tile, BigInteger x, int y, BigInteger z, int destroyProgress) {
         this.fixedTexture = destroyProgress;
@@ -1665,7 +1671,11 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
             rZ = rZ.add(BigDecimal.valueOf(((float)(hash >> 24 & 15L) / 15.0F - 0.5) * 0.5));
         }
 
-        this.tesselateCrossTexture(tile, this.level.getData(x, y, z), rX, rY, rZ);
+        if (FIX_STRIPELANDS) {
+            this.tesselateCrossTexture(tile, this.level.getData(x, y, z), rX, rY, rZ);
+        } else {
+            this.tesselateCrossTexture(tile, this.level.getData(x, y, z), x.doubleValue(), y, z.doubleValue());
+        }
         return true;
     }
 
@@ -1673,7 +1683,11 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
         Tesselator t = Tesselator.instance;
         float br = tile.getBrightness(this.level, x, y, z);
         t.color(br, br, br);
-        this.tesselateRowTexture(tile, this.level.getData(x, y, z), new BigDecimal(x), y - 0.0625F, new BigDecimal(z));
+        if (FIX_STRIPELANDS) {
+            this.tesselateRowTexture(tile, this.level.getData(x, y, z), new BigDecimal(x), y - 0.0625F, new BigDecimal(z));
+        } else {
+            this.tesselateRowTexture(tile, this.level.getData(x, y, z), x.doubleValue(), y - 0.0625F, z.doubleValue());
+        }
         return true;
     }
 
@@ -1890,6 +1904,9 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
     }
 
     public void tesselateTorch(Tile tile, BigDecimal x, double y, BigDecimal z, double xxa, double zza) {
+        if (!FIX_STRIPELANDS) {
+            this.tesselateTorch(tile, x.doubleValue(), y, z.doubleValue(), xxa, zza);
+        }
         Tesselator t = Tesselator.instance;
         int tex = tile.getTexture(Facing.DOWN);
         if (this.fixedTexture >= 0) {

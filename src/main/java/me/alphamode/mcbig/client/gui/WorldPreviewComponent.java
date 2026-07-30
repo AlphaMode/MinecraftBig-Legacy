@@ -43,6 +43,10 @@ public class WorldPreviewComponent extends GuiComponent {
         this.renderList.init(BigInteger.ZERO, 0, BigInteger.ZERO, BigDecimal.ZERO, 0, BigDecimal.ZERO);
     }
 
+    public void destroy() {
+        MemoryTracker.releaseLists(this.lists);
+    }
+
     public void render(int xm, int ym, float a) {
         if (!built) {
             build();

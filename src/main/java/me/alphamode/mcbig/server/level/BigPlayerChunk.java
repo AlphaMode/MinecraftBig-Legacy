@@ -60,7 +60,7 @@ public class BigPlayerChunk {
                     this.chunkMap.getBigChangedChunks().remove(this);
                 }
 
-                this.chunkMap.getLevel().serverCache.dropNoneSpawnChunk(this.x, this.z);
+                this.chunkMap.getLevel().serverCache.drop(this.x, this.z);
             }
 
             player.getBigChunks().remove(this.pos);

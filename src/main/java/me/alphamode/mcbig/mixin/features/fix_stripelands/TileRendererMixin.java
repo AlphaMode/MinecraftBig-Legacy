@@ -12,22 +12,22 @@ import java.math.BigDecimal;
 @Mixin(TileRenderer.class)
 public class TileRendererMixin implements BigTileRendererExtension {
     @Shadow
-    private int f_35670914;
+    private int downFlip;
 
     @Shadow
-    private int f_28464555;
+    private int upFlip;
 
     @Shadow
-    private int f_54847291;
+    private int eastFlip;
 
     @Shadow
-    private int f_41835850;
+    private int westFlip;
 
     @Shadow
-    private int f_78756416;
+    private int southFlip;
 
     @Shadow
-    private int f_50036552;
+    private int northFlip;
 
     @Shadow
     private int fixedTexture;
@@ -101,7 +101,7 @@ public class TileRendererMixin implements BigTileRendererExtension {
         double var22 = u0;
         double var24 = v0;
         double var26 = v1;
-        if (this.f_35670914 == 2) {
+        if (this.downFlip == 2) {
             u0 = ((double) xt + tile.zz0 * 16.0) / 256.0;
             v0 = ((double) (yt + 16) - tile.xx1 * 16.0) / 256.0;
             u1 = ((double) xt + tile.zz1 * 16.0) / 256.0;
@@ -112,7 +112,7 @@ public class TileRendererMixin implements BigTileRendererExtension {
             var22 = u1;
             v0 = v1;
             v1 = v0;
-        } else if (this.f_35670914 == 1) {
+        } else if (this.downFlip == 1) {
             u0 = ((double) (xt + 16) - tile.zz1 * 16.0) / 256.0;
             v0 = ((double) yt + tile.xx0 * 16.0) / 256.0;
             u1 = ((double) (xt + 16) - tile.zz0 * 16.0) / 256.0;
@@ -123,7 +123,7 @@ public class TileRendererMixin implements BigTileRendererExtension {
             u1 = u0;
             var24 = v1;
             var26 = v0;
-        } else if (this.f_35670914 == 3) {
+        } else if (this.downFlip == 3) {
             u0 = ((double) (xt + 16) - tile.xx0 * 16.0) / 256.0;
             u1 = ((double) (xt + 16) - tile.xx1 * 16.0 - 0.01) / 256.0;
             v0 = ((double) (yt + 16) - tile.zz0 * 16.0) / 256.0;
@@ -183,7 +183,7 @@ public class TileRendererMixin implements BigTileRendererExtension {
         double var22 = u0;
         double var24 = v0;
         double var26 = v1;
-        if (this.f_28464555 == 1) {
+        if (this.upFlip == 1) {
             u0 = ((double) xt + tile.zz0 * 16.0) / 256.0;
             v0 = ((double) (yt + 16) - tile.xx1 * 16.0) / 256.0;
             u1 = ((double) xt + tile.zz1 * 16.0) / 256.0;
@@ -194,7 +194,7 @@ public class TileRendererMixin implements BigTileRendererExtension {
             var22 = u1;
             v0 = v1;
             v1 = v0;
-        } else if (this.f_28464555 == 2) {
+        } else if (this.upFlip == 2) {
             u0 = ((double) (xt + 16) - tile.zz1 * 16.0) / 256.0;
             v0 = ((double) yt + tile.xx0 * 16.0) / 256.0;
             u1 = ((double) (xt + 16) - tile.zz0 * 16.0) / 256.0;
@@ -205,7 +205,7 @@ public class TileRendererMixin implements BigTileRendererExtension {
             u1 = u0;
             var24 = v1;
             var26 = v0;
-        } else if (this.f_28464555 == 3) {
+        } else if (this.upFlip == 3) {
             u0 = ((double) (xt + 16) - tile.xx0 * 16.0) / 256.0;
             u1 = ((double) (xt + 16) - tile.xx1 * 16.0 - 0.01) / 256.0;
             v0 = ((double) (yt + 16) - tile.zz0 * 16.0) / 256.0;
@@ -271,7 +271,7 @@ public class TileRendererMixin implements BigTileRendererExtension {
         double var22 = u0;
         double var24 = v0;
         double var26 = v1;
-        if (this.f_50036552 == 2) {
+        if (this.northFlip == 2) {
             u0 = ((double) xt + tile.yy0 * 16.0) / 256.0;
             v0 = ((double) (yt + 16) - tile.xx0 * 16.0) / 256.0;
             u1 = ((double) xt + tile.yy1 * 16.0) / 256.0;
@@ -282,7 +282,7 @@ public class TileRendererMixin implements BigTileRendererExtension {
             var22 = u1;
             v0 = v1;
             v1 = v0;
-        } else if (this.f_50036552 == 1) {
+        } else if (this.northFlip == 1) {
             u0 = ((double) (xt + 16) - tile.yy1 * 16.0) / 256.0;
             v0 = ((double) yt + tile.xx1 * 16.0) / 256.0;
             u1 = ((double) (xt + 16) - tile.yy0 * 16.0) / 256.0;
@@ -293,7 +293,7 @@ public class TileRendererMixin implements BigTileRendererExtension {
             u1 = u0;
             var24 = v1;
             var26 = v0;
-        } else if (this.f_50036552 == 3) {
+        } else if (this.northFlip == 3) {
             u0 = ((double) (xt + 16) - tile.xx0 * 16.0) / 256.0;
             u1 = ((double) (xt + 16) - tile.xx1 * 16.0 - 0.01) / 256.0;
             v0 = ((double) yt + tile.yy1 * 16.0) / 256.0;
@@ -359,7 +359,7 @@ public class TileRendererMixin implements BigTileRendererExtension {
         double var22 = u0;
         double var24 = v0;
         double var26 = v1;
-        if (this.f_78756416 == 1) {
+        if (this.southFlip == 1) {
             u0 = ((double) xt + tile.yy0 * 16.0) / 256.0;
             v1 = ((double) (yt + 16) - tile.xx0 * 16.0) / 256.0;
             u1 = ((double) xt + tile.yy1 * 16.0) / 256.0;
@@ -370,7 +370,7 @@ public class TileRendererMixin implements BigTileRendererExtension {
             var22 = u1;
             v0 = v1;
             v1 = v0;
-        } else if (this.f_78756416 == 2) {
+        } else if (this.southFlip == 2) {
             u0 = ((double) (xt + 16) - tile.yy1 * 16.0) / 256.0;
             v0 = ((double) yt + tile.xx0 * 16.0) / 256.0;
             u1 = ((double) (xt + 16) - tile.yy0 * 16.0) / 256.0;
@@ -381,7 +381,7 @@ public class TileRendererMixin implements BigTileRendererExtension {
             u1 = u0;
             var24 = v1;
             var26 = v0;
-        } else if (this.f_78756416 == 3) {
+        } else if (this.southFlip == 3) {
             u0 = ((double) (xt + 16) - tile.xx0 * 16.0) / 256.0;
             u1 = ((double) (xt + 16) - tile.xx1 * 16.0 - 0.01) / 256.0;
             v0 = ((double) yt + tile.yy1 * 16.0) / 256.0;
@@ -447,7 +447,7 @@ public class TileRendererMixin implements BigTileRendererExtension {
         double var22 = u0;
         double var24 = v0;
         double var26 = v1;
-        if (this.f_41835850 == 1) {
+        if (this.westFlip == 1) {
             u0 = ((double) xt + tile.yy0 * 16.0) / 256.0;
             v0 = ((double) (yt + 16) - tile.zz1 * 16.0) / 256.0;
             u1 = ((double) xt + tile.yy1 * 16.0) / 256.0;
@@ -458,7 +458,7 @@ public class TileRendererMixin implements BigTileRendererExtension {
             var22 = u1;
             v0 = v1;
             v1 = v0;
-        } else if (this.f_41835850 == 2) {
+        } else if (this.westFlip == 2) {
             u0 = ((double) (xt + 16) - tile.yy1 * 16.0) / 256.0;
             v0 = ((double) yt + tile.zz0 * 16.0) / 256.0;
             u1 = ((double) (xt + 16) - tile.yy0 * 16.0) / 256.0;
@@ -469,7 +469,7 @@ public class TileRendererMixin implements BigTileRendererExtension {
             u1 = u0;
             var24 = v1;
             var26 = v0;
-        } else if (this.f_41835850 == 3) {
+        } else if (this.westFlip == 3) {
             u0 = ((double) (xt + 16) - tile.zz0 * 16.0) / 256.0;
             u1 = ((double) (xt + 16) - tile.zz1 * 16.0 - 0.01) / 256.0;
             v0 = ((double) yt + tile.yy1 * 16.0) / 256.0;
@@ -535,7 +535,7 @@ public class TileRendererMixin implements BigTileRendererExtension {
         double var22 = u0;
         double var24 = v0;
         double var26 = v1;
-        if (this.f_54847291 == 2) {
+        if (this.eastFlip == 2) {
             u0 = ((double) xt + tile.yy0 * 16.0) / 256.0;
             v0 = ((double) (yt + 16) - tile.zz0 * 16.0) / 256.0;
             u1 = ((double) xt + tile.yy1 * 16.0) / 256.0;
@@ -546,7 +546,7 @@ public class TileRendererMixin implements BigTileRendererExtension {
             var22 = u1;
             v0 = v1;
             v1 = v0;
-        } else if (this.f_54847291 == 1) {
+        } else if (this.eastFlip == 1) {
             u0 = ((double) (xt + 16) - tile.yy1 * 16.0) / 256.0;
             v0 = ((double) yt + tile.zz1 * 16.0) / 256.0;
             u1 = ((double) (xt + 16) - tile.yy0 * 16.0) / 256.0;
@@ -557,7 +557,7 @@ public class TileRendererMixin implements BigTileRendererExtension {
             u1 = u0;
             var24 = v1;
             var26 = v0;
-        } else if (this.f_54847291 == 3) {
+        } else if (this.eastFlip == 3) {
             u0 = ((double) (xt + 16) - tile.zz0 * 16.0) / 256.0;
             u1 = ((double) (xt + 16) - tile.zz1 * 16.0 - 0.01) / 256.0;
             v0 = ((double) yt + tile.yy1 * 16.0) / 256.0;

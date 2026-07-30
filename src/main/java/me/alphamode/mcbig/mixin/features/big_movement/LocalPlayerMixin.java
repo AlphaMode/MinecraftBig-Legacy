@@ -80,7 +80,7 @@ public abstract class LocalPlayerMixin extends Player implements PlayerExtension
             }
 
             if (j != 0) {
-                this.yd += (double)((float)j * getFlySpeed() * 3.0F);
+                this.yd += (float)j * getFlySpeed() * 3.0F;
             }
         }
     }

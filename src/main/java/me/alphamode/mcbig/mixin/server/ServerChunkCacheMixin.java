@@ -9,8 +9,6 @@ import me.alphamode.mcbig.math.BigConstants;
 import me.alphamode.mcbig.world.phys.BigVec3i;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Vec3i;
-import net.minecraft.world.level.chunk.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.storage.ChunkStorage;
@@ -34,13 +32,13 @@ public abstract class ServerChunkCacheMixin implements BigChunkSourceExtension, 
     @Shadow
     private Set<BigChunkPos> toDrop;
     @Shadow
-    public boolean f_95421973;
+    public boolean autoCreate;
     @Shadow
-    private LevelChunk emptyChunks;
+    private LevelChunk emptyChunk;
     @Shadow
-    private ChunkStorage chunkIo;
+    private ChunkStorage storage;
     @Shadow
-    private ChunkSource wrapped;
+    private ChunkSource source;
     @Shadow
     private List<LevelChunk> chunks;
 
@@ -54,7 +52,7 @@ public abstract class ServerChunkCacheMixin implements BigChunkSourceExtension, 
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void replaceEmptyChunkWithBigEmptyChunk(ServerLevel level, ChunkStorage chunkIo, ChunkSource wrapped, CallbackInfo ci) {
-        this.emptyChunks = new BigEmptyLevelChunk(this.level, new byte[32768], BigInteger.ZERO, BigInteger.ZERO);
+        this.emptyChunk = new BigEmptyLevelChunk(this.level, new byte[32768], BigInteger.ZERO, BigInteger.ZERO);
     }
 
     @Override
@@ -72,7 +70,7 @@ public abstract class ServerChunkCacheMixin implements BigChunkSourceExtension, 
     }
 
     @Override
-    public void dropNoneSpawnChunk(BigInteger x, BigInteger z) {
+    public void drop(BigInteger x, BigInteger z) {
         BigVec3i spawnPos = this.level.getBigSpawnPos();
         int xRange = x.multiply(BigConstants.SIXTEEN).add(BigConstants.EIGHT).subtract(spawnPos.x()).intValue();
         int zRange = z.multiply(BigConstants.SIXTEEN).add(BigConstants.EIGHT).subtract(spawnPos.z()).intValue();
@@ -87,8 +85,8 @@ public abstract class ServerChunkCacheMixin implements BigChunkSourceExtension, 
      * @reason
      */
     @Overwrite
-    public void dropNoneSpawnChunk(int x, int z) {
-        this.dropNoneSpawnChunk(BigInteger.valueOf(x), BigInteger.valueOf(z));
+    public void drop(int x, int z) {
+        this.drop(BigInteger.valueOf(x), BigInteger.valueOf(z));
     }
 
     @Override
@@ -99,10 +97,10 @@ public abstract class ServerChunkCacheMixin implements BigChunkSourceExtension, 
         if (chunk == null) {
             chunk = this.readChunk(x, z);
             if (chunk == null) {
-                if (this.wrapped == null) {
-                    chunk = this.emptyChunks;
+                if (this.source == null) {
+                    chunk = this.emptyChunk;
                 } else {
-                    chunk = this.wrapped.getChunk(x, z);
+                    chunk = this.source.getChunk(x, z);
                 }
             }
 
@@ -158,7 +156,7 @@ public abstract class ServerChunkCacheMixin implements BigChunkSourceExtension, 
     public LevelChunk getChunk(BigInteger x, BigInteger z) {
         LevelChunk chunk = this.cacheBig.get(new BigChunkPos(x, z));
         if (chunk == null) {
-            return !this.level.isFindingSpawn && !this.f_95421973 ? this.emptyChunks : this.loadChunk(x, z);
+            return !this.level.isFindingSpawn && !this.autoCreate ? this.emptyChunk : this.loadChunk(x, z);
         } else {
             return chunk;
         }
@@ -174,11 +172,11 @@ public abstract class ServerChunkCacheMixin implements BigChunkSourceExtension, 
     }
 
     private LevelChunk readChunk(BigInteger x, BigInteger z) {
-        if (this.chunkIo == null) {
+        if (this.storage == null) {
             return null;
         } else {
             try {
-                BigLevelChunk chunk = this.chunkIo.load(this.level, x, z);
+                BigLevelChunk chunk = this.storage.load(this.level, x, z);
                 if (chunk != null) {
                     chunk.lastSaveTime = this.level.getTime();
                 }
@@ -196,8 +194,8 @@ public abstract class ServerChunkCacheMixin implements BigChunkSourceExtension, 
         LevelChunk chunk = this.getChunk(x, z);
         if (!chunk.terrainPopulated) {
             chunk.terrainPopulated = true;
-            if (this.wrapped != null) {
-                this.wrapped.postProcess(generator, x, z);
+            if (this.source != null) {
+                this.source.postProcess(generator, x, z);
                 chunk.markUnsaved();
             }
         }
@@ -232,11 +230,11 @@ public abstract class ServerChunkCacheMixin implements BigChunkSourceExtension, 
                 }
             }
 
-            if (this.chunkIo != null) {
-                this.chunkIo.tick();
+            if (this.storage != null) {
+                this.storage.tick();
             }
         }
 
-        return this.wrapped.tick();
+        return this.source.tick();
     }
 }

@@ -31,6 +31,7 @@
     "TileEntityMixin",
     "TileMixin",
     "commands.EntityMixin",
+    "entities.McRegionLevelStorageMixin",
     "features.big_movement.BigChunkMixin",
     "features.big_movement.EntityMixin",
     "features.big_movement.MobMixin",

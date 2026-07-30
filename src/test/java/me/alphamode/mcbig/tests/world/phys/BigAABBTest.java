@@ -14,7 +14,7 @@ class BigAABBTest {
     @Test
     @DisplayName("Test big AABB collision")
     void clipXCollide() {
-        Tile stoneTile = Tile.STONE;
+        Tile stoneTile = Tile.stone;
 
         AABB hitbox = AABB.create(0, 1, 0, .5, 2, .5);
 
@@ -26,7 +26,7 @@ class BigAABBTest {
 
     @Test
     void clipYCollide() {
-        Tile stoneTile = Tile.STONE;
+        Tile stoneTile = Tile.stone;
 
         AABB hitbox = AABB.create(0, 1, 0, .5, 2, .5);
 
@@ -38,7 +38,7 @@ class BigAABBTest {
 
     @Test
     void clipZCollide() {
-        Tile stoneTile = Tile.STONE;
+        Tile stoneTile = Tile.stone;
 
         AABB hitbox = AABB.create(0, 1, 0, .5, 2, .5);
 

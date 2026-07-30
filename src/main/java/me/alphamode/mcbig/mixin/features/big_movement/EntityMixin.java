@@ -95,6 +95,8 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
     @Shadow
     public abstract void setPos(double x, double y, double z);
 
+    @Shadow
+    public double yOld;
     private static final int ENTITY_SCALE = 12;
 
     public BigDecimal xoBig = BigDecimal.ZERO;
@@ -180,6 +182,16 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
 
         this.setPos(this.xBig, this.y, this.zBig);
         this.setRot(yRot, xRot);
+    }
+
+    @Override
+    public void moveTo(BigDecimal x, double y, BigDecimal z, float yRot, float xRot) {
+        this.xOldBig = this.xoBig = this.xBig = x;
+        this.yOld = this.yo = this.y = y + this.heightOffset;
+        this.zOldBig = this.zoBig = this.zBig = z;
+        this.yRot = yRot;
+        this.xRot = xRot;
+        this.setPos(this.x, this.y, this.z);
     }
 
     @Override

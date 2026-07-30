@@ -22,7 +22,7 @@ public class ServerPlayerGameModeMixin implements BigServerPlayerGameModeExtensi
     @Shadow
     public Player player;
     @Shadow
-    private float f_97603496;
+    private float unused;
     @Shadow
     private int destroyProgressStart;
     @Shadow
@@ -103,7 +103,7 @@ public class ServerPlayerGameModeMixin implements BigServerPlayerGameModeExtensi
             }
         }
 
-        this.f_97603496 = 0.0F;
+        this.unused = 0.0F;
     }
 
     @Override

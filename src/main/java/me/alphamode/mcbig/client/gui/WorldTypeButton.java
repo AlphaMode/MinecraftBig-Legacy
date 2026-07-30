@@ -11,6 +11,11 @@ public class WorldTypeButton extends Button {
         this.selected = WorldType.SELECTED;
     }
 
+    public WorldTypeButton(int id, int x, int y, int width, int height) {
+        super(id, x, y, width, height, WorldType.SELECTED.getMessage());
+        this.selected = WorldType.SELECTED;
+    }
+
     public void clicked() {
         this.selected = WorldType.values()[(this.selected.ordinal() + 1) % WorldType.values().length];
         this.message = this.selected.getMessage();

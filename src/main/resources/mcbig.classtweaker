@@ -1,5 +1,11 @@
 classTweaker v1 named
 
+accessible field net/minecraft/client/gui/components/EditBox font Lnet/minecraft/client/gui/Font;
+accessible field net/minecraft/client/gui/components/EditBox x I
+accessible field net/minecraft/client/gui/components/EditBox y I
+accessible field net/minecraft/client/gui/components/EditBox height I
+accessible field net/minecraft/client/gui/components/EditBox value Ljava/lang/String;
+
 accessible field net/minecraft/client/renderer/Chunk lists I
 accessible field net/minecraft/client/renderer/Chunk tesselator Lnet/minecraft/client/renderer/Tesselator;
 accessible field net/minecraft/client/renderer/Chunk compiled Z
