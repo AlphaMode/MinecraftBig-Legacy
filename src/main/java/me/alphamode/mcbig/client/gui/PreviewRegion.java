@@ -99,6 +99,13 @@ public class PreviewRegion implements LevelSource {
         return this.biomeSource;
     }
 
+    //? >=1.0.0-beta.8.0.r {
+    /*@Override
+    public int getMaxBuildHeight() {
+        return 128;
+    }
+    *///? }
+
     @Override
     public int getTile(int x, int y, int z) {
         return getTile(BigInteger.valueOf(x), y, BigInteger.valueOf(z));
@@ -108,6 +115,13 @@ public class PreviewRegion implements LevelSource {
     public TileEntity getTileEntity(int x, int y, int z) {
         return getTileEntity(BigInteger.valueOf(x), y, BigInteger.valueOf(z));
     }
+
+    //? >=1.0.0-beta.8.0.r {
+    /*@Override
+    public int getLightColor(int x, int y, int z, int emitt) {
+        return 0;
+    }
+    *///? }
 
     @Override
     public float getBrightness(int x, int y, int z, int max) {
@@ -138,4 +152,11 @@ public class PreviewRegion implements LevelSource {
     public boolean isSolidBlockingTile(int x, int y, int z) {
         return isSolidBlockingTile(BigInteger.valueOf(x), y, BigInteger.valueOf(z));
     }
+
+    //? >=1.0.0-beta.8.0.r {
+    /*@Override
+    public boolean isEmptyTile(int x, int y, int z) {
+        return getTile(x, y, z) == 0;
+    }
+    *///? }
 }

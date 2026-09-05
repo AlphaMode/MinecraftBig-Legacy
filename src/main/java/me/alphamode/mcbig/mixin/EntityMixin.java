@@ -1,7 +1,7 @@
 package me.alphamode.mcbig.mixin;
 
 import me.alphamode.mcbig.extensions.BigEntityExtension;
-import me.alphamode.mcbig.extensions.PlayerExtension;
+import me.alphamode.mcbig.extensions.CommandPlayerExtension;
 import me.alphamode.mcbig.math.BigMath;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -39,8 +39,6 @@ public abstract class EntityMixin implements BigEntityExtension {
     @Shadow public Level level;
 
     @Shadow @Final public AABB bb;
-
-    @Shadow public float defaultBrightness;
 
     @Shadow public float heightOffset;
 
@@ -176,19 +174,13 @@ public abstract class EntityMixin implements BigEntityExtension {
     @Overwrite
     public float getBrightness(float partialTick) {
         BigInteger xt = BigMath.floor(this.x);
-        double headHeight = (this.bb.y1 - this.bb.y0) * 0.66;
-        int yt = Mth.floor(this.y - (double)this.heightOffset + headHeight);
         BigInteger zt = BigMath.floor(this.z);
-        if (this.level
-                .hasChunksAt(BigMath.floor(this.bb.x0), Mth.floor(this.bb.y0), BigMath.floor(this.bb.z0), BigMath.floor(this.bb.x1), Mth.floor(this.bb.y1), BigMath.floor(this.bb.z1))) {
-            float br = this.level.getBrightness(xt, yt, zt);
-            if (br < this.defaultBrightness) {
-                br = this.defaultBrightness;
-            }
-
-            return br;
+        if (this.level.hasChunkAt(xt, 128 / 2, zt)) {
+            double eye = (this.bb.y1 - this.bb.y0) * 0.66;
+            int yt = Mth.floor(this.y - this.heightOffset + eye);
+            return this.level.getBrightness(xt, yt, zt);
         } else {
-            return this.defaultBrightness;
+            return 0.0F;
         }
     }
 
@@ -198,7 +190,7 @@ public abstract class EntityMixin implements BigEntityExtension {
      */
     @Overwrite
     public void moveRelative(float front, float right, float speed) {
-        if (this instanceof PlayerExtension plr && plr.isFlying()) {
+        if (this instanceof CommandPlayerExtension plr && plr.isFlying()) {
             speed = plr.getFlySpeed();
         }
         float var4 = Mth.sqrt(front * front + right * right);

@@ -7,9 +7,7 @@ import me.alphamode.mcbig.level.chunk.BigEmptyLevelChunk;
 import me.alphamode.mcbig.level.chunk.BigLevelChunk;
 import net.minecraft.client.multiplayer.MultiplayerChunkCache;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.chunk.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkSource;
-import net.minecraft.world.level.chunk.EmptyLevelChunk;
 import net.minecraft.world.level.chunk.LevelChunk;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -43,11 +41,11 @@ public abstract class MultiplayerChunkCacheMixin implements BigChunkSourceExtens
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void replaceEmptyChunkWithBigEmptyChunk(Level level, CallbackInfo ci) {
-        this.emptyChunk = new BigEmptyLevelChunk(level, new byte[32768], BigInteger.ZERO, BigInteger.ZERO);
+        this.emptyChunk = new BigEmptyLevelChunk(level, new byte[256 * 128], BigInteger.ZERO, BigInteger.ZERO);
     }
 
     @Override
-    public void unloadChunk(BigInteger x, BigInteger z) {
+    public void drop(BigInteger x, BigInteger z) {
         LevelChunk chunk = this.getChunk(x, z);
         if (!chunk.isEmpty()) {
             chunk.unload();
@@ -62,8 +60,8 @@ public abstract class MultiplayerChunkCacheMixin implements BigChunkSourceExtens
      * @reason
      */
     @Overwrite
-    public void unloadChunk(int x, int z) {
-        this.unloadChunk(BigInteger.valueOf(x), BigInteger.valueOf(z));
+    public void drop(int x, int z) {
+        this.drop(BigInteger.valueOf(x), BigInteger.valueOf(z));
     }
 
     @Override
@@ -102,9 +100,9 @@ public abstract class MultiplayerChunkCacheMixin implements BigChunkSourceExtens
     }
 
     @Override
-    public LevelChunk loadChunk(BigInteger x, BigInteger z) {
+    public LevelChunk create(BigInteger x, BigInteger z) {
         BigChunkPos pos = new BigChunkPos(x, z);
-        byte[] tiles = new byte[32768];
+        byte[] tiles = new byte[256 * 128];
         BigLevelChunk chunk = new BigLevelChunk(this.level, tiles, x, z);
         Arrays.fill(chunk.skyLight.data, (byte)-1);
         this.loadedChunks.put(pos, chunk);
@@ -117,8 +115,8 @@ public abstract class MultiplayerChunkCacheMixin implements BigChunkSourceExtens
      * @reason Redirect to big int method
      */
     @Overwrite
-    public LevelChunk loadChunk(int x, int z) {
-        return loadChunk(BigInteger.valueOf(x), BigInteger.valueOf(z));
+    public LevelChunk create(int x, int z) {
+        return create(BigInteger.valueOf(x), BigInteger.valueOf(z));
     }
 
     @Override

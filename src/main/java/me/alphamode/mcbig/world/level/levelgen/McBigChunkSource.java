@@ -17,8 +17,8 @@ public interface McBigChunkSource extends ChunkSource {
     }
 
     @Override
-    default LevelChunk loadChunk(int x, int z) {
-        return loadChunk(BigInteger.valueOf(x), BigInteger.valueOf(z));
+    default LevelChunk create(int x, int z) {
+        return create(BigInteger.valueOf(x), BigInteger.valueOf(z));
     }
 
     @Override
@@ -33,7 +33,7 @@ public interface McBigChunkSource extends ChunkSource {
     LevelChunk getChunk(BigInteger x, BigInteger z);
 
     @Override
-    LevelChunk loadChunk(BigInteger x, BigInteger z);
+    LevelChunk create(BigInteger x, BigInteger z);
 
     @Override
     void postProcess(ChunkSource generator, BigInteger x, BigInteger z);

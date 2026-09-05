@@ -2,10 +2,21 @@ plugins {
     id("maven-publish")
     id("net.fabricmc.fabric-loom-remap") version "1.15-SNAPSHOT"
     id("ploceus") version "1.15-SNAPSHOT"
+    alias(ft.plugins.mixin)
 }
 
 val mc = if (hasProperty("deps.minecraft"))
     property("deps.minecraft").toString() else stonecutter.current.version
+
+val mc_semvar = if (hasProperty("meta.mc_semvar_version"))
+    property("meta.mc_semvar_version").toString() else stonecutter.current.version
+
+val minecraft = stonecutter.current.version
+
+val classTweaker = when {
+    stonecutter.eval(minecraft, ">=1.0.0-beta.8.0.r") -> "mcbig-b1.8.classtweaker"
+    else -> "mcbig-b1.7.3.classtweaker"
+}
 
 base.archivesName = property("archives_base_name").toString()
 
@@ -13,7 +24,7 @@ version = property("mod_version").toString()
 group = property("maven_group").toString()
 
 loom {
-    val ctFile = rootProject.file("src/main/resources/mcbig.classtweaker")
+    val ctFile = rootProject.file("src/main/resources/classtweakers/$classTweaker")
     accessWidenerPath = sc.process(ctFile, "build/processed.classtweaker")
 
     mods {
@@ -77,9 +88,18 @@ tasks.test {
     useJUnitPlatform()
 }
 
+fletchingTable {
+    // Mixins are only processed for configured source sets
+    mixins.configure(sourceSets.main) {
+        mixin("mcbig.mixins.json") // located in src/main/resources/example.mixins.json
+    }
+}
+
 tasks.processResources {
     val properties = mapOf(
-        "version" to project.version
+        "version" to project.version,
+        "ct_file" to classTweaker,
+        "mc_version" to mc_semvar
     )
     inputs.properties(properties)
 

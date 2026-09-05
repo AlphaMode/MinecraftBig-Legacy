@@ -119,6 +119,58 @@ public abstract class GameRendererMixin {
     @Shadow
     private int rainSoundTime;
 
+    //? >=1.0.0-beta.8.0.r {
+    /*@Shadow
+    public int cameraFlip;
+
+    @Shadow
+    private float[] rainXa;
+
+    @Shadow
+    private float[] rainZa;
+
+    @Shadow
+    public abstract void turnOnLightLayer(double par1);
+
+    @Shadow
+    public abstract void turnOffLightLayer(double par1);
+
+    @Shadow
+    protected abstract void tickFov();
+
+    @Shadow
+    protected abstract void tickLightTexture();
+    *///? }
+
+    /**
+     * @author
+     * @reason
+     */
+    @Overwrite
+    public void tick() {
+        //? >=1.0.0-beta.8.0.r {
+        /*this.tickFov();
+        this.tickLightTexture();
+        *///? }
+        this.fogBrO = this.fogBr;
+        this.oldZOff = this.zOff;
+        this.yRotO = this.yRot;
+        this.xRotO = this.xRot;
+        this.fovOffsetO = this.fovOffset;
+        this.camTiltO = this.camTilt;
+        if (this.mc.cameraEntity == null) {
+            this.mc.cameraEntity = this.mc.player;
+        }
+
+        float br = this.mc.level.getBrightness(BigMath.floor(this.mc.cameraEntity.x), Mth.floor(this.mc.cameraEntity.y), BigMath.floor(this.mc.cameraEntity.z));
+        float whiteness = (float)(3 - this.mc.options.viewDistance) / 3.0F;
+        float fogBrT = br * (1.0F - whiteness) + whiteness;
+        this.fogBr += (fogBrT - this.fogBr) * 0.1F;
+        ++this.tick;
+        this.itemInHandRenderer.tick();
+        this.tickRain();
+    }
+
     /**
      * @author
      * @reason
@@ -138,7 +190,11 @@ public abstract class GameRendererMixin {
                     dist = ((BigHitResult) this.mc.hitResult).posBig.distanceTo(from);
                 }
 
+                //? >=1.0.0-beta.8.0.r {
+                /*if (this.mc.gameMode.hasFarPickRange()) {
+                *///? } else {
                 if (this.mc.gameMode instanceof CreativeMode) {
+                //? }
                     range = 32.0;
                     dist = 32.0;
                 } else {
@@ -181,36 +237,15 @@ public abstract class GameRendererMixin {
                     }
                 }
 
+                //? >=1.0.0-beta.8.0.r {
+                /*if (this.hovered != null) {
+                *///? } else {
                 if (this.hovered != null && !(this.mc.gameMode instanceof CreativeMode)) {
+                //? }
                     this.mc.hitResult = new BigHitResult(this.hovered);
                 }
             }
         }
-    }
-
-    /**
-     * @author
-     * @reason
-     */
-    @Overwrite
-    public void tick() {
-        this.fogBrO = this.fogBr;
-        this.oldZOff = this.zOff;
-        this.yRotO = this.yRot;
-        this.xRotO = this.xRot;
-        this.fovOffsetO = this.fovOffset;
-        this.camTiltO = this.camTilt;
-        if (this.mc.cameraEntity == null) {
-            this.mc.cameraEntity = this.mc.player;
-        }
-
-        float br = this.mc.level.getBrightness(BigMath.floor(this.mc.cameraEntity.x), Mth.floor(this.mc.cameraEntity.y), BigMath.floor(this.mc.cameraEntity.z));
-        float whiteness = (float)(3 - this.mc.options.viewDistance) / 3.0F;
-        float fogBrT = br * (1.0F - whiteness) + whiteness;
-        this.fogBr += (fogBrT - this.fogBr) * 0.1F;
-        ++this.tick;
-        this.itemInHandRenderer.tick();
-        this.tickRain();
     }
 
     /**
@@ -302,7 +337,7 @@ public abstract class GameRendererMixin {
      * @reason
      */
     @Overwrite
-    public void render(float a, long nanoTime) {
+    public void renderLevel(float a, long until) {
         GL11.glEnable(GL11.GL_CULL_FACE);
         GL11.glEnable(GL11.GL_DEPTH_TEST);
         if (this.mc.cameraEntity == null) {
@@ -357,8 +392,8 @@ public abstract class GameRendererMixin {
             ((BigCullerExtension)culler).prepare(x, y, z);
             this.mc.levelRenderer.cull(culler, a);
             if (renderLayer == 0) {
-                while (!this.mc.levelRenderer.updateDirtyChunks(camera, false) && nanoTime != 0L) {
-                    long var20 = nanoTime - System.nanoTime();
+                while (!this.mc.levelRenderer.updateDirtyChunks(camera, false) && until != 0L) {
+                    long var20 = until - System.nanoTime();
                     if (var20 < 0L || var20 > 1000000000L) {
                         break;
                     }
@@ -371,21 +406,35 @@ public abstract class GameRendererMixin {
             Lighting.turnOff();
             levelRenderer.render(camera, 0, a);
             GL11.glShadeModel(GL11.GL_FLAT);
-            Lighting.turnOn();
-            levelRenderer.renderEntities(camera.getPos(a), culler, a);
-            particleEngine.renderLit(camera, a);
-            Lighting.turnOff();
-            setupFog(0, a);
-            particleEngine.render(camera, a);
-            if (this.mc.hitResult != null && camera.isUnderLiquid(Material.water) && camera instanceof Player) {
-                Player player = (Player) camera;
-                GL11.glDisable(GL11.GL_ALPHA_TEST);
-                levelRenderer.renderHit(player, this.mc.hitResult, 0, player.inventory.getSelected(), a);
-                levelRenderer.renderHitOutline(player, this.mc.hitResult, 0, player.inventory.getSelected(), a);
-                GL11.glEnable(GL11.GL_ALPHA_TEST);
+            //? >=1.0.0-beta.8.0.r
+            //if (this.cameraFlip == 0)
+            {
+                Lighting.turnOn();
+                levelRenderer.renderEntities(camera.getPos(a), culler, a);
+                //? >=1.0.0-beta.8.0.r
+                //this.turnOnLightLayer(a);
+                particleEngine.renderLit(camera, a);
+                Lighting.turnOff();
+                setupFog(0, a);
+                particleEngine.render(camera, a);
+                //? >=1.0.0-beta.8.0.r
+                //this.turnOffLightLayer(a);
+                if (this.mc.hitResult != null && camera.isUnderLiquid(Material.water) && camera instanceof Player) {
+                    Player player = (Player) camera;
+                    GL11.glDisable(GL11.GL_ALPHA_TEST);
+                    levelRenderer.renderHit(player, this.mc.hitResult, 0, player.inventory.getSelected(), a);
+                    levelRenderer.renderHitOutline(player, this.mc.hitResult, 0, player.inventory.getSelected(), a);
+                    GL11.glEnable(GL11.GL_ALPHA_TEST);
+                }
             }
 
+            //? >=1.0.0-beta.8.0.r {
+            /*GL11.glDisable(GL11.GL_BLEND);
+            GL11.glEnable(GL11.GL_CULL_FACE);
+            *///? }
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            //? >=1.0.0-beta.8.0.r
+            //GL11.glDepthMask(true);
             setupFog(0, a);
             GL11.glEnable(GL11.GL_BLEND);
             GL11.glDisable(GL11.GL_CULL_FACE);
@@ -432,11 +481,15 @@ public abstract class GameRendererMixin {
             if (this.hovered != null) {
             }
 
+            //? >=1.0.0-beta.8.0.r
+            //GL11.glPushMatrix();
             this.setupFog(0, a);
             GL11.glEnable(GL11.GL_FOG);
             levelRenderer.renderClouds(a);
             GL11.glDisable(GL11.GL_FOG);
             this.setupFog(1, a);
+            //? >=1.0.0-beta.8.0.r
+            //GL11.glPopMatrix();
             if (this.zoom == 1.0) {
                 GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
                 renderItemInHand(a, renderLayer);
@@ -482,7 +535,7 @@ public abstract class GameRendererMixin {
         for (int i = 0; i < rainCount; i++) {
             BigInteger x = x0.add(BigInteger.valueOf(this.random.nextInt(r) - this.random.nextInt(r)));
             BigInteger z = z0.add(BigInteger.valueOf(this.random.nextInt(r) - this.random.nextInt(r)));
-            int y = level.getTopSolidBlock(x, z);
+            int y = level.getTopRainBlock(x, z);
             int t = level.getTile(x, y - 1, z);
             if (y <= y0 + r && y >= y0 - r && level.getBiomeSource().getBiome(x, z).hasRain()) {
                 float xa = this.random.nextFloat();
@@ -521,6 +574,24 @@ public abstract class GameRendererMixin {
     public void renderSnowAndRain(float a) {
         float rainLevel = this.mc.level.getRainLevel(a);
         if (!(rainLevel <= 0.0F)) {
+            //? >=1.0.0-beta.8.0.r {
+            /*this.turnOnLightLayer(a);
+            if (this.rainXa == null) {
+                this.rainXa = new float[32 * 32];
+                this.rainZa = new float[32 * 32];
+
+                for (int z = 0; z < 32; z++) {
+                    for (int x = 0; x < 32; x++) {
+                        float xa = x - 16;
+                        float za = z - 16;
+                        float d = Mth.sqrt(xa * xa + za * za);
+                        this.rainXa[z << 5 | x] = -za / d;
+                        this.rainZa[z << 5 | x] = xa / d;
+                    }
+                }
+            }
+            *///? }
+
             Mob player = this.mc.cameraEntity;
             BigEntityExtension playerBig = (BigEntityExtension) player;
             Level level = this.mc.level;
@@ -543,6 +614,8 @@ public abstract class GameRendererMixin {
             if (this.mc.options.fancyGraphics) {
                 r = 10;
             }
+
+            // TODO: b1.8 do stonecutter patches here
             BigInteger rBig = BigInteger.valueOf(r);
 
             Biome[] biomes = level.getBiomeSource().getBiomeBlock(x0.subtract(rBig), z0.subtract(rBig), r * 2 + 1, r * 2 + 1);
@@ -553,7 +626,7 @@ public abstract class GameRendererMixin {
                 for (BigInteger z = z0.subtract(rBig); z.compareTo(z0.add(rBig)) <= 0; z = z.add(BigInteger.ONE)) {
                     Biome b = biomes[var18++];
                     if (b.hasPrecipitation()) {
-                        int floor = level.getTopSolidBlock(x, z);
+                        int floor = level.getTopRainBlock(x, z);
                         if (floor < 0) {
                             floor = 0;
                         }
@@ -620,7 +693,7 @@ public abstract class GameRendererMixin {
                 for (BigInteger z = z0.subtract(bigR); z.compareTo(z0.add(bigR)) <= 0; z = z.add(BigInteger.ONE)) {
                     Biome b = biomes[var18++];
                     if (b.hasRain()) {
-                        int floor = level.getTopSolidBlock(x, z);
+                        int floor = level.getTopRainBlock(x, z);
                         int yy0 = y0 - r;
                         int yy1 = y0 + r;
                         if (yy0 < floor) {

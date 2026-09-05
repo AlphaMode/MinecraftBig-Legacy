@@ -12,14 +12,14 @@ public interface BigChunkSourceExtension {
     }
 
     default LevelChunk getChunk(BigInteger x, BigInteger z) {
-        throw new UnsupportedOperationException();
+        return ((ChunkSource) this).getChunk(x.intValue(), z.intValue());//throw new UnsupportedOperationException();
     }
 
     default CompletableFuture<LevelChunk> getChunkFuture(BigInteger x, BigInteger z) {
         throw new UnsupportedOperationException();
     }
 
-    default LevelChunk loadChunk(BigInteger x, BigInteger z) {
+    default LevelChunk create(BigInteger x, BigInteger z) {
         throw new UnsupportedOperationException();
     }
 
@@ -28,6 +28,7 @@ public interface BigChunkSourceExtension {
     }
 
     default void postProcess(ChunkSource generator, BigInteger x, BigInteger z) {
-        throw new UnsupportedOperationException();
+        ((ChunkSource) this).postProcess(generator, x.intValue(), z.intValue());
+//        throw new UnsupportedOperationException();
     }
 }

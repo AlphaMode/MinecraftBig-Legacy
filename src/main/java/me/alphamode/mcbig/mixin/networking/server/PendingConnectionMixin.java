@@ -8,14 +8,18 @@ import me.alphamode.mcbig.prelaunch.Features;
 import me.alphamode.mcbig.world.phys.BigVec3i;
 import net.minecraft.network.Connection;
 import net.minecraft.network.PacketListener;
-import net.minecraft.network.packets.ChatPacket;
-import net.minecraft.network.packets.LoginPacket;
-import net.minecraft.network.packets.SetTimePacket;
+import net.minecraft.network.packet.ChatPacket;
+import net.minecraft.network.packet.LoginPacket;
+import net.minecraft.network.packet.SetTimePacket;
+//? if >=1.0.0-beta.8.0.r
+//import net.minecraft.network.packet.UpdateMobEffectPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.PendingConnection;
 import net.minecraft.server.network.PlayerConnection;
+//? if >=1.0.0-beta.8.0.r
+//import net.minecraft.world.effect.MobEffectInstance;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -66,19 +70,44 @@ public abstract class PendingConnectionMixin extends PacketListener {
         if (player != null) {
             this.server.players.load(player);
             player.setLevel(this.server.getLevel(player.dimension));
+            //? if >=1.0.0-beta.8.0.r
+            //player.gameMode.setLevel((ServerLevel) player.level);
             LOGGER.info(this.getName() + " logged in with entity id " + player.id + " at (" + player.x + ", " + player.y + ", " + player.z + ")");
             ServerLevel level = this.server.getLevel(player.dimension);
             BigVec3i spawnPos = level.getBigSpawnPos();
-            PlayerConnection gamePacketListener = new PlayerConnection(this.server, this.connection, player);
-            gamePacketListener.send(new LoginPacket("", player.id, level.getSeed(), (byte)level.dimension.id));
-            gamePacketListener.sendPayload(new BigSetSpawnPositionPayload(spawnPos.x(), spawnPos.y(), spawnPos.z()));
+            //? if >=1.0.0-beta.8.0.r
+            //player.gameMode.updateGameMode(level.getLevelData().getGameType());
+            PlayerConnection playerConnection = new PlayerConnection(this.server, this.connection, player);
+            playerConnection.send(
+                    new LoginPacket(
+                            "",
+                            player.id,
+                            level.getSeed(),
+                            //? if >=1.0.0-beta.8.0.r
+                            //player.gameMode.getGameModeForPlayer(),
+                            (byte) level.dimension.id
+                            //? if >=1.0.0-beta.8.0.r {
+                            /*,(byte) level.difficulty,
+                            (byte) -128,
+                            (byte) this.server.players.getMaxPlayers()
+                            *///? }
+                    )
+            );
+            playerConnection.sendPayload(new BigSetSpawnPositionPayload(spawnPos.x(), spawnPos.y(), spawnPos.z()));
             this.server.players.sendLevelInfo(player, level);
             this.server.players.broadcastAll(new ChatPacket("§e" + player.name + " joined the game."));
             this.server.players.addPlayer(player);
             BigEntityExtension bigPlayer = (BigEntityExtension) player;
-            gamePacketListener.teleport(bigPlayer.getX(), player.y, bigPlayer.getZ(), player.yRot, player.xRot);
-            this.server.connection.addPlayerConnection(gamePacketListener);
-            gamePacketListener.send(new SetTimePacket(level.getTime()));
+            playerConnection.teleport(bigPlayer.getX(), player.y, bigPlayer.getZ(), player.yRot, player.xRot);
+            this.server.connection.addPlayerConnection(playerConnection);
+            playerConnection.send(new SetTimePacket(level.getTime()));
+
+            //? if >=1.0.0-beta.8.0.r {
+            /*for (MobEffectInstance effect : player.getActiveEffects()) {
+                playerConnection.send(new UpdateMobEffectPacket(player.id, effect));
+            }
+            *///? }
+
             player.initMenu();
         }
 

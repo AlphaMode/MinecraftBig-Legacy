@@ -5,7 +5,7 @@ import me.alphamode.mcbig.math.BigConstants;
 import me.alphamode.mcbig.networking.payload.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.network.packets.*;
+import net.minecraft.network.packet.*;
 import net.minecraft.server.level.PlayerChunkMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -37,7 +37,7 @@ public class BigPlayerChunk {
         this.x = x;
         this.z = z;
         this.pos = new BigChunkPos(x, z);
-        chunkMap.getLevel().serverCache.loadChunk(x, z);
+        chunkMap.getLevel().serverCache.create(x, z);
     }
 
     public void add(ServerPlayer player) {

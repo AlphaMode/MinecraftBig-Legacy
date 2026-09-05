@@ -9,13 +9,13 @@ import me.alphamode.mcbig.networking.payload.BigPlayerActionPayload;
 import me.alphamode.mcbig.networking.payload.BigTileUpdatePayload;
 import me.alphamode.mcbig.networking.payload.Payload;
 import me.alphamode.mcbig.world.phys.BigAABB;
-import net.minecraft.network.packets.Packet;
+import net.minecraft.Pos;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.util.Mth;
-import net.minecraft.util.Vec3i;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
@@ -269,7 +269,7 @@ public abstract class PlayerConnectionMixin implements BigPlayerConnectionExtens
                 }
             }
 
-            Vec3i spawnPos = level.getSpawnPos();
+            Pos spawnPos = level.getSpawnPos();
             int var9 = (int) Mth.abs(x.floatValue() - spawnPos.x);
             int var20 = (int) Mth.abs(z.floatValue() - spawnPos.z);
             if (var9 > var20) {

@@ -1,10 +1,10 @@
 classTweaker v1 named
 
-accessible field net/minecraft/client/gui/components/EditBox font Lnet/minecraft/client/gui/Font;
-accessible field net/minecraft/client/gui/components/EditBox x I
-accessible field net/minecraft/client/gui/components/EditBox y I
-accessible field net/minecraft/client/gui/components/EditBox height I
-accessible field net/minecraft/client/gui/components/EditBox value Ljava/lang/String;
+accessible field net/minecraft/client/gui/EditBox font Lnet/minecraft/client/gui/Font;
+accessible field net/minecraft/client/gui/EditBox x I
+accessible field net/minecraft/client/gui/EditBox y I
+accessible field net/minecraft/client/gui/EditBox height I
+accessible field net/minecraft/client/gui/EditBox value Ljava/lang/String;
 
 accessible field net/minecraft/client/renderer/Chunk lists I
 accessible field net/minecraft/client/renderer/Chunk tesselator Lnet/minecraft/client/renderer/Tesselator;
@@ -20,7 +20,7 @@ accessible field net/minecraft/world/level/chunk/storage/RegionFileCache cache L
 
 accessible method net/minecraft/client/Minecraft getPlatform ()Lnet/minecraft/client/Minecraft$OS;
 
-accessible field net/minecraft/network/packets/BlockRegionUpdatePacket size I
+accessible field net/minecraft/network/packet/BlockRegionUpdatePacket size I
 
 accessible method net/minecraft/world/level/Level stopWeather ()V
 
@@ -31,16 +31,20 @@ inject-interface net/minecraft/network/Connection me/alphamode/mcbig/extensions/
 inject-interface net/minecraft/network/PacketListener me/alphamode/mcbig/extensions/networking/PayloadPacketListenerExtension
 inject-interface net/minecraft/world/level/chunk/LevelChunk me/alphamode/mcbig/extensions/BigLevelChunkExtension
 inject-interface net/minecraft/world/level/chunk/ChunkSource me/alphamode/mcbig/extensions/BigChunkSourceExtension
-inject-interface net/minecraft/world/level/storage/LevelStorage me/alphamode/mcbig/extensions/entities/BigLevelStorageExtension
 inject-interface net/minecraft/world/level/chunk/storage/ChunkStorage me/alphamode/mcbig/extensions/BigChunkStorageExtension
+inject-interface net/minecraft/world/level/storage/LevelStorage me/alphamode/mcbig/extensions/entities/BigLevelStorageExtension
 inject-interface net/minecraft/world/level/storage/LevelData me/alphamode/mcbig/extensions/BigLevelDataExtension
+inject-interface net/minecraft/world/level/levelgen/synth/PerlinNoise me/alphamode/mcbig/extensions/BigPerlinNoiseExtension
 inject-interface net/minecraft/world/level/LevelSource me/alphamode/mcbig/extensions/BigLevelSourceExtension
 inject-interface net/minecraft/world/level/LevelListener me/alphamode/mcbig/extensions/BigLevelListenerExtension
 inject-interface net/minecraft/world/level/Level me/alphamode/mcbig/extensions/BigLevelExtension
 inject-interface net/minecraft/world/level/levelgen/LargeFeature me/alphamode/mcbig/extensions/BigLargeFeatureExtension
 inject-interface net/minecraft/world/level/levelgen/feature/Feature me/alphamode/mcbig/extensions/BigFeatureExtension
-inject-interface net/minecraft/world/level/biome/BiomeSource me/alphamode/mcbig/extensions/BigBiomeSourceExtension
+inject-interface net/minecraft/world/level/biome/Biome me/alphamode/mcbig/extensions/biome/BigBiomeExtension
+inject-interface net/minecraft/world/level/biome/BiomeDecorator me/alphamode/mcbig/extensions/biome/BigBiomeDecoratorExtension
+inject-interface net/minecraft/world/level/biome/BiomeSource me/alphamode/mcbig/extensions/biome/BigBiomeSourceExtension
 inject-interface net/minecraft/world/entity/Entity me/alphamode/mcbig/extensions/BigEntityExtension
+inject-interface net/minecraft/world/entity/player/Player me/alphamode/mcbig/extensions/BigPlayerExtension
 
 # Blocks
 inject-interface net/minecraft/world/level/tile/Tile me/alphamode/mcbig/extensions/BigTileExtension
@@ -53,7 +57,10 @@ inject-interface net/minecraft/world/level/tile/RecordPlayerTile me/alphamode/mc
 
 # Items
 inject-interface net/minecraft/world/item/Item me/alphamode/mcbig/extensions/items/BigItemExtension
-inject-interface net/minecraft/world/ItemInstance me/alphamode/mcbig/extensions/items/BigItemInstanceExtension
+inject-interface net/minecraft/world/item/ItemInstance me/alphamode/mcbig/extensions/items/BigItemInstanceExtension
+
+# Biomes
+inject-interface net/minecraft/world/level/newbiome/layer/Layer me/alphamode/mcbig/extensions/biome/newbiome/BigLayerExtension
 
 # Server
 inject-interface net/minecraft/server/level/ServerPlayerGameMode me/alphamode/mcbig/extensions/server/BigServerPlayerGameModeExtension

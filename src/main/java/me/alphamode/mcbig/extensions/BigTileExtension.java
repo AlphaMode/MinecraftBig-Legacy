@@ -3,7 +3,7 @@ package me.alphamode.mcbig.extensions;
 import me.alphamode.mcbig.world.phys.BigAABB;
 import me.alphamode.mcbig.world.phys.BigVec3;
 import net.minecraft.stats.Stats;
-import net.minecraft.world.ItemInstance;
+import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -48,6 +48,12 @@ public interface BigTileExtension {
     default float getBrightness(LevelSource level, BigInteger x, int y, BigInteger z) {
         throw new UnsupportedOperationException();
     }
+
+    //? >=1.0.0-beta.8.0.r {
+    /*default int getLightColor(LevelSource level, BigInteger x, int y, BigInteger z) {
+        throw new UnsupportedOperationException();
+    }
+    *///? }
 
     default boolean shouldRenderFace(LevelSource level, BigInteger x, int y, BigInteger z, int face) {
         throw new UnsupportedOperationException();
@@ -146,4 +152,10 @@ public interface BigTileExtension {
     default HitResult clip(Level level, BigInteger x, int y, BigInteger z, BigVec3 vec1, BigVec3 vec2) {
         throw new UnsupportedOperationException();
     }
+
+    //? >=1.0.0-beta.8.0.r {
+    /*default float getShadeBrightness(LevelSource level, BigInteger x, int y, BigInteger z) {
+        return level.isSolidBlockingTile(x, y, z) ? 0.2F : 1.0F;
+    }
+    *///? }
 }

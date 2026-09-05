@@ -5,7 +5,7 @@ import me.alphamode.mcbig.networking.packets.McBigPayloadPacket;
 import me.alphamode.mcbig.networking.payload.Payload;
 import me.alphamode.mcbig.prelaunch.Features;
 import net.minecraft.network.Connection;
-import net.minecraft.network.packets.Packet;
+import net.minecraft.network.packet.Packet;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;

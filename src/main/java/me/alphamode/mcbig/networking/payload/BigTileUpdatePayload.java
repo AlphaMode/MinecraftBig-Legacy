@@ -2,7 +2,7 @@ package me.alphamode.mcbig.networking.payload;
 
 import me.alphamode.mcbig.networking.McBigNetworking;
 import net.minecraft.network.PacketListener;
-import net.minecraft.network.packets.TileUpdatePacket;
+import net.minecraft.network.packet.TileUpdatePacket;
 import net.minecraft.world.level.Level;
 
 import java.io.DataInputStream;

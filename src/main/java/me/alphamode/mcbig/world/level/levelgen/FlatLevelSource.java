@@ -46,7 +46,7 @@ public class FlatLevelSource implements McBigChunkSource {
     }
 
     @Override
-    public LevelChunk loadChunk(BigInteger x, BigInteger z) {
+    public LevelChunk create(BigInteger x, BigInteger z) {
         return getChunk(x, z);
     }
 

@@ -7,8 +7,8 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Lighting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Screen;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.Button;
+import net.minecraft.client.gui.EditBox;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.levelgen.RandomLevelSource;
@@ -89,7 +89,11 @@ public class WorldBuilderScreen extends Screen {
 
                 ChunkSource chunkSource;
                 if (WorldType.SELECTED == WorldType.VANILLA) {
+                    //? >=1.0.0-beta.8.0.r {
+                    /*chunkSource = new RandomLevelSource(new PreviewLevel(seed), seed, false);
+                    *///? } else {
                     chunkSource = new RandomLevelSource(new PreviewLevel(seed), seed);
+                    //? }
                 } else {
                     chunkSource = WorldType.SELECTED.getFactory().apply(new PreviewLevel(seed), seed);
                 }

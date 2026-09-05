@@ -1,5 +1,6 @@
 package me.alphamode.mcbig.mixin.features.big_movement.client;
 
+import dev.kikugie.fletching_table.mixin.MixinEnvironment;
 import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
 import me.alphamode.mcbig.math.BigMath;
 import me.alphamode.mcbig.networking.payload.BigMovePlayerPayload;
@@ -8,7 +9,7 @@ import net.minecraft.client.User;
 import net.minecraft.client.multiplayer.ClientConnection;
 import net.minecraft.client.multiplayer.MultiplayerLocalPlayer;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.network.packets.PlayerCommandPacket;
+import net.minecraft.network.packet.PlayerCommandPacket;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -16,6 +17,7 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import java.math.BigDecimal;
 
+@MixinEnvironment(type = MixinEnvironment.Env.CLIENT)
 @Mixin(MultiplayerLocalPlayer.class)
 public abstract class MultiplayerLocalPlayerMixin extends LocalPlayer implements BigEntityExtension {
     @Shadow

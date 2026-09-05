@@ -1,5 +1,6 @@
 package me.alphamode.mcbig.mixin.entities;
 
+import dev.kikugie.fletching_table.mixin.MixinIgnore;
 import me.alphamode.mcbig.extensions.BigLevelChunkExtension;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
@@ -11,6 +12,7 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import java.util.List;
 
+@MixinIgnore
 @Mixin(LevelChunk.class)
 public class LevelChunkMixin implements BigLevelChunkExtension {
 

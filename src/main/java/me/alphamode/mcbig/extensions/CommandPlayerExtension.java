@@ -1,6 +1,6 @@
 package me.alphamode.mcbig.extensions;
 
-public interface PlayerExtension {
+public interface CommandPlayerExtension {
     boolean canFly();
 
     void setCanFly(boolean canFly);

@@ -2,7 +2,7 @@ package me.alphamode.mcbig.mixin.items;
 
 import me.alphamode.mcbig.constants.LevelConstants;
 import net.minecraft.util.Facing;
-import net.minecraft.world.ItemInstance;
+import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.TileItem;

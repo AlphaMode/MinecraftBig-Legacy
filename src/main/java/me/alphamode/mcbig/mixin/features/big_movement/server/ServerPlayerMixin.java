@@ -1,11 +1,13 @@
 package me.alphamode.mcbig.mixin.features.big_movement.server;
 
+import dev.kikugie.fletching_table.mixin.MixinEnvironment;
 import me.alphamode.mcbig.extensions.server.BigServerPlayerExtension;
 import net.minecraft.server.level.ServerPlayer;
 import org.spongepowered.asm.mixin.Mixin;
 
 import java.math.BigDecimal;
 
+@MixinEnvironment(type = MixinEnvironment.Env.SERVER)
 @Mixin(ServerPlayer.class)
 public class ServerPlayerMixin implements BigServerPlayerExtension {
     public BigDecimal lastXBig = BigDecimal.ZERO;

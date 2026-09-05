@@ -20,12 +20,12 @@
       "me.alphamode.mcbig.McBig"
     ]
   },
-  "accessWidener": "mcbig.classtweaker",
+  "accessWidener": "classtweakers/${ct_file}",
   "mixins": [
     "mcbig.mixins.json"
   ],
 
   "depends": {
-    "minecraft": "1.0.0-beta.7.3"
+    "minecraft": "${mc_version}"
   }
 }

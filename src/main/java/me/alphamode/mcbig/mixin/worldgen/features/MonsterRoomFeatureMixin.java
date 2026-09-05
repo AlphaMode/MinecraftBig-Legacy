@@ -1,7 +1,7 @@
 package me.alphamode.mcbig.mixin.worldgen.features;
 
 import me.alphamode.mcbig.extensions.BigFeatureExtension;
-import net.minecraft.world.ItemInstance;
+import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.feature.MonsterRoomFeature;
 import net.minecraft.world.level.material.Material;

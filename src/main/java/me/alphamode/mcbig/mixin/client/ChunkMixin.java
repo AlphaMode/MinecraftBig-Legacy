@@ -87,37 +87,37 @@ public abstract class ChunkMixin {
                 boolean rendered = false;
                 boolean started = false;
 
-                for(int var15 = y0; var15 < y1; ++var15) {
-                    for(int var16 = z0; var16 < z1; ++var16) {
-                        for(int var17 = x0; var17 < x1; ++var17) {
-                            int var18 = region.getTile(var17, var15, var16);
-                            if (var18 > 0) {
+                for(int y = y0; y < y1; ++y) {
+                    for(int z = z0; z < z1; ++z) {
+                        for(int x = x0; x < x1; ++x) {
+                            int tileId = region.getTile(x, y, z);
+                            if (tileId > 0) {
                                 if (!started) {
                                     started = true;
-                                    GL11.glNewList(this.lists + l, 4864);
+                                    GL11.glNewList(this.lists + l, GL11.GL_COMPILE);
                                     GL11.glPushMatrix();
                                     this.translateToPos();
-                                    float var19 = 1.000001F;
-                                    GL11.glTranslatef((float)(-this.zs) / 2.0F, (float)(-this.ys) / 2.0F, (float)(-this.zs) / 2.0F);
-                                    GL11.glScalef(var19, var19, var19);
-                                    GL11.glTranslatef((float)this.zs / 2.0F, (float)this.ys / 2.0F, (float)this.zs / 2.0F);
+                                    float ss = 1.000001F;
+                                    GL11.glTranslatef(-this.zs / 2.0F, -this.ys / 2.0F, -this.zs / 2.0F);
+                                    GL11.glScalef(ss, ss, ss);
+                                    GL11.glTranslatef(this.zs / 2.0F, this.ys / 2.0F, this.zs / 2.0F);
                                     tesselator.begin();
-                                    tesselator.offset((double)(-this.x), (double)(-this.y), (double)(-this.z));
+                                    tesselator.offset(-this.x, -this.y, -this.z);
                                 }
 
-                                if (l == 0 && Tile.isEntityTile[var18]) {
-                                    TileEntity var23 = region.getTileEntity(var17, var15, var16);
-                                    if (TileEntityRenderDispatcher.instance.hasTileEntityRenderer(var23)) {
-                                        this.renderableTileEntities.add(var23);
+                                if (l == 0 && Tile.isEntityTile[tileId]) {
+                                    TileEntity te = region.getTileEntity(x, y, z);
+                                    if (TileEntityRenderDispatcher.instance.hasTileEntityRenderer(te)) {
+                                        this.renderableTileEntities.add(te);
                                     }
                                 }
 
-                                Tile tile = Tile.tiles[var18];
+                                Tile tile = Tile.tiles[tileId];
                                 int renderLayer = tile.getRenderLayer();
                                 if (renderLayer != l) {
                                     renderNextLayer = true;
                                 } else if (renderLayer == l) {
-                                    rendered |= tileRenderer.tesselateInWorld(tile, var17, var15, var16);
+                                    rendered |= tileRenderer.tesselateInWorld(tile, x, y, z);
                                 }
                             }
                         }

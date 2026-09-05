@@ -1,6 +1,6 @@
 package me.alphamode.mcbig.mixin.items;
 
-import net.minecraft.world.ItemInstance;
+import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ShearsItem;

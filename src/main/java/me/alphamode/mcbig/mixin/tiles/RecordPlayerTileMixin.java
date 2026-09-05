@@ -2,7 +2,7 @@ package me.alphamode.mcbig.mixin.tiles;
 
 import me.alphamode.mcbig.extensions.BigTileExtension;
 import me.alphamode.mcbig.extensions.tiles.BigRecordPlayerTileExtension;
-import net.minecraft.world.ItemInstance;
+import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;

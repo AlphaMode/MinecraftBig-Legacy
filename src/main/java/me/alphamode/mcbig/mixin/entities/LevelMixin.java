@@ -1,5 +1,6 @@
 package me.alphamode.mcbig.mixin.entities;
 
+import dev.kikugie.fletching_table.mixin.MixinIgnore;
 import me.alphamode.mcbig.extensions.BigLevelExtension;
 import me.alphamode.mcbig.level.chunk.storage.EntityStorage;
 import me.alphamode.mcbig.level.entity.EntityManager;
@@ -23,6 +24,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.math.BigInteger;
 
+@MixinIgnore
 @Mixin(priority = 1000, value = Level.class)
 public class LevelMixin implements BigLevelExtension {
     private EntityManager entityManager;
@@ -55,7 +57,7 @@ public class LevelMixin implements BigLevelExtension {
      * @reason
      */
     @Overwrite
-    public ChunkSource createLevelSource() {
+    public ChunkSource createChunkSource() {
         ChunkStorage storage = this.levelStorage.createChunkStorage(this.dimension);
         return new ServerChunkCache((Level) (Object) this, storage, this.dimension.createRandomLevelSource());
     }

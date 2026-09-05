@@ -15,7 +15,13 @@ public interface BigLevelSourceExtension {
         throw new UnsupportedOperationException();
     }
 
-    default float getBrightness(BigInteger x, int y, BigInteger z, int max) {
+    //? >=1.0.0-beta.8.0.r {
+    /*default int getLightColor(BigInteger x, int y, BigInteger z, int emitt) {
+        throw new UnsupportedOperationException();
+    }
+    *///? }
+
+    default float getBrightness(BigInteger x, int y, BigInteger z, int emitt) {
         throw new UnsupportedOperationException();
     }
 
@@ -38,4 +44,10 @@ public interface BigLevelSourceExtension {
     default boolean isSolidBlockingTile(BigInteger x, int y, BigInteger z) {
         throw new UnsupportedOperationException();
     }
+
+    //? >=1.0.0-beta.8.0.r {
+    /*default boolean isEmptyTile(BigInteger x, int y, BigInteger z) {
+        throw new UnsupportedOperationException();
+    }
+    *///? }
 }

@@ -1,8 +1,11 @@
 package me.alphamode.mcbig.mixin;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import me.alphamode.mcbig.extensions.BigChunkSourceExtension;
 import me.alphamode.mcbig.level.chunk.BigChunkPos;
 import me.alphamode.mcbig.level.chunk.BigLevelChunk;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -13,8 +16,8 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
 import java.math.BigInteger;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -23,11 +26,10 @@ import java.util.concurrent.Executors;
 @Mixin(ServerChunkCache.class)
 public abstract class ServerChunkCacheMixin implements ChunkSource, BigChunkSourceExtension {
     private static final ExecutorService CHUNK_LOADING_EXECUTOR = Executors.newSingleThreadExecutor();
-    @Shadow
-    private Map<BigChunkPos, LevelChunk> cache;
 
-    @Shadow
-    private Set toDrop;
+    private Object2ObjectMap<BigChunkPos, LevelChunk> cacheBig = new Object2ObjectOpenHashMap<>();
+
+    private Set<BigChunkPos> toDropB = new HashSet<>();
 
     @Shadow private ChunkSource source;
 
@@ -41,7 +43,7 @@ public abstract class ServerChunkCacheMixin implements ChunkSource, BigChunkSour
 
     @Override
     public boolean hasChunk(BigInteger x, BigInteger z) {
-        return this.cache.containsKey(new BigChunkPos(x, z));
+        return this.cacheBig.containsKey(new BigChunkPos(x, z));
     }
 
     /**
@@ -53,11 +55,13 @@ public abstract class ServerChunkCacheMixin implements ChunkSource, BigChunkSour
         return hasChunk(BigInteger.valueOf(x), BigInteger.valueOf(z));
     }
 
+    private BigChunkPos lastPos = null;
+
     @Override
-    public LevelChunk loadChunk(BigInteger x, BigInteger z) {
+    public LevelChunk create(BigInteger x, BigInteger z) {
         BigChunkPos pos = new BigChunkPos(x, z);
-        this.toDrop.remove(pos);
-        LevelChunk chunk = this.cache.get(pos);
+        this.toDropB.remove(pos);
+        LevelChunk chunk = this.cacheBig.get(pos);
         if (chunk == null) {
             chunk = readChunk(x, z);
             if (chunk == null) {
@@ -68,13 +72,16 @@ public abstract class ServerChunkCacheMixin implements ChunkSource, BigChunkSour
                 }
             }
 
-            this.cache.put(pos, chunk);
+            this.cacheBig.put(pos, chunk);
             this.chunks.add(chunk);
             if (chunk != null) {
                 chunk.lightLava();
                 chunk.load();
             }
 
+            //? >=1.0.0-beta.8.0.r {
+            /*chunk.checkPostProcess(this, this, x, z);
+            *///? } else {
             BigInteger xMinusOne = x.subtract(BigInteger.ONE);
             BigInteger zMinusOne = z.subtract(BigInteger.ONE);
 
@@ -108,6 +115,7 @@ public abstract class ServerChunkCacheMixin implements ChunkSource, BigChunkSour
                     && this.hasChunk(xMinusOne, z)) {
                 this.postProcess(this, xMinusOne, zMinusOne);
             }
+            //? }
         }
 
         return chunk;
@@ -118,20 +126,25 @@ public abstract class ServerChunkCacheMixin implements ChunkSource, BigChunkSour
      * @reason Fallback to big int version
      */
     @Overwrite
-    public LevelChunk loadChunk(int x, int z) {
-        return loadChunk(BigInteger.valueOf(x), BigInteger.valueOf(z));
+    public LevelChunk create(int x, int z) {
+        return create(BigInteger.valueOf(x), BigInteger.valueOf(z));
     }
 
     @Override
     public LevelChunk getChunk(BigInteger x, BigInteger z) {
-        LevelChunk chunk = this.cache.get(new BigChunkPos(x, z));
-        return chunk == null ? this.loadChunk(x, z) : chunk;
+        BigChunkPos pos = new BigChunkPos(x, z);
+        LevelChunk chunk = this.cacheBig.get(pos);
+        if (lastPos != null && lastPos.equals(pos) && chunk == null) {
+            throw new RuntimeException("Chunk cache is in an invalid state");
+        }
+        this.lastPos = pos;
+        return chunk == null ? this.create(x, z) : chunk;
     }
 
     @Override
     public CompletableFuture<LevelChunk> getChunkFuture(BigInteger x, BigInteger z) {
-        LevelChunk chunk = this.cache.get(new BigChunkPos(x, z));
-        return chunk == null ? CompletableFuture.supplyAsync(() -> this.loadChunk(x, z), CHUNK_LOADING_EXECUTOR) : CompletableFuture.completedFuture(chunk);
+        LevelChunk chunk = this.cacheBig.get(new BigChunkPos(x, z));
+        return chunk == null ? CompletableFuture.supplyAsync(() -> this.create(x, z), CHUNK_LOADING_EXECUTOR) : CompletableFuture.completedFuture(chunk);
     }
 
     /**
@@ -172,4 +185,58 @@ public abstract class ServerChunkCacheMixin implements ChunkSource, BigChunkSour
             }
         }
     }
+
+    //? >=1.0.0-beta.8.0.r {
+
+    /*@Shadow
+    private int lastChunkIndex;
+
+    @Shadow
+    public abstract void drop(int par1, int par2);
+
+    @Shadow
+    protected abstract void saveChunk(LevelChunk chunk);
+
+    @Shadow
+    protected abstract void saveEntities(LevelChunk chunk);
+
+    /^*
+     * @author
+     * @reason
+     ^/
+    @Overwrite
+    public boolean tick() {
+        for(int var1 = 0; var1 < 100; ++var1) {
+            if (!this.toDropB.isEmpty()) {
+                BigChunkPos var2 = this.toDropB.iterator().next();
+                LevelChunk var3 = this.cacheBig.get(var2);
+                var3.unload();
+                this.saveChunk(var3);
+                this.saveEntities(var3);
+                this.toDropB.remove(var2);
+                this.cacheBig.remove(var2);
+                this.chunks.remove(var3);
+            }
+        }
+
+        for(int var4 = 0; var4 < 10; ++var4) {
+            if (this.lastChunkIndex >= this.chunks.size()) {
+                this.lastChunkIndex = 0;
+                break;
+            }
+
+            LevelChunk var5 = this.chunks.get(this.lastChunkIndex++);
+            Player var6 = this.level.getNearestPlayer((double)(var5.x << 4) + (double)8.0F, 64.0F, (double)(var5.z << 4) + (double)8.0F, (double)288.0F);
+            if (var6 == null) {
+                this.drop(var5.x, var5.z);
+            }
+        }
+
+        if (this.storage != null) {
+            this.storage.tick();
+        }
+
+        return this.source.tick();
+    }
+    *///? }
 }

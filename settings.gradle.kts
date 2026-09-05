@@ -9,6 +9,16 @@ pluginManagement {
     }
 }
 
+dependencyResolutionManagement {
+    repositories {
+        maven("https://maven.kikugie.dev/snapshots")
+    }
+
+    versionCatalogs {
+        create("ft") { from("dev.kikugie.fletching-table:fletching-table.catalog:0.2-SNAPSHOT") }
+    }
+}
+
 plugins {
     id("dev.kikugie.stonecutter") version "0.9"
 }

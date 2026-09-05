@@ -46,7 +46,7 @@ public abstract class ServerChunkCacheMixin implements BigChunkSourceExtension, 
     protected abstract void saveChunk(LevelChunk chunk);
 
     @Shadow
-    protected abstract void saveExtra(LevelChunk chunk);
+    protected abstract void saveEntities(LevelChunk chunk);
 
     private Map<BigChunkPos, LevelChunk> cacheBig = new HashMap<>();
 
@@ -90,7 +90,7 @@ public abstract class ServerChunkCacheMixin implements BigChunkSourceExtension, 
     }
 
     @Override
-    public LevelChunk loadChunk(BigInteger x, BigInteger z) {
+    public LevelChunk create(BigInteger x, BigInteger z) {
         BigChunkPos pos = new BigChunkPos(x, z);
         this.toDrop.remove(pos);
         LevelChunk chunk = this.cacheBig.get(pos);
@@ -148,15 +148,15 @@ public abstract class ServerChunkCacheMixin implements BigChunkSourceExtension, 
      * @reason Redirect to big int method
      */
     @Overwrite
-    public LevelChunk loadChunk(int x, int z) {
-        return this.loadChunk(BigInteger.valueOf(x), BigInteger.valueOf(z));
+    public LevelChunk create(int x, int z) {
+        return this.create(BigInteger.valueOf(x), BigInteger.valueOf(z));
     }
 
     @Override
     public LevelChunk getChunk(BigInteger x, BigInteger z) {
         LevelChunk chunk = this.cacheBig.get(new BigChunkPos(x, z));
         if (chunk == null) {
-            return !this.level.isFindingSpawn && !this.autoCreate ? this.emptyChunk : this.loadChunk(x, z);
+            return !this.level.isFindingSpawn && !this.autoCreate ? this.emptyChunk : this.create(x, z);
         } else {
             return chunk;
         }
@@ -223,7 +223,7 @@ public abstract class ServerChunkCacheMixin implements BigChunkSourceExtension, 
                     LevelChunk chunk = this.cacheBig.get(pos);
                     chunk.unload();
                     this.saveChunk(chunk);
-                    this.saveExtra(chunk);
+                    this.saveEntities(chunk);
                     this.toDrop.remove(pos);
                     this.cacheBig.remove(pos);
                     this.chunks.remove(chunk);

@@ -46,11 +46,11 @@ public class ThreadedChunkCache implements McBigChunkSource {
     public LevelChunk getChunk(BigInteger x, BigInteger z) {
         BigChunkPos pos = new BigChunkPos(x, z);
         LevelChunk chunk = this.cache.get(pos);
-        return chunk == null ? this.loadChunk(x, z) : chunk;
+        return chunk == null ? this.create(x, z) : chunk;
     }
 
     @Override
-    public LevelChunk loadChunk(BigInteger x, BigInteger z) {
+    public LevelChunk create(BigInteger x, BigInteger z) {
         BigChunkPos pos = new BigChunkPos(x, z);
         this.toDrop.remove(pos);
         LevelChunk chunk = this.cache.get(pos);
@@ -131,7 +131,7 @@ public class ThreadedChunkCache implements McBigChunkSource {
         this.cache.put(pos, lc);
         lc.loaded = true;
         return CompletableFuture.supplyAsync(() -> {
-            LevelChunk newLc = this.source.loadChunk(x, z);
+            LevelChunk newLc = this.source.create(x, z);
             System.arraycopy(newLc.blocks, 0, lc.blocks, 0, newLc.blocks.length);
             System.arraycopy(newLc.data.data, 0, lc.data.data, 0, newLc.data.data.length);
             System.arraycopy(newLc.blockLight.data, 0, lc.blockLight.data, 0, newLc.blockLight.data.length);

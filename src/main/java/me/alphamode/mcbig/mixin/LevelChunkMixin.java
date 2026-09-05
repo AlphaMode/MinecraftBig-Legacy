@@ -7,6 +7,7 @@ import me.alphamode.mcbig.world.phys.BigAABB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.EmptyLevelChunk;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
@@ -29,6 +30,9 @@ public abstract class LevelChunkMixin implements BigLevelChunkExtension {
 
     @Shadow public List<Entity>[] entityBlocks;
 
+    @Shadow
+    public boolean terrainPopulated;
+
     @Inject(method = "<init>(Lnet/minecraft/world/level/Level;II)V", at = @At("TAIL"))
     private void initVanillaPos(Level level, int x, int z, CallbackInfo ci) {
         this.vanillaX = BigInteger.valueOf(x);
@@ -45,12 +49,12 @@ public abstract class LevelChunkMixin implements BigLevelChunkExtension {
         return this.vanillaZ;
     }
 
-    @Inject(method = {"<init>(Lnet/minecraft/world/level/Level;II)V", "<init>(Lnet/minecraft/world/level/Level;[BII)V"}, at = @At("TAIL"))
-    private void throwOnVanillaInit(CallbackInfo ci) {
-        if (!((Object) this instanceof BigLevelChunk) && !((Object) this instanceof EmptyLevelChunk)) {
-            throw new RuntimeException("Level chunk is not an instance of BigLevelChunk");
-        }
-    }
+//    @Inject(method = {"<init>(Lnet/minecraft/world/level/Level;II)V", "<init>(Lnet/minecraft/world/level/Level;[BII)V"}, at = @At("TAIL"))
+//    private void throwOnVanillaInit(CallbackInfo ci) {
+//        if (!((Object) this instanceof BigLevelChunk) && !((Object) this instanceof EmptyLevelChunk)) {
+//            throw new RuntimeException("Level chunk is not an instance of BigLevelChunk");
+//        }
+//    }
 
     @Override
     public void getEntities(Entity ignore, BigAABB area, List<Entity> entities) {
@@ -83,4 +87,38 @@ public abstract class LevelChunkMixin implements BigLevelChunkExtension {
             }
         }
     }
+
+    //? >=1.0.0-beta.8.0.r {
+    /*@Override
+    public void checkPostProcess(ChunkSource source, ChunkSource parent, BigInteger x, BigInteger z) {
+        BigInteger xPlusOne = x.add(BigInteger.ONE);
+        BigInteger xMinusOne = x.subtract(BigInteger.ONE);
+        BigInteger zPlusOne = z.add(BigInteger.ONE);
+        BigInteger zMinusOne = z.add(BigInteger.ONE);
+
+        if (!this.terrainPopulated && source.hasChunk(xPlusOne, zPlusOne) && source.hasChunk(x, zPlusOne) && source.hasChunk(xPlusOne, z)) {
+            source.postProcess(parent, x, z);
+        }
+
+        if (source.hasChunk(xMinusOne, z)
+                && !source.getChunk(xMinusOne, z).terrainPopulated
+                && source.hasChunk(xMinusOne, zPlusOne)
+                && source.hasChunk(x, zPlusOne)
+                && source.hasChunk(xMinusOne, zPlusOne)) {
+            source.postProcess(parent, xMinusOne, z);
+        }
+
+        if (source.hasChunk(x, zMinusOne)
+                && !source.getChunk(x, zMinusOne).terrainPopulated
+                && source.hasChunk(xPlusOne, zMinusOne)
+                && source.hasChunk(xPlusOne, zMinusOne)
+                && source.hasChunk(xPlusOne, z)) {
+            source.postProcess(parent, x, zMinusOne);
+        }
+
+        if (source.hasChunk(xMinusOne, zMinusOne) && !source.getChunk(xMinusOne, zMinusOne).terrainPopulated && source.hasChunk(x, zMinusOne) && source.hasChunk(xMinusOne, z)) {
+            source.postProcess(parent, xMinusOne, zMinusOne);
+        }
+    }
+    *///? }
 }

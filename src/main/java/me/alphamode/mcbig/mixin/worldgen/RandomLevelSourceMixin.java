@@ -1,20 +1,26 @@
 package me.alphamode.mcbig.mixin.worldgen;
 
 import me.alphamode.mcbig.extensions.BigChunkSourceExtension;
-import me.alphamode.mcbig.extensions.BigPerlinNoiseExtension;
 import me.alphamode.mcbig.level.chunk.BigLevelChunk;
 import me.alphamode.mcbig.math.BigConstants;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.MobSpawner;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.LargeFeature;
 import net.minecraft.world.level.levelgen.RandomLevelSource;
 import net.minecraft.world.level.levelgen.feature.*;
+//? >=1.0.0-beta.8.0.r {
+/*import net.minecraft.world.level.levelgen.structure.MineShaftFeature;
+import net.minecraft.world.level.levelgen.structure.VillageFeature;
+*///? }
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.tile.SandTile;
 import net.minecraft.world.level.tile.Tile;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
@@ -23,285 +29,264 @@ import java.util.Random;
 
 @Mixin(RandomLevelSource.class)
 public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSourceExtension {
-    @Shadow private Random random;
+    private static final int CHUNK_HEIGHT = 8;
+    private static final int CHUNK_WIDTH = 4;
 
-    @Shadow private Level level;
+    @Shadow
+    private Random random;
 
-    @Shadow private Biome[] biomes;
+    @Shadow
+    private Level level;
 
-    @Shadow private LargeFeature caveFeature;
+    @Shadow
+    private Biome[] biomes;
 
-    @Shadow private double[] buffer;
+    @Shadow
+    private LargeFeature caveFeature;
 
-    @Shadow private double[] sr;
+    @Shadow
+    private double[] buffer;
 
-    @Shadow private double[] dr;
+    @Shadow
+    private double[] sr;
 
-    @Shadow private double[] pnr;
+    @Shadow
+    private double[] dr;
 
-    @Shadow private double[] ar;
+    @Shadow
+    private double[] pnr;
 
-    @Shadow private double[] br;
+    @Shadow
+    private double[] ar;
 
-    @Shadow public PerlinNoise scaleNoise;
+    @Shadow
+    private double[] br;
 
-    @Shadow public PerlinNoise depthNoise;
+    @Shadow
+    public PerlinNoise scaleNoise;
 
-    @Shadow private PerlinNoise perlinNoise1;
+    @Shadow
+    public PerlinNoise depthNoise;
 
-    @Shadow private PerlinNoise lperlinNoise1;
+    @Shadow
+    private PerlinNoise perlinNoise1;
 
-    @Shadow private PerlinNoise lperlinNoise2;
+    @Shadow
+    private PerlinNoise lperlinNoise1;
 
-    @Shadow private double[] sandBuffer;
+    @Shadow
+    private PerlinNoise lperlinNoise2;
 
-    @Shadow private double[] gravelBuffer;
+    @Shadow
+    private double[] depthBuffer;
 
-    @Shadow private double[] depthBuffer;
 
-    @Shadow private PerlinNoise perlinNoise2;
 
-    @Shadow private PerlinNoise perlinNoise3;
+    @Shadow
+    private PerlinNoise perlinNoise3;
 
-    @Shadow public PerlinNoise forestNoise;
+    @Shadow
+    public PerlinNoise forestNoise;
 
-    @Shadow private double[] temperatures;
+    //? <1.0.0-beta.8.0.r {
+    @Shadow
+    private PerlinNoise perlinNoise2;
 
-    private double[] getHeights(double[] noise, BigInteger x, int y, BigInteger z, int l, int m, int n) {
-        if (noise == null) {
-            noise = new double[l * m * n];
-        }
+    @Shadow
+    private double[] temperatures;
 
-        double var8 = 684.412;
-        double var10 = 684.412;
-        double[] var12 = this.level.getBiomeSource().temperatures;
-        double[] var13 = this.level.getBiomeSource().downfalls;
-        this.sr = ((BigPerlinNoiseExtension)this.scaleNoise).getRegion(this.sr, x, z, l, n, 1.121, 1.121, 0.5);
-        this.dr = ((BigPerlinNoiseExtension)this.depthNoise).getRegion(this.dr, x, z, l, n, 200.0, 200.0, 0.5);
-        this.pnr = this.perlinNoise1.getRegion(this.pnr, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), l, m, n, var8 / 80.0, var10 / 160.0, var8 / 80.0);
-        this.ar = this.lperlinNoise1.getRegion(this.ar, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), l, m, n, var8, var10, var8);
-        this.br = this.lperlinNoise2.getRegion(this.br, (double)x.doubleValue(), (double)y, (double)z.doubleValue(), l, m, n, var8, var10, var8);
-        int var14 = 0;
-        int var15 = 0;
-        int var16 = 16 / l;
+    @Shadow
+    private double[] sandBuffer;
+    @Shadow
+    private double[] gravelBuffer;
+    //? } else {
+    /*@Shadow private float[] pows;
 
-        for(int var17 = 0; var17 < l; ++var17) {
-            int var18 = var17 * var16 + var16 / 2;
+    @Shadow
+    @Final
+    private boolean generateStructures;
 
-            for(int var19 = 0; var19 < n; ++var19) {
-                int var20 = var19 * var16 + var16 / 2;
-                double var21 = var12[var18 * 16 + var20];
-                double var23 = var13[var18 * 16 + var20] * var21;
-                double var25 = 1.0 - var23;
-                var25 *= var25;
-                var25 *= var25;
-                var25 = 1.0 - var25;
-                double var27 = (this.sr[var15] + 256.0) / 512.0;
-                var27 *= var25;
-                if (var27 > 1.0) {
-                    var27 = 1.0;
-                }
+    @Shadow
+    public StrongholdFeature strongholdFeature;
 
-                double var29 = this.dr[var15] / 8000.0;
-                if (var29 < 0.0) {
-                    var29 = -var29 * 0.3;
-                }
+    @Shadow
+    public MineShaftFeature mineShaftFeature;
 
-                var29 = var29 * 3.0 - 2.0;
-                if (var29 < 0.0) {
-                    var29 /= 2.0;
-                    if (var29 < -1.0) {
-                        var29 = -1.0;
-                    }
+    @Shadow
+    public VillageFeature villageFeature;
 
-                    var29 /= 1.4;
-                    var29 /= 2.0;
-                    var27 = 0.0;
-                } else {
-                    if (var29 > 1.0) {
-                        var29 = 1.0;
-                    }
+    @Shadow
+    private LargeFeature canyonFeature;
+    *///? }
 
-                    var29 /= 8.0;
-                }
+    //? >=1.0.0-beta.8.0.r {
+    /*public void prepareHeights(BigInteger xOffs, BigInteger zOffs, byte[] blocks) {
+    *///? } else
+    public void prepareHeights(BigInteger xOffs, BigInteger zOffs, byte[] blocks, Biome[] biomes, double[] temperatures) {
+        int xChunks = 16 / CHUNK_WIDTH;
+        int yChunks = 128 / CHUNK_HEIGHT;
+        //? <1.0.0-beta.8.0.r {
+        int waterHeight = 64;
+        //? } else
+        //int waterHeight = 63;
 
-                if (var27 < 0.0) {
-                    var27 = 0.0;
-                }
+        int xSize = xChunks + 1;
+        int ySize = 128 / CHUNK_HEIGHT + 1;
+        int zSize = xChunks + 1;
+        //? >=1.0.0-beta.8.0.r
+        //this.biomes = this.level.getBiomeSource().getRawBiomeBlock(this.biomes, xOffs.multiply(BigConstants.FOUR).subtract(BigInteger.TWO), zOffs.multiply(BigConstants.FOUR).subtract(BigInteger.TWO), xSize + 5, zSize + 5);
+        this.buffer = this.getHeights(this.buffer, xOffs.multiply(BigInteger.valueOf(xChunks)), 0, zOffs.multiply(BigInteger.valueOf(xChunks)), xSize, ySize, zSize);
 
-                var27 += 0.5;
-                var29 = var29 * (double)m / 16.0;
-                double var31 = (double)m / 2.0 + var29 * 4.0;
-                ++var15;
+        for (int xc = 0; xc < xChunks; ++xc) {
+            for (int zc = 0; zc < xChunks; ++zc) {
+                for (int yc = 0; yc < yChunks; ++yc) {
+                    double yStep = 1 / (double) CHUNK_HEIGHT;
+                    double s0 = this.buffer[((xc + 0) * zSize + zc + 0) * ySize + yc + 0];
+                    double s1 = this.buffer[((xc + 0) * zSize + zc + 1) * ySize + yc + 0];
+                    double s2 = this.buffer[((xc + 1) * zSize + zc + 0) * ySize + yc + 0];
+                    double s3 = this.buffer[((xc + 1) * zSize + zc + 1) * ySize + yc + 0];
 
-                for(int var33 = 0; var33 < m; ++var33) {
-                    double var34 = 0.0;
-                    double var36 = ((double)var33 - var31) * 12.0 / var27;
-                    if (var36 < 0.0) {
-                        var36 *= 4.0;
-                    }
+                    double s0a = (this.buffer[((xc + 0) * zSize + zc + 0) * ySize + yc + 1] - s0) * yStep;
+                    double s1a = (this.buffer[((xc + 0) * zSize + zc + 1) * ySize + yc + 1] - s1) * yStep;
+                    double s2a = (this.buffer[((xc + 1) * zSize + zc + 0) * ySize + yc + 1] - s2) * yStep;
+                    double s3a = (this.buffer[((xc + 1) * zSize + zc + 1) * ySize + yc + 1] - s3) * yStep;
 
-                    double var38 = this.ar[var14] / 512.0;
-                    double var40 = this.br[var14] / 512.0;
-                    double var42 = (this.pnr[var14] / 10.0 + 1.0) / 2.0;
-                    if (var42 < 0.0) {
-                        var34 = var38;
-                    } else if (var42 > 1.0) {
-                        var34 = var40;
-                    } else {
-                        var34 = var38 + (var40 - var38) * var42;
-                    }
+                    for (int y = 0; y < CHUNK_HEIGHT; ++y) {
+                        double xStep = 1 / (double) CHUNK_WIDTH;
 
-                    var34 -= var36;
-                    if (var33 > m - 4) {
-                        double var44 = (double)((float)(var33 - (m - 4)) / 3.0F);
-                        var34 = var34 * (1.0 - var44) + -10.0 * var44;
-                    }
+                        double _s0 = s0;
+                        double _s1 = s1;
+                        double _s0a = (s2 - s0) * xStep;
+                        double _s1a = (s3 - s1) * xStep;
 
-                    noise[var14] = var34;
-                    ++var14;
-                }
-            }
-        }
+                        for (int x = 0; x < CHUNK_WIDTH; ++x) {
+                            int offs = x + xc * CHUNK_WIDTH << 11 | 0 + zc * CHUNK_WIDTH << 7 | yc * CHUNK_HEIGHT + y;
+                            int step = 1 << 7;
+                            double zStep = 1 / (double) CHUNK_WIDTH;
+                            double val = _s0;
+                            double vala = (_s1 - _s0) * zStep;
 
-        return noise;
-    }
-
-    public void prepareHeights(BigInteger x, BigInteger z, byte[] tiles, Biome[] biomes, double[] ds) {
-        int var6 = 4;
-        int var7 = 64;
-        int var8 = var6 + 1;
-        int var9 = 17;
-        int var10 = var6 + 1;
-        this.buffer = this.getHeights(this.buffer, x.multiply(BigInteger.valueOf(var6)), 0, z.multiply(BigInteger.valueOf(var6)), var8, var9, var10);
-
-        for(int var11 = 0; var11 < var6; ++var11) {
-            for(int var12 = 0; var12 < var6; ++var12) {
-                for(int var13 = 0; var13 < 16; ++var13) {
-                    double var14 = 0.125;
-                    double var16 = this.buffer[((var11 + 0) * var10 + var12 + 0) * var9 + var13 + 0];
-                    double var18 = this.buffer[((var11 + 0) * var10 + var12 + 1) * var9 + var13 + 0];
-                    double var20 = this.buffer[((var11 + 1) * var10 + var12 + 0) * var9 + var13 + 0];
-                    double var22 = this.buffer[((var11 + 1) * var10 + var12 + 1) * var9 + var13 + 0];
-                    double var24 = (this.buffer[((var11 + 0) * var10 + var12 + 0) * var9 + var13 + 1] - var16) * var14;
-                    double var26 = (this.buffer[((var11 + 0) * var10 + var12 + 1) * var9 + var13 + 1] - var18) * var14;
-                    double var28 = (this.buffer[((var11 + 1) * var10 + var12 + 0) * var9 + var13 + 1] - var20) * var14;
-                    double var30 = (this.buffer[((var11 + 1) * var10 + var12 + 1) * var9 + var13 + 1] - var22) * var14;
-
-                    for(int var32 = 0; var32 < 8; ++var32) {
-                        double var33 = 0.25;
-                        double var35 = var16;
-                        double var37 = var18;
-                        double var39 = (var20 - var16) * var33;
-                        double var41 = (var22 - var18) * var33;
-
-                        for(int var43 = 0; var43 < 4; ++var43) {
-                            int var44 = var43 + var11 * 4 << 11 | 0 + var12 * 4 << 7 | var13 * 8 + var32;
-                            short var45 = 128;
-                            double var46 = 0.25;
-                            double var48 = var35;
-                            double var50 = (var37 - var35) * var46;
-
-                            for(int var52 = 0; var52 < 4; ++var52) {
-                                double var53 = ds[(var11 * 4 + var43) * 16 + var12 * 4 + var52];
-                                int var55 = 0;
-                                if (var13 * 8 + var32 < var7) {
-                                    if (var53 < 0.5 && var13 * 8 + var32 >= var7 - 1) {
-                                        var55 = Tile.ice.id;
+                            for (int z = 0; z < CHUNK_WIDTH; ++z) {
+                                //? <1.0.0-beta.8.0.r
+                                double temp = temperatures[(xc * CHUNK_WIDTH + x) * 16 + (zc * CHUNK_WIDTH + z)];
+                                int tileId = 0;
+                                if (yc * CHUNK_HEIGHT + y < waterHeight) {
+                                    //? <1.0.0-beta.8.0.r {
+                                    if (temp < 0.5 && yc * CHUNK_HEIGHT + y >= waterHeight - 1) {
+                                        tileId = Tile.ice.id;
                                     } else {
-                                        var55 = Tile.calmWater.id;
+                                        tileId = Tile.calmWater.id;
                                     }
+                                    //? } else
+                                    //tileId = Tile.calmWater.id;
                                 }
 
-                                if (var48 > 0.0) {
-                                    var55 = Tile.stone.id;
+                                if (val > 0.0) {
+                                    if ((yc * CHUNK_HEIGHT + y) > 120) {
+                                        System.out.println("BE");
+                                    }
+                                    tileId = Tile.stone.id;
                                 }
 
-                                tiles[var44] = (byte)var55;
-                                var44 += var45;
-                                var48 += var50;
+                                blocks[offs] = (byte) tileId;
+                                offs += step;
+                                val += vala;
                             }
 
-                            var35 += var39;
-                            var37 += var41;
+                            _s0 += _s0a;
+                            _s1 += _s1a;
                         }
 
-                        var16 += var24;
-                        var18 += var26;
-                        var20 += var28;
-                        var22 += var30;
+                        s0 += s0a;
+                        s1 += s1a;
+                        s2 += s2a;
+                        s3 += s3a;
                     }
                 }
             }
         }
     }
 
-    public void buildSurfaces(BigInteger x, BigInteger z, byte[] tiles, Biome[] biomes) {
-        byte var5 = 64;
-        double var6 = 0.03125;
-        this.sandBuffer = this.perlinNoise2.getRegion(this.sandBuffer, x.multiply(BigConstants.SIXTEEN).doubleValue(), z.multiply(BigConstants.SIXTEEN).doubleValue(), 0.0, 16, 16, 1, var6, var6, 1.0);
-        this.gravelBuffer = this.perlinNoise2.getRegion(this.gravelBuffer, x.multiply(BigConstants.SIXTEEN).doubleValue(), 109.0134, z.multiply(BigConstants.SIXTEEN).doubleValue(), 16, 1, 16, var6, 1.0, var6);
-        this.depthBuffer = this.perlinNoise3.getRegion(this.depthBuffer, x.multiply(BigConstants.SIXTEEN).doubleValue(), z.multiply(BigConstants.SIXTEEN).doubleValue(), 0.0, 16, 16, 1, var6 * 2.0, var6 * 2.0, var6 * 2.0);
+    public void buildSurfaces(BigInteger xOffs, BigInteger zOffs, byte[] blocks, Biome[] biomes) {
+        //? >=1.0.0-beta.8.0.r {
+        /*int waterHeight = 63;
+        *///? } else
+        int waterHeight = 64;
+        double s = 1.0 / 32.0;
+        //? <1.0.0-beta.8.0.r {
+        this.sandBuffer = this.perlinNoise2.getRegion(this.sandBuffer, xOffs.multiply(BigConstants.SIXTEEN).doubleValue(), zOffs.multiply(BigConstants.SIXTEEN).doubleValue(), 0.0, 16, 16, 1, s, s, 1.0);
+        this.gravelBuffer = this.perlinNoise2.getRegion(this.gravelBuffer, xOffs.multiply(BigConstants.SIXTEEN).doubleValue(), 109.0134, zOffs.multiply(BigConstants.SIXTEEN).doubleValue(), 16, 1, 16, s, 1.0, s);
+        //? }
+        //~ if >=1.0.0-beta.8.0.r '.multiply(BigConstants.SIXTEEN).doubleValue()' -> '.multiply(BigConstants.SIXTEEN)'
+        this.depthBuffer = this.perlinNoise3.getRegion(this.depthBuffer, xOffs.multiply(BigConstants.SIXTEEN).doubleValue(), zOffs.multiply(BigConstants.SIXTEEN).doubleValue(), 0, 16, 16, 1, s * 2.0, s * 2.0, s * 2.0);
 
-        for(int var8 = 0; var8 < 16; ++var8) {
-            for(int var9 = 0; var9 < 16; ++var9) {
-                Biome var10 = biomes[var8 + var9 * 16];
-                boolean var11 = this.sandBuffer[var8 + var9 * 16] + this.random.nextDouble() * 0.2 > 0.0;
-                boolean var12 = this.gravelBuffer[var8 + var9 * 16] + this.random.nextDouble() * 0.2 > 3.0;
-                int var13 = (int)(this.depthBuffer[var8 + var9 * 16] / 3.0 + 3.0 + this.random.nextDouble() * 0.25);
-                int var14 = -1;
-                byte var15 = var10.topMaterial;
-                byte var16 = var10.material;
+        for (int x = 0; x < 16; ++x) {
+            for (int z = 0; z < 16; ++z) {
+                //? >=1.0.0-beta.8.0.r {
+                /*Biome b = biomes[z + x * 16];
+                *///? } else {
+                Biome b = biomes[x + z * 16];
+                boolean sand = this.sandBuffer[x + z * 16] + this.random.nextDouble() * 0.2 > 0.0;
+                boolean gravel = this.gravelBuffer[x + z * 16] + this.random.nextDouble() * 0.2 > 3.0;
+                //? }
+                int runDepth = (int) (this.depthBuffer[x + z * 16] / 3.0 + 3.0 + this.random.nextDouble() * 0.25);
 
-                for(int var17 = 127; var17 >= 0; --var17) {
-                    int pos = (var9 * 16 + var8) * 128 + var17;
-                    if (var17 <= 0 + this.random.nextInt(5)) {
-                        tiles[pos] = (byte)Tile.unbreakable.id;
+                int run = -1;
+                byte top = b.topMaterial;
+                byte material = b.material;
+
+                for (int y = 127; y >= 0; y--) {
+                    int offs = (z * 16 + x) * 128 + y;
+
+                    if (y <= 0 + this.random.nextInt(5)) {
+                        blocks[offs] = (byte) Tile.unbreakable.id;
                     } else {
-                        byte tile = tiles[pos];
-                        if (tile == 0) {
-                            var14 = -1;
-                        } else if (tile == Tile.stone.id) {
-                            if (var14 == -1) {
-                                if (var13 <= 0) {
-                                    var15 = 0;
-                                    var16 = (byte)Tile.stone.id;
-                                } else if (var17 >= var5 - 4 && var17 <= var5 + 1) {
-                                    var15 = var10.topMaterial;
-                                    var16 = var10.material;
-                                    if (var12) {
-                                        var15 = 0;
+                        byte old = blocks[offs];
+                        if (old == 0) {
+                            run = -1;
+                        } else if (old == Tile.stone.id) {
+                            if (run == -1) {
+                                if (runDepth <= 0) {
+                                    top = 0;
+                                    material = (byte) Tile.stone.id;
+                                } else if (y >= waterHeight - 4 && y <= waterHeight + 1) {
+                                    top = b.topMaterial;
+                                    material = b.material;
+                                    //? <1.0.0-beta.8.0.r {
+                                    if (gravel) {
+                                        top = 0;
                                     }
 
-                                    if (var12) {
-                                        var16 = (byte)Tile.gravel.id;
+                                    if (gravel) {
+                                        material = (byte) Tile.gravel.id;
                                     }
 
-                                    if (var11) {
-                                        var15 = (byte)Tile.sand.id;
+                                    if (sand) {
+                                        top = (byte) Tile.sand.id;
                                     }
 
-                                    if (var11) {
-                                        var16 = (byte)Tile.sand.id;
+                                    if (sand) {
+                                        material = (byte) Tile.sand.id;
                                     }
+                                    //? }
                                 }
 
-                                if (var17 < var5 && var15 == 0) {
-                                    var15 = (byte)Tile.calmWater.id;
+                                if (y < waterHeight && top == 0) {
+                                    top = (byte) Tile.calmWater.id;
                                 }
 
-                                var14 = var13;
-                                if (var17 >= var5 - 1) {
-                                    tiles[pos] = var15;
-                                } else {
-                                    tiles[pos] = var16;
-                                }
-                            } else if (var14 > 0) {
-                                --var14;
-                                tiles[pos] = var16;
-                                if (var14 == 0 && var16 == Tile.sand.id) {
-                                    var14 = this.random.nextInt(4);
-                                    var16 = (byte)Tile.sandStone.id;
+                                run = runDepth;
+                                if (y >= waterHeight - 1) blocks[offs] = top;
+                                else blocks[offs] = material;
+                            } else if (run > 0) {
+                                --run;
+                                blocks[offs] = material;
+
+                                // place a few sandstone blocks beneath sand
+                                // runs
+                                if (run == 0 && material == Tile.sand.id) {
+                                    run = this.random.nextInt(4);
+                                    material = (byte) Tile.sandStone.id;
                                 }
                             }
                         }
@@ -309,6 +294,188 @@ public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSou
                 }
             }
         }
+    }
+
+    @Override
+    public LevelChunk create(BigInteger x, BigInteger z) {
+        return getChunk(x, z);
+    }
+
+    @Override
+    public LevelChunk getChunk(BigInteger x, BigInteger z) {
+        this.random.setSeed(x.longValue() * 341873128712L + z.longValue() * 132897987541L);
+        byte[] tiles = new byte[16 * 128 * 16];
+        BigLevelChunk chunk = new BigLevelChunk(this.level, tiles, x, z);
+        //? >=1.0.0-beta.8.0.r
+        //prepareHeights(x, z, tiles);
+        this.biomes = this.level.getBiomeSource().getBiomeBlock(this.biomes, x.multiply(BigConstants.SIXTEEN), z.multiply(BigConstants.SIXTEEN), 16, 16);
+        //? <1.0.0-beta.8.0.r {
+        double[] temps = this.level.getBiomeSource().temperatures;
+        prepareHeights(x, z, tiles, this.biomes, temps);
+        //? }
+        buildSurfaces(x, z, tiles, this.biomes);
+        //? >=1.0.0-beta.8.0.r {
+        /*if (this.generateStructures) {
+            this.strongholdFeature.apply(this, this.level, x, z, tiles);
+            this.mineShaftFeature.apply(this, this.level, x, z, tiles);
+            this.villageFeature.apply(this, this.level, x, z, tiles);
+        }
+
+        this.canyonFeature.apply(this, this.level, x, z, tiles);
+        *///? }
+        this.caveFeature.apply(this, this.level, x, z, tiles);
+        chunk.recalcHeightmap();
+        return chunk;
+    }
+
+    @Shadow
+    protected abstract double[] getHeights(double[] buffer, int x, int y, int z, int xSize, int ySize, int zSize);
+
+    private double[] getHeights(double[] buffer, BigInteger x, int y, BigInteger z, int xSize, int ySize, int zSize) {
+        if (buffer == null) {
+            buffer = new double[xSize * ySize * zSize];
+        }
+
+        //? >=1.0.0-beta.8.0.r {
+        /*if (this.pows == null) {
+            this.pows = new float[25];
+
+            for (int xb = -2; xb <= 2; xb++) {
+                for (int zb = -2; zb <= 2; zb++) {
+                    float ppp = 10.0F / Mth.sqrt(xb * xb + zb * zb + 0.2F);
+                    this.pows[xb + 2 + (zb + 2) * 5] = ppp;
+                }
+            }
+        }
+        *///? }
+
+        double s = 1 * 684.412;
+        double hs = 1 * 684.412;
+        //? <1.0.0-beta.8.0.r {
+        double[] temperatures = this.level.getBiomeSource().temperatures;
+        double[] downfalls = this.level.getBiomeSource().downfalls;
+        //? }
+        this.sr = this.scaleNoise.getRegion(this.sr, x, z, xSize, zSize, 1.121, 1.121, 0.5);
+        this.dr = this.depthNoise.getRegion(this.dr, x, z, xSize, zSize, 200.0, 200.0, 0.5);
+
+        //~ if >=1.0.0-beta.8.0.r ' x.doubleValue(),' -> ' x,' {
+        //~ if >=1.0.0-beta.8.0.r ' z.doubleValue(),' -> ' z,' {
+        this.pnr = this.perlinNoise1.getRegion(this.pnr, x.doubleValue(), y, z.doubleValue(), xSize, ySize, zSize, s / 80.0, hs / 160.0, s / 80.0);
+        this.ar = this.lperlinNoise1.getRegion(this.ar, x.doubleValue(), y, z.doubleValue(), xSize, ySize, zSize, s, hs, s);
+        this.br = this.lperlinNoise2.getRegion(this.br, x.doubleValue(), y, z.doubleValue(), xSize, ySize, zSize, s, hs, s);
+        //~ }
+        //~ }
+
+        int p = 0;
+        int pp = 0;
+
+        //? <1.0.0-beta.8.0.r
+        int wScale = 16 / xSize;
+        for (int xx = 0; xx < xSize; ++xx) {
+            //? <1.0.0-beta.8.0.r
+            int xp = xx * wScale + wScale / 2;
+
+            for (int zz = 0; zz < zSize; ++zz) {
+                //? >=1.0.0-beta.8.0.r {
+                /*float sss = 0.0F;
+                float ddd = 0.0F;
+                float pow = 0.0F;
+                byte rr = 2;
+                Biome mb = this.biomes[xx + 2 + (zz + 2) * (xSize + 5)];
+
+                for (int xb = -rr; xb <= rr; xb++) {
+                    for (int zb = -rr; zb <= rr; zb++) {
+                        Biome b = this.biomes[xx + xb + 2 + (zz + zb + 2) * (xSize + 5)];
+                        float ppp = this.pows[xb + 2 + (zb + 2) * 5] / (b.depth + 2.0F);
+                        if (b.depth > mb.depth) {
+                            ppp /= 2.0F;
+                        }
+
+                        sss += b.scale * ppp;
+                        ddd += b.depth * ppp;
+                        pow += ppp;
+                    }
+                }
+
+                sss /= pow;
+                ddd /= pow;
+                sss = sss * 0.9F + 0.1F;
+                ddd = (ddd * 4.0F - 1.0F) / 8.0F;
+                *///? } else {
+                int zp = zz * wScale + wScale / 2;
+                double temperature = temperatures[xp * 16 + zp];
+                double downfall = downfalls[xp * 16 + zp] * temperature;
+                double dd = 1 - downfall;
+                dd *= dd;
+                dd *= dd;
+                dd = 1 - dd;
+
+                double scale = (this.sr[pp] + 256.0) / 512.0;
+                scale *= dd;
+                if (scale > 1) scale = 1;
+                //? }
+                //~ if >=1.0.0-beta.8.0.r 'depth' -> 'rdepth' {
+                double depth = this.dr[pp] / 8000.0;
+                if (depth < 0) depth = -depth * 0.3;
+
+                depth = depth * 3.0 - 2.0;
+                if (depth < 0) {
+                    depth /= 2;
+                    if (depth < -1) depth = -1;
+
+                    depth /= 1.4;
+                    depth /= 2;
+                    //? <1.0.0-beta.8.0.r
+                    scale = 0;
+                } else {
+                    if (depth > 1) depth = 1;
+                    depth /= 8;
+                }
+
+                //? <1.0.0-beta.8.0.r {
+                if (scale < 0) scale = 0;
+                scale += 0.5;
+                depth = depth * (double) ySize / 16;
+
+                double yCenter = (double) ySize / 2.0 + depth * 4.0;
+                //? }
+                //~}
+
+                ++pp;
+
+                for (int yy = 0; yy < ySize; ++yy) {
+                    //? >=1.0.0-beta.8.0.r {
+                    /*double depth = ddd;
+                    double scale = sss;
+                    depth += rdepth * 0.2;
+                    depth = depth * ySize / 16.0;
+                    double yCenter = ySize / 2.0 + depth * 4.0;
+                    *///? }
+                    double val = 0;
+                    double yOffs = ((double) yy - yCenter) * 12 / scale;
+                    if (yOffs < 0.0) yOffs *= 4;
+
+                    double bb = this.ar[p] / 512;
+                    double cc = this.br[p] / 512;
+
+                    double v = (this.pnr[p] / 10 + 1) / 2;
+                    if (v < 0.0) val = bb;
+                    else if (v > 1.0) val = cc;
+                    else val = bb + (cc - bb) * v;
+                    val -= yOffs;
+
+                    if (yy > ySize - 4) {
+                        double slide = (float) (yy - (ySize - 4)) / 3.0F;
+                        val = val * (1 - slide) + -10 * slide;
+                    }
+
+                    buffer[p] = val;
+                    ++p;
+                }
+            }
+        }
+
+        return buffer;
     }
 
     @Override
@@ -317,160 +484,149 @@ public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSou
     }
 
     @Override
-    public LevelChunk getChunk(BigInteger x, BigInteger z) {
-        this.random.setSeed(x.longValue() * 341873128712L + z.longValue() * 132897987541L);
-        byte[] tiles = new byte[32768];
-        BigLevelChunk chunk = new BigLevelChunk(this.level, tiles, x, z);
-        this.biomes = this.level.getBiomeSource().getBiomeBlock(this.biomes, x.multiply(BigConstants.SIXTEEN), z.multiply(BigConstants.SIXTEEN), 16, 16);
-        double[] temps = this.level.getBiomeSource().temperatures;
-        prepareHeights(x, z, tiles, this.biomes, temps);
-        buildSurfaces(x, z, tiles, this.biomes);
-        this.caveFeature.apply(this, this.level, x, z, tiles);
-        chunk.recalcHeightmap();
-        return chunk;
-    }
-
-    @Override
-    public LevelChunk loadChunk(BigInteger x, BigInteger z) {
-        return getChunk(x, z);
-    }
-
-    @Override
-    public void postProcess(ChunkSource generator, BigInteger xc, BigInteger zc) {
+    public void postProcess(ChunkSource generator, BigInteger xt, BigInteger zt) {
         SandTile.instaFall = true;
-        BigInteger xt = xc.multiply(BigConstants.SIXTEEN);
-        BigInteger zt = zc.multiply(BigConstants.SIXTEEN);
-        Biome biome = this.level.getBiomeSource().getBiome(xt.add(BigConstants.SIXTEEN), zt.add(BigConstants.SIXTEEN));
+        BigInteger xo = xt.multiply(BigConstants.SIXTEEN);
+        BigInteger zo = zt.multiply(BigConstants.SIXTEEN);
+        Biome biome = this.level.getBiomeSource().getBiome(xo.add(BigConstants.SIXTEEN), zo.add(BigConstants.SIXTEEN));
         this.random.setSeed(this.level.getSeed());
-        long var7 = this.random.nextLong() / 2L * 2L + 1L;
-        long var9 = this.random.nextLong() / 2L * 2L + 1L;
-        this.random.setSeed((long)xc.longValue() * var7 + (long)zc.longValue() * var9 ^ this.level.getSeed());
-        double var11 = 0.25;
+        long xScale = this.random.nextLong() / 2L * 2L + 1L;
+        long zScale = this.random.nextLong() / 2L * 2L + 1L;
+        this.random.setSeed((long) xt.longValue() * xScale + (long) zt.longValue() * zScale ^ this.level.getSeed());
+        //? >=1.0.0-beta.8.0.r {
+        /*boolean hasVillage = false;
+        if (this.generateStructures) {
+            this.strongholdFeature.postProcess(this.level, this.random, xt.intValue(), zt.intValue());
+            this.mineShaftFeature.postProcess(this.level, this.random, xt.intValue(), zt.intValue());
+            hasVillage = this.villageFeature.postProcess(this.level, this.random, xt.intValue(), zt.intValue());
+        }
+        *///? }
+        double ss = 0.25;
         if (this.random.nextInt(4) == 0) {
-            BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+            BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
-            BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+            BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             new LakeFeature(Tile.calmWater.id).place(this.level, this.random, x, y, z);
         }
 
         if (this.random.nextInt(8) == 0) {
-            BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+            BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(this.random.nextInt(120) + 8);
-            BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+            BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             if (y < 64 || this.random.nextInt(10) == 0) {
                 new LakeFeature(Tile.calmLava.id).place(this.level, this.random, x, y, z);
             }
         }
 
-        for(int i = 0; i < 8; ++i) {
-            BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+        for (int i = 0; i < 8; ++i) {
+            BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
-            BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+            BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             new MonsterRoomFeature().place(this.level, this.random, x, y, z);
         }
-        // TODO: Big Int features after this
 
-        for(int i = 0; i < 10; ++i) {
-            BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16)));
+        //? <1.0.0-beta.8.0.r {
+        for (int i = 0; i < 10; ++i) {
+            BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(128);
-            BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16)));
+            BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16)));
             new ClayFeature(32).place(this.level, this.random, x, y, z);
         }
 
-        for(int i = 0; i < 20; ++i) {
-            BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16)));
+        for (int i = 0; i < 20; ++i) {
+            BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(128);
-            BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16)));
+            BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16)));
             new OreFeature(Tile.dirt.id, 32).place(this.level, this.random, x, y, z);
         }
 
-        for(int i = 0; i < 10; ++i) {
-            BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16)));
+        for (int i = 0; i < 10; ++i) {
+            BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(128);
-            BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16)));
+            BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16)));
             new OreFeature(Tile.gravel.id, 32).place(this.level, this.random, x, y, z);
         }
 
-        for(int i = 0; i < 20; ++i) {
-            BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16)));
+        for (int i = 0; i < 20; ++i) {
+            BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(128);
-            BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16)));
+            BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16)));
             new OreFeature(Tile.coalOre.id, 16).place(this.level, this.random, x, y, z);
         }
 
-        for(int i = 0; i < 20; ++i) {
-            BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16)));
+        for (int i = 0; i < 20; ++i) {
+            BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(64);
-            BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16)));
+            BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16)));
             new OreFeature(Tile.ironOre.id, 8).place(this.level, this.random, x, y, z);
         }
 
-        for(int i = 0; i < 2; ++i) {
-            BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16)));
+        for (int i = 0; i < 2; ++i) {
+            BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(32);
-            BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16)));
+            BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16)));
             new OreFeature(Tile.goldOre.id, 8).place(this.level, this.random, x, y, z);
         }
 
-        for(int i = 0; i < 8; ++i) {
-            BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16)));
+        for (int i = 0; i < 8; ++i) {
+            BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(16);
-            BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16)));
+            BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16)));
             new OreFeature(Tile.redStoneOre.id, 7).place(this.level, this.random, x, y, z);
         }
 
-        for(int i = 0; i < 1; ++i) {
-            BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16)));
+        for (int i = 0; i < 1; ++i) {
+            BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(16);
-            BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16)));
+            BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16)));
             new OreFeature(Tile.diamondOre.id, 7).place(this.level, this.random, x, y, z);
         }
 
-        for(int i = 0; i < 1; ++i) {
-            BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16)));
+        for (int i = 0; i < 1; ++i) {
+            BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16)));
             int y = this.random.nextInt(16) + this.random.nextInt(16);
-            BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16)));
+            BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16)));
             new OreFeature(Tile.lapisOre.id, 6).place(this.level, this.random, x, y, z);
         }
 
-        var11 = 0.5;
-        int treeNoise = (int)((this.forestNoise.getValue((double)xt.doubleValue() * var11, (double)zt.doubleValue() * var11) / 8.0 + this.random.nextDouble() * 4.0 + 4.0) / 3.0);
-        int treeCount = 0;
+        ss = 0.5;
+        int oFor = (int) ((this.forestNoise.getValue((double) xo.doubleValue() * ss, (double) zo.doubleValue() * ss) / 8.0 + this.random.nextDouble() * 4.0 + 4.0) / 3.0);
+        int forests = 0;
         if (this.random.nextInt(10) == 0) {
-            ++treeCount;
+            ++forests;
         }
 
         if (biome == Biome.forest) {
-            treeCount += treeNoise + 5;
+            forests += oFor + 5;
         }
 
         if (biome == Biome.rainForest) {
-            treeCount += treeNoise + 5;
+            forests += oFor + 5;
         }
 
         if (biome == Biome.seasonalForest) {
-            treeCount += treeNoise + 2;
+            forests += oFor + 2;
         }
 
         if (biome == Biome.taiga) {
-            treeCount += treeNoise + 5;
+            forests += oFor + 5;
         }
 
         if (biome == Biome.desert) {
-            treeCount -= 20;
+            forests -= 20;
         }
 
         if (biome == Biome.tundra) {
-            treeCount -= 20;
+            forests -= 20;
         }
 
         if (biome == Biome.plains) {
-            treeCount -= 20;
+            forests -= 20;
         }
 
-        for(int i = 0; i < treeCount; ++i) {
-            BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+        for (int i = 0; i < forests; ++i) {
+            BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+            BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             Feature treeFeature = biome.getTreeFeature(this.random);
             treeFeature.init(1.0, 1.0, 1.0);
             treeFeature.place(this.level, this.random, x, this.level.getHeightmap(x, z), z);
@@ -493,10 +649,10 @@ public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSou
             flowerCount = 3;
         }
 
-        for(int i = 0; i < flowerCount; ++i) {
-            BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+        for (int i = 0; i < flowerCount; ++i) {
+            BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
-            BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+            BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             new FlowerFeature(Tile.flower.id).place(this.level, this.random, x, y, z);
         }
 
@@ -521,15 +677,15 @@ public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSou
             foilageAmount = 10;
         }
 
-        for(int i = 0; i < foilageAmount; ++i) {
+        for (int i = 0; i < foilageAmount; ++i) {
             byte data = 1;
             if (biome == Biome.rainForest && this.random.nextInt(3) != 0) {
                 data = 2;
             }
 
-            BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+            BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
-            BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+            BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             new GrassFeature(Tile.tallgrass.id, data).place(this.level, this.random, x, y, z);
         }
 
@@ -538,45 +694,45 @@ public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSou
             foilageAmount = 2;
         }
 
-        for(int i = 0; i < foilageAmount; ++i) {
-            BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+        for (int i = 0; i < foilageAmount; ++i) {
+            BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
-            BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+            BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             new BushFeature(Tile.deadBush.id).place(this.level, this.random, x, y, z);
         }
 
         if (this.random.nextInt(2) == 0) {
-            BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+            BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
-            BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+            BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             new FlowerFeature(Tile.rose.id).place(this.level, this.random, x, y, z);
         }
 
         if (this.random.nextInt(4) == 0) {
-            BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+            BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
-            BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+            BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             new FlowerFeature(Tile.mushroom1.id).place(this.level, this.random, x, y, z);
         }
 
         if (this.random.nextInt(8) == 0) {
-            BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+            BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
-            BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+            BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             new FlowerFeature(Tile.mushroom2.id).place(this.level, this.random, x, y, z);
         }
 
-        for(int i = 0; i < 10; ++i) {
-            BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+        for (int i = 0; i < 10; ++i) {
+            BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
-            BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+            BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             new ReedsFeature().place(this.level, this.random, x, y, z);
         }
 
         if (this.random.nextInt(32) == 0) {
-            BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+            BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
-            BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+            BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             new PumpkinFeature().place(this.level, this.random, x, y, z);
         }
 
@@ -585,37 +741,37 @@ public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSou
             cactusCount += 10;
         }
 
-        for(int i = 0; i < cactusCount; ++i) {
-            BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+        for (int i = 0; i < cactusCount; ++i) {
+            BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
-            BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+            BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             new CactusFeature().place(this.level, this.random, x, y, z);
         }
 
-        for(int i = 0; i < 50; ++i) {
-            BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+        for (int i = 0; i < 50; ++i) {
+            BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(this.random.nextInt(120) + 8);
-            BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+            BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             new SpringFeature(Tile.water.id).place(this.level, this.random, x, y, z);
         }
 
-        for(int i = 0; i < 20; ++i) {
-            BigInteger x = xt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+        for (int i = 0; i < 20; ++i) {
+            BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(this.random.nextInt(this.random.nextInt(112) + 8) + 8);
-            BigInteger z = zt.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+            BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             new SpringFeature(Tile.lava.id).place(this.level, this.random, x, y, z);
         }
 
-        this.temperatures = this.level.getBiomeSource().getTemperatureBlock(this.temperatures, xt.add(BigConstants.EIGHT), zt.add(BigConstants.EIGHT), 16, 16);
+        this.temperatures = this.level.getBiomeSource().getTemperatureBlock(this.temperatures, xo.add(BigConstants.EIGHT), zo.add(BigConstants.EIGHT), 16, 16);
 
-        BigInteger cXT = xt.add(BigConstants.EIGHT).add(BigConstants.SIXTEEN);
-        BigInteger cZT = zt.add(BigConstants.EIGHT).add(BigConstants.SIXTEEN);
-        for(BigInteger x = xt.add(BigConstants.EIGHT); x.compareTo(cXT) < 0; x = x.add(BigInteger.ONE)) {
-            for(BigInteger z = zt.add(BigConstants.EIGHT); z.compareTo(cZT) < 0; z = z.add(BigInteger.ONE)) {
-                int xIndex = x.subtract(xt.add(BigConstants.EIGHT)).intValue();
-                int zIndex = z.subtract(zt.add(BigConstants.EIGHT)).intValue();
-                int topTile = this.level.getTopSolidBlock(x, z);
-                double temp = this.temperatures[xIndex * 16 + zIndex] - (double)(topTile - 64) / 64.0 * 0.3;
+        BigInteger cXT = xo.add(BigConstants.EIGHT).add(BigConstants.SIXTEEN);
+        BigInteger cZT = zo.add(BigConstants.EIGHT).add(BigConstants.SIXTEEN);
+        for (BigInteger x = xo.add(BigConstants.EIGHT); x.compareTo(cXT) < 0; x = x.add(BigInteger.ONE)) {
+            for (BigInteger z = zo.add(BigConstants.EIGHT); z.compareTo(cZT) < 0; z = z.add(BigInteger.ONE)) {
+                int xIndex = x.subtract(xo.add(BigConstants.EIGHT)).intValue();
+                int zIndex = z.subtract(zo.add(BigConstants.EIGHT)).intValue();
+                int topTile = this.level.getTopRainBlock(x, z);
+                double temp = this.temperatures[xIndex * 16 + zIndex] - (double) (topTile - 64) / 64.0 * 0.3;
                 if (temp < 0.5
                         && topTile > 0
                         && topTile < 128
@@ -626,6 +782,10 @@ public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSou
                 }
             }
         }
+        //? } else {
+        /*biome.decorate(this.level, this.random, xo, zo);
+        MobSpawner.postProcessSpawnMobs(this.level, biome, xo.add(BigConstants.EIGHT).intValue(), zo.add(BigConstants.EIGHT).intValue(), 16, 16, this.random);
+        *///? }
 
         SandTile.instaFall = false;
     }

@@ -1,5 +1,6 @@
 package me.alphamode.mcbig.mixin.client;
 
+import dev.kikugie.fletching_table.mixin.MixinIgnore;
 import me.alphamode.mcbig.extensions.BigOffsettedRenderListExtension;
 import net.minecraft.client.renderer.OffsettedRenderList;
 import org.lwjgl.opengl.GL11;
@@ -10,6 +11,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import java.math.BigInteger;
 import java.nio.IntBuffer;
 
+// TODO: still based on b1.7.3
+@MixinIgnore
 @Mixin(OffsettedRenderList.class)
 public class OffsettedRenderListMixin implements BigOffsettedRenderListExtension {
 

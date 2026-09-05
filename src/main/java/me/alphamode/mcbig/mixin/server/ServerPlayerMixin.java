@@ -4,13 +4,15 @@ import me.alphamode.mcbig.extensions.server.BigServerPlayerExtension;
 import me.alphamode.mcbig.level.chunk.BigChunkPos;
 import me.alphamode.mcbig.math.BigConstants;
 import me.alphamode.mcbig.networking.payload.BigBlockRegionUpdatePayload;
-import net.minecraft.network.packets.Packet;
-import net.minecraft.network.packets.SetHealthPacket;
+import net.minecraft.network.packet.Packet;
+//? >=1.0.0-beta.8.0.r
+//import net.minecraft.network.packet.SetExperiencePacket;
+import net.minecraft.network.packet.SetHealthPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.PlayerConnection;
-import net.minecraft.world.ItemInstance;
+import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ComplexItem;
 import net.minecraft.world.item.Item;
@@ -38,6 +40,14 @@ public abstract class ServerPlayerMixin extends Player implements BigServerPlaye
 
     @Shadow
     private int lastSentHealth;
+    //? >=1.0.0-beta.8.0.r {
+    /*@Shadow
+    private int lastSentExp;
+    @Shadow
+    private int lastSentFood;
+    @Shadow
+    private boolean lastFoodSaturationZero;
+    *///? }
     public final List<BigChunkPos> bigChunks = new LinkedList<>();
     public final Set<BigChunkPos> trackedBigChunks = new HashSet<>();
 
@@ -60,11 +70,11 @@ public abstract class ServerPlayerMixin extends Player implements BigServerPlaye
      * @reason
      */
     @Overwrite
-    public void doTick(boolean force) {
+    public void doTick(boolean sendChunks) {
         super.tick();
 
-        for (int var2 = 0; var2 < this.inventory.getContainerSize(); var2++) {
-            ItemInstance item = this.inventory.getItem(var2);
+        for (int i = 0; i < this.inventory.getContainerSize(); i++) {
+            ItemInstance item = this.inventory.getItem(i);
             if (item != null && Item.items[item.id].isComplex() && this.connection.countDelayedPackets() <= 2) {
                 Packet packet = ((ComplexItem) Item.items[item.id]).getUpdatePacket(item, this.level, this);
                 if (packet != null) {
@@ -73,7 +83,7 @@ public abstract class ServerPlayerMixin extends Player implements BigServerPlaye
             }
         }
 
-        if (force && !this.bigChunks.isEmpty()) {
+        if (sendChunks && !this.bigChunks.isEmpty()) {
             BigChunkPos pos = this.bigChunks.get(0);
             if (pos != null) {
                 boolean broadcastChanges = false;
@@ -89,8 +99,8 @@ public abstract class ServerPlayerMixin extends Player implements BigServerPlaye
                     this.connection.sendPayload(new BigBlockRegionUpdatePayload(xt, 0, zt, 16, 128, 16, l));
                     List<TileEntity> tileEntities = l.getTileEntities(xt, 0, zt, xt.add(BigConstants.SIXTEEN), 128, zt.add(BigConstants.SIXTEEN));
 
-                    for (int var6 = 0; var6 < tileEntities.size(); var6++) {
-                        this.broadcast(tileEntities.get(var6));
+                    for (TileEntity tileEntity : tileEntities) {
+                        this.broadcast(tileEntity);
                     }
                 }
             }
@@ -110,6 +120,11 @@ public abstract class ServerPlayerMixin extends Player implements BigServerPlaye
                         this.portalTime = 1.0F;
                         this.changingDimensionDelay = 10;
                         this.server.players.toggleDimension((ServerPlayer) (Object) this);
+                        //? >=1.0.0-beta.8.0.r {
+                        /*this.lastSentExp = -1;
+                        this.lastSentHealth = -1;
+                        this.lastSentFood = -1;
+                        *///? }
                     }
                 }
 
@@ -129,9 +144,25 @@ public abstract class ServerPlayerMixin extends Player implements BigServerPlaye
             this.changingDimensionDelay--;
         }
 
+        //? >=1.0.0-beta.8.0.r {
+        /*if (this.health != this.lastSentHealth
+                || this.lastSentFood != this.foodData.getFoodLevel()
+                || this.foodData.getSaturationLevel() == 0.0F != this.lastFoodSaturationZero) {
+            this.connection.send(new SetHealthPacket(this.health, this.foodData.getFoodLevel(), this.foodData.getSaturationLevel()));
+            this.lastSentHealth = this.health;
+            this.lastSentFood = this.foodData.getFoodLevel();
+            this.lastFoodSaturationZero = this.foodData.getSaturationLevel() == 0.0F;
+        }
+
+        if (this.totalExperience != this.lastSentExp) {
+            this.lastSentExp = this.totalExperience;
+            this.connection.send(new SetExperiencePacket(this.experienceProgress, this.totalExperience, this.experienceLevel));
+        }
+        *///? } else {
         if (this.health != this.lastSentHealth) {
             this.connection.send(new SetHealthPacket(this.health));
             this.lastSentHealth = this.health;
         }
+        //? }
     }
 }

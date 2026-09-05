@@ -10,10 +10,12 @@ import net.minecraft.client.multiplayer.MultiplayerChunkCache;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.Dimension;
-import net.minecraft.world.level.storage.LevelStorage;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+
+//? <1.0.0-beta.8.0.r
+import net.minecraft.world.level.storage.LevelStorage;
 
 import java.math.BigInteger;
 import java.util.LinkedList;
@@ -29,9 +31,15 @@ public abstract class MultiPlayerLevelMixin extends Level implements BigMultiPla
     private ClientConnection connection;
     private LinkedList<BigResetInfo> updatesToResetBig = new LinkedList<>();
 
+    //? >=1.0.0-beta.8.0.r {
+    /*public MultiPlayerLevelMixin(Level level, Dimension dimension) {
+        super(level, dimension);
+    }
+    *///? } else {
     public MultiPlayerLevelMixin(LevelStorage levelStorage, String name, Dimension dimension, long seed) {
         super(levelStorage, name, dimension, seed);
     }
+    //? }
 
     /**
      * @author
@@ -41,6 +49,7 @@ public abstract class MultiPlayerLevelMixin extends Level implements BigMultiPla
     @Override
     public void tick() {
         this.setTime(this.getTime() + 1L);
+        //? <1.0.0-beta.8.0.r {
         int newDark = this.getSkyDarken(1.0F);
         if (newDark != this.skyDarken) {
             this.skyDarken = newDark;
@@ -49,6 +58,7 @@ public abstract class MultiPlayerLevelMixin extends Level implements BigMultiPla
                 this.listeners.get(i).skyColorChanged();
             }
         }
+        //? }
 
         for (int i = 0; i < 10 && !this.reEntries.isEmpty(); i++) {
             Entity e = this.reEntries.iterator().next();
@@ -82,9 +92,9 @@ public abstract class MultiPlayerLevelMixin extends Level implements BigMultiPla
     @Override
     public void setChunkVisible(BigInteger x, BigInteger z, boolean visible) {
         if (visible) {
-            this.chunkCache.loadChunk(x, z);
+            this.chunkCache.create(x, z);
         } else {
-            ((BigMultiplayerChunkCacheExtension) this.chunkCache).unloadChunk(x, z);
+            ((BigMultiplayerChunkCacheExtension) this.chunkCache).drop(x, z);
         }
 
         if (!visible) {

@@ -6,6 +6,7 @@ import com.mojang.nbt.NbtIo;
 import me.alphamode.mcbig.extensions.BigChunkStorageExtension;
 import me.alphamode.mcbig.level.chunk.BigLevelChunk;
 import me.alphamode.mcbig.math.BigConstants;
+import me.alphamode.mcbig.world.level.LevelConstants;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityIO;
 import net.minecraft.world.level.Level;
@@ -99,28 +100,28 @@ public abstract class OldChunkStorageMixin implements BigChunkStorageExtension {
     public void save(Level level, LevelChunk chunk) {
         level.checkSession();
         BigLevelChunk bigChunk = (BigLevelChunk) chunk;
-        File var3 = this.getFile(bigChunk.bigX, bigChunk.bigZ);
-        if (var3.exists()) {
-            LevelData var4 = level.getLevelData();
-            var4.setSize(var4.getSize() - var3.length());
+        File file = this.getFile(bigChunk.bigX, bigChunk.bigZ);
+        if (file.exists()) {
+            LevelData levelData = level.getLevelData();
+            levelData.setSize(levelData.getSize() - file.length());
         }
 
         try {
-            File var10 = new File(this.dir, "tmp_chunk.dat");
-            FileOutputStream var5 = new FileOutputStream(var10);
-            CompoundTag var6 = new CompoundTag();
-            CompoundTag var7 = new CompoundTag();
-            var6.putTag("Level", var7);
-            save(chunk, level, var7);
-            NbtIo.write(var6, var5);
-            var5.close();
-            if (var3.exists()) {
-                var3.delete();
+            File tmpFile = new File(this.dir, "tmp_chunk.dat");
+            FileOutputStream fos = new FileOutputStream(tmpFile);
+            CompoundTag tag = new CompoundTag();
+            CompoundTag levelData = new CompoundTag();
+            tag.putTag("Level", levelData);
+            save(chunk, level, levelData);
+            NbtIo.write(tag, fos);
+            fos.close();
+            if (file.exists()) {
+                file.delete();
             }
 
-            var10.renameTo(var3);
-            LevelData var8 = level.getLevelData();
-            var8.setSize(var8.getSize() + var3.length());
+            tmpFile.renameTo(file);
+            LevelData levelInfo = level.getLevelData();
+            levelInfo.setSize(levelInfo.getSize() + file.length());
         } catch (Exception var9) {
             var9.printStackTrace();
         }
@@ -144,28 +145,44 @@ public abstract class OldChunkStorageMixin implements BigChunkStorageExtension {
         data.putByteArray("HeightMap", chunk.heightMap);
         data.putBoolean("TerrainPopulated", chunk.terrainPopulated);
         chunk.lastSaveHadEntities = false;
-        ListTag var3 = new ListTag();
+        ListTag entityTags = new ListTag();
 
-        for(int var4 = 0; var4 < chunk.entityBlocks.length; ++var4) {
-            for(Object var6 : chunk.entityBlocks[var4]) {
+        for(int i = 0; i < chunk.entityBlocks.length; ++i) {
+            for(Entity e : chunk.entityBlocks[i]) {
                 chunk.lastSaveHadEntities = true;
-                CompoundTag var7 = new CompoundTag();
-                if (((Entity) var6).save(var7)) {
-                    var3.add(var7);
+                CompoundTag teTag = new CompoundTag();
+                if (e.save(teTag)) {
+                    entityTags.add(teTag);
                 }
             }
         }
 
-        data.putTag("Entities", var3);
-        ListTag var8 = new ListTag();
+        data.putTag("Entities", entityTags);
+        ListTag tileEntityTags = new ListTag();
 
-        for(Object var10 : chunk.tileEntities.values()) {
-            CompoundTag var11 = new CompoundTag();
-            ((TileEntity)var10).save(var11);
-            var8.add(var11);
+        for(TileEntity te : chunk.tileEntities.values()) {
+            CompoundTag teTag = new CompoundTag();
+            te.save(teTag);
+            tileEntityTags.add(teTag);
         }
 
-        data.putTag("TileEntities", var8);
+        data.putTag("TileEntities", tileEntityTags);
+    }
+
+    private static DataLayer createDataLayer(byte[] data) {
+        //? >=1.0.0-beta.8.0.r {
+        /*return new DataLayer(data, LevelConstants.genDepthBits);
+        *///? } else {
+        return new DataLayer(data);
+        //? }
+    }
+
+    private static DataLayer createDataLayer(int length) {
+        //? >=1.0.0-beta.8.0.r {
+        /*return new DataLayer(length, LevelConstants.genDepthBits);
+         *///? } else {
+        return new DataLayer(length);
+        //? }
     }
 
     /**
@@ -174,53 +191,53 @@ public abstract class OldChunkStorageMixin implements BigChunkStorageExtension {
      */
     @Overwrite
     public static LevelChunk load(Level level, CompoundTag tag) {
-        BigInteger var2 = new BigInteger(tag.getString("xPos"));
-        BigInteger var3 = new BigInteger(tag.getString("zPos"));
-        BigLevelChunk var4 = new BigLevelChunk(level, var2, var3);
-        var4.blocks = tag.getByteArray("Blocks");
-        var4.data = new DataLayer(tag.getByteArray("Data"));
-        var4.skyLight = new DataLayer(tag.getByteArray("SkyLight"));
-        var4.blockLight = new DataLayer(tag.getByteArray("BlockLight"));
-        var4.heightMap = tag.getByteArray("HeightMap");
-        var4.terrainPopulated = tag.getBoolean("TerrainPopulated");
-        if (!var4.data.isValid()) {
-            var4.data = new DataLayer(var4.blocks.length);
+        BigInteger x = new BigInteger(tag.getString("xPos"));
+        BigInteger z = new BigInteger(tag.getString("zPos"));
+        BigLevelChunk levelChunk = new BigLevelChunk(level, x, z);
+        levelChunk.blocks = tag.getByteArray("Blocks");
+        levelChunk.data = createDataLayer(tag.getByteArray("Data"));
+        levelChunk.skyLight = createDataLayer(tag.getByteArray("SkyLight"));
+        levelChunk.blockLight = createDataLayer(tag.getByteArray("BlockLight"));
+        levelChunk.heightMap = tag.getByteArray("HeightMap");
+        levelChunk.terrainPopulated = tag.getBoolean("TerrainPopulated");
+        if (!levelChunk.data.isValid()) {
+            levelChunk.data = createDataLayer(levelChunk.blocks.length);
         }
 
-        if (var4.heightMap == null || !var4.skyLight.isValid()) {
-            var4.heightMap = new byte[256];
-            var4.skyLight = new DataLayer(var4.blocks.length);
-            var4.recalcHeightmap();
+        if (levelChunk.heightMap == null || !levelChunk.skyLight.isValid()) {
+            levelChunk.heightMap = new byte[256];
+            levelChunk.skyLight = createDataLayer(levelChunk.blocks.length);
+            levelChunk.recalcHeightmap();
         }
 
-        if (!var4.blockLight.isValid()) {
-            var4.blockLight = new DataLayer(var4.blocks.length);
-            var4.recalcBlockLights();
+        if (!levelChunk.blockLight.isValid()) {
+            levelChunk.blockLight = createDataLayer(levelChunk.blocks.length);
+            levelChunk.recalcBlockLights();
         }
 
-        ListTag var5 = tag.getList("Entities");
-        if (var5 != null) {
-            for(int var6 = 0; var6 < var5.size(); ++var6) {
-                CompoundTag var7 = (CompoundTag)var5.get(var6);
-                Entity var8 = EntityIO.loadStatic(var7, level);
-                var4.lastSaveHadEntities = true;
-                if (var8 != null) {
-                    var4.addEntity(var8);
+        ListTag entityTags = tag.getList("Entities");
+        if (entityTags != null) {
+            for(int i = 0; i < entityTags.size(); ++i) {
+                CompoundTag teTag = (CompoundTag)entityTags.get(i);
+                Entity te = EntityIO.loadStatic(teTag, level);
+                levelChunk.lastSaveHadEntities = true;
+                if (te != null) {
+                    levelChunk.addEntity(te);
                 }
             }
         }
 
-        ListTag var10 = tag.getList("TileEntities");
-        if (var10 != null) {
-            for(int var11 = 0; var11 < var10.size(); ++var11) {
-                CompoundTag var12 = (CompoundTag)var10.get(var11);
-                TileEntity var9 = TileEntity.loadStatic(var12);
-                if (var9 != null) {
-                    var4.addTileEntity(var9);
+        ListTag tileEntityTags = tag.getList("TileEntities");
+        if (tileEntityTags != null) {
+            for(int i = 0; i < tileEntityTags.size(); ++i) {
+                CompoundTag teTag = (CompoundTag)tileEntityTags.get(i);
+                TileEntity te = TileEntity.loadStatic(teTag);
+                if (te != null) {
+                    levelChunk.addTileEntity(te);
                 }
             }
         }
 
-        return var4;
+        return levelChunk;
     }
 }

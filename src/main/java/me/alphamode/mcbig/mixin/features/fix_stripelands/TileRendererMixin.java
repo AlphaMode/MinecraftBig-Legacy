@@ -1,5 +1,6 @@
 package me.alphamode.mcbig.mixin.features.fix_stripelands;
 
+import dev.kikugie.fletching_table.mixin.MixinEnvironment;
 import me.alphamode.mcbig.extensions.features.fix_stripelands.BigTileRendererExtension;
 import net.minecraft.client.renderer.Tesselator;
 import net.minecraft.client.renderer.TileRenderer;
@@ -9,6 +10,7 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import java.math.BigDecimal;
 
+@MixinEnvironment(type = MixinEnvironment.Env.CLIENT)
 @Mixin(TileRenderer.class)
 public class TileRendererMixin implements BigTileRendererExtension {
     @Shadow
@@ -73,6 +75,17 @@ public class TileRendererMixin implements BigTileRendererExtension {
 
     @Shadow
     private float c4b;
+
+    //? >=1.0.0-beta.8.0.r {
+    /*@Shadow
+    private int tc1;
+    @Shadow
+    private int tc2;
+    @Shadow
+    private int tc3;
+    @Shadow
+    private int tc4;
+    *///? }
 
     @Override
     public void renderFaceDown(Tile tile, BigDecimal x, double y, BigDecimal z, int tex) {
@@ -575,12 +588,20 @@ public class TileRendererMixin implements BigTileRendererExtension {
         BigDecimal z1 = z.add(new BigDecimal(tile.zz1));
         if (this.blen) {
             t.color(this.c1r, this.c1g, this.c1b);
+            //? >=1.0.0-beta.8.0.r
+            //t.tex2(this.tc1);
             t.vertexUV(x0, y0, z1, var22, var26);
             t.color(this.c2r, this.c2g, this.c2b);
+            //? >=1.0.0-beta.8.0.r
+            //t.tex2(this.tc2);
             t.vertexUV(x0, y0, z0, u1, v1);
             t.color(this.c3r, this.c3g, this.c3b);
+            //? >=1.0.0-beta.8.0.r
+            //t.tex2(this.tc3);
             t.vertexUV(x0, y1, z0, var42, var24);
             t.color(this.c4r, this.c4g, this.c4b);
+            //? >=1.0.0-beta.8.0.r
+            //t.tex2(this.tc4);
             t.vertexUV(x0, y1, z1, u0, v0);
         } else {
             t.vertexUV(x0, y0, z1, var22, var26);

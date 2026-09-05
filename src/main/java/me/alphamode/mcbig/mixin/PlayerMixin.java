@@ -4,19 +4,18 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
-import me.alphamode.mcbig.extensions.PlayerExtension;
+import me.alphamode.mcbig.extensions.BigPlayerExtension;
+import me.alphamode.mcbig.extensions.CommandPlayerExtension;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Player.class)
-public abstract class PlayerMixin extends Entity implements PlayerExtension {
+public abstract class PlayerMixin extends Entity implements BigPlayerExtension, CommandPlayerExtension {
 
     private boolean noclip = false;
     private boolean canFly = false;

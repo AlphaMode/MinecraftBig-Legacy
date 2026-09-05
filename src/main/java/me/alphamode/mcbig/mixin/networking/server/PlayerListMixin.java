@@ -32,7 +32,7 @@ public abstract class PlayerListMixin {
         this.players.add(player);
         BigEntityExtension bigPlayer = (BigEntityExtension) player;
         ServerLevel level = this.server.getLevel(player.dimension);
-        level.serverCache.loadChunk(bigPlayer.getX().toBigInteger().shiftRight(4), bigPlayer.getZ().toBigInteger().shiftRight(4));
+        level.serverCache.create(bigPlayer.getX().toBigInteger().shiftRight(4), bigPlayer.getZ().toBigInteger().shiftRight(4));
 
         while (level.getCubes(player, bigPlayer.getBigBB()).size() != 0) {
             bigPlayer.setPos(bigPlayer.getX(), player.y + 1.0, bigPlayer.getZ());

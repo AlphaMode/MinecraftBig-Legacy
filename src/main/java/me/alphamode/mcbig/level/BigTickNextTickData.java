@@ -20,7 +20,7 @@ public class BigTickNextTickData extends TickNextTickData {
             return false;
         } else {
             BigTickNextTickData other = (BigTickNextTickData) obj;
-            return this.xBig.equals(other.x) && this.y == other.y && this.zBig.equals(other.zBig) && this.priority == other.priority;
+            return this.xBig.equals(other.x) && this.y == other.y && this.zBig.equals(other.zBig) && this.tileId == other.tileId;
         }
     }
 }

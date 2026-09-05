@@ -3,7 +3,7 @@ package me.alphamode.mcbig.commands;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import me.alphamode.mcbig.commands.arguments.ItemArgument;
-import net.minecraft.world.ItemInstance;
+import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.entity.player.Player;
 
 public class GiveCommand {

@@ -65,7 +65,7 @@ public class PlayerChunkMapMixin implements BigPlayerChunkMapExtension {
     }
 
     @Override
-    public void blockChanged(BigInteger x, int y, BigInteger z) {
+    public void tileChanged(BigInteger x, int y, BigInteger z) {
         BigInteger xc = x.shiftRight(4);
         BigInteger zc = z.shiftRight(4);
         BigPlayerChunk chunk = this.getChunk(xc, zc, false);
@@ -79,8 +79,8 @@ public class PlayerChunkMapMixin implements BigPlayerChunkMapExtension {
      * @reason fallback to big version
      */
     @Overwrite
-    public void blockChanged(int x, int y, int z) {
-        this.blockChanged(BigInteger.valueOf(x), y, BigInteger.valueOf(z));
+    public void tileChanged(int x, int y, int z) {
+        this.tileChanged(BigInteger.valueOf(x), y, BigInteger.valueOf(z));
     }
 
     /**
@@ -88,7 +88,7 @@ public class PlayerChunkMapMixin implements BigPlayerChunkMapExtension {
      * @reason
      */
     @Overwrite
-    public void addPlayer(ServerPlayer player) {
+    public void add(ServerPlayer player) {
         BigEntityExtension bigPlayer = (BigEntityExtension) player;
         BigInteger xc = bigPlayer.getX().toBigInteger().shiftRight(4);
         BigInteger zc = bigPlayer.getZ().toBigInteger().shiftRight(4);
@@ -128,7 +128,7 @@ public class PlayerChunkMapMixin implements BigPlayerChunkMapExtension {
      * @reason
      */
     @Overwrite
-    public void removePlayer(ServerPlayer player) {
+    public void remove(ServerPlayer player) {
         BigInteger xc = player.getLastX().toBigInteger().shiftRight(4);
         BigInteger zc = player.getLastZ().toBigInteger().shiftRight(4);
 

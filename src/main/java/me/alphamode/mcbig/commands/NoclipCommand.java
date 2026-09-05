@@ -2,7 +2,7 @@ package me.alphamode.mcbig.commands;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
-import me.alphamode.mcbig.extensions.PlayerExtension;
+import me.alphamode.mcbig.extensions.CommandPlayerExtension;
 import net.minecraft.world.entity.Entity;
 
 public class NoclipCommand {
@@ -11,7 +11,7 @@ public class NoclipCommand {
                 Commands.literal("noclip")
                         .executes(context -> {
                             Entity entity = context.getSource().getEntity();
-                            if (entity instanceof PlayerExtension player) {
+                            if (entity instanceof CommandPlayerExtension player) {
                                 entity.noPhysics = !entity.noPhysics;
                                 player.setNoclip(!player.canNoclip());
                                 context.getSource().sendMessage("Toggled noclip: " + player.canFly());

@@ -2,7 +2,7 @@ package me.alphamode.mcbig.mixin.tiles;
 
 import me.alphamode.mcbig.extensions.BigTileExtension;
 import me.alphamode.mcbig.extensions.tiles.BigBedTileExtension;
-import net.minecraft.util.Vec3i;
+import net.minecraft.Pos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelSource;
@@ -83,7 +83,7 @@ public abstract class BedTileMixin extends Tile implements BigTileExtension {
 
                     for (Player p : level.players) {
                         if (p.isSleeping()) {
-                            Vec3i pos = p.sleepingPos;
+                            Pos pos = p.sleepingPos;
                             if (pos.x == x.intValue() && pos.y == y && pos.z == z.intValue()) {
                                 var16 = p;
                             }

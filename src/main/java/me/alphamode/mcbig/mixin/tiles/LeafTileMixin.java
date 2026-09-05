@@ -4,7 +4,7 @@ import me.alphamode.mcbig.extensions.BigTileExtension;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.stats.Stats;
-import net.minecraft.world.ItemInstance;
+import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -23,6 +23,7 @@ import java.util.Random;
 
 @Mixin(LeafTile.class)
 public class LeafTileMixin extends TransparentTile implements BigTileExtension {
+    private static int REQUIRED_WOOD_RANGE = 4;
     @Shadow
     private int[] checkBuffer;
 
@@ -39,9 +40,14 @@ public class LeafTileMixin extends TransparentTile implements BigTileExtension {
         } else if ((data & 2) == 2) {
             return FoliageColor.getBirchColor();
         } else {
+            //? >=1.0.0-beta.8.0.r {
+            /*double temperature = level.getBiomeSource().getTemperature(x, z);
+            double downfall = level.getBiomeSource().getDownfall(x, z);
+            *///? } else {
             level.getBiomeSource().getBiomeBlock(x, z, 1, 1);
             double temperature = level.getBiomeSource().temperatures[0];
             double downfall = level.getBiomeSource().downfalls[0];
+            //? }
             return FoliageColor.get(temperature, downfall);
         }
     }
@@ -74,72 +80,68 @@ public class LeafTileMixin extends TransparentTile implements BigTileExtension {
     public void tick(Level level, BigInteger x, int y, BigInteger z, Random random) {
         if (!level.isClientSide) {
             int data = level.getData(x, y, z);
+            //? >= 1.0.0-beta.8.0.r {
+            /*if ((data & 8) != 0 && (data & 4) == 0) {
+            *///? } else {
             if ((data & 8) != 0) {
-                int r = 4;
-                final int range = r + 1;
-                BigInteger bigRange = BigInteger.valueOf(range);
-                byte radius = 32;
-                int var10 = radius * radius;
-                int var11 = radius / 2;
+            //? }
+                int r = REQUIRED_WOOD_RANGE;
+                final int r2 = r + 1;
+                BigInteger r2B = BigInteger.valueOf(r2);
+                byte W = 32;
+                int WW = W * W;
+                int WO = W / 2;
                 if (this.checkBuffer == null) {
-                    this.checkBuffer = new int[radius * radius * radius];
+                    this.checkBuffer = new int[W * W * W];
                 }
 
-                if (level.hasChunksAt(x.subtract(bigRange), y - range, z.subtract(bigRange), x.add(bigRange), y + range, z.add(bigRange))) {
-                    for (int xOff = -r; xOff <= r; xOff++) {
-                        BigInteger bigXOff = BigInteger.valueOf(xOff);
-                        for (int zOff = -r; zOff <= r; zOff++) {
-                            BigInteger bigZOff = BigInteger.valueOf(zOff);
-                            for (int yOff = -r; yOff <= r; yOff++) {
-                                int tile = level.getTile(x.add(bigXOff), y + yOff, z.add(bigZOff));
+                if (level.hasChunksAt(x.subtract(r2B), y - r2, z.subtract(r2B), x.add(r2B), y + r2, z.add(r2B))) {
+                    for (int xo = -r; xo <= r; xo++) {
+                        BigInteger xoB = BigInteger.valueOf(xo);
+                        for (int yo = -r; yo <= r; yo++) {
+                            for (int zo = -r; zo <= r; zo++) {
+                                int tile = level.getTile(x.add(xoB), y + yo, z.add(BigInteger.valueOf(zo)));
                                 if (tile == Tile.treeTrunk.id) {
-                                    this.checkBuffer[(xOff + var11) * var10 + (yOff + var11) * radius + zOff + var11] = 0;
+                                    this.checkBuffer[(xo + WO) * WW + (yo + WO) * W + zo + WO] = 0;
                                 } else if (tile == Tile.leaves.id) {
-                                    this.checkBuffer[(xOff + var11) * var10 + (yOff + var11) * radius + zOff + var11] = -2;
+                                    this.checkBuffer[(xo + WO) * WW + (yo + WO) * W + zo + WO] = -2;
                                 } else {
-                                    this.checkBuffer[(xOff + var11) * var10 + (yOff + var11) * radius + zOff + var11] = -1;
+                                    this.checkBuffer[(xo + WO) * WW + (yo + WO) * W + zo + WO] = -1;
                                 }
                             }
                         }
                     }
 
-                    for (int var16 = 1; var16 <= 4; var16++) {
-                        for (int var18 = -r; var18 <= r; var18++) {
-                            for (int var19 = -r; var19 <= r; var19++) {
-                                for (int var20 = -r; var20 <= r; var20++) {
-                                    if (this.checkBuffer[(var18 + var11) * var10 + (var19 + var11) * radius + var20 + var11] == var16 - 1) {
-                                        if (this.checkBuffer[(var18 + var11 - 1) * var10 + (var19 + var11) * radius + var20 + var11] == -2) {
-                                            this.checkBuffer[(var18 + var11 - 1) * var10 + (var19 + var11) * radius + var20 + var11] = var16;
-                                        }
-
-                                        if (this.checkBuffer[(var18 + var11 + 1) * var10 + (var19 + var11) * radius + var20 + var11] == -2) {
-                                            this.checkBuffer[(var18 + var11 + 1) * var10 + (var19 + var11) * radius + var20 + var11] = var16;
-                                        }
-
-                                        if (this.checkBuffer[(var18 + var11) * var10 + (var19 + var11 - 1) * radius + var20 + var11] == -2) {
-                                            this.checkBuffer[(var18 + var11) * var10 + (var19 + var11 - 1) * radius + var20 + var11] = var16;
-                                        }
-
-                                        if (this.checkBuffer[(var18 + var11) * var10 + (var19 + var11 + 1) * radius + var20 + var11] == -2) {
-                                            this.checkBuffer[(var18 + var11) * var10 + (var19 + var11 + 1) * radius + var20 + var11] = var16;
-                                        }
-
-                                        if (this.checkBuffer[(var18 + var11) * var10 + (var19 + var11) * radius + (var20 + var11 - 1)] == -2) {
-                                            this.checkBuffer[(var18 + var11) * var10 + (var19 + var11) * radius + (var20 + var11 - 1)] = var16;
-                                        }
-
-                                        if (this.checkBuffer[(var18 + var11) * var10 + (var19 + var11) * radius + var20 + var11 + 1] == -2) {
-                                            this.checkBuffer[(var18 + var11) * var10 + (var19 + var11) * radius + var20 + var11 + 1] = var16;
-                                        }
-                                    }
+                    for (int i = 1; i <= REQUIRED_WOOD_RANGE; i++) {
+                        for (int xo = -r; xo <= r; xo++)
+                        for (int yo = -r; yo <= r; yo++)
+                        for (int zo = -r; zo <= r; zo++) {
+                            if (this.checkBuffer[(xo + WO) * WW + (yo + WO) * W + zo + WO] == i - 1) {
+                                if (this.checkBuffer[(xo + WO - 1) * WW + (yo + WO) * W + zo + WO] == -2) {
+                                    this.checkBuffer[(xo + WO - 1) * WW + (yo + WO) * W + zo + WO] = i;
+                                }
+                                if (this.checkBuffer[(xo + WO + 1) * WW + (yo + WO) * W + zo + WO] == -2) {
+                                    this.checkBuffer[(xo + WO + 1) * WW + (yo + WO) * W + zo + WO] = i;
+                                }
+                                if (this.checkBuffer[(xo + WO) * WW + (yo + WO - 1) * W + zo + WO] == -2) {
+                                    this.checkBuffer[(xo + WO) * WW + (yo + WO - 1) * W + zo + WO] = i;
+                                }
+                                if (this.checkBuffer[(xo + WO) * WW + (yo + WO + 1) * W + zo + WO] == -2) {
+                                    this.checkBuffer[(xo + WO) * WW + (yo + WO + 1) * W + zo + WO] = i;
+                                }
+                                if (this.checkBuffer[(xo + WO) * WW + (yo + WO) * W + (zo + WO - 1)] == -2) {
+                                    this.checkBuffer[(xo + WO) * WW + (yo + WO) * W + (zo + WO - 1)] = i;
+                                }
+                                if (this.checkBuffer[(xo + WO) * WW + (yo + WO) * W + zo + WO + 1] == -2) {
+                                    this.checkBuffer[(xo + WO) * WW + (yo + WO) * W + zo + WO + 1] = i;
                                 }
                             }
                         }
                     }
                 }
 
-                int var17 = this.checkBuffer[var11 * var10 + var11 * radius + var11];
-                if (var17 >= 0) {
+                int mid = this.checkBuffer[WO * WW + WO * W + WO];
+                if (mid >= 0) {
                     level.setDataNoUpdate(x, y, z, data & -9);
                 } else {
                     this.die(level, x, y, z);

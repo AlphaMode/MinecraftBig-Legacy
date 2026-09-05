@@ -16,7 +16,7 @@ public interface BigPlayerChunkMapExtension {
         throw new UnsupportedOperationException();
     }
 
-    default void blockChanged(BigInteger x, int y, BigInteger z) {
+    default void tileChanged(BigInteger x, int y, BigInteger z) {
         throw new UnsupportedOperationException();
     }
 }

@@ -1,10 +1,10 @@
 package me.alphamode.mcbig.mixin.items;
 
 import net.minecraft.util.Facing;
-import net.minecraft.world.ItemInstance;
+import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.TileItemWithoutTranslation;
+import net.minecraft.world.item.TilePlanterItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.tile.Tile;
 import org.spongepowered.asm.mixin.Mixin;
@@ -12,12 +12,12 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import java.math.BigInteger;
 
-@Mixin(TileItemWithoutTranslation.class)
-public abstract class TileItemWithoutTranslationMixin extends Item {
+@Mixin(TilePlanterItem.class)
+public abstract class TilePlanterItemMixin extends Item {
     @Shadow
     private int tile;
 
-    protected TileItemWithoutTranslationMixin(int id) {
+    protected TilePlanterItemMixin(int id) {
         super(id);
     }
 

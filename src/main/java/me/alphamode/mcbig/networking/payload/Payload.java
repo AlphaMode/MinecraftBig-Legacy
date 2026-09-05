@@ -1,13 +1,12 @@
 package me.alphamode.mcbig.networking.payload;
 
 import net.minecraft.network.PacketListener;
-import net.minecraft.network.packets.Packet;
+import net.minecraft.network.packet.Packet;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public interface Payload {

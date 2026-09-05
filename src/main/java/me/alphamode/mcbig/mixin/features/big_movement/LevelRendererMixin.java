@@ -17,7 +17,7 @@ import net.minecraft.client.renderer.culling.Culler;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderDispatcher;
 import net.minecraft.util.Mth;
-import net.minecraft.world.ItemInstance;
+import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
@@ -156,71 +156,73 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
      */
     @Overwrite
     public void allChanged() {
-        Tile.leaves.setFancy(this.mc.options.fancyGraphics);
-        this.lastViewDistance = this.mc.options.viewDistance;
-        if (this.chunks != null) {
-            for(int i = 0; i < this.chunks.length; ++i) {
-                this.chunks[i].delete();
-            }
-        }
-
-        int dist = 64 << 3 - this.lastViewDistance;
-        if (dist > 400) {
-            dist = 400;
-        }
-
-        this.xChunks = dist / 16 + 1;
-        this.yChunks = 8;
-        this.zChunks = dist / 16 + 1;
-        this.chunks = new BigChunk[this.xChunks * this.yChunks * this.zChunks];
-        this.sortedChunks = new BigChunk[this.xChunks * this.yChunks * this.zChunks];
-        int id = 0;
-        int count = 0;
-        this.xMinChunk = 0;
-        this.yMinChunk = 0;
-        this.zMinChunk = 0;
-        this.xMaxChunk = this.xChunks;
-        this.yMaxChunk = this.yChunks;
-        this.zMaxChunk = this.zChunks;
-
-        for(int i = 0; i < this.dirtyChunks.size(); ++i) {
-            this.dirtyChunks.get(i).dirty = false;
-        }
-
-        this.dirtyChunks.clear();
-        this.renderableTileEntities.clear();
-
-        for(int x = 0; x < this.xChunks; ++x) {
-            for(int y = 0; y < this.yChunks; ++y) {
-                for(int z = 0; z < this.zChunks; ++z) {
-                    this.chunks[(z * this.yChunks + y) * this.xChunks + x] = new BigChunk(
-                            this.level, this.renderableTileEntities, x * 16, y * 16, z * 16, 16, this.chunkLists + id
-                    );
-                    if (this.occlusionCheck) {
-                        this.chunks[(z * this.yChunks + y) * this.xChunks + x].occlusion_id = this.occlusionCheckIds.get(count);
-                    }
-
-                    this.chunks[(z * this.yChunks + y) * this.xChunks + x].occlusion_querying = false;
-                    this.chunks[(z * this.yChunks + y) * this.xChunks + x].occlusion_visible = true;
-                    this.chunks[(z * this.yChunks + y) * this.xChunks + x].visible = true;
-                    this.chunks[(z * this.yChunks + y) * this.xChunks + x].id = count++;
-                    this.chunks[(z * this.yChunks + y) * this.xChunks + x].setDirty();
-                    this.sortedChunks[(z * this.yChunks + y) * this.xChunks + x] = this.chunks[(z * this.yChunks + y) * this.xChunks + x];
-                    this.dirtyChunks.add(this.chunks[(z * this.yChunks + y) * this.xChunks + x]);
-                    id += 3;
+        if (this.level != null) {
+            Tile.leaves.setFancy(this.mc.options.fancyGraphics);
+            this.lastViewDistance = this.mc.options.viewDistance;
+            if (this.chunks != null) {
+                for (int i = 0; i < this.chunks.length; ++i) {
+                    this.chunks[i].delete();
                 }
             }
-        }
 
-        if (this.level != null) {
-            Mob camera = this.mc.cameraEntity;
-            if (camera != null) {
-                this.resortChunks(BigMath.floor(((BigEntityExtension) camera).getX()), Mth.floor(camera.y), BigMath.floor(((BigEntityExtension) camera).getZ()));
-                Arrays.sort((BigChunk[]) this.sortedChunks, new BigDistanceChunkSorter(camera));
+            int dist = 64 << 3 - this.lastViewDistance;
+            if (dist > 400) {
+                dist = 400;
             }
-        }
 
-        this.noEntityRenderFrames = 2;
+            this.xChunks = dist / 16 + 1;
+            this.yChunks = 8;
+            this.zChunks = dist / 16 + 1;
+            this.chunks = new BigChunk[this.xChunks * this.yChunks * this.zChunks];
+            this.sortedChunks = new BigChunk[this.xChunks * this.yChunks * this.zChunks];
+            int id = 0;
+            int count = 0;
+            this.xMinChunk = 0;
+            this.yMinChunk = 0;
+            this.zMinChunk = 0;
+            this.xMaxChunk = this.xChunks;
+            this.yMaxChunk = this.yChunks;
+            this.zMaxChunk = this.zChunks;
+
+            for (int i = 0; i < this.dirtyChunks.size(); ++i) {
+                this.dirtyChunks.get(i).dirty = false;
+            }
+
+            this.dirtyChunks.clear();
+            this.renderableTileEntities.clear();
+
+            for (int x = 0; x < this.xChunks; ++x) {
+                for (int y = 0; y < this.yChunks; ++y) {
+                    for (int z = 0; z < this.zChunks; ++z) {
+                        this.chunks[(z * this.yChunks + y) * this.xChunks + x] = new BigChunk(
+                                this.level, this.renderableTileEntities, x * 16, y * 16, z * 16, 16, this.chunkLists + id
+                        );
+                        if (this.occlusionCheck) {
+                            this.chunks[(z * this.yChunks + y) * this.xChunks + x].occlusion_id = this.occlusionCheckIds.get(count);
+                        }
+
+                        this.chunks[(z * this.yChunks + y) * this.xChunks + x].occlusion_querying = false;
+                        this.chunks[(z * this.yChunks + y) * this.xChunks + x].occlusion_visible = true;
+                        this.chunks[(z * this.yChunks + y) * this.xChunks + x].visible = true;
+                        this.chunks[(z * this.yChunks + y) * this.xChunks + x].id = count++;
+                        this.chunks[(z * this.yChunks + y) * this.xChunks + x].setDirty();
+                        this.sortedChunks[(z * this.yChunks + y) * this.xChunks + x] = this.chunks[(z * this.yChunks + y) * this.xChunks + x];
+                        this.dirtyChunks.add(this.chunks[(z * this.yChunks + y) * this.xChunks + x]);
+                        id += 3;
+                    }
+                }
+            }
+
+            if (this.level != null) {
+                Mob camera = this.mc.cameraEntity;
+                if (camera != null) {
+                    this.resortChunks(BigMath.floor(((BigEntityExtension) camera).getX()), Mth.floor(camera.y), BigMath.floor(((BigEntityExtension) camera).getZ()));
+                    Arrays.sort((BigChunk[]) this.sortedChunks, new BigDistanceChunkSorter(camera));
+                }
+            }
+
+            this.noEntityRenderFrames = 2;
+        }
     }
 
     /**

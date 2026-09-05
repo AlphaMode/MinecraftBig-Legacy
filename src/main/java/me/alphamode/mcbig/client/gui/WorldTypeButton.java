@@ -1,7 +1,7 @@
 package me.alphamode.mcbig.client.gui;
 
 import me.alphamode.mcbig.world.level.levelgen.WorldType;
-import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.Button;
 
 public class WorldTypeButton extends Button {
     private WorldType selected;

@@ -2,7 +2,7 @@ package me.alphamode.mcbig.networking.payload;
 
 import me.alphamode.mcbig.networking.McBigNetworking;
 import net.minecraft.network.PacketListener;
-import net.minecraft.network.packets.ChunkVisibilityPacket;
+import net.minecraft.network.packet.ChunkVisibilityPacket;
 
 import java.math.BigInteger;
 

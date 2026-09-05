@@ -1,9 +1,9 @@
 package me.alphamode.mcbig.mixin;
 
+import me.alphamode.mcbig.constants.LevelConstants;
 import me.alphamode.mcbig.extensions.BigLevelExtension;
 import me.alphamode.mcbig.extensions.BigLevelSourceExtension;
 import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
-import me.alphamode.mcbig.level.BigLightUpdate;
 import me.alphamode.mcbig.level.BigTickNextTickData;
 import me.alphamode.mcbig.level.chunk.BigChunkPos;
 import me.alphamode.mcbig.math.BigConstants;
@@ -15,14 +15,12 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.util.Facing;
 import net.minecraft.util.Mth;
-import net.minecraft.util.Vec3i;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.global.LightningBolt;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
-import net.minecraft.world.level.chunk.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.Dimension;
@@ -44,7 +42,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Mixin(Level.class)
 public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExtension {
@@ -65,9 +62,6 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
     protected abstract void entityAdded(Entity entity);
 
     @Shadow
-    public int skyDarken;
-
-    @Shadow
     @Final
     public Dimension dimension;
 
@@ -79,9 +73,6 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
 
     @Shadow
     public abstract boolean isRaining();
-
-    @Shadow
-    public abstract int getTopSolidBlock(int x, int z);
 
     @Shadow
     private Set<BigChunkPos> chunksToPoll;
@@ -112,17 +103,6 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
 
     @Shadow
     public abstract BiomeSource getBiomeSource();
-
-    @Shadow
-    private static int maxLoop;
-
-    private List<BigLightUpdate> lightUpdatesBig = new ArrayList<>();
-
-    @Shadow
-    private int maxRecurse;
-
-    @Shadow
-    public abstract void updateLight(LightLayer type, int x0, int y0, int z0, int x1, int y1, int z1, boolean bl);
 
     @Shadow
     private ArrayList<AABB> boxes;
@@ -168,7 +148,8 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
     @Shadow
     public abstract boolean isUnobstructed(AABB aabb);
 
-    private boolean hasChunk(BigInteger x, BigInteger z) {
+    @Override
+    public boolean hasChunk(BigInteger x, BigInteger z) {
         return this.chunkSource.hasChunk(x, z);
     }
 
@@ -193,14 +174,14 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
 
     @Override
     public boolean setTileNoUpdate(BigInteger x, int y, BigInteger z, int tile) {
-        if (y < 0) {
-            return false;
-        } else if (y >= 128) {
-            return false;
-        } else {
-            LevelChunk chunk = getChunk(x.shiftRight(4), z.shiftRight(4));
-            return chunk.setTile(x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue(), tile);
-        }
+        if (y < 0) return false;
+        if (y >= 128) return false;
+
+        LevelChunk c = getChunk(x.shiftRight(4), z.shiftRight(4));
+        boolean replaced = c.setTile(x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue(), tile);
+        //? >=1.0.0-beta.8.0.r
+        //checkLight(x, y, z);
+        return replaced;
     }
 
     /**
@@ -233,14 +214,14 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
 
     @Override
     public boolean setTileAndDataNoUpdate(BigInteger x, int y, BigInteger z, int tile, int data) {
-        if (y < 0) {
-            return false;
-        } else if (y >= 128) {
-            return false;
-        } else {
-            LevelChunk chunk = this.getChunk(x.shiftRight(4), z.shiftRight(4));
-            return chunk.setTileAndData(x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue(), tile, data);
-        }
+        if (y < 0) return false;
+        if (y >= 128) return false;
+
+        LevelChunk c = this.getChunk(x.shiftRight(4), z.shiftRight(4));
+        boolean replaced = c.setTileAndData(x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue(), tile, data);
+        //? >=1.0.0-beta.8.0.r
+        //checkLight(x, y, z);
+        return replaced;
     }
 
     /**
@@ -323,6 +304,9 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
 
     @Override
     public void setTileEntity(BigInteger x, int y, BigInteger z, TileEntity tileEntity) {
+        //? >=1.0.0-beta.8.0.r {
+        /*if (tileEntity != null && !tileEntity.isRemoved()) {
+        *///? } else
         if (!tileEntity.isRemoved()) {
             if (this.updatingTileEntities) {
                 tileEntity.setX(x);
@@ -393,66 +377,17 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
         }
     }
 
-    @Override
-    public int getLightLevel(BigInteger x, int y, BigInteger z) {
-        return getRawBrightness(x, y, z, true);
-    }
-
-    @Override
-    public int getRawBrightness(BigInteger x, int y, BigInteger z, boolean combineNeighbours) {
-        if (combineNeighbours) {
-            int tile = getTile(x, y, z);
-            if (tile == Tile.stoneSlabHalf.id || tile == Tile.farmland.id || tile == Tile.stairs_stone.id || tile == Tile.stairs_wood.id) {
-                int var6 = getRawBrightness(x, y + 1, z, false);
-                int var7 = getRawBrightness(x.add(BigInteger.ONE), y, z, false);
-                int var8 = getRawBrightness(x.subtract(BigInteger.ONE), y, z, false);
-                int var9 = getRawBrightness(x, y, z.add(BigInteger.ONE), false);
-                int var10 = getRawBrightness(x, y, z.subtract(BigInteger.ONE), false);
-                if (var7 > var6) {
-                    var6 = var7;
-                }
-
-                if (var8 > var6) {
-                    var6 = var8;
-                }
-
-                if (var9 > var6) {
-                    var6 = var9;
-                }
-
-                if (var10 > var6) {
-                    var6 = var10;
-                }
-
-                return var6;
-            }
-        }
-
-        if (y < 0) {
-            return 0;
-        } else {
-            if (y >= 128) {
-                y = 127;
-            }
-
-            LevelChunk var13 = this.getChunk(x.shiftRight(4), z.shiftRight(4));
-            return var13.getRawBrightness(x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue(), this.skyDarken);
-        }
-    }
-
-    @Override
+    //? >1.0.0-beta.8.0.r {
+    /*@Override
     public boolean isSkyLit(BigInteger x, int y, BigInteger z) {
-        if (y < 0) {
-            return false;
-        } else if (y >= 128) {
-            return true;
-        } else if (!this.hasChunk(x.shiftRight(4), z.shiftRight(4))) {
-            return false;
-        } else {
-            LevelChunk chunk = getChunk(x.shiftRight(4), z.shiftRight(4));
-            return chunk.isSkyLit(x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue());
-        }
+        if (y < 0) return false;
+        if (y >= 128) return true;
+        if (!this.hasChunk(x.shiftRight(4), z.shiftRight(4))) return false;
+
+        LevelChunk c = getChunk(x.shiftRight(4), z.shiftRight(4));
+        return c.isSkyLit(x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue());
     }
+    *///? }
 
     @Override
     public int getHeightmap(BigInteger x, BigInteger z) {
@@ -465,99 +400,11 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
     }
 
     @Override
-    public float getBrightness(BigInteger x, int y, BigInteger z, int max) {
-        int level = getLightLevel(x, y, z);
-        if (level < max) {
-            level = max;
-        }
-
-        return this.dimension.brightnessRamp[level];
-    }
-
-    @Override
-    public float getBrightness(BigInteger x, int y, BigInteger z) {
-        return this.dimension.brightnessRamp[this.getLightLevel(x, y, z)];
-    }
-
-    @Override
-    public void updateLightIfOtherThan(LightLayer layer, BigInteger x, int y, BigInteger z, int level) {
-        if (!this.dimension.hasCeiling || layer != LightLayer.SKY) {
-            if (this.hasChunkAt(x, y, z)) {
-                if (layer == LightLayer.SKY) {
-                    if (this.isSkyLit(x, y, z)) {
-                        level = 15;
-                    }
-                } else if (layer == LightLayer.BLOCK) {
-                    int tt = this.getTile(x, y, z);
-                    if (Tile.lightEmission[tt] > level) {
-                        level = Tile.lightEmission[tt];
-                    }
-                }
-
-                if (this.getBrightness(layer, x, y, z) != level) {
-                    this.updateLight(layer, x, y, z, x, y, z);
-                }
-            }
-        }
-    }
-
-    @Override
-    public int getBrightness(LightLayer type, BigInteger x, int y, BigInteger z) {
-        if (y < 0) {
-            y = 0;
-        }
-
-        if (y >= 128) {
-            y = 127;
-        }
-
-        if (y >= 0 && y < 128) {
-            BigInteger chunkX = x.shiftRight(4);
-            BigInteger chunkZ = z.shiftRight(4);
-            if (!hasChunk(chunkX, chunkZ)) {
-                return 0;
-            } else {
-                LevelChunk chunk = this.getChunk(chunkX, chunkZ);
-                return chunk.getBrightness(type, x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue());
-            }
-        } else {
-            return type.surrounding;
-        }
-    }
-
-    @Override
-    public void setBrightness(LightLayer layer, BigInteger x, int y, BigInteger z, int level) {
-        if (y >= 0) {
-            if (y < 128) {
-                if (hasChunk(x.shiftRight(4), z.shiftRight(4))) {
-                    LevelChunk chunk = this.getChunk(x.shiftRight(4), z.shiftRight(4));
-                    chunk.setBrightness(layer, x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue(), level);
-
-                    for (LevelListener listener : this.listeners) {
-                        listener.tileChanged(x, y, z);
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
     public boolean canSeeSky(BigInteger x, int y, BigInteger z) {
         return getChunk(x.shiftRight(4), z.shiftRight(4)).isSkyLit(x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue());
     }
 
-    @Override
-    public int getRawBrightness(BigInteger x, int y, BigInteger z) {
-        if (y < 0) {
-            return 0;
-        } else {
-            if (y >= 128) {
-                y = 127;
-            }
 
-            return this.getChunk(x.shiftRight(4), z.shiftRight(4)).getRawBrightness(x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue(), 0);
-        }
-    }
 
     @Override
     public boolean isSolidRenderTile(BigInteger x, int y, BigInteger z) {
@@ -988,6 +835,11 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
             int yt = y + this.random.nextInt(range) - this.random.nextInt(range);
             BigInteger zt = z.add(BigInteger.valueOf(this.random.nextInt(range) - this.random.nextInt(range)));
             int tile = getTile(xt, yt, zt);
+            //? >=1.0.0-beta.8.0.r {
+            /*if (this.random.nextInt(8) > y && tile == 0) {
+                this.addParticle("depthsuspend", xt.doubleValue() + this.random.nextFloat(), yt + this.random.nextFloat(), zt.doubleValue() + this.random.nextFloat(), 0.0, 0.0, 0.0);
+            }
+            *///? }
             if (tile > 0) {
                 Tile.tiles[tile].animateTick((Level) (Object) this, xt, yt, zt, rand);
             }
@@ -1006,7 +858,10 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
         if (aabb != null && !this.isUnobstructed(aabb)) {
             return false;
         } else {
-            if (targetTile == Tile.water || targetTile == Tile.calmWater || targetTile == Tile.lava || targetTile == Tile.calmLava || targetTile == Tile.fire || targetTile == Tile.topSnow) {
+            if (targetTile == Tile.water || targetTile == Tile.calmWater || targetTile == Tile.lava || targetTile == Tile.calmLava || targetTile == Tile.fire || targetTile == Tile.topSnow
+                    //? >=1.0.0-beta.8.0.r
+                    //|| targetTile == Tile.vine
+            ) {
                 targetTile = null;
             }
 
@@ -1239,21 +1094,50 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
     }
 
     @Override
-    public int getTopSolidBlock(BigInteger x, BigInteger z) {
-        LevelChunk chunk = getChunkAt(x, z);
+    public int getTopRainBlock(BigInteger x, BigInteger z) {
+        //? >=1.0.0-beta.8.0.r {
+        /*return this.getChunkAt(x, z).getTopRainBlock(x.and(BigConstants.FIFTEEN).intValue(), z.and(BigConstants.FIFTEEN).intValue());
+        *///? } else {
+        LevelChunk levelChunk = this.getChunkAt(x, z);
+        int y = LevelConstants.MAX_BUILD_HEIGHT - 1;
+
         int xt = x.and(BigConstants.FIFTEEN).intValue();
         int zt = z.and(BigConstants.FIFTEEN).intValue();
 
-        for (int yt = 127; yt > 0; --yt) {
-            int tile = chunk.getTile(xt, yt, zt);
-            Material material = tile == 0 ? Material.air : Tile.tiles[tile].material;
-            if (material.blocksMotion() || material.isLiquid()) {
-                return yt + 1;
+        while (y > 0) {
+            int t = levelChunk.getTile(xt, y, zt);
+            Material m = t == 0 ? Material.air : Tile.tiles[t].material;
+            if (!(m.blocksMotion() || m.isLiquid())) {
+                y--;
+            } else {
+                return y + 1;
+            }
+        }
+
+        return -1;
+        //? }
+    }
+
+    //? >=1.0.0-beta.8.0.r {
+    /*@Override
+    public int getTopSolidBlock(BigInteger x, BigInteger z) {
+        LevelChunk levelChunk = this.getChunkAt(x, z);
+        int y = 127;
+        int xt = x.and(BigConstants.FIFTEEN).intValue();
+        int zt = z.and(BigConstants.FIFTEEN).intValue();
+
+        while (y > 0) {
+            int t = levelChunk.getTile(xt, y, zt);
+            if (t == 0 || !(Tile.tiles[t].material.blocksMotion()) || Tile.tiles[t].material == Material.leaves) {
+                y--;
+            } else {
+                return y + 1;
             }
         }
 
         return -1;
     }
+    *///? }
 
     private static final int MAX_TICK_TILES_PER_TICK = 1000;
 
@@ -1283,7 +1167,7 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
                 BigInteger rBig = BigConstants.EIGHT;
                 if (hasChunksAt(td.xBig.subtract(rBig), td.y - r, td.zBig.subtract(rBig), td.xBig.add(rBig), td.y + r, td.zBig.add(rBig))) {
                     int id = getTile(td.xBig, td.y, td.zBig);
-                    if (id == td.priority && id > 0) {
+                    if (id == td.tileId && id > 0) {
                         Tile.tiles[id].tick((Level) (Object) this, td.xBig, td.y, td.zBig, this.random);
                     }
                 }
@@ -1337,6 +1221,8 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
             BigInteger xo = cp.x().multiply(BigConstants.SIXTEEN);
             BigInteger zo = cp.z().multiply(BigConstants.SIXTEEN);
             LevelChunk lc = getChunk(cp.x(), cp.z());
+            //? >=1.0.0-beta.8.0.r
+            //lc.tick();
             if (this.delayUntilNextMoodSound == 0) {
                 this.randValue = this.randValue * 3 + 1013904223;
                 int val = this.randValue >> 2;
@@ -1360,7 +1246,7 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
                 int packedPos = this.randValue >> 2;
                 BigInteger x = xo.add(BigInteger.valueOf((packedPos & 15)));
                 BigInteger z = zo.add(BigInteger.valueOf(packedPos >> 8 & 15));
-                int y = getTopSolidBlock(x, z);
+                int y = getTopRainBlock(x, z);
                 if (isRainingAt(x, y, z)) {
                     addGlobalEntity(new LightningBolt((Level) (Object) this, (double) x.doubleValue(), (double) y, (double) z.doubleValue()));
                     this.lightingCooldown = 2;
@@ -1370,10 +1256,12 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
             if (this.random.nextInt(16) == 0) {
                 this.randValue = this.randValue * 3 + 1013904223;
                 int packedPos = this.randValue >> 2;
-                int x = packedPos & 15;
-                int z = packedPos >> 8 & 15;
-                int y = getTopSolidBlock(BigInteger.valueOf(x).add(xo), BigInteger.valueOf(z).add(zo));
-                if (getBiomeSource().getBiome(x + xo.intValue(), z + zo.intValue()).hasPrecipitation()
+                final int x = packedPos & 15;
+                final int z = packedPos >> 8 & 15;
+                final BigInteger xB = BigInteger.valueOf(x);
+                final BigInteger zB = BigInteger.valueOf(z);
+                int y = getTopRainBlock(xB.add(xo), zB.add(zo));
+                if (getBiomeSource().getBiome(xB.add(xo), zB.add(zo)).hasPrecipitation()
                         && y >= 0
                         && y < 128
                         && lc.getBrightness(LightLayer.BLOCK, x, y, z) < 10) {
@@ -1381,18 +1269,32 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
                     int tt = lc.getTile(x, y, z);
                     if (isRaining()
                             && tt == 0
-                            && Tile.topSnow.mayPlace((Level) (Object) this, x + xo.intValue(), y, z + zo.intValue())
+                            && Tile.topSnow.mayPlace((Level) (Object) this, xB.add(xo), y, zB.add(zo))
                             && belowTile != 0
                             && belowTile != Tile.ice.id
                             && Tile.tiles[belowTile].material.blocksMotion()) {
-                        setTile(BigInteger.valueOf(x).add(xo), y, BigInteger.valueOf(z).add(zo), Tile.topSnow.id);
+                        setTile(xB.add(xo), y, zB.add(zo), Tile.topSnow.id);
                     }
 
                     if (belowTile == Tile.calmWater.id && lc.getData(x, y - 1, z) == 0) {
-                        setTile(BigInteger.valueOf(x).add(xo), y - 1, BigInteger.valueOf(z).add(zo), Tile.ice.id);
+                        //? >=1.0.0-beta.8.0.r {
+                        /*boolean surroundedByWater = true;
+                        BigInteger xx = xB.add(xo);
+                        BigInteger zz = zB.add(zo);
+                        if (surroundedByWater && getMaterial(xx.subtract(BigInteger.ONE), y - 1, zz) != Material.water) surroundedByWater = false;
+                        if (surroundedByWater && getMaterial(xx.add(BigInteger.ONE), y - 1, zz) != Material.water) surroundedByWater = false;
+                        if (surroundedByWater && getMaterial(xx, y - 1, zz.subtract(BigInteger.ONE)) != Material.water) surroundedByWater = false;
+                        if (surroundedByWater && getMaterial(xx, y - 1, zz.add(BigInteger.ONE)) != Material.water) surroundedByWater = false;
+
+                        if (!surroundedByWater) setTile(xx, y - 1, zz, Tile.ice.id);
+                        *///? } else
+                        setTile(xB.add(xo), y - 1, zB.add(zo), Tile.ice.id);
                     }
                 }
             }
+
+            //? >=1.0.0-beta.8.0.r
+            //checkLight(xo.add(BigInteger.valueOf(this.random.nextInt(16))), this.random.nextInt(128), zo.add(BigInteger.valueOf(this.random.nextInt(16))));
 
             for (int i = 0; i < 80; ++i) {
                 this.randValue = this.randValue * 3 + 1013904223;
@@ -1404,86 +1306,6 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
                 if (Tile.shouldTick[tt]) {
                     Tile.tiles[tt].tick((Level) (Object) this, BigInteger.valueOf(x).add(xo), y, BigInteger.valueOf(z).add(zo), this.random);
                 }
-            }
-        }
-    }
-
-    /**
-     * @author
-     * @reason
-     */
-    @Overwrite
-    public boolean updateLights() {
-        if (this.maxRecurse >= 50) {
-            return false;
-        } else {
-            ++this.maxRecurse;
-
-            try {
-                int maxUpdates = 500;
-
-                while (this.lightUpdatesBig.size() > 0) {
-                    if (--maxUpdates <= 0) {
-                        return true;
-                    }
-
-                    this.lightUpdatesBig.remove(this.lightUpdatesBig.size() - 1).update((Level) (Object) this);
-                }
-
-                return false;
-            } finally {
-                --this.maxRecurse;
-            }
-        }
-    }
-
-    @Override
-    public void updateLight(LightLayer type, BigInteger x0, int y0, BigInteger z0, BigInteger x1, int y1, BigInteger z1) {
-        this.updateLight(type, x0, y0, z0, x1, y1, z1, true);
-    }
-
-    @Overwrite
-    public void updateLight(LightLayer type, int x0, int y0, int z0, int x1, int y1, int z1) {
-        this.updateLight(type, x0, y0, z0, x1, y1, z1, true);
-    }
-
-    @Override
-    public void updateLight(LightLayer type, BigInteger x0, int y0, BigInteger z0, BigInteger x1, int y1, BigInteger z1, boolean expand) {
-        if (!this.dimension.hasCeiling || type != LightLayer.SKY) {
-            ++maxLoop;
-
-            try {
-                if (maxLoop != 50) {
-                    BigInteger x = (x1.add(x0)).divide(BigInteger.TWO);
-                    BigInteger z = (z1.add(z0)).divide(BigInteger.TWO);
-                    if (hasChunkAt(x, 64, z)) {
-                        if (!getChunkAt(x, z).isEmpty()) {
-                            int size = this.lightUpdatesBig.size();
-                            if (expand) {
-                                int maxSize = 5;
-                                if (maxSize > size) {
-                                    maxSize = size;
-                                }
-
-                                for (int i = 0; i < maxSize; ++i) {
-                                    BigLightUpdate update = this.lightUpdatesBig.get(this.lightUpdatesBig.size() - i - 1);
-                                    if (update.type == type && update.expandToContain(x0, y0, z0, x1, y1, z1)) {
-                                        return;
-                                    }
-                                }
-                            }
-
-                            this.lightUpdatesBig.add(new BigLightUpdate(type, x0, y0, z0, x1, y1, z1));
-                            int updates = 1000000;
-                            if (this.lightUpdatesBig.size() > 1000000) {
-                                System.out.println("More than " + updates + " updates, aborting lighting updates");
-                                this.lightUpdatesBig.clear();
-                            }
-                        }
-                    }
-                }
-            } finally {
-                --maxLoop;
             }
         }
     }
@@ -1575,13 +1397,88 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
         return this.boxes;
     }
 
+    @Shadow
+    public abstract float getTimeOfDay(float a);
+
+    @Shadow
+    public abstract float getRainLevel(float a);
+
+    @Shadow
+    public abstract float getThunderLevel(float a);
+
+    @Shadow
+    public int skyFlashTime;
+
+    /**
+     * @author
+     * @reason
+     */
+    @Overwrite
+    @Environment(EnvType.CLIENT)
+    public Vec3 getSkyColor(Entity source, float a) {
+        float td = this.getTimeOfDay(a);
+
+        float br = Mth.cos(td * (float) Math.PI * 2.0F) * 2.0F + 0.5F;
+        if (br < 0.0F) br = 0.0F;
+
+        if (br > 1.0F) br = 1.0F;
+
+        BigEntityExtension bigSource = (BigEntityExtension) source;
+        BigInteger xx = source.isBigMovementEnabled() ? BigMath.floor(bigSource.getX()) : BigMath.floor(source.x);
+        BigInteger zz = source.isBigMovementEnabled() ? BigMath.floor(bigSource.getZ()) : BigMath.floor(source.z);
+        //? >=1.0.0-beta.8.0.r {
+        /*float temp = this.getBiomeSource().getTemperature(xx, zz);
+        *///? } else {
+        float temp = (float) this.getBiomeSource().getTemperature(xx, zz);
+        //? }
+        int skyColor = this.getBiomeSource().getBiome(xx, zz).getSkyColor(temp);
+        float r = (skyColor >> 16 & 0xFF) / 255.0F;
+        float g = (skyColor >> 8 & 0xFF) / 255.0F;
+        float b = (skyColor & 0xFF) / 255.0F;
+        r *= br;
+        g *= br;
+        b *= br;
+
+        float rainLevel = this.getRainLevel(a);
+        if (rainLevel > 0.0F) {
+            float mid = (r * 0.3F + g * 0.59F + b * 0.11F) * 0.6F;
+
+            float ba = 1.0F - rainLevel * 0.75F;
+            r = r * ba + mid * (1.0F - ba);
+            g = g * ba + mid * (1.0F - ba);
+            b = b * ba + mid * (1.0F - ba);
+        }
+
+        float thunderLevel = this.getThunderLevel(a);
+        if (thunderLevel > 0.0F) {
+            float mid = (r * 0.3F + g * 0.59F + b * 0.11F) * 0.2F;
+
+            float ba = 1.0F - thunderLevel * 0.75F;
+            r = r * ba + mid * (1.0F - ba);
+            g = g * ba + mid * (1.0F - ba);
+            b = b * ba + mid * (1.0F - ba);
+        }
+
+        if (this.skyFlashTime > 0) {
+            float f = this.skyFlashTime - a;
+            if (f > 1.0F) f = 1.0F;
+
+            f *= 0.45F;
+            r = r * (1.0F - f) + 0.8F * f;
+            g = g * (1.0F - f) + 0.8F * f;
+            b = b * (1.0F - f) + 1.0F * f;
+        }
+
+        return Vec3.newTemp(r, g, b);
+    }
+
     @Override
     public boolean isRainingAt(BigInteger x, int y, BigInteger z) {
         if (!isRaining()) {
             return false;
         } else if (!canSeeSky(x, y, z)) {
             return false;
-        } else if (getTopSolidBlock(x, z) > y) {
+        } else if (getTopRainBlock(x, z) > y) {
             return false;
         } else {
             Biome biome = getBiomeSource().getBiome(x, z);
@@ -1889,6 +1786,15 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
         }
     }
 
+    /**
+     * @author
+     * @reason
+     */
+    @Overwrite
+    public void addToTickNextTick(int x, int y, int z, int tileId, int delay) {
+//        throw new RuntimeException("Big Level does not support addToTickNextTick");
+    }
+
     @Override
     public void addToTickNextTick(BigInteger x, int y, BigInteger z, int tileId, int delay) {
         BigTickNextTickData data = new BigTickNextTickData(x, y, z, tileId);
@@ -1896,9 +1802,9 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
         BigInteger bigRange = BigInteger.valueOf(range);
         if (this.instaTick) {
             if (this.hasChunksAt(data.xBig.subtract(bigRange), data.y - range, data.zBig.subtract(bigRange), data.xBig.add(bigRange), data.y + range, data.zBig.add(bigRange))) {
-                int var8 = this.getTile(data.xBig, data.y, data.zBig);
-                if (var8 == data.priority && var8 > 0) {
-                    Tile.tiles[var8].tick((Level) (Object) this, data.xBig, data.y, data.zBig, this.random);
+                int t = this.getTile(data.xBig, data.y, data.zBig);
+                if (t == data.tileId && t > 0) {
+                    Tile.tiles[t].tick((Level) (Object) this, data.xBig, data.y, data.zBig, this.random);
                 }
             }
         } else {
@@ -1914,6 +1820,11 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
             }
         }
     }
+
+    //? >=1.0.0-beta.8.0.r {
+    /*@Shadow private List<TileEntity> tileEntitiesToUnload;
+    @Shadow public abstract void addParticle(String id, double x, double y, double z, double xd, double yd, double zd);
+    *///? }
 
     /**
      * @author
@@ -1977,21 +1888,34 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
         Iterator<TileEntity> teIterator = this.tileEntityList.iterator();
 
         while (teIterator.hasNext()) {
-            TileEntity te = (TileEntity) teIterator.next();
+            TileEntity te = teIterator.next();
+            //? >=1.0.0-beta.8.0.r {
+            /*if (!te.isRemoved() && te.level != null) {
+            *///? } else
             if (!te.isRemoved()) {
                 te.tick();
             }
 
             if (te.isRemoved()) {
                 teIterator.remove();
-                LevelChunk chunk = this.getChunk(te.x >> 4, te.z >> 4);
-                if (chunk != null) {
-                    chunk.removeTileEntity(te.x & 15, te.y, te.z & 15);
-                }
+                //? >=1.0.0-beta.8.0.r
+                //if (this.hasChunk(te.getX().shiftRight(4), te.getZ().shiftRight(4))) {
+                    LevelChunk chunk = this.getChunk(te.getX().shiftRight(4), te.getZ().shiftRight(4));
+                    if (chunk != null) {
+                        chunk.removeTileEntity(te.getX().and(BigConstants.FIFTEEN).intValue(), te.y, te.getZ().and(BigConstants.FIFTEEN).intValue());
+                    }
+                //? >=1.0.0-beta.8.0.r
+                //}
             }
         }
 
         this.updatingTileEntities = false;
+        //? >=1.0.0-beta.8.0.r {
+        /*if (!this.tileEntitiesToUnload.isEmpty()) {
+            this.tileEntityList.removeAll(this.tileEntitiesToUnload);
+            this.tileEntitiesToUnload.clear();
+        }
+        *///? }
         if (!this.pendingTileEntities.isEmpty()) {
             for (TileEntity te : this.pendingTileEntities) {
                 if (!te.isRemoved()) {
@@ -1999,12 +1923,16 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
                         this.tileEntityList.add(te);
                     }
 
-                    LevelChunk chunk = this.getChunk(te.x >> 4, te.z >> 4);
-                    if (chunk != null) {
-                        chunk.setTileEntity(te.x & 15, te.y, te.z & 15, te);
-                    }
+                    //? >=1.0.0-beta.8.0.r
+                    //if (this.hasChunk(te.getX().shiftRight(4), te.getZ().shiftRight(4))) {
+                        LevelChunk chunk = this.getChunk(te.getX().shiftRight(4), te.getZ().shiftRight(4));
+                        if (chunk != null) {
+                            chunk.setTileEntity(te.getX().and(BigConstants.FIFTEEN).intValue(), te.y, te.getZ().and(BigConstants.FIFTEEN).intValue(), te);
+                        }
+                    //? >=1.0.0-beta.8.0.r
+                    //}
 
-                    this.sendTileUpdated(BigInteger.valueOf(te.x), te.y, BigInteger.valueOf(te.z));
+                    this.sendTileUpdated(te.getX(), te.y, te.getZ());
                 }
             }
 

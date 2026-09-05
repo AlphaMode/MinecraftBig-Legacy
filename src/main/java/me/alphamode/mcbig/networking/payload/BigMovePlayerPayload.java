@@ -1,7 +1,7 @@
 package me.alphamode.mcbig.networking.payload;
 
 import net.minecraft.network.PacketListener;
-import net.minecraft.network.packets.MovePlayerPacket;
+import net.minecraft.network.packet.MovePlayerPacket;
 
 import java.math.BigDecimal;
 

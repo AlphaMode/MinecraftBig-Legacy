@@ -1,10 +1,12 @@
 package me.alphamode.mcbig.level;
 
+import me.alphamode.mcbig.constants.LevelConstants;
 import me.alphamode.mcbig.extensions.BigLevelSourceExtension;
 import me.alphamode.mcbig.math.BigConstants;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.Region;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.material.Material;
@@ -61,14 +63,27 @@ public class BigRegion extends Region implements BigLevelSourceExtension {
     }
 
     @Override
-    public float getBrightness(BigInteger x, int y, BigInteger z, int max) {
+    public float getBrightness(BigInteger x, int y, BigInteger z, int emitt) {
         int br = getRawBrightness(x, y, z);
-        if (br < max) {
-            br = max;
+        if (br < emitt) {
+            br = emitt;
         }
 
         return this.level.dimension.brightnessRamp[br];
     }
+
+    //? >=1.0.0-beta.8.0.r {
+    /*@Override
+    public int getLightColor(BigInteger x, int y, BigInteger z, int emitt) {
+        int s = getBrightnessPropagate(LightLayer.SKY, x, y, z);
+        int b = getBrightnessPropagate(LightLayer.BLOCK, x, y, z);
+        if (b < emitt) {
+            b = emitt;
+        }
+
+        return s << 20 | b << 4;
+    }
+    *///? }
 
     @Override
     public float getBrightness(BigInteger x, int y, BigInteger z) {
@@ -81,8 +96,8 @@ public class BigRegion extends Region implements BigLevelSourceExtension {
     }
 
     @Environment(EnvType.CLIENT)
-    public int getRawBrightness(BigInteger x, int y, BigInteger z, boolean propagate) {
-        if (propagate) {
+    public int getRawBrightness(BigInteger x, int y, BigInteger z, boolean checkNeighbors) {
+        if (checkNeighbors) {
             int id = this.getTile(x, y, z);
             if (id == Tile.stoneSlabHalf.id || id == Tile.farmland.id || id == Tile.stairs_wood.id || id == Tile.stairs_stone.id) {
                 int br = this.getRawBrightness(x, y + 1, z, false);
@@ -160,6 +175,52 @@ public class BigRegion extends Region implements BigLevelSourceExtension {
             return tile.material.blocksMotion() && tile.isCubeShaped();
         }
     }
+
+    //? >=1.0.0-beta.8.0.r {
+    /*@Override
+    public boolean isEmptyTile(BigInteger x, int y, BigInteger z) {
+        Tile t = Tile.tiles[this.getTile(x, y, z)];
+        return t == null;
+    }
+
+    public int getBrightnessPropagate(LightLayer layer, BigInteger x, int y, BigInteger z) {
+        if (y < 0) y = 0;
+        if (y >= LevelConstants.MAX_BUILD_HEIGHT) y = LevelConstants.MAX_BUILD_HEIGHT - 1;
+        if (y < 0 || y >= LevelConstants.MAX_BUILD_HEIGHT ) {
+            return layer.surrounding;
+        }
+        int id = this.getTile(x, y, z);
+        // Check tiles that don't propagate light
+        if (id != Tile.stoneSlabHalf.id && id != Tile.farmland.id && id != Tile.stairs_stone.id && id != Tile.stairs_wood.id) {
+            int xc = (x.shiftRight(4)).subtract(this.xc1).intValue();
+            int zc = (z.shiftRight(4)).subtract(this.zc1).intValue();
+            return this.chunks[xc][zc].getBrightness(layer, x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue());
+        }
+        int br = getBrightness(layer, x, y + 1, z);
+        int br1 = getBrightness(layer, x.add(BigInteger.ONE), y, z);
+        int br2 = getBrightness(layer, x.subtract(BigInteger.ONE), y, z);
+        int br3 = getBrightness(layer, x, y, z.add(BigInteger.ONE));
+        int br4 = getBrightness(layer, x, y, z.subtract(BigInteger.ONE));
+        if (br1 > br) br = br1;
+        if (br2 > br) br = br2;
+        if (br3 > br) br = br3;
+        if (br4 > br) br = br4;
+
+        return br;
+    }
+
+    public int getBrightness(LightLayer layer, BigInteger x, int y, BigInteger z) {
+        if (y < 0) y = 0;
+        if (y >= LevelConstants.MAX_BUILD_HEIGHT) y = LevelConstants.MAX_BUILD_HEIGHT - 1;
+        if (y < 0 || y >= LevelConstants.MAX_BUILD_HEIGHT) {
+            return layer.surrounding;
+        }
+        int xc = (x.shiftRight(4)).subtract(this.xc1).intValue();
+        int zc = (z.shiftRight(4)).subtract(this.zc1).intValue();
+
+        return this.chunks[xc][zc].getBrightness(layer, x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue());
+    }
+    *///? }
 
     @Override
     public int getRawBrightness(int x, int y, int z) {

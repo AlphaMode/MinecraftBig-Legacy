@@ -1,7 +1,7 @@
 package me.alphamode.mcbig.mixin.items;
 
 import net.minecraft.util.Facing;
-import net.minecraft.world.ItemInstance;
+import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.SeedItem;
@@ -15,7 +15,7 @@ import java.math.BigInteger;
 @Mixin(SeedItem.class)
 public abstract class SeedItemMixin extends Item {
     @Shadow
-    private int plantId;
+    private int resultId;
 
     protected SeedItemMixin(int id) {
         super(id);
@@ -28,7 +28,7 @@ public abstract class SeedItemMixin extends Item {
         } else {
             int t = level.getTile(x, y, z);
             if (t == Tile.farmland.id && level.isEmptyTile(x, y + 1, z)) {
-                level.setTile(x, y + 1, z, this.plantId);
+                level.setTile(x, y + 1, z, this.resultId);
                 item.count--;
                 return true;
             } else {

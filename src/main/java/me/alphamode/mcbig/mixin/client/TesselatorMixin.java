@@ -32,10 +32,12 @@ public abstract class TesselatorMixin implements BigTesselatorExtension {
 
     @Shadow private boolean tesselating;
 
+    //? >=1.0.0-beta.8.0.r {
+    /*@Shadow
+    private boolean hasTexture2;
     @Shadow
-    private double xo;
-    @Shadow
-    private double zo;
+    private int _tex2;
+    *///? }
     private BigDecimal xoBig = BigDecimal.ZERO;
     private BigDecimal zoBig = BigDecimal.ZERO;
 
@@ -56,6 +58,12 @@ public abstract class TesselatorMixin implements BigTesselatorExtension {
                     this.array[this.p + 4] = this.array[this.p - offs + 4];
                 }
 
+                //? >=1.0.0-beta.8.0.r {
+                /*if (this.hasTexture2) {
+                    this.array[this.p + 7] = this.array[this.p - offs + 7];
+                }
+                *///? }
+
                 if (this.hasColor) {
                     this.array[this.p + 5] = this.array[this.p - offs + 5];
                 }
@@ -63,7 +71,7 @@ public abstract class TesselatorMixin implements BigTesselatorExtension {
                 this.array[this.p + 0] = this.array[this.p - offs + 0];
                 this.array[this.p + 1] = this.array[this.p - offs + 1];
                 this.array[this.p + 2] = this.array[this.p - offs + 2];
-                ++this.vertices;
+                this.vertices++;
                 this.p += 8;
             }
         }
@@ -72,6 +80,12 @@ public abstract class TesselatorMixin implements BigTesselatorExtension {
             this.array[this.p + 3] = Float.floatToRawIntBits((float)this.u);
             this.array[this.p + 4] = Float.floatToRawIntBits((float)this.v);
         }
+
+        //? >=1.0.0-beta.8.0.r {
+        /*if (this.hasTexture2) {
+            this.array[this.p + 7] = this._tex2;
+        }
+        *///? }
 
         if (this.hasColor) {
             this.array[this.p + 5] = this.packedColor;

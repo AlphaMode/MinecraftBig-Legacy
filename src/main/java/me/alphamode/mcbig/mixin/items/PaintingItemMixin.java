@@ -1,7 +1,7 @@
 package me.alphamode.mcbig.mixin.items;
 
 import net.minecraft.util.Facing;
-import net.minecraft.world.ItemInstance;
+import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.entity.item.Painting;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;

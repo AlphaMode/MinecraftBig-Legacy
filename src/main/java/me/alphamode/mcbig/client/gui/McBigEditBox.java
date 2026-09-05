@@ -2,7 +2,7 @@ package me.alphamode.mcbig.client.gui;
 
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Screen;
-import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.EditBox;
 
 public class McBigEditBox extends EditBox {
     private final String suggestion;

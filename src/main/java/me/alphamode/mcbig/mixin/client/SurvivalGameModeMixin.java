@@ -4,7 +4,7 @@ import me.alphamode.mcbig.extensions.BigGameModeExtension;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gamemode.GameMode;
 import net.minecraft.client.gamemode.SurvivalGameMode;
-import net.minecraft.world.ItemInstance;
+import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.level.tile.Tile;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -53,6 +53,8 @@ public abstract class SurvivalGameModeMixin extends GameMode implements BigGameM
 
     @Override
     public void startDestroyBlock(BigInteger x, int y, BigInteger z, int face) {
+        //? >=1.0.0-beta.8.0.r
+        //if (!this.minecraft.player.mayUseItemAt(x, y, z)) return;
         this.minecraft.level.extinguishFire(this.minecraft.player, x, y, z, face);
         int tile = this.minecraft.level.getTile(x, y, z);
         if (tile > 0 && this.destroyProgress == 0.0F) {
@@ -71,26 +73,27 @@ public abstract class SurvivalGameModeMixin extends GameMode implements BigGameM
         } else {
             if (x.equals(this.xDestroyBlockBig) && y == this.yDestroyBlock && z.equals(this.zDestroyBlockBig)) {
                 int tileId = this.minecraft.level.getTile(x, y, z);
-                if (tileId == 0) {
-                    return;
-                }
-
+                //? >=1.0.0-beta.8.0.r
+                //if (!this.minecraft.player.mayUseItemAt(x, y, z)) return;
+                if (tileId == 0) return;
                 Tile tile = Tile.tiles[tileId];
+
                 this.destroyProgress += tile.getDestroyProgress(this.minecraft.player);
+
                 if (this.destroyTicks % 4.0F == 0.0F && tile != null) {
                     this.minecraft
                             .soundEngine
                             .play(
                                     tile.soundType.getStepSound(),
-                                    (float)x.floatValue() + 0.5F,
-                                    (float)y + 0.5F,
-                                    (float)z.floatValue() + 0.5F,
+                                    x.floatValue() + 0.5F,
+                                    y + 0.5F,
+                                    z.floatValue() + 0.5F,
                                     (tile.soundType.getVolume() + 1.0F) / 8.0F,
                                     tile.soundType.getPitch() * 0.5F
                             );
                 }
 
-                ++this.destroyTicks;
+                this.destroyTicks++;
                 if (this.destroyProgress >= 1.0F) {
                     this.destroyBlock(x, y, z, face);
                     this.destroyProgress = 0.0F;

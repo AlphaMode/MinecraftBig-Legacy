@@ -6,7 +6,7 @@ import me.alphamode.mcbig.world.phys.BigHitResult;
 import me.alphamode.mcbig.world.phys.BigVec3;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.Facing;
-import net.minecraft.world.ItemInstance;
+import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -110,6 +110,13 @@ public abstract class TileMixin implements BigTileExtension {
     public float getBrightness(LevelSource level, BigInteger x, int y, BigInteger z) {
         return level.getBrightness(x, y, z, this.lightEmission[this.id]);
     }
+
+    //? >=1.0.0-beta.8.0.r {
+    /*@Override
+    public int getLightColor(LevelSource level, BigInteger x, int y, BigInteger z) {
+        return level.getLightColor(x, y, z, lightEmission[this.id]);
+    }
+    *///? }
 
     @Override
     public boolean shouldRenderFace(LevelSource level, BigInteger x, int y, BigInteger z, int face) {

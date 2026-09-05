@@ -1,5 +1,6 @@
 package me.alphamode.mcbig.mixin.client;
 
+import dev.kikugie.fletching_table.mixin.MixinIgnore;
 import me.alphamode.mcbig.client.renderer.BigChunk;
 import me.alphamode.mcbig.client.renderer.BigDistanceChunkSorter;
 import me.alphamode.mcbig.extensions.BigLevelListenerExtension;
@@ -13,7 +14,7 @@ import net.minecraft.client.renderer.culling.Culler;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderDispatcher;
 import net.minecraft.util.Mth;
-import net.minecraft.world.ItemInstance;
+import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
@@ -37,6 +38,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
+// TODO: still based off of b1.7.3
+@MixinIgnore
 @Mixin(LevelRenderer.class)
 public abstract class LevelRendererMixin implements BigLevelListenerExtension {
     @Shadow private int lastViewDistance;

@@ -42,8 +42,8 @@ public class LevelDataMixin implements BigLevelDataExtension {
         }
     }
 
-    @Inject(method = "<init>(JLjava/lang/String;)V", at = @At("TAIL"))
-    private void addWorldType(long seed, String levelName, CallbackInfo ci) {
+    @Inject(method = "<init>*", at = @At("TAIL"))
+    private void addWorldType(CallbackInfo ci) {
         this.worldType = WorldType.SELECTED;
         // Reset selected back to vanilla
         WorldType.SELECTED = WorldType.VANILLA;

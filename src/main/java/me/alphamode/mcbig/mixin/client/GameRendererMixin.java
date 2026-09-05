@@ -1,5 +1,6 @@
 package me.alphamode.mcbig.mixin.client;
 
+import dev.kikugie.fletching_table.mixin.MixinIgnore;
 import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
 import me.alphamode.mcbig.extensions.features.big_movement.BigMobExtension;
 import me.alphamode.mcbig.math.BigMath;
@@ -22,6 +23,8 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.util.List;
 
+// This is still based off of b1.7.3 TODO
+@MixinIgnore
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
     @Shadow private float fogBrO;
@@ -40,10 +43,6 @@ public abstract class GameRendererMixin {
 
     @Shadow private float xRot;
 
-    @Shadow private float oldFov;
-
-    @Shadow private float fov;
-
     @Shadow private float camTiltO;
 
     @Shadow private float camTilt;
@@ -58,6 +57,12 @@ public abstract class GameRendererMixin {
 
     @Shadow private Entity hovered;
 
+    @Shadow
+    private float fovOffset;
+
+    @Shadow
+    private float fovOffsetO;
+
     /**
      * @author
      * @reason
@@ -68,7 +73,7 @@ public abstract class GameRendererMixin {
         this.oldZOff = this.zOff;
         this.yRotO = this.yRot;
         this.xRotO = this.xRot;
-        this.oldFov = this.fov;
+        this.fovOffsetO = this.fovOffset;
         this.camTiltO = this.camTilt;
         if (this.mc.cameraEntity == null) {
             this.mc.cameraEntity = this.mc.player;

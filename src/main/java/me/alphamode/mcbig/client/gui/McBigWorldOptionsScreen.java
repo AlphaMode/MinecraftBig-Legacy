@@ -1,7 +1,7 @@
 package me.alphamode.mcbig.client.gui;
 
 import net.minecraft.client.gui.Screen;
-import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.Button;
 import net.minecraft.locale.I18n;
 import org.lwjgl.input.Keyboard;
 
@@ -14,14 +14,13 @@ public class McBigWorldOptionsScreen extends Screen {
 
     @Override
     public void init() {
-        I18n language = I18n.getInstance();
         Keyboard.enableRepeatEvents(true);
 
         this.buttons.clear();
 
         this.buttons.add(new WorldTypeButton(0, this.width / 2 - 155, this.height / 6 + 24));
-        this.buttons.add(new Button(1, this.width / 2 - 100, this.height / 4 + 120 + 12, language.get("gui.done")));
-        this.buttons.add(new Button(3, this.width / 2 - 100, this.height / 4 + 120 - 24, language.get("Preview")));
+        this.buttons.add(new Button(1, this.width / 2 - 100, this.height / 4 + 120 + 12, I18n.get("gui.done")));
+        this.buttons.add(new Button(3, this.width / 2 - 100, this.height / 4 + 120 - 24, I18n.get("Preview")));
     }
 
     @Override

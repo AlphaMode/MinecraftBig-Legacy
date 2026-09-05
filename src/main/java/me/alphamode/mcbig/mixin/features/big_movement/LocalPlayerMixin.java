@@ -2,7 +2,7 @@ package me.alphamode.mcbig.mixin.features.big_movement;
 
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
-import me.alphamode.mcbig.extensions.PlayerExtension;
+import me.alphamode.mcbig.extensions.CommandPlayerExtension;
 import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
 import me.alphamode.mcbig.math.BigMath;
 import net.minecraft.client.Minecraft;
@@ -11,7 +11,6 @@ import net.minecraft.client.player.input.Input;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.levelgen.feature.BirchFeature;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -19,11 +18,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
 
 @Mixin(LocalPlayer.class)
-public abstract class LocalPlayerMixin extends Player implements PlayerExtension, BigEntityExtension {
+public abstract class LocalPlayerMixin extends Player implements CommandPlayerExtension, BigEntityExtension {
     @Shadow public abstract void move(double x, double y, double z);
 
     @Shadow public Input input;

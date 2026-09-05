@@ -33,9 +33,14 @@ public class GrassTileMixin implements BigTileExtension {
     @Environment(EnvType.CLIENT)
     @Override
     public int getFoliageColor(LevelSource level, BigInteger x, int y, BigInteger z) {
-        level.getBiomeSource().getBiomeBlock(x.intValue(), z.intValue(), 1, 1);
+        //? >=1.0.0-beta.8.0.r {
+        /*double temp = level.getBiomeSource().getTemperature(x, z);
+        double downfall = level.getBiomeSource().getDownfall(x, z);
+        *///? } else {
+        level.getBiomeSource().getBiomeBlock(x, z, 1, 1);
         double temp = level.getBiomeSource().temperatures[0];
         double downfall = level.getBiomeSource().downfalls[0];
+        //? }
         return GrassColor.get(temp, downfall);
     }
 

@@ -59,7 +59,13 @@ public interface BigLevelExtension {
         throw new UnsupportedOperationException();
     }
 
+    //? <1.0.0-beta.8.0.r {
     default boolean isEmptyTile(BigInteger x, int y, BigInteger z) {
+        throw new UnsupportedOperationException();
+    }
+    //? }
+
+    default boolean hasChunk(BigInteger x, BigInteger z) {
         throw new UnsupportedOperationException();
     }
 
@@ -91,9 +97,11 @@ public interface BigLevelExtension {
         throw new UnsupportedOperationException();
     }
 
+    //? <1.0.0-beta.8.0.r {
     default boolean isSkyLit(BigInteger x, int y, BigInteger z) {
         throw new UnsupportedOperationException();
     }
+    //? }
 
     default int getHeightmap(BigInteger x, BigInteger z) {
         throw new UnsupportedOperationException();
@@ -115,10 +123,6 @@ public interface BigLevelExtension {
         throw new UnsupportedOperationException();
     }
 
-    default void updateLightIfOtherThan(LightLayer layer, BigInteger x, int y, BigInteger z, int level) {
-        throw new UnsupportedOperationException();
-    }
-
     default int getBrightness(LightLayer type, BigInteger x, int y, BigInteger z) {
         throw new UnsupportedOperationException();
     }
@@ -126,6 +130,21 @@ public interface BigLevelExtension {
     default void setBrightness(LightLayer layer, BigInteger x, int y, BigInteger z, int level) {
         throw new UnsupportedOperationException();
     }
+
+    //? >=1.0.0-beta.8.0.r {
+    /*default void checkLight(BigInteger x, int y, BigInteger z) {
+        throw new UnsupportedOperationException();
+    }
+
+    default int getBrightnessPropagate(LightLayer layer, BigInteger x, int y, BigInteger z) {
+        throw new UnsupportedOperationException();
+    }
+
+    *///? } else {
+    default void updateLightIfOtherThan(LightLayer layer, BigInteger x, int y, BigInteger z, int level) {
+        throw new UnsupportedOperationException();
+    }
+    //? }
 
     default void animateTick(BigInteger x, int y, BigInteger z) {
         throw new UnsupportedOperationException();
@@ -179,17 +198,25 @@ public interface BigLevelExtension {
         throw new UnsupportedOperationException();
     }
 
-    default int getTopSolidBlock(BigInteger x, BigInteger z) {
+    default int getTopRainBlock(BigInteger x, BigInteger z) {
         throw new UnsupportedOperationException();
     }
+
+    //? >=1.0.0-beta.8.0.r {
+    /*default int getTopSolidBlock(BigInteger x, BigInteger z) {
+        throw new UnsupportedOperationException();
+    }
+    *///? }
 
     default void updateLight(LightLayer type, BigInteger x0, int y0, BigInteger z0, BigInteger x1, int y1, BigInteger z1) {
         throw new UnsupportedOperationException();
     }
 
-    default void updateLight(LightLayer type, BigInteger x0, int y0, BigInteger z0, BigInteger x1, int y1, BigInteger z1, boolean bl) {
+    //? <1.0.0-beta.8.0.r {
+    default void updateLight(LightLayer type, BigInteger x0, int y0, BigInteger z0, BigInteger x1, int y1, BigInteger z1, boolean expand) {
         throw new UnsupportedOperationException();
     }
+    //? }
 
     default boolean isRainingAt(BigInteger x, int y, BigInteger z) {
         throw new UnsupportedOperationException();

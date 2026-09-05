@@ -9,14 +9,14 @@ import me.alphamode.mcbig.networking.McBigNetworking;
 import me.alphamode.mcbig.networking.packets.McBigPayloadPacket;
 import me.alphamode.mcbig.networking.payload.*;
 import me.alphamode.mcbig.prelaunch.Features;
+import net.minecraft.Pos;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientConnection;
 import net.minecraft.client.multiplayer.MultiPlayerLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.Connection;
 import net.minecraft.network.PacketListener;
-import net.minecraft.network.packets.*;
-import net.minecraft.util.Vec3i;
+import net.minecraft.network.packet.*;
 import net.minecraft.world.level.chunk.LevelChunk;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -55,7 +55,7 @@ public abstract class ClientConnectionMixin extends PacketListener implements Pa
         send(new McBigPayloadPacket(payload));
     }
 
-    @WrapOperation(method = "handlePreLogin", at = @At(value = "NEW", target = "(Ljava/lang/String;I)Lnet/minecraft/network/packets/LoginPacket;"))
+    @WrapOperation(method = "handlePreLogin", at = @At(value = "NEW", target = "(Ljava/lang/String;I)Lnet/minecraft/network/packet/LoginPacket;"))
     private LoginPacket addMcBigMagic(String username, int protocol, Operation<LoginPacket> original) {
         LoginPacket packet = original.call(username, protocol);
         packet.seed = McBigNetworking.MC_BIG_VERSION_MAGIC;
@@ -83,7 +83,7 @@ public abstract class ClientConnectionMixin extends PacketListener implements Pa
 
     @Override
     public boolean handleBigSetSpawn(BigSetSpawnPositionPayload payload) {
-        this.minecraft.player.setRespawnPosition(new Vec3i(payload.x().intValue(), payload.y(), payload.z().intValue()));
+        this.minecraft.player.setRespawnPosition(new Pos(payload.x().intValue(), payload.y(), payload.z().intValue()));
         this.minecraft.level.getLevelData().setBigSpawnXYZ(payload.x(), payload.y(), payload.z());
         return true;
     }

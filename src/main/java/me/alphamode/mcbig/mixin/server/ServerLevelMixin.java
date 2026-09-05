@@ -4,13 +4,12 @@ import me.alphamode.mcbig.extensions.server.BigServerLevelExtension;
 import me.alphamode.mcbig.math.BigConstants;
 import me.alphamode.mcbig.networking.packets.McBigPayloadPacket;
 import me.alphamode.mcbig.networking.payload.BigTileEventPayload;
-import net.minecraft.network.packets.*;
+import net.minecraft.network.packet.*;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.Dimension;
-import net.minecraft.world.level.storage.LevelStorage;
 import net.minecraft.world.level.tile.entity.TileEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -24,8 +23,8 @@ public abstract class ServerLevelMixin extends Level implements BigServerLevelEx
     @Shadow
     private MinecraftServer server;
 
-    public ServerLevelMixin(LevelStorage levelStorage, String name, Dimension dimension, long seed) {
-        super(levelStorage, name, dimension, seed);
+    public ServerLevelMixin(Level level, Dimension dimension) {
+        super(level, dimension);
     }
 
     @Override
