@@ -90,61 +90,59 @@ public class TileRendererMixin implements BigTileRendererExtension {
     @Override
     public void renderFaceDown(Tile tile, BigDecimal x, double y, BigDecimal z, int tex) {
         Tesselator t = Tesselator.instance;
-        if (this.fixedTexture >= 0) {
-            tex = this.fixedTexture;
-        }
+        if (this.fixedTexture >= 0) tex = this.fixedTexture;
 
         int xt = (tex & 15) << 4;
         int yt = tex & 240;
-        double u0 = ((double) xt + tile.xx0 * 16.0) / 256.0;
-        double u1 = ((double) xt + tile.xx1 * 16.0 - 0.01) / 256.0;
-        double v0 = ((double) yt + tile.zz0 * 16.0) / 256.0;
-        double v1 = ((double) yt + tile.zz1 * 16.0 - 0.01) / 256.0;
+        double u00 = ((double) xt + tile.xx0 * 16.0) / 256.0;
+        double u11 = ((double) xt + tile.xx1 * 16.0 - 0.01) / 256.0;
+        double v00 = ((double) yt + tile.zz0 * 16.0) / 256.0;
+        double v11 = ((double) yt + tile.zz1 * 16.0 - 0.01) / 256.0;
         if (tile.xx0 < 0.0 || tile.xx1 > 1.0) {
-            u0 = ((float) xt + 0.0F) / 256.0F;
-            u1 = ((float) xt + 15.99F) / 256.0F;
+            u00 = ((float) xt + 0.0F) / 256.0F;
+            u11 = ((float) xt + 15.99F) / 256.0F;
         }
 
         if (tile.zz0 < 0.0 || tile.zz1 > 1.0) {
-            v0 = ((float) yt + 0.0F) / 256.0F;
-            v1 = ((float) yt + 15.99F) / 256.0F;
+            v00 = ((float) yt + 0.0F) / 256.0F;
+            v11 = ((float) yt + 15.99F) / 256.0F;
         }
 
-        double var20 = u1;
-        double var22 = u0;
-        double var24 = v0;
-        double var26 = v1;
-        if (this.downFlip == 2) {
-            u0 = ((double) xt + tile.zz0 * 16.0) / 256.0;
-            v0 = ((double) (yt + 16) - tile.xx1 * 16.0) / 256.0;
-            u1 = ((double) xt + tile.zz1 * 16.0) / 256.0;
-            v1 = ((double) (yt + 16) - tile.xx0 * 16.0) / 256.0;
-            var24 = v0;
-            var26 = v1;
-            var20 = u0;
-            var22 = u1;
-            v0 = v1;
-            v1 = v0;
-        } else if (this.downFlip == 1) {
-            u0 = ((double) (xt + 16) - tile.zz1 * 16.0) / 256.0;
-            v0 = ((double) yt + tile.xx0 * 16.0) / 256.0;
-            u1 = ((double) (xt + 16) - tile.zz0 * 16.0) / 256.0;
-            v1 = ((double) yt + tile.xx1 * 16.0) / 256.0;
-            var20 = u1;
-            var22 = u0;
-            u0 = u1;
-            u1 = u0;
-            var24 = v1;
-            var26 = v0;
-        } else if (this.downFlip == 3) {
-            u0 = ((double) (xt + 16) - tile.xx0 * 16.0) / 256.0;
-            u1 = ((double) (xt + 16) - tile.xx1 * 16.0 - 0.01) / 256.0;
-            v0 = ((double) (yt + 16) - tile.zz0 * 16.0) / 256.0;
-            v1 = ((double) (yt + 16) - tile.zz1 * 16.0 - 0.01) / 256.0;
-            var20 = u1;
-            var22 = u0;
-            var24 = v0;
-            var26 = v1;
+        double u01 = u11, u10 = u00, v01 = v00, v10 = v11;
+        if (this.downFlip == FLIP_CCW) {
+            u00 = ((double) xt + tile.zz0 * 16.0) / 256.0;
+            v00 = ((double) (yt + 16) - tile.xx1 * 16.0) / 256.0;
+            u11 = ((double) xt + tile.zz1 * 16.0) / 256.0;
+            v11 = ((double) (yt + 16) - tile.xx0 * 16.0) / 256.0;
+            v01 = v00;
+            v10 = v11;
+            u01 = u00;
+            u10 = u11;
+            v00 = v11;
+            v11 = v00;
+        } else if (this.downFlip == FLIP_CW) {
+            // reshape
+            u00 = ((double) (xt + 16) - tile.zz1 * 16.0) / 256.0;
+            v00 = ((double) yt + tile.xx0 * 16.0) / 256.0;
+            u11 = ((double) (xt + 16) - tile.zz0 * 16.0) / 256.0;
+            v11 = ((double) yt + tile.xx1 * 16.0) / 256.0;
+
+            // rotate
+            u01 = u11;
+            u10 = u00;
+            u00 = u11;
+            u11 = u00;
+            v01 = v11;
+            v10 = v00;
+        } else if (this.downFlip == FLIP_180) {
+            u00 = ((double) (xt + 16) - tile.xx0 * 16.0) / 256.0;
+            u11 = ((double) (xt + 16) - tile.xx1 * 16.0 - 0.01) / 256.0;
+            v00 = ((double) (yt + 16) - tile.zz0 * 16.0) / 256.0;
+            v11 = ((double) (yt + 16) - tile.zz1 * 16.0 - 0.01) / 256.0;
+            u01 = u11;
+            u10 = u00;
+            v01 = v00;
+            v10 = v11;
         }
 
         BigDecimal x0 = x.add(new BigDecimal(tile.xx0));
@@ -154,79 +152,77 @@ public class TileRendererMixin implements BigTileRendererExtension {
         BigDecimal z1 = z.add(new BigDecimal(tile.zz1));
         if (this.blen) {
             t.color(this.c1r, this.c1g, this.c1b);
-            t.vertexUV(x0, y1, z1, var22, var26);
+            t.vertexUV(x0, y1, z1, u10, v10);
             t.color(this.c2r, this.c2g, this.c2b);
-            t.vertexUV(x0, y1, z0, u0, v0);
+            t.vertexUV(x0, y1, z0, u00, v00);
             t.color(this.c3r, this.c3g, this.c3b);
-            t.vertexUV(x1, y1, z0, var20, var24);
+            t.vertexUV(x1, y1, z0, u01, v01);
             t.color(this.c4r, this.c4g, this.c4b);
-            t.vertexUV(x1, y1, z1, u1, v1);
+            t.vertexUV(x1, y1, z1, u11, v11);
         } else {
-            t.vertexUV(x0, y1, z1, var22, var26);
-            t.vertexUV(x0, y1, z0, u0, v0);
-            t.vertexUV(x1, y1, z0, var20, var24);
-            t.vertexUV(x1, y1, z1, u1, v1);
+            t.vertexUV(x0, y1, z1, u10, v10);
+            t.vertexUV(x0, y1, z0, u00, v00);
+            t.vertexUV(x1, y1, z0, u01, v01);
+            t.vertexUV(x1, y1, z1, u11, v11);
         }
     }
 
     @Override
     public void renderFaceUp(Tile tile, BigDecimal x, double y, BigDecimal z, int tex) {
         Tesselator t = Tesselator.instance;
-        if (this.fixedTexture >= 0) {
-            tex = this.fixedTexture;
-        }
+        if (this.fixedTexture >= 0) tex = this.fixedTexture;
 
         int xt = (tex & 15) << 4;
         int yt = tex & 240;
-        double u0 = ((double) xt + tile.xx0 * 16.0) / 256.0;
-        double u1 = ((double) xt + tile.xx1 * 16.0 - 0.01) / 256.0;
-        double v0 = ((double) yt + tile.zz0 * 16.0) / 256.0;
-        double v1 = ((double) yt + tile.zz1 * 16.0 - 0.01) / 256.0;
+        double u00 = ((double) xt + tile.xx0 * 16.0) / 256.0;
+        double u11 = ((double) xt + tile.xx1 * 16.0 - 0.01) / 256.0;
+        double v00 = ((double) yt + tile.zz0 * 16.0) / 256.0;
+        double v11 = ((double) yt + tile.zz1 * 16.0 - 0.01) / 256.0;
         if (tile.xx0 < 0.0 || tile.xx1 > 1.0) {
-            u0 = ((float) xt + 0.0F) / 256.0F;
-            u1 = ((float) xt + 15.99F) / 256.0F;
+            u00 = ((float) xt + 0.0F) / 256.0F;
+            u11 = ((float) xt + 15.99F) / 256.0F;
         }
 
         if (tile.zz0 < 0.0 || tile.zz1 > 1.0) {
-            v0 = ((float) yt + 0.0F) / 256.0F;
-            v1 = ((float) yt + 15.99F) / 256.0F;
+            v00 = ((float) yt + 0.0F) / 256.0F;
+            v11 = ((float) yt + 15.99F) / 256.0F;
         }
 
-        double var20 = u1;
-        double var22 = u0;
-        double var24 = v0;
-        double var26 = v1;
-        if (this.upFlip == 1) {
-            u0 = ((double) xt + tile.zz0 * 16.0) / 256.0;
-            v0 = ((double) (yt + 16) - tile.xx1 * 16.0) / 256.0;
-            u1 = ((double) xt + tile.zz1 * 16.0) / 256.0;
-            v1 = ((double) (yt + 16) - tile.xx0 * 16.0) / 256.0;
-            var24 = v0;
-            var26 = v1;
-            var20 = u0;
-            var22 = u1;
-            v0 = v1;
-            v1 = v0;
-        } else if (this.upFlip == 2) {
-            u0 = ((double) (xt + 16) - tile.zz1 * 16.0) / 256.0;
-            v0 = ((double) yt + tile.xx0 * 16.0) / 256.0;
-            u1 = ((double) (xt + 16) - tile.zz0 * 16.0) / 256.0;
-            v1 = ((double) yt + tile.xx1 * 16.0) / 256.0;
-            var20 = u1;
-            var22 = u0;
-            u0 = u1;
-            u1 = u0;
-            var24 = v1;
-            var26 = v0;
-        } else if (this.upFlip == 3) {
-            u0 = ((double) (xt + 16) - tile.xx0 * 16.0) / 256.0;
-            u1 = ((double) (xt + 16) - tile.xx1 * 16.0 - 0.01) / 256.0;
-            v0 = ((double) (yt + 16) - tile.zz0 * 16.0) / 256.0;
-            v1 = ((double) (yt + 16) - tile.zz1 * 16.0 - 0.01) / 256.0;
-            var20 = u1;
-            var22 = u0;
-            var24 = v0;
-            var26 = v1;
+        double u01 = u11, u10 = u00, v01 = v00, v10 = v11;
+        if (this.upFlip == FLIP_CW) {
+            u00 = ((double) xt + tile.zz0 * 16.0) / 256.0;
+            v00 = ((double) (yt + 16) - tile.xx1 * 16.0) / 256.0;
+            u11 = ((double) xt + tile.zz1 * 16.0) / 256.0;
+            v11 = ((double) (yt + 16) - tile.xx0 * 16.0) / 256.0;
+
+            v01 = v00;
+            v10 = v11;
+            u01 = u00;
+            u10 = u11;
+            v00 = v11;
+            v11 = v00;
+        } else if (this.upFlip == FLIP_CCW) {
+            u00 = ((double) (xt + 16) - tile.zz1 * 16.0) / 256.0;
+            v00 = ((double) yt + tile.xx0 * 16.0) / 256.0;
+            u11 = ((double) (xt + 16) - tile.zz0 * 16.0) / 256.0;
+            v11 = ((double) yt + tile.xx1 * 16.0) / 256.0;
+
+            u01 = u11;
+            u10 = u00;
+            u00 = u11;
+            u11 = u00;
+            v01 = v11;
+            v10 = v00;
+        } else if (this.upFlip == FLIP_180) {
+            u00 = ((double) (xt + 16) - tile.xx0 * 16.0) / 256.0;
+            u11 = ((double) (xt + 16) - tile.xx1 * 16.0 - 0.01) / 256.0;
+            v00 = ((double) (yt + 16) - tile.zz0 * 16.0) / 256.0;
+            v11 = ((double) (yt + 16) - tile.zz1 * 16.0 - 0.01) / 256.0;
+
+            u01 = u11;
+            u10 = u00;
+            v01 = v00;
+            v10 = v11;
         }
 
         BigDecimal x0 = x.add(new BigDecimal(tile.xx0));
@@ -236,85 +232,82 @@ public class TileRendererMixin implements BigTileRendererExtension {
         BigDecimal z1 = z.add(new BigDecimal(tile.zz1));
         if (this.blen) {
             t.color(this.c1r, this.c1g, this.c1b);
-            t.vertexUV(x1, y0, z1, u1, v1);
+            t.vertexUV(x1, y0, z1, u11, v11);
             t.color(this.c2r, this.c2g, this.c2b);
-            t.vertexUV(x1, y0, z0, var20, var24);
+            t.vertexUV(x1, y0, z0, u01, v01);
             t.color(this.c3r, this.c3g, this.c3b);
-            t.vertexUV(x0, y0, z0, u0, v0);
+            t.vertexUV(x0, y0, z0, u00, v00);
             t.color(this.c4r, this.c4g, this.c4b);
-            t.vertexUV(x0, y0, z1, var22, var26);
+            t.vertexUV(x0, y0, z1, u10, v10);
         } else {
-            t.vertexUV(x1, y0, z1, u1, v1);
-            t.vertexUV(x1, y0, z0, var20, var24);
-            t.vertexUV(x0, y0, z0, u0, v0);
-            t.vertexUV(x0, y0, z1, var22, var26);
+            t.vertexUV(x1, y0, z1, u11, v11);
+            t.vertexUV(x1, y0, z0, u01, v01);
+            t.vertexUV(x0, y0, z0, u00, v00);
+            t.vertexUV(x0, y0, z1, u10, v10);
         }
     }
 
     @Override
     public void renderNorth(Tile tile, BigDecimal x, double y, BigDecimal z, int tex) {
         Tesselator t = Tesselator.instance;
-        if (this.fixedTexture >= 0) {
-            tex = this.fixedTexture;
-        }
+        if (this.fixedTexture >= 0) tex = this.fixedTexture;
 
         int xt = (tex & 15) << 4;
         int yt = tex & 240;
-        double u0 = ((double) xt + tile.xx0 * 16.0) / 256.0;
-        double u1 = ((double) xt + tile.xx1 * 16.0 - 0.01) / 256.0;
-        double v0 = ((double) (yt + 16) - tile.yy1 * 16.0) / 256.0;
-        double v1 = ((double) (yt + 16) - tile.yy0 * 16.0 - 0.01) / 256.0;
+        double u00 = ((double) xt + tile.xx0 * 16.0) / 256.0;
+        double u11 = ((double) xt + tile.xx1 * 16.0 - 0.01) / 256.0;
+        double v00 = ((double) (yt + 16) - tile.yy1 * 16.0) / 256.0;
+        double v11 = ((double) (yt + 16) - tile.yy0 * 16.0 - 0.01) / 256.0;
         if (this.xFlipTexture) {
-            double var20 = u0;
-            u0 = u1;
-            u1 = var20;
+            double tmp = u00;
+            u00 = u11;
+            u11 = tmp;
         }
 
         if (tile.xx0 < 0.0 || tile.xx1 > 1.0) {
-            u0 = ((float) xt + 0.0F) / 256.0F;
-            u1 = ((float) xt + 15.99F) / 256.0F;
+            u00 = ((float) xt + 0.0F) / 256.0F;
+            u11 = ((float) xt + 15.99F) / 256.0F;
         }
 
         if (tile.yy0 < 0.0 || tile.yy1 > 1.0) {
-            v0 = ((float) yt + 0.0F) / 256.0F;
-            v1 = ((float) yt + 15.99F) / 256.0F;
+            v00 = ((float) yt + 0.0F) / 256.0F;
+            v11 = ((float) yt + 15.99F) / 256.0F;
         }
 
-        double var42 = u1;
-        double var22 = u0;
-        double var24 = v0;
-        double var26 = v1;
-        if (this.northFlip == 2) {
-            u0 = ((double) xt + tile.yy0 * 16.0) / 256.0;
-            v0 = ((double) (yt + 16) - tile.xx0 * 16.0) / 256.0;
-            u1 = ((double) xt + tile.yy1 * 16.0) / 256.0;
-            v1 = ((double) (yt + 16) - tile.xx1 * 16.0) / 256.0;
-            var24 = v0;
-            var26 = v1;
-            var42 = u0;
-            var22 = u1;
-            v0 = v1;
-            v1 = v0;
-        } else if (this.northFlip == 1) {
-            u0 = ((double) (xt + 16) - tile.yy1 * 16.0) / 256.0;
-            v0 = ((double) yt + tile.xx1 * 16.0) / 256.0;
-            u1 = ((double) (xt + 16) - tile.yy0 * 16.0) / 256.0;
-            v1 = ((double) yt + tile.xx0 * 16.0) / 256.0;
-            var42 = u1;
-            var22 = u0;
-            u0 = u1;
-            u1 = u0;
-            var24 = v1;
-            var26 = v0;
-        } else if (this.northFlip == 3) {
-            u0 = ((double) (xt + 16) - tile.xx0 * 16.0) / 256.0;
-            u1 = ((double) (xt + 16) - tile.xx1 * 16.0 - 0.01) / 256.0;
-            v0 = ((double) yt + tile.yy1 * 16.0) / 256.0;
-            v1 = ((double) yt + tile.yy0 * 16.0 - 0.01) / 256.0;
-            var42 = u1;
-            var22 = u0;
-            var24 = v0;
-            var26 = v1;
+        double u01 = u11, u10 = u00, v01 = v00, v10 = v11;
+        if (this.northFlip == FLIP_CCW) {
+            u00 = ((double) xt + tile.yy0 * 16.0) / 256.0;
+            v00 = ((double) (yt + 16) - tile.xx0 * 16.0) / 256.0;
+            u11 = ((double) xt + tile.yy1 * 16.0) / 256.0;
+            v11 = ((double) (yt + 16) - tile.xx1 * 16.0) / 256.0;
+
+            v01 = v00;
+            v10 = v11;
+            u01 = u00;
+            u10 = u11;
+            v00 = v11;
+            v11 = v00;
+        } else if (this.northFlip == FLIP_CW) {
+            u00 = ((double) (xt + 16) - tile.yy1 * 16.0) / 256.0;
+            v00 = ((double) yt + tile.xx1 * 16.0) / 256.0;
+            u11 = ((double) (xt + 16) - tile.yy0 * 16.0) / 256.0;
+            v11 = ((double) yt + tile.xx0 * 16.0) / 256.0;
+
+            u01 = u11;
+            u10 = u00;
+            u00 = u11;
+            u11 = u00;
+            v01 = v11;
+            v10 = v00;
+        } else if (this.northFlip == FLIP_180) {
+            u00 = ((double) (xt + 16) - tile.xx0 * 16.0) / 256.0;
+            u11 = ((double) (xt + 16) - tile.xx1 * 16.0 - 0.01) / 256.0;
+            v00 = ((double) yt + tile.yy1 * 16.0) / 256.0;
+            v11 = ((double) yt + tile.yy0 * 16.0 - 0.01) / 256.0;
+            u01 = u11;
+            u10 = u00;
+            v01 = v00;
+            v10 = v11;
         }
 
         BigDecimal x0 = x.add(new BigDecimal(tile.xx0));
@@ -324,85 +317,83 @@ public class TileRendererMixin implements BigTileRendererExtension {
         BigDecimal z0 = z.add(new BigDecimal(tile.zz0));
         if (this.blen) {
             t.color(this.c1r, this.c1g, this.c1b);
-            t.vertexUV(x0, y1, z0, var42, var24);
+            t.vertexUV(x0, y1, z0, u01, v01);
             t.color(this.c2r, this.c2g, this.c2b);
-            t.vertexUV(x1, y1, z0, u0, v0);
+            t.vertexUV(x1, y1, z0, u00, v00);
             t.color(this.c3r, this.c3g, this.c3b);
-            t.vertexUV(x1, y0, z0, var22, var26);
+            t.vertexUV(x1, y0, z0, u10, v10);
             t.color(this.c4r, this.c4g, this.c4b);
-            t.vertexUV(x0, y0, z0, u1, v1);
+            t.vertexUV(x0, y0, z0, u11, v11);
         } else {
-            t.vertexUV(x0, y1, z0, var42, var24);
-            t.vertexUV(x1, y1, z0, u0, v0);
-            t.vertexUV(x1, y0, z0, var22, var26);
-            t.vertexUV(x0, y0, z0, u1, v1);
+            t.vertexUV(x0, y1, z0, u01, v01);
+            t.vertexUV(x1, y1, z0, u00, v00);
+            t.vertexUV(x1, y0, z0, u10, v10);
+            t.vertexUV(x0, y0, z0, u11, v11);
         }
     }
 
     @Override
     public void renderSouth(Tile tile, BigDecimal x, double y, BigDecimal z, int tex) {
         Tesselator t = Tesselator.instance;
-        if (this.fixedTexture >= 0) {
-            tex = this.fixedTexture;
-        }
+        if (this.fixedTexture >= 0) tex = this.fixedTexture;
 
         int xt = (tex & 15) << 4;
         int yt = tex & 240;
-        double u0 = ((double) xt + tile.xx0 * 16.0) / 256.0;
-        double u1 = ((double) xt + tile.xx1 * 16.0 - 0.01) / 256.0;
-        double v0 = ((double) (yt + 16) - tile.yy1 * 16.0) / 256.0;
-        double v1 = ((double) (yt + 16) - tile.yy0 * 16.0 - 0.01) / 256.0;
+        double u00 = ((double) xt + tile.xx0 * 16.0) / 256.0;
+        double u11 = ((double) xt + tile.xx1 * 16.0 - 0.01) / 256.0;
+        double v00 = ((double) (yt + 16) - tile.yy1 * 16.0) / 256.0;
+        double v11 = ((double) (yt + 16) - tile.yy0 * 16.0 - 0.01) / 256.0;
         if (this.xFlipTexture) {
-            double tmp = u0;
-            u0 = u1;
-            u1 = tmp;
+            double tmp = u00;
+            u00 = u11;
+            u11 = tmp;
         }
 
         if (tile.xx0 < 0.0 || tile.xx1 > 1.0) {
-            u0 = (double) (((float) xt + 0.0F) / 256.0F);
-            u1 = (double) (((float) xt + 15.99F) / 256.0F);
+            u00 = (double) (((float) xt + 0.0F) / 256.0F);
+            u11 = (double) (((float) xt + 15.99F) / 256.0F);
         }
 
         if (tile.yy0 < 0.0 || tile.yy1 > 1.0) {
-            v0 = (double) (((float) yt + 0.0F) / 256.0F);
-            v1 = (double) (((float) yt + 15.99F) / 256.0F);
+            v00 = (double) (((float) yt + 0.0F) / 256.0F);
+            v11 = (double) (((float) yt + 15.99F) / 256.0F);
         }
 
-        double var42 = u1;
-        double var22 = u0;
-        double var24 = v0;
-        double var26 = v1;
-        if (this.southFlip == 1) {
-            u0 = ((double) xt + tile.yy0 * 16.0) / 256.0;
-            v1 = ((double) (yt + 16) - tile.xx0 * 16.0) / 256.0;
-            u1 = ((double) xt + tile.yy1 * 16.0) / 256.0;
-            v0 = ((double) (yt + 16) - tile.xx1 * 16.0) / 256.0;
-            var24 = v0;
-            var26 = v1;
-            var42 = u0;
-            var22 = u1;
-            v0 = v1;
-            v1 = v0;
-        } else if (this.southFlip == 2) {
-            u0 = ((double) (xt + 16) - tile.yy1 * 16.0) / 256.0;
-            v0 = ((double) yt + tile.xx0 * 16.0) / 256.0;
-            u1 = ((double) (xt + 16) - tile.yy0 * 16.0) / 256.0;
-            v1 = ((double) yt + tile.xx1 * 16.0) / 256.0;
-            var42 = u1;
-            var22 = u0;
-            u0 = u1;
-            u1 = u0;
-            var24 = v1;
-            var26 = v0;
-        } else if (this.southFlip == 3) {
-            u0 = ((double) (xt + 16) - tile.xx0 * 16.0) / 256.0;
-            u1 = ((double) (xt + 16) - tile.xx1 * 16.0 - 0.01) / 256.0;
-            v0 = ((double) yt + tile.yy1 * 16.0) / 256.0;
-            v1 = ((double) yt + tile.yy0 * 16.0 - 0.01) / 256.0;
-            var42 = u1;
-            var22 = u0;
-            var24 = v0;
-            var26 = v1;
+        double u01 = u11, u10 = u00, v01 = v00, v10 = v11;
+        if (this.southFlip == FLIP_CW) {
+            u00 = ((double) xt + tile.yy0 * 16.0) / 256.0;
+            v11 = ((double) (yt + 16) - tile.xx0 * 16.0) / 256.0;
+            u11 = ((double) xt + tile.yy1 * 16.0) / 256.0;
+            v00 = ((double) (yt + 16) - tile.xx1 * 16.0) / 256.0;
+
+            v01 = v00;
+            v10 = v11;
+            u01 = u00;
+            u10 = u11;
+            v00 = v11;
+            v11 = v00;
+        } else if (this.southFlip == FLIP_CCW) {
+            u00 = ((double) (xt + 16) - tile.yy1 * 16.0) / 256.0;
+            v00 = ((double) yt + tile.xx0 * 16.0) / 256.0;
+            u11 = ((double) (xt + 16) - tile.yy0 * 16.0) / 256.0;
+            v11 = ((double) yt + tile.xx1 * 16.0) / 256.0;
+
+            u01 = u11;
+            u10 = u00;
+            u00 = u11;
+            u11 = u00;
+            v01 = v11;
+            v10 = v00;
+        } else if (this.southFlip == FLIP_180) {
+            u00 = ((double) (xt + 16) - tile.xx0 * 16.0) / 256.0;
+            u11 = ((double) (xt + 16) - tile.xx1 * 16.0 - 0.01) / 256.0;
+            v00 = ((double) yt + tile.yy1 * 16.0) / 256.0;
+            v11 = ((double) yt + tile.yy0 * 16.0 - 0.01) / 256.0;
+
+            u01 = u11;
+            u10 = u00;
+            v01 = v00;
+            v10 = v11;
         }
 
         BigDecimal x0 = x.add(new BigDecimal(tile.xx0));
@@ -412,85 +403,83 @@ public class TileRendererMixin implements BigTileRendererExtension {
         BigDecimal z0 = z.add(new BigDecimal(tile.zz1));
         if (this.blen) {
             t.color(this.c1r, this.c1g, this.c1b);
-            t.vertexUV(x0, y1, z0, u0, v0);
+            t.vertexUV(x0, y1, z0, u00, v00);
             t.color(this.c2r, this.c2g, this.c2b);
-            t.vertexUV(x0, y0, z0, var22, var26);
+            t.vertexUV(x0, y0, z0, u10, v10);
             t.color(this.c3r, this.c3g, this.c3b);
-            t.vertexUV(x1, y0, z0, u1, v1);
+            t.vertexUV(x1, y0, z0, u11, v11);
             t.color(this.c4r, this.c4g, this.c4b);
-            t.vertexUV(x1, y1, z0, var42, var24);
+            t.vertexUV(x1, y1, z0, u01, v01);
         } else {
-            t.vertexUV(x0, y1, z0, u0, v0);
-            t.vertexUV(x0, y0, z0, var22, var26);
-            t.vertexUV(x1, y0, z0, u1, v1);
-            t.vertexUV(x1, y1, z0, var42, var24);
+            t.vertexUV(x0, y1, z0, u00, v00);
+            t.vertexUV(x0, y0, z0, u10, v10);
+            t.vertexUV(x1, y0, z0, u11, v11);
+            t.vertexUV(x1, y1, z0, u01, v01);
         }
     }
 
     @Override
     public void renderWest(Tile tile, BigDecimal x, double y, BigDecimal z, int tex) {
         Tesselator t = Tesselator.instance;
-        if (this.fixedTexture >= 0) {
-            tex = this.fixedTexture;
-        }
+        if (this.fixedTexture >= 0) tex = this.fixedTexture;
 
         int xt = (tex & 15) << 4;
         int yt = tex & 240;
-        double u0 = ((double) xt + tile.zz0 * 16.0) / 256.0;
-        double u1 = ((double) xt + tile.zz1 * 16.0 - 0.01) / 256.0;
-        double v0 = ((double) (yt + 16) - tile.yy1 * 16.0) / 256.0;
-        double v1 = ((double) (yt + 16) - tile.yy0 * 16.0 - 0.01) / 256.0;
+        double u00 = ((double) xt + tile.zz0 * 16.0) / 256.0;
+        double u11 = ((double) xt + tile.zz1 * 16.0 - 0.01) / 256.0;
+        double v00 = ((double) (yt + 16) - tile.yy1 * 16.0) / 256.0;
+        double v11 = ((double) (yt + 16) - tile.yy0 * 16.0 - 0.01) / 256.0;
         if (this.xFlipTexture) {
-            double tmp = u0;
-            u0 = u1;
-            u1 = tmp;
+            double tmp = u00;
+            u00 = u11;
+            u11 = tmp;
         }
 
         if (tile.zz0 < 0.0 || tile.zz1 > 1.0) {
-            u0 = ((float) xt + 0.0F) / 256.0F;
-            u1 = ((float) xt + 15.99F) / 256.0F;
+            u00 = ((float) xt + 0.0F) / 256.0F;
+            u11 = ((float) xt + 15.99F) / 256.0F;
         }
 
         if (tile.yy0 < 0.0 || tile.yy1 > 1.0) {
-            v0 = ((float) yt + 0.0F) / 256.0F;
-            v1 = ((float) yt + 15.99F) / 256.0F;
+            v00 = ((float) yt + 0.0F) / 256.0F;
+            v11 = ((float) yt + 15.99F) / 256.0F;
         }
 
-        double var42 = u1;
-        double var22 = u0;
-        double var24 = v0;
-        double var26 = v1;
-        if (this.westFlip == 1) {
-            u0 = ((double) xt + tile.yy0 * 16.0) / 256.0;
-            v0 = ((double) (yt + 16) - tile.zz1 * 16.0) / 256.0;
-            u1 = ((double) xt + tile.yy1 * 16.0) / 256.0;
-            v1 = ((double) (yt + 16) - tile.zz0 * 16.0) / 256.0;
-            var24 = v0;
-            var26 = v1;
-            var42 = u0;
-            var22 = u1;
-            v0 = v1;
-            v1 = v0;
-        } else if (this.westFlip == 2) {
-            u0 = ((double) (xt + 16) - tile.yy1 * 16.0) / 256.0;
-            v0 = ((double) yt + tile.zz0 * 16.0) / 256.0;
-            u1 = ((double) (xt + 16) - tile.yy0 * 16.0) / 256.0;
-            v1 = ((double) yt + tile.zz1 * 16.0) / 256.0;
-            var42 = u1;
-            var22 = u0;
-            u0 = u1;
-            u1 = u0;
-            var24 = v1;
-            var26 = v0;
-        } else if (this.westFlip == 3) {
-            u0 = ((double) (xt + 16) - tile.zz0 * 16.0) / 256.0;
-            u1 = ((double) (xt + 16) - tile.zz1 * 16.0 - 0.01) / 256.0;
-            v0 = ((double) yt + tile.yy1 * 16.0) / 256.0;
-            v1 = ((double) yt + tile.yy0 * 16.0 - 0.01) / 256.0;
-            var42 = u1;
-            var22 = u0;
-            var24 = v0;
-            var26 = v1;
+        double u01 = u11, u10 = u00, v01 = v00, v10 = v11;
+        if (this.westFlip == FLIP_CW) {
+            u00 = ((double) xt + tile.yy0 * 16.0) / 256.0;
+            v00 = ((double) (yt + 16) - tile.zz1 * 16.0) / 256.0;
+            u11 = ((double) xt + tile.yy1 * 16.0) / 256.0;
+            v11 = ((double) (yt + 16) - tile.zz0 * 16.0) / 256.0;
+
+            v01 = v00;
+            v10 = v11;
+            u01 = u00;
+            u10 = u11;
+            v00 = v11;
+            v11 = v00;
+        } else if (this.westFlip == FLIP_CCW) {
+            u00 = ((double) (xt + 16) - tile.yy1 * 16.0) / 256.0;
+            v00 = ((double) yt + tile.zz0 * 16.0) / 256.0;
+            u11 = ((double) (xt + 16) - tile.yy0 * 16.0) / 256.0;
+            v11 = ((double) yt + tile.zz1 * 16.0) / 256.0;
+
+            u01 = u11;
+            u10 = u00;
+            u00 = u11;
+            u11 = u00;
+            v01 = v11;
+            v10 = v00;
+        } else if (this.westFlip == FLIP_180) {
+            u00 = ((double) (xt + 16) - tile.zz0 * 16.0) / 256.0;
+            u11 = ((double) (xt + 16) - tile.zz1 * 16.0 - 0.01) / 256.0;
+            v00 = ((double) yt + tile.yy1 * 16.0) / 256.0;
+            v11 = ((double) yt + tile.yy0 * 16.0 - 0.01) / 256.0;
+
+            u01 = u11;
+            u10 = u00;
+            v01 = v00;
+            v10 = v11;
         }
 
         BigDecimal x0 = x.add(new BigDecimal(tile.xx0));
@@ -500,85 +489,86 @@ public class TileRendererMixin implements BigTileRendererExtension {
         BigDecimal z1 = z.add(new BigDecimal(tile.zz1));
         if (this.blen) {
             t.color(this.c1r, this.c1g, this.c1b);
-            t.vertexUV(x0, y1, z1, var42, var24);
+            t.vertexUV(x0, y1, z1, u01, v01);
             t.color(this.c2r, this.c2g, this.c2b);
-            t.vertexUV(x0, y1, z0, u0, v0);
+            t.vertexUV(x0, y1, z0, u00, v00);
             t.color(this.c3r, this.c3g, this.c3b);
-            t.vertexUV(x0, y0, z0, var22, var26);
+            t.vertexUV(x0, y0, z0, u10, v10);
             t.color(this.c4r, this.c4g, this.c4b);
-            t.vertexUV(x0, y0, z1, u1, v1);
+            t.vertexUV(x0, y0, z1, u11, v11);
         } else {
-            t.vertexUV(x0, y1, z1, var42, var24);
-            t.vertexUV(x0, y1, z0, u0, v0);
-            t.vertexUV(x0, y0, z0, var22, var26);
-            t.vertexUV(x0, y0, z1, u1, v1);
+            t.vertexUV(x0, y1, z1, u01, v01);
+            t.vertexUV(x0, y1, z0, u00, v00);
+            t.vertexUV(x0, y0, z0, u10, v10);
+            t.vertexUV(x0, y0, z1, u11, v11);
         }
     }
 
     @Override
     public void renderEast(Tile tile, BigDecimal x, double y, BigDecimal z, int tex) {
         Tesselator t = Tesselator.instance;
-        if (this.fixedTexture >= 0) {
-            tex = this.fixedTexture;
-        }
 
+        if (this.fixedTexture >= 0) tex = this.fixedTexture;
         int xt = (tex & 15) << 4;
         int yt = tex & 240;
-        double u0 = ((double) xt + tile.zz0 * 16.0) / 256.0;
-        double u1 = ((double) xt + tile.zz1 * 16.0 - 0.01) / 256.0;
-        double v0 = ((double) (yt + 16) - tile.yy1 * 16.0) / 256.0;
-        double v1 = ((double) (yt + 16) - tile.yy0 * 16.0 - 0.01) / 256.0;
+        double u00 = ((double) xt + tile.zz0 * 16.0) / 256.0;
+        double u11 = ((double) xt + tile.zz1 * 16.0 - 0.01) / 256.0;
+        double v00 = ((double) (yt + 16) - tile.yy1 * 16.0) / 256.0;
+        double v11 = ((double) (yt + 16) - tile.yy0 * 16.0 - 0.01) / 256.0;
         if (this.xFlipTexture) {
-            double tmp = u0;
-            u0 = u1;
-            u1 = tmp;
+            double tmp = u00;
+            u00 = u11;
+            u11 = tmp;
         }
 
         if (tile.zz0 < 0.0 || tile.zz1 > 1.0) {
-            u0 = ((float) xt + 0.0F) / 256.0F;
-            u1 = ((float) xt + 15.99F) / 256.0F;
+            u00 = ((float) xt + 0.0F) / 256.0F;
+            u11 = ((float) xt + 15.99F) / 256.0F;
         }
 
         if (tile.yy0 < 0.0 || tile.yy1 > 1.0) {
-            v0 = ((float) yt + 0.0F) / 256.0F;
-            v1 = ((float) yt + 15.99F) / 256.0F;
+            v00 = ((float) yt + 0.0F) / 256.0F;
+            v11 = ((float) yt + 15.99F) / 256.0F;
         }
 
-        double var42 = u1;
-        double var22 = u0;
-        double var24 = v0;
-        double var26 = v1;
-        if (this.eastFlip == 2) {
-            u0 = ((double) xt + tile.yy0 * 16.0) / 256.0;
-            v0 = ((double) (yt + 16) - tile.zz0 * 16.0) / 256.0;
-            u1 = ((double) xt + tile.yy1 * 16.0) / 256.0;
-            v1 = ((double) (yt + 16) - tile.zz1 * 16.0) / 256.0;
-            var24 = v0;
-            var26 = v1;
-            var42 = u0;
-            var22 = u1;
-            v0 = v1;
-            v1 = v0;
-        } else if (this.eastFlip == 1) {
-            u0 = ((double) (xt + 16) - tile.yy1 * 16.0) / 256.0;
-            v0 = ((double) yt + tile.zz1 * 16.0) / 256.0;
-            u1 = ((double) (xt + 16) - tile.yy0 * 16.0) / 256.0;
-            v1 = ((double) yt + tile.zz0 * 16.0) / 256.0;
-            var42 = u1;
-            var22 = u0;
-            u0 = u1;
-            u1 = u0;
-            var24 = v1;
-            var26 = v0;
-        } else if (this.eastFlip == 3) {
-            u0 = ((double) (xt + 16) - tile.zz0 * 16.0) / 256.0;
-            u1 = ((double) (xt + 16) - tile.zz1 * 16.0 - 0.01) / 256.0;
-            v0 = ((double) yt + tile.yy1 * 16.0) / 256.0;
-            v1 = ((double) yt + tile.yy0 * 16.0 - 0.01) / 256.0;
-            var42 = u1;
-            var22 = u0;
-            var24 = v0;
-            var26 = v1;
+        double u01 = u11;
+        double u10 = u00;
+        double v01 = v00;
+        double v10 = v11;
+        if (this.eastFlip == FLIP_CCW) {
+            u00 = ((double) xt + tile.yy0 * 16.0) / 256.0;
+            v00 = ((double) (yt + 16) - tile.zz0 * 16.0) / 256.0;
+            u11 = ((double) xt + tile.yy1 * 16.0) / 256.0;
+            v11 = ((double) (yt + 16) - tile.zz1 * 16.0) / 256.0;
+
+            v01 = v00;
+            v10 = v11;
+            u01 = u00;
+            u10 = u11;
+            v00 = v11;
+            v11 = v00;
+        } else if (this.eastFlip == FLIP_CW) {
+            u00 = ((double) (xt + 16) - tile.yy1 * 16.0) / 256.0;
+            v00 = ((double) yt + tile.zz1 * 16.0) / 256.0;
+            u11 = ((double) (xt + 16) - tile.yy0 * 16.0) / 256.0;
+            v11 = ((double) yt + tile.zz0 * 16.0) / 256.0;
+
+            u01 = u11;
+            u10 = u00;
+            u00 = u11;
+            u11 = u00;
+            v01 = v11;
+            v10 = v00;
+        } else if (this.eastFlip == FLIP_180) {
+            u00 = ((double) (xt + 16) - tile.zz0 * 16.0) / 256.0;
+            u11 = ((double) (xt + 16) - tile.zz1 * 16.0 - 0.01) / 256.0;
+            v00 = ((double) yt + tile.yy1 * 16.0) / 256.0;
+            v11 = ((double) yt + tile.yy0 * 16.0 - 0.01) / 256.0;
+
+            u01 = u11;
+            u10 = u00;
+            v01 = v00;
+            v10 = v11;
         }
 
         BigDecimal x0 = x.add(new BigDecimal(tile.xx1));
@@ -590,24 +580,24 @@ public class TileRendererMixin implements BigTileRendererExtension {
             t.color(this.c1r, this.c1g, this.c1b);
             //? >=1.0.0-beta.8.0.r
             //t.tex2(this.tc1);
-            t.vertexUV(x0, y0, z1, var22, var26);
+            t.vertexUV(x0, y0, z1, u10, v10);
             t.color(this.c2r, this.c2g, this.c2b);
             //? >=1.0.0-beta.8.0.r
             //t.tex2(this.tc2);
-            t.vertexUV(x0, y0, z0, u1, v1);
+            t.vertexUV(x0, y0, z0, u11, v11);
             t.color(this.c3r, this.c3g, this.c3b);
             //? >=1.0.0-beta.8.0.r
             //t.tex2(this.tc3);
-            t.vertexUV(x0, y1, z0, var42, var24);
+            t.vertexUV(x0, y1, z0, u01, v01);
             t.color(this.c4r, this.c4g, this.c4b);
             //? >=1.0.0-beta.8.0.r
             //t.tex2(this.tc4);
-            t.vertexUV(x0, y1, z1, u0, v0);
+            t.vertexUV(x0, y1, z1, u00, v00);
         } else {
-            t.vertexUV(x0, y0, z1, var22, var26);
-            t.vertexUV(x0, y0, z0, u1, v1);
-            t.vertexUV(x0, y1, z0, var42, var24);
-            t.vertexUV(x0, y1, z1, u0, v0);
+            t.vertexUV(x0, y0, z1, u10, v10);
+            t.vertexUV(x0, y0, z0, u11, v11);
+            t.vertexUV(x0, y1, z0, u01, v01);
+            t.vertexUV(x0, y1, z1, u00, v00);
         }
     }
 }

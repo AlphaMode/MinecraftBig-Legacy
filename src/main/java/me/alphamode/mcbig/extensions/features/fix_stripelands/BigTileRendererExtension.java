@@ -5,6 +5,7 @@ import net.minecraft.world.level.tile.Tile;
 import java.math.BigDecimal;
 
 public interface BigTileRendererExtension {
+    int FLIP_NONE = 0, FLIP_CW = 1, FLIP_CCW = 2, FLIP_180 = 3;
 
     default void renderFaceDown(Tile tile, BigDecimal x, double y, BigDecimal z, int tex) {
         throw new UnsupportedOperationException();
