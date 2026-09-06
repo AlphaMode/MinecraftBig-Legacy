@@ -90,7 +90,7 @@ public abstract class RepeaterTileMixin extends Tile implements BigTileExtension
     @Override
     public void neighborChanged(Level level, BigInteger x, int y, BigInteger z, int tile) {
         if (!this.canPlace(level, x, y, z)) {
-            this.dropResources(level, x, y, z, level.getData(x, y, z));
+            this.spawnResources(level, x, y, z, level.getData(x, y, z));
             level.setTile(x, y, z, 0);
         } else {
             int data = level.getData(x, y, z);

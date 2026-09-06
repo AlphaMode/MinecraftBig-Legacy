@@ -6,13 +6,17 @@ import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import me.alphamode.mcbig.extensions.BigPlayerExtension;
 import me.alphamode.mcbig.extensions.CommandPlayerExtension;
+import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.List;
 
 @Mixin(Player.class)
 public abstract class PlayerMixin extends Entity implements BigPlayerExtension, CommandPlayerExtension {
@@ -64,6 +68,13 @@ public abstract class PlayerMixin extends Entity implements BigPlayerExtension, 
     @Override
     public boolean canNoclip() {
         return this.noclip;
+    }
+
+    @WrapOperation(method = "aiStep", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;getEntities(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;)Ljava/util/List;"))
+    private List<Entity> bigGetEntities(Level instance, Entity entity, AABB bb, Operation<List<Entity>> original) {
+        if (isBigMovementEnabled())
+            return instance.getEntities(entity, ((BigEntityExtension) this).getBigBB().inflate(1.0, 0.0, 1.0));
+        return original.call(instance, entity, bb);
     }
 
     @Inject(method = "aiStep", at = @At("HEAD"))

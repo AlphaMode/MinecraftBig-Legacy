@@ -6,6 +6,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 @Mixin(Tesselator.class)
 public abstract class TesselatorMixin implements BigTesselatorExtension {
@@ -120,7 +121,26 @@ public abstract class TesselatorMixin implements BigTesselatorExtension {
         this.zoBig = this.zoBig.add(zo);
     }
 
-//    @Overwrite
+    private BigInteger xoB;
+    private BigInteger zoB;
+
+    @Override
+    public void setTesselatorOffset(BigInteger xo, BigInteger zo) {
+        this.xoB = xo;
+        this.zoB = zo;
+    }
+
+    @Override
+    public BigInteger getOffsetX() {
+        return this.xoB;
+    }
+
+    @Override
+    public BigInteger getOffsetZ() {
+        return this.zoB;
+    }
+
+    //    @Overwrite
 //    public void offset(double x, double y, double z) {
 //        this.xo = x;
 //        this.zo = z;

@@ -1,5 +1,7 @@
 package me.alphamode.mcbig.client.renderer;
 
+import me.alphamode.mcbig.extensions.BigTileRendererExtension;
+import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
 import me.alphamode.mcbig.level.BigRegion;
 import me.alphamode.mcbig.math.BigConstants;
 import net.minecraft.client.renderer.Chunk;
@@ -53,22 +55,22 @@ public class BigChunk extends Chunk {
             this.zRenderBig = z.subtract(BigInteger.valueOf(this.zRenderOffs));
             float var4 = 6.0F;
             this.bb = AABB.create(
-                    (double)(x.doubleValue() - var4),
-                    (double)((float)y - var4),
-                    (double)(z.doubleValue() - var4),
-                    (double)((x.doubleValue() + this.xs) + var4),
-                    (double)((float)(y + this.ys) + var4),
-                    (double)((z.doubleValue() + this.zs) + var4)
+                    (double) (x.doubleValue() - var4),
+                    (double) ((float) y - var4),
+                    (double) (z.doubleValue() - var4),
+                    (double) ((x.doubleValue() + this.xs) + var4),
+                    (double) ((float) (y + this.ys) + var4),
+                    (double) ((z.doubleValue() + this.zs) + var4)
             );
             GL11.glNewList(this.lists + 2, 4864);
             ItemRenderer.renderFlat(
                     AABB.newTemp(
-                            (double)((float)this.xRenderOffs - var4),
-                            (double)((float)this.yRenderOffs - var4),
-                            (double)((float)this.zRenderOffs - var4),
-                            (double)((float)(this.xRenderOffs + this.xs) + var4),
-                            (double)((float)(this.yRenderOffs + this.ys) + var4),
-                            (double)((float)(this.zRenderOffs + this.zs) + var4)
+                            (double) ((float) this.xRenderOffs - var4),
+                            (double) ((float) this.yRenderOffs - var4),
+                            (double) ((float) this.zRenderOffs - var4),
+                            (double) ((float) (this.xRenderOffs + this.xs) + var4),
+                            (double) ((float) (this.yRenderOffs + this.ys) + var4),
+                            (double) ((float) (this.zRenderOffs + this.zs) + var4)
                     )
             );
             GL11.glEndList();
@@ -78,10 +80,17 @@ public class BigChunk extends Chunk {
 
     @Override
     public float distanceToSqr(Entity entity) {
-        float var2 = (float)(entity.x - (double)this.bigXm.doubleValue());
-        float var3 = (float)(entity.y - (double)this.ym);
-        float var4 = (float)(entity.z - (double)this.bigZm.doubleValue());
-        return var2 * var2 + var3 * var3 + var4 * var4;
+        if (entity.isBigMovementEnabled()) {
+            BigEntityExtension bigEntity = (BigEntityExtension) entity;
+            float xd = (float) bigEntity.getX().toBigInteger().subtract(this.bigXm).floatValue();
+            float yd = (float) (entity.y - (double) this.ym);
+            float zd = (float) bigEntity.getZ().toBigInteger().subtract(this.bigZm).floatValue();
+            return xd * xd + yd * yd + zd * zd;
+        }
+        float xd = (float) (entity.x - (double) this.bigXm.doubleValue());
+        float yd = (float) (entity.y - (double) this.ym);
+        float zd = (float) (entity.z - (double) this.bigZm.doubleValue());
+        return xd * xd + yd * yd + zd * zd;
     }
 
     @Override
@@ -95,7 +104,7 @@ public class BigChunk extends Chunk {
             int y1 = this.y + this.ys;
             BigInteger z1 = this.bigZ.add(BigInteger.valueOf(this.zs));
 
-            for(int i = 0; i < 2; ++i) {
+            for (int i = 0; i < 2; ++i) {
                 this.empty[i] = true;
             }
 
@@ -107,14 +116,14 @@ public class BigChunk extends Chunk {
             LevelSource region = new BigRegion(this.level, x0.subtract(BigInteger.ONE), y0 - r, z0.subtract(BigInteger.ONE), x1.add(BigInteger.ONE), y1 + r, z1.add(BigInteger.ONE));
             TileRenderer tileRenderer = new TileRenderer(region);
 
-            for(int l = 0; l < 2; ++l) {
+            for (int l = 0; l < 2; ++l) {
                 boolean renderNextLayer = false;
                 boolean rendered = false;
                 boolean started = false;
 
-                for(int y = y0; y < y1; ++y) {
-                    for(BigInteger z = z0; z.compareTo(z1) < 0; z = z.add(BigInteger.ONE)) {
-                        for(BigInteger x = x0; x.compareTo(x1) < 0; x = x.add(BigInteger.ONE)) {
+                for (int y = y0; y < y1; ++y) {
+                    for (BigInteger z = z0; z.compareTo(z1) < 0; z = z.add(BigInteger.ONE)) {
+                        for (BigInteger x = x0; x.compareTo(x1) < 0; x = x.add(BigInteger.ONE)) {
                             int tileId = region.getTile(x, y, z);
                             if (tileId > 0) {
                                 if (!started) {
@@ -123,12 +132,17 @@ public class BigChunk extends Chunk {
                                     GL11.glPushMatrix();
                                     this.translateToPos();
                                     float ss = 1.000001F;
-                                    GL11.glTranslatef((float)(-this.zs) / 2.0F, (float)(-this.ys) / 2.0F, (float)(-this.zs) / 2.0F);
+                                    GL11.glTranslatef((float) (-this.zs) / 2.0F, (float) (-this.ys) / 2.0F, (float) (-this.zs) / 2.0F);
                                     GL11.glScalef(ss, ss, ss);
-                                    GL11.glTranslatef((float)this.zs / 2.0F, (float)this.ys / 2.0F, (float)this.zs / 2.0F);
+                                    GL11.glTranslatef((float) this.zs / 2.0F, (float) this.ys / 2.0F, (float) this.zs / 2.0F);
                                     tesselator.begin();
-                                    tesselator.offset(new BigDecimal(this.bigX.negate()), -this.y, new BigDecimal(this.bigZ.negate()));
-                                    tesselator.offset(this.bigX.negate().doubleValue(), -this.y, this.bigZ.negate().doubleValue());
+                                    if (BigTileRendererExtension.FIX_STRIPELANDS) {
+                                        tesselator.setTesselatorOffset(this.bigX.negate(), this.bigZ.negate());
+                                        tesselator.offset(0, 0, 0);
+
+                                    } else {
+                                        tesselator.offset(this.bigX.negate().doubleValue(), -this.y, this.bigZ.negate().doubleValue());
+                                    }
                                 }
 
                                 if (l == 0 && Tile.isEntityTile[tileId]) {

@@ -272,7 +272,7 @@ public class BigLevelChunk extends LevelChunk {
         this.lastSaveHadEntities = true;
         BigInteger xt;
         BigInteger zt;
-        if (entity instanceof Player && entity instanceof BigEntityExtension bigEntity) {
+        if (entity.isBigMovementEnabled() && entity instanceof BigEntityExtension bigEntity) {
             xt = BigMath.floor(bigEntity.getX().divide(BigConstants.SIXTEEN_F, RoundingMode.HALF_UP));
             zt = BigMath.floor(bigEntity.getZ().divide(BigConstants.SIXTEEN_F, RoundingMode.HALF_UP));
         } else {

@@ -2,6 +2,7 @@ package me.alphamode.mcbig.mixin.features.big_movement;
 
 import me.alphamode.mcbig.client.renderer.BigChunk;
 import me.alphamode.mcbig.client.renderer.BigDistanceChunkSorter;
+import me.alphamode.mcbig.client.renderer.entity.EntityRenderDispatcherData;
 import me.alphamode.mcbig.extensions.BigLevelListenerExtension;
 import me.alphamode.mcbig.extensions.features.big_movement.BigCullerExtension;
 import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
@@ -461,12 +462,17 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
 
                 GL11.glEnable(GL11.GL_ALPHA_TEST);
                 t.begin();
-                t.offset(xOff.negate(), -yOff, zOff.negate());
                 t.noColor();
-                this.tileRenderer.tesselateInWorld(tt, result.xBig, result.y, result.zBig, 240 + (int)(this.destroyProgress * 10.0F));
-                t.end();
-                t.offset(BigDecimal.ZERO, 0.0, BigDecimal.ZERO);
-                t.offset(0.0, 0.0, 0.0);
+                if (TileRenderer.FIX_STRIPELANDS) {
+                    GL11.glTranslatef(new BigDecimal(result.xBig.shiftRight(4).multiply(BigConstants.SIXTEEN)).subtract(xOff).floatValue(), (float) ((result.y >> 4) * 16 - yOff), new BigDecimal(result.zBig.shiftRight(4).multiply(BigConstants.SIXTEEN)).subtract(zOff).floatValue());
+                    this.tileRenderer.tesselateInWorld(tt, result.xBig, result.y, result.zBig, 240 + (int) (this.destroyProgress * 10.0F));
+                    t.end();
+                } else {
+                    t.offset(xOff.negate().doubleValue(), -yOff, zOff.negate().doubleValue());
+                    this.tileRenderer.tesselateInWorld(tt, result.xBig, result.y, result.zBig, 240 + (int) (this.destroyProgress * 10.0F));
+                    t.end();
+                    t.offset(0.0, 0.0, 0.0);
+                }
                 GL11.glDisable(GL11.GL_ALPHA_TEST);
                 GL11.glPolygonOffset(0.0F, 0.0F);
                 GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL);
@@ -578,13 +584,21 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
             this.totalEntities = 0;
             this.renderedEntities = 0;
             this.culledEntities = 0;
-            Mob var4 = this.mc.cameraEntity;
-            EntityRenderDispatcher.xOff = var4.xOld + (var4.x - var4.xOld) * (double)partialTick;
-            EntityRenderDispatcher.yOff = var4.yOld + (var4.y - var4.yOld) * (double)partialTick;
-            EntityRenderDispatcher.zOff = var4.zOld + (var4.z - var4.zOld) * (double)partialTick;
-            TileEntityRenderDispatcher.xOff = var4.xOld + (var4.x - var4.xOld) * (double)partialTick;
-            TileEntityRenderDispatcher.yOff = var4.yOld + (var4.y - var4.yOld) * (double)partialTick;
-            TileEntityRenderDispatcher.zOff = var4.zOld + (var4.z - var4.zOld) * (double)partialTick;
+            Mob camera = this.mc.cameraEntity;
+            if (camera.isBigMovementEnabled()) {
+                BigEntityExtension bigCamera = (BigEntityExtension) camera;
+                BigDecimal a = BigDecimal.valueOf(partialTick);
+                EntityRenderDispatcherData.xOff = bigCamera.getXOld().add((bigCamera.getX().subtract(bigCamera.getXOld())).multiply(a));
+                EntityRenderDispatcherData.zOff = bigCamera.getZOld().add((bigCamera.getZ().subtract(bigCamera.getZOld())).multiply(a));
+                EntityRenderDispatcher.yOff = camera.yOld + (camera.y - camera.yOld) * (double) partialTick;
+            } else {
+                EntityRenderDispatcher.xOff = camera.xOld + (camera.x - camera.xOld) * (double) partialTick;
+                EntityRenderDispatcher.yOff = camera.yOld + (camera.y - camera.yOld) * (double) partialTick;
+                EntityRenderDispatcher.zOff = camera.zOld + (camera.z - camera.zOld) * (double) partialTick;
+                TileEntityRenderDispatcher.xOff = camera.xOld + (camera.x - camera.xOld) * (double) partialTick;
+                TileEntityRenderDispatcher.yOff = camera.yOld + (camera.y - camera.yOld) * (double) partialTick;
+                TileEntityRenderDispatcher.zOff = camera.zOld + (camera.z - camera.zOld) * (double) partialTick;
+            }
             List<Entity> entities = this.level.getAllEntities();
             this.totalEntities = entities.size();
 
@@ -597,8 +611,9 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
             }
 
             for (Entity entity : entities) {
+                BigEntityExtension bigEntity = (BigEntityExtension) entity;
                 if (entity.shouldRender(cam)
-                        && (entity.noCulling || (entity.isBigMovementEnabled() ? ((BigCullerExtension)culler).isVisible(((BigEntityExtension)entity).getBigBB()) : culler.isVisible(entity.bb)))
+                        && (entity.noCulling || (entity.isBigMovementEnabled() ? ((BigCullerExtension)culler).isVisible(bigEntity.getBigBB()) : culler.isVisible(entity.bb)))
                         && (entity != this.mc.cameraEntity || this.mc.options.thirdPersonView || this.mc.cameraEntity.isSleeping())) {
                     int var8 = Mth.floor(entity.y);
                     if (var8 < 0) {
@@ -609,7 +624,7 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
                         var8 = 127;
                     }
 
-                    if (this.level.hasChunkAt(BigMath.floor(entity.x), var8, BigMath.floor(entity.z))) {
+                    if ((entity.isBigMovementEnabled() ? this.level.hasChunkAt(BigMath.floor(bigEntity.getX()), var8, BigMath.floor(bigEntity.getZ())) : this.level.hasChunkAt(BigMath.floor(entity.x), var8, BigMath.floor(entity.z)))) {
                         ++this.renderedEntities;
                         EntityRenderDispatcher.INSTANCE.render(entity, partialTick);
                     }

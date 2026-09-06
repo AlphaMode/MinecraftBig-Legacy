@@ -9,6 +9,7 @@
     "minVersion": "0.5.0"
   },
   "mixins": [
+    "features.big_movement.entity.ItemEntityMixin"
   ],
   "server": [
     "features.big_movement.server.ServerPlayerMixin",
@@ -33,6 +34,7 @@
     "client.TesselatorMixin",
     "client.TileRendererMixin",
     "client.TitleScreenMixin",
+    "client.particle.TakeAnimationParticleMixin",
     "commands.client.ChatScreenMixin",
     "commands.client.FontMixin",
     "commands.client.GuiMixin",

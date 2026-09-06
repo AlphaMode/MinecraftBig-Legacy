@@ -163,8 +163,8 @@ public abstract class StairsTileMixin extends Tile implements BigTileExtension {
     }
 
     @Override
-    public void dropResources(Level level, BigInteger x, int y, BigInteger z, int meta, float dropChance) {
-        this.base.dropResources(level, x, y, z, meta, dropChance);
+    public void spawnResources(Level level, BigInteger x, int y, BigInteger z, int meta, float dropChance) {
+        this.base.spawnResources(level, x, y, z, meta, dropChance);
     }
 
     @Override

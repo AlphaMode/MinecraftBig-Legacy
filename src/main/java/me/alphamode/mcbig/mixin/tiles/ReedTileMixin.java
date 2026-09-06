@@ -62,7 +62,7 @@ public abstract class ReedTileMixin extends Tile implements BigTileExtension {
 
     protected final void checkAlive(Level level, BigInteger x, int y, BigInteger z) {
         if (!this.canPlace(level, x, y, z)) {
-            this.dropResources(level, x, y, z, level.getData(x, y, z));
+            this.spawnResources(level, x, y, z, level.getData(x, y, z));
             level.setTile(x, y, z, 0);
         }
     }

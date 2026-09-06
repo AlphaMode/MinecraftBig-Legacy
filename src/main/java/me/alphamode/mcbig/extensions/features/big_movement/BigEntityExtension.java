@@ -36,4 +36,6 @@ public interface BigEntityExtension {
     void setZOld(BigDecimal z);
 
     double distanceToSqr(BigDecimal x, double y, BigDecimal z);
+
+    boolean checkInBlock(BigDecimal x, double y, BigDecimal z);
 }

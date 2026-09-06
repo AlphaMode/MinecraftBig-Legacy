@@ -1,6 +1,7 @@
 package me.alphamode.mcbig.extensions.features.fix_stripelands;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 public interface BigTesselatorExtension {
 
@@ -17,6 +18,18 @@ public interface BigTesselatorExtension {
     }
 
     default void addOffset(BigDecimal xo, float yo, BigDecimal zo) {
+        throw new UnsupportedOperationException();
+    }
+
+    default void setTesselatorOffset(BigInteger xo, BigInteger zo) {
+        throw new UnsupportedOperationException();
+    }
+
+    default BigInteger getOffsetX() {
+        throw new UnsupportedOperationException();
+    }
+
+    default BigInteger getOffsetZ() {
         throw new UnsupportedOperationException();
     }
 }

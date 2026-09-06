@@ -136,7 +136,7 @@ public abstract class DoorTileMixin extends Tile implements BigTileExtension {
 
             if (var7) {
                 if (!level.isClientSide) {
-                    this.dropResources(level, x, y, z, var6);
+                    this.spawnResources(level, x, y, z, var6);
                 }
             } else if (tile > 0 && Tile.tiles[tile].isSignalSource()) {
                 boolean var8 = level.hasNeighborSignal(x, y, z) || level.hasNeighborSignal(x, y + 1, z);

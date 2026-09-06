@@ -151,7 +151,7 @@ public class LeafTileMixin extends TransparentTile implements BigTileExtension {
     }
 
     private void die(Level level, BigInteger x, int y, BigInteger z) {
-        this.dropResources(level, x, y, z, level.getData(x, y, z));
+        this.spawnResources(level, x, y, z, level.getData(x, y, z));
         level.setTile(x, y, z, 0);
     }
 

@@ -1,11 +1,16 @@
 package me.alphamode.mcbig.mixin.networking.server;
 
 import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
+import net.minecraft.Pos;
+import net.minecraft.network.packet.GameEventPacket;
+import net.minecraft.network.packet.RespawnPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerList;
 import net.minecraft.server.level.PlayerChunkMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerPlayerGameMode;
+import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -22,6 +27,56 @@ public abstract class PlayerListMixin {
 
     @Shadow
     protected abstract PlayerChunkMap getChunkMap(int dimension);
+
+    @Shadow
+    public abstract void sendLevelInfo(ServerPlayer player, ServerLevel level);
+
+    /**
+     * @author
+     * @reason
+     */
+    @Overwrite
+    public ServerPlayer respawn(ServerPlayer player, int targetDimension) {
+        this.server.getEntityTracker(player.dimension).clear(player);
+        this.server.getEntityTracker(player.dimension).removeEntity(player);
+        this.getChunkMap(player.dimension).remove(player);
+        this.players.remove(player);
+        this.server.getLevel(player.dimension).removeEntityImmediately(player);
+        Pos pos = player.getRespawnPosition();
+        player.dimension = targetDimension;
+        ServerPlayer newPlayer = new ServerPlayer(
+                this.server, this.server.getLevel(player.dimension), player.name, new ServerPlayerGameMode(this.server.getLevel(player.dimension))
+        );
+        BigEntityExtension newPlayerB = (BigEntityExtension) newPlayer;
+        newPlayer.id = player.id;
+        newPlayer.connection = player.connection;
+        ServerLevel level = this.server.getLevel(player.dimension);
+        if (pos != null) {
+            Pos spawnPos = Player.checkBedValidRespawnPosition(this.server.getLevel(player.dimension), pos);
+            if (spawnPos != null) {
+                newPlayer.moveTo(spawnPos.x + 0.5F, spawnPos.y + 0.1F, spawnPos.z + 0.5F, 0.0F, 0.0F);
+                newPlayer.setRespawnPosition(pos);
+            } else {
+                newPlayer.connection.send(new GameEventPacket(0));
+            }
+        }
+
+        level.serverCache.create((int) newPlayer.x >> 4, (int) newPlayer.z >> 4);
+
+        while (level.getCubes(newPlayer, newPlayer.bb).size() != 0) {
+            newPlayer.setPos(newPlayer.x, newPlayer.y + 1.0, newPlayer.z);
+        }
+
+        newPlayer.connection.send(new RespawnPacket((byte) newPlayer.dimension));
+        newPlayer.connection.teleport(newPlayerB.getX(), newPlayer.y, newPlayerB.getZ(), newPlayer.yRot, newPlayer.xRot);
+        this.sendLevelInfo(newPlayer, level);
+        this.getChunkMap(newPlayer.dimension).add(newPlayer);
+        level.addEntity(newPlayer);
+        this.players.add(newPlayer);
+        newPlayer.initMenu();
+        newPlayer.onRespawn();
+        return newPlayer;
+    }
 
     /**
      * @author

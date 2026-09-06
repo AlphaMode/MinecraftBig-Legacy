@@ -377,8 +377,8 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
         }
     }
 
-    //? >1.0.0-beta.8.0.r {
-    /*@Override
+    //? <1.0.0-beta.8.0.r {
+    @Override
     public boolean isSkyLit(BigInteger x, int y, BigInteger z) {
         if (y < 0) return false;
         if (y >= 128) return true;
@@ -387,7 +387,7 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
         LevelChunk c = getChunk(x.shiftRight(4), z.shiftRight(4));
         return c.isSkyLit(x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue());
     }
-    *///? }
+    //? }
 
     @Override
     public int getHeightmap(BigInteger x, BigInteger z) {
@@ -502,8 +502,15 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
      */
     @Overwrite
     public boolean addEntity(Entity entity) {
-        BigInteger chunkX = BigMath.floor(entity.x / 16.0);
-        BigInteger chunkZ = BigMath.floor(entity.z / 16.0);
+        BigInteger chunkX;
+        BigInteger chunkZ;
+        if (entity.isBigMovementEnabled()) {
+            chunkX = BigMath.floor(((BigEntityExtension) entity).getX().divide(BigConstants.SIXTEEN_F, RoundingMode.HALF_EVEN));
+            chunkZ = BigMath.floor(((BigEntityExtension) entity).getZ().divide(BigConstants.SIXTEEN_F, RoundingMode.HALF_EVEN));
+        } else {
+            chunkX = BigMath.floor(entity.x / 16.0);
+            chunkZ = BigMath.floor(entity.z / 16.0);
+        }
         boolean isPlayer = entity instanceof Player;
 
         if (!isPlayer && !hasChunk(chunkX, chunkZ)) {
@@ -1940,7 +1947,7 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
         }
     }
 
-    public void tickPlayer(Entity entity, boolean tick) {
+    public void tickBig(Entity entity, boolean tick) {
         BigEntityExtension bigEntity = (BigEntityExtension) entity;
         BigInteger xt = BigMath.floor(bigEntity.getX());
         BigInteger zt = BigMath.floor(bigEntity.getZ());
@@ -2012,8 +2019,8 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
      */
     @Overwrite
     public void tick(Entity e, boolean actual) {
-        if (e instanceof Player && e instanceof BigEntityExtension bigEntity) {
-            tickPlayer((Player) e, actual);
+        if (e.isBigMovementEnabled()) {
+            tickBig(e, actual);
             return;
         }
         BigInteger xc = BigMath.floor(e.x);

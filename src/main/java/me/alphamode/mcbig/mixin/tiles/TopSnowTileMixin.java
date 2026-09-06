@@ -3,8 +3,6 @@ package me.alphamode.mcbig.mixin.tiles;
 import me.alphamode.mcbig.extensions.BigTileExtension;
 import me.alphamode.mcbig.math.BigMath;
 import me.alphamode.mcbig.world.phys.BigAABB;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.Facing;
 import net.minecraft.world.item.ItemInstance;
@@ -20,9 +18,7 @@ import net.minecraft.world.level.tile.TopSnowTile;
 import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Mixin;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.MathContext;
 import java.util.Random;
 
 @Mixin(TopSnowTile.class)
@@ -63,7 +59,7 @@ public abstract class TopSnowTileMixin extends Tile implements BigTileExtension 
 
     private boolean update(Level level, BigInteger x, int y, BigInteger z) {
         if (!this.mayPlace(level, x, y, z)) {
-            this.dropResources(level, x, y, z, level.getData(x, y, z));
+            this.spawnResources(level, x, y, z, level.getData(x, y, z));
             level.setTile(x, y, z, 0);
             return false;
         } else {
@@ -88,7 +84,7 @@ public abstract class TopSnowTileMixin extends Tile implements BigTileExtension 
     @Override
     public void tick(Level level, BigInteger x, int y, BigInteger z, Random random) {
         if (level.getBrightness(LightLayer.BLOCK, x, y, z) > 11) {
-            this.dropResources(level, x, y, z, level.getData(x, y, z));
+            this.spawnResources(level, x, y, z, level.getData(x, y, z));
             level.setTile(x, y, z, 0);
         }
     }

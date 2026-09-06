@@ -6,19 +6,19 @@ import net.minecraft.client.gui.Button;
 public class WorldTypeButton extends Button {
     private WorldType selected;
 
-    public WorldTypeButton(int id, int x, int y) {
-        super(id, x, y, 150, 20, WorldType.SELECTED.getMessage());
-        this.selected = WorldType.SELECTED;
+    public WorldTypeButton(int id, int x, int y, WorldType selected) {
+        super(id, x, y, 150, 20, selected.getMessage());
+        this.selected = selected;
     }
 
-    public WorldTypeButton(int id, int x, int y, int width, int height) {
-        super(id, x, y, width, height, WorldType.SELECTED.getMessage());
-        this.selected = WorldType.SELECTED;
+    public WorldTypeButton(int id, int x, int y, int width, int height, WorldType selected) {
+        super(id, x, y, width, height, selected.getMessage());
+        this.selected = selected;
     }
 
-    public void clicked() {
+    public WorldType clicked() {
         this.selected = WorldType.values()[(this.selected.ordinal() + 1) % WorldType.values().length];
         this.message = this.selected.getMessage();
-        WorldType.SELECTED = this.selected;
+        return this.selected;
     }
 }

@@ -103,7 +103,7 @@ public abstract class RailTileMixin extends Tile implements BigTileExtension {
             }
 
             if (var8) {
-                this.dropResources(level, x, y, z, level.getData(x, y, z));
+                this.spawnResources(level, x, y, z, level.getData(x, y, z));
                 level.setTile(x, y, z, 0);
             } else if (this.id == Tile.goldenRail.id) {
                 boolean var9 = level.hasNeighborSignal(x, y, z) || level.hasNeighborSignal(x, y + 1, z);

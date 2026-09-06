@@ -1,6 +1,7 @@
 package me.alphamode.mcbig.mixin;
 
 import me.alphamode.mcbig.extensions.BigTileExtension;
+import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
 import me.alphamode.mcbig.world.phys.BigAABB;
 import me.alphamode.mcbig.world.phys.BigHitResult;
 import me.alphamode.mcbig.world.phys.BigVec3;
@@ -145,16 +146,16 @@ public abstract class TileMixin implements BigTileExtension {
     @Override
     public void playerDestroy(Level level, Player player, BigInteger x, int y, BigInteger z, int meta) {
         player.awardStat(Stats.blockMined[this.id], 1);
-        this.dropResources(level, x, y, z, meta);
+        this.spawnResources(level, x, y, z, meta);
     }
 
     @Override
-    public final void dropResources(Level level, BigInteger x, int y, BigInteger z, int meta) {
-        this.dropResources(level, x, y, z, meta, 1.0F);
+    public final void spawnResources(Level level, BigInteger x, int y, BigInteger z, int meta) {
+        this.spawnResources(level, x, y, z, meta, 1.0F);
     }
 
     @Override
-    public void dropResources(Level level, BigInteger x, int y, BigInteger z, int meta, float f) {
+    public void spawnResources(Level level, BigInteger x, int y, BigInteger z, int meta, float f) {
         if (!level.isClientSide) {
             int var7 = this.getResourceCount(level.random);
 
@@ -170,15 +171,23 @@ public abstract class TileMixin implements BigTileExtension {
     }
 
     @Override
-    public void popResource(Level level, BigInteger x, int y, BigInteger z, ItemInstance item) {
+    public void popResource(Level level, BigInteger x, int y, BigInteger z, ItemInstance itemInstance) {
         if (!level.isClientSide) {
-            float var6 = 0.7F;
-            double var7 = (double)(level.random.nextFloat() * var6) + (double)(1.0F - var6) * 0.5;
-            double var9 = (double)(level.random.nextFloat() * var6) + (double)(1.0F - var6) * 0.5;
-            double var11 = (double)(level.random.nextFloat() * var6) + (double)(1.0F - var6) * 0.5;
-            ItemEntity var13 = new ItemEntity(level, (double)x.doubleValue() + var7, (double)y + var9, (double)z.doubleValue() + var11, item);
-            var13.throwTime = 10;
-            level.addEntity(var13);
+            float s = 0.7F;
+            double xo = (double)(level.random.nextFloat() * s) + (double)(1.0F - s) * 0.5;
+            double zo = (double)(level.random.nextFloat() * s) + (double)(1.0F - s) * 0.5;
+            double yo = (double)(level.random.nextFloat() * s) + (double)(1.0F - s) * 0.5;
+
+            ItemEntity item = new ItemEntity(level, 0, 0, 0, itemInstance);
+
+            if (item.isBigMovementEnabled()) {
+                ((BigEntityExtension) item).setPos(new BigDecimal(x).add(new BigDecimal(xo)), (double)y + yo, new BigDecimal(z).add(new BigDecimal(zo)));
+            } else {
+                item.setPos(x.doubleValue() + xo, (double)y + yo, z.doubleValue() + zo);
+            }
+
+            item.throwTime = 10;
+            level.addEntity(item);
         }
     }
 

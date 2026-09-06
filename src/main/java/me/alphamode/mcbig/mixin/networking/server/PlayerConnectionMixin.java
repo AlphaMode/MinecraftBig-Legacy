@@ -72,25 +72,25 @@ public abstract class PlayerConnectionMixin implements BigPlayerConnectionExtens
         BigEntityExtension bigPlayer = (BigEntityExtension) this.player;
         this.clientIsFloating = true;
         if (!this.awaitingPositionFromClient) {
-            double var3 = payload.y() - this.lastGoodY;
-//            if (payload.x().equals(this.lastGoodBigX) && var3 * var3 < 0.01 && payload.z().equals(this.lastGoodBigZ)) {
+            double yDiff = payload.y() - this.lastGoodY;
+            if (payload.x().equals(this.lastGoodBigX) && yDiff * yDiff < 0.01 && payload.z().equals(this.lastGoodBigZ)) {
                 this.awaitingPositionFromClient = true;
-//            }
+            }
         }
 
         if (this.awaitingPositionFromClient) {
             if (this.player.riding != null) {
-                float var27 = this.player.yRot;
-                float var4 = this.player.xRot;
+                float yRotT = this.player.yRot;
+                float xRotT = this.player.xRot;
                 this.player.riding.positionRider();
-                BigDecimal var28 = bigPlayer.getX();
-                double var29 = this.player.y;
-                BigDecimal var30 = bigPlayer.getZ();
+                BigDecimal xt = bigPlayer.getX();
+                double yt = this.player.y;
+                BigDecimal zt = bigPlayer.getZ();
                 BigDecimal x = BigDecimal.ZERO;
                 BigDecimal z = BigDecimal.ZERO;
                 if (payload.hasRot()) {
-                    var27 = payload.yRot();
-                    var4 = payload.xRot();
+                    yRotT = payload.yRot();
+                    xRotT = payload.xRot();
                 }
 
                 if (payload.hasPos() && payload.y() == -999.0 && payload.yView() == -999.0) {
@@ -101,7 +101,7 @@ public abstract class PlayerConnectionMixin implements BigPlayerConnectionExtens
                 this.player.onGround = payload.onGround();
                 this.player.doTick(true);
                 bigPlayer.bigMove(x.doubleValue(), 0.0, z.doubleValue());
-                bigPlayer.absMoveTo(var28, var29, var30, var27, var4);
+                bigPlayer.absMoveTo(xt, yt, zt, yRotT, xRotT);
                 this.player.xd = x.doubleValue();
                 this.player.zd = z.doubleValue();
                 if (this.player.riding != null) {
@@ -131,20 +131,20 @@ public abstract class PlayerConnectionMixin implements BigPlayerConnectionExtens
             this.lastGoodBigX = bigPlayer.getX();
             this.lastGoodY = this.player.y;
             this.lastGoodBigZ = bigPlayer.getZ();
-            BigDecimal var5 = bigPlayer.getX();
-            double var7 = this.player.y;
-            BigDecimal var9 = bigPlayer.getZ();
-            float var11 = this.player.yRot;
-            float var12 = this.player.xRot;
+            BigDecimal xt = bigPlayer.getX();
+            double yt = this.player.y;
+            BigDecimal zt = bigPlayer.getZ();
+            float yRotT = this.player.yRot;
+            float xRotT = this.player.xRot;
             boolean hasPos = payload.hasPos();
             if (payload.hasPos() && payload.y() == -999.0 && payload.yView() == -999.0) {
                 hasPos = false;
             }
 
             if (hasPos) {
-                var5 = payload.x();
-                var7 = payload.y();
-                var9 = payload.z();
+                xt = payload.x();
+                yt = payload.y();
+                zt = payload.z();
                 double var13 = payload.yView() - payload.y();
                 if (!this.player.isSleeping() && (var13 > 1.65 || var13 < 0.1)) {
                     this.disconnect("Illegal stance");
@@ -160,57 +160,57 @@ public abstract class PlayerConnectionMixin implements BigPlayerConnectionExtens
             }
 
             if (payload.hasRot()) {
-                var11 = payload.yRot();
-                var12 = payload.xRot();
+                yRotT = payload.yRot();
+                xRotT = payload.xRot();
             }
 
             this.player.doTick(true);
             this.player.ySlideOffset = 0.0F;
-            bigPlayer.absMoveTo(this.lastGoodBigX, this.lastGoodY, this.lastGoodBigZ, var11, var12);
+            bigPlayer.absMoveTo(this.lastGoodBigX, this.lastGoodY, this.lastGoodBigZ, yRotT, xRotT);
             if (!this.awaitingPositionFromClient) {
                 return true;
             }
 
-            double var32 = var5.subtract(bigPlayer.getX()).doubleValue();
-            double var15 = var7 - this.player.y;
-            double var17 = var9.subtract(bigPlayer.getZ()).doubleValue();
-            double dist = var32 * var32 + var15 * var15 + var17 * var17;
+            double xDist = xt.subtract(bigPlayer.getX()).doubleValue();
+            double oyDist = yt - this.player.y;
+            double zDist = zt.subtract(bigPlayer.getZ()).doubleValue();
+            double dist = xDist * xDist + oyDist * oyDist + zDist * zDist;
             if (dist > 100.0) {
                 logger.warning(this.player.name + " moved too quickly!");
-//                this.disconnect("You moved too quickly :( (Hacking?)");
-//                return true;
-            }
-
-            float var21 = 0.0625F;
-            boolean var22 = var2.getCubes(this.player, bigPlayer.getBigBB().copy().deflate(var21, var21, var21)).size() == 0;
-            this.player.move(var32, var15, var17);
-            var32 = var5.subtract(bigPlayer.getX()).doubleValue();
-            var15 = var7 - this.player.y;
-            if (var15 > -0.5 || var15 < 0.5) {
-                var15 = 0.0;
-            }
-
-            var17 = var9.subtract(bigPlayer.getZ()).doubleValue();
-            dist = var32 * var32 + var15 * var15 + var17 * var17;
-            boolean var23 = false;
-            if (dist > 0.0625 && !this.player.isSleeping()) {
-                var23 = true;
-                logger.warning(this.player.name + " moved wrongly!");
-                System.out.println("Got position " + var5 + ", " + var7 + ", " + var9);
-                System.out.println("Expected " + this.player.x + ", " + this.player.y + ", " + this.player.z);
-            }
-
-            bigPlayer.absMoveTo(var5, var7, var9, var11, var12);
-            boolean var24 = var2.getCubes(this.player, bigPlayer.getBigBB().copy().deflate(var21, var21, var21)).size() == 0;
-            if (var22 && (var23 || !var24) && !this.player.isSleeping()) {
-                this.teleport(this.lastGoodBigX, this.lastGoodY, this.lastGoodBigZ, var11, var12);
+                this.disconnect("You moved too quickly :( (Hacking?)");
                 return true;
             }
 
-            BigAABB var25 = bigPlayer.getBigBB().copy().inflate(var21, var21, var21).expand(0.0, -0.55, 0.0);
-            if (this.server.allowFlight || var2.containsAnyBlocks(var25)) {
+            float r = 1 / 16.0f;
+            boolean oldOk = var2.getCubes(this.player, bigPlayer.getBigBB().copy().deflate(r, r, r)).size() == 0;
+            this.player.move(xDist, oyDist, zDist);
+            xDist = xt.subtract(bigPlayer.getX()).doubleValue();
+            oyDist = yt - this.player.y;
+            if (oyDist > -0.5 || oyDist < 0.5) {
+                oyDist = 0.0;
+            }
+
+            zDist = zt.subtract(bigPlayer.getZ()).doubleValue();
+            dist = xDist * xDist + oyDist * oyDist + zDist * zDist;
+            boolean fail = false;
+            if (dist > 0.25 * 0.25 && !this.player.isSleeping()) {
+                fail = true;
+                logger.warning(this.player.name + " moved wrongly!");
+                System.out.println("Got position " + xt + ", " + yt + ", " + zt);
+                System.out.println("Expected " + this.player.x + ", " + this.player.y + ", " + this.player.z);
+            }
+
+            bigPlayer.absMoveTo(xt, yt, zt, yRotT, xRotT);
+            boolean newOk = var2.getCubes(this.player, bigPlayer.getBigBB().copy().deflate(r, r, r)).size() == 0;
+            if (oldOk && (fail || !newOk) && !this.player.isSleeping()) {
+                this.teleport(this.lastGoodBigX, this.lastGoodY, this.lastGoodBigZ, yRotT, xRotT);
+                return true;
+            }
+
+            BigAABB testBox = bigPlayer.getBigBB().copy().inflate(r, r, r).expand(0.0, -0.55, 0.0);
+            if (this.server.allowFlight || var2.containsAnyBlocks(testBox)) {
                 this.aboveGroundTickCount = 0;
-            } else if (var15 >= -0.03125) {
+            } else if (oyDist >= (-0.5f / 16.0f)) {
                 this.aboveGroundTickCount++;
                 if (this.aboveGroundTickCount > 80) {
                     logger.warning(this.player.name + " was kicked for floating too long!");
@@ -237,7 +237,7 @@ public abstract class PlayerConnectionMixin implements BigPlayerConnectionExtens
         this.lastGoodY = y;
         this.lastGoodBigZ = bz;
         this.player.absMoveTo(x, y, z, yRot, xRot);
-        this.player.connection.sendPayload(new BigMovePlayerPayload.PosRot(bx, y, y + 1.62F, bz, yRot, xRot, false));
+        this.player.connection.sendPayload(new BigMovePlayerPayload.PosRot(bx, y + 1.62F, y, bz, yRot, xRot, false));
     }
 
     @Override

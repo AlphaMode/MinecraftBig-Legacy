@@ -1,10 +1,9 @@
 package me.alphamode.mcbig.mixin.light;
 
-import me.alphamode.mcbig.constants.LevelConstants;
 import me.alphamode.mcbig.extensions.BigLevelExtension;
 import me.alphamode.mcbig.extensions.BigLevelSourceExtension;
 //? <1.0.0-beta.8.0.r
-import me.alphamode.mcbig.level.BigLightUpdate;
+import me.alphamode.mcbig.level.light.BigLightUpdate;
 import me.alphamode.mcbig.math.BigConstants;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelListener;
@@ -14,6 +13,7 @@ import net.minecraft.world.level.dimension.Dimension;
 import net.minecraft.world.level.tile.Tile;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
 import java.math.BigInteger;
@@ -294,7 +294,34 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
     @Shadow
     private static int maxLoop;
 
+    @Shadow
+    private int maxRecurse;
     private List<BigLightUpdate> lightUpdatesBig = new ArrayList<>();
+
+    @Overwrite
+    public boolean updateLights() {
+        if (this.maxRecurse >= 50) {
+            return false;
+        } else {
+            this.maxRecurse++;
+
+            try {
+                int var1 = 500;
+
+                while (this.lightUpdatesBig.size() > 0) {
+                    if (--var1 <= 0) {
+                        return true;
+                    }
+
+                    this.lightUpdatesBig.remove(this.lightUpdatesBig.size() - 1).update((Level) (Object) this);
+                }
+
+                return false;
+            } finally {
+                this.maxRecurse--;
+            }
+        }
+    }
 
     @Override
     public void updateLight(LightLayer type, BigInteger x0, int y0, BigInteger z0, BigInteger x1, int y1, BigInteger z1, boolean expand) {

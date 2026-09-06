@@ -163,7 +163,7 @@ public abstract class LadderTileMixin extends Tile implements BigTileExtension {
         }
 
         if (!valid) {
-            this.dropResources(level, x, y, z, data);
+            this.spawnResources(level, x, y, z, data);
             level.setTile(x, y, z, 0);
         }
 

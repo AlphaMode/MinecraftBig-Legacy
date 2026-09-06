@@ -5,6 +5,11 @@ import java.math.BigInteger;
 import java.math.MathContext;
 
 public class BigMath {
+
+    public static int fastAnd(BigInteger val, int mask) {
+        return val.intValue() & mask;
+    }
+
     public static BigInteger floor(double value) {
         BigInteger i = BigInteger.valueOf((long) value);
         return value < i.doubleValue() ? i.subtract(BigInteger.ONE) : i;

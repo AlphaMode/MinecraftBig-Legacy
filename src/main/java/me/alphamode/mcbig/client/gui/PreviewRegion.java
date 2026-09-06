@@ -119,7 +119,12 @@ public class PreviewRegion implements LevelSource {
     //? >=1.0.0-beta.8.0.r {
     /*@Override
     public int getLightColor(int x, int y, int z, int emitt) {
-        return 0;
+        return 15 << 20 | 15 << 4;
+    }
+
+    @Override
+    public int getLightColor(BigInteger x, int y, BigInteger z, int emitt) {
+        return 15 << 20 | 15 << 4;
     }
     *///? }
 

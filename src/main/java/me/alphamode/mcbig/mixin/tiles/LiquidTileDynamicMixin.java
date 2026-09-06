@@ -132,7 +132,7 @@ public abstract class LiquidTileDynamicMixin extends Tile implements BigTileExte
                 if (this.material == Material.lava) {
                     fizz(level, x, y, z);
                 } else {
-                    Tile.tiles[old].dropResources(level, x, y, z, level.getData(x, y, z));
+                    Tile.tiles[old].spawnResources(level, x, y, z, level.getData(x, y, z));
                 }
             }
 

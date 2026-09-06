@@ -83,7 +83,7 @@ public abstract class LeverTileMixin extends Tile implements BigTileExtension {
         }
 
         if (data == -1) {
-            this.dropResources(level, x, y, z, level.getData(x, y, z));
+            this.spawnResources(level, x, y, z, level.getData(x, y, z));
             level.setTile(x, y, z, 0);
         } else {
             level.setData(x, y, z, data + flipped);
@@ -120,7 +120,7 @@ public abstract class LeverTileMixin extends Tile implements BigTileExtension {
             }
 
             if (canSupport) {
-                this.dropResources(level, x, y, z, level.getData(x, y, z));
+                this.spawnResources(level, x, y, z, level.getData(x, y, z));
                 level.setTile(x, y, z, 0);
             }
         }
@@ -128,7 +128,7 @@ public abstract class LeverTileMixin extends Tile implements BigTileExtension {
 
     private boolean checkCanSurvive(Level level, BigInteger x, int y, BigInteger z) {
         if (!this.mayPlace(level, x, y, z)) {
-            this.dropResources(level, x, y, z, level.getData(x, y, z));
+            this.spawnResources(level, x, y, z, level.getData(x, y, z));
             level.setTile(x, y, z, 0);
             return false;
         } else {

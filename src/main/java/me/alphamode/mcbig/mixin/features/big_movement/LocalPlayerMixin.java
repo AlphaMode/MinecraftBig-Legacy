@@ -1,7 +1,11 @@
 package me.alphamode.mcbig.mixin.features.big_movement;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
+import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import me.alphamode.mcbig.extensions.CommandPlayerExtension;
 import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
 import me.alphamode.mcbig.math.BigMath;
@@ -18,6 +22,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 @Mixin(LocalPlayer.class)
@@ -97,6 +102,125 @@ public abstract class LocalPlayerMixin extends Player implements CommandPlayerEx
         return this.level.isSolidBlockingTile(x, y, z);
     }
 
+    @Inject(method = "aiStep", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;checkInBlock(DDD)Z", ordinal = 0))
+    private void calculateBigBBWidth(CallbackInfo ci, @Share("bb")LocalRef<BigDecimal> bbRef) {
+        if (isBigMovementEnabled()) {
+            bbRef.set(new BigDecimal(this.bbWidth * 0.35));
+        }
+    }
+
+    @WrapOperation(
+            method = "aiStep",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/player/LocalPlayer;checkInBlock(DDD)Z",
+                    ordinal = 0
+            )
+    )
+    private boolean useBigCheckInBlock0(LocalPlayer instance, double x, double y, double z, Operation<Boolean> original, @Share("bb")LocalRef<BigDecimal> bbRef) {
+        if (isBigMovementEnabled()) {
+            BigDecimal bbWidth = bbRef.get();
+            return checkInBlock(getX().subtract(bbWidth), this.bb.y0 + 0.5, getZ().add(bbWidth)); // 0
+        }
+        return original.call(instance, x, y, z);
+    }
+
+    @WrapOperation(
+            method = "aiStep",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/player/LocalPlayer;checkInBlock(DDD)Z",
+                    ordinal = 1
+            )
+    )
+    private boolean useBigCheckInBlock1(LocalPlayer instance, double x, double y, double z, Operation<Boolean> original, @Share("bb")LocalRef<BigDecimal> bbRef) {
+        if (isBigMovementEnabled()) {
+            BigDecimal bbWidth = bbRef.get();
+            return checkInBlock(getX().subtract(bbWidth), this.bb.y0 + 0.5, getZ().subtract(bbWidth)); // 1
+        }
+        return original.call(instance, x, y, z);
+    }
+
+    @WrapOperation(
+            method = "aiStep",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/player/LocalPlayer;checkInBlock(DDD)Z",
+                    ordinal = 2
+            )
+    )
+    private boolean useBigCheckInBlock2(LocalPlayer instance, double x, double y, double z, Operation<Boolean> original, @Share("bb")LocalRef<BigDecimal> bbRef) {
+        if (isBigMovementEnabled()) {
+            BigDecimal bbWidth = bbRef.get();
+            return checkInBlock(getX().add(bbWidth), this.bb.y0 + 0.5, getZ().subtract(bbWidth)); // 2
+        }
+        return original.call(instance, x, y, z);
+    }
+
+    @WrapOperation(
+            method = "aiStep",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/player/LocalPlayer;checkInBlock(DDD)Z",
+                    ordinal = 3
+            )
+    )
+    private boolean useBigCheckInBlock3(LocalPlayer instance, double x, double y, double z, Operation<Boolean> original, @Share("bb")LocalRef<BigDecimal> bbRef) {
+        if (isBigMovementEnabled()) {
+            BigDecimal bbWidth = bbRef.get();
+            return checkInBlock(getX().add(bbWidth), this.bb.y0 + 0.5, getZ().add(bbWidth)); // 3
+        }
+        return original.call(instance, x, y, z);
+    }
+
+    @Override
+    public boolean checkInBlock(BigDecimal x, double y, BigDecimal z) {
+        BigInteger xTile = BigMath.floor(x);
+        int yTile = Mth.floor(y);
+        BigInteger zTile = BigMath.floor(z);
+        double xd = x.subtract(new BigDecimal(xTile)).doubleValue();
+        double zd = z.subtract(new BigDecimal(zTile)).doubleValue();
+        if (this.isSolidTile(xTile, yTile, zTile) || this.isSolidTile(xTile, yTile + 1, zTile)) {
+            BigInteger xMinusOne = xTile.subtract(BigInteger.ONE);
+            BigInteger xPlusOne = xTile.add(BigInteger.ONE);
+            BigInteger zMinusOne = zTile.subtract(BigInteger.ONE);
+            BigInteger zPlusOne = zTile.add(BigInteger.ONE);
+            boolean west = !this.isSolidTile(xMinusOne, yTile, zTile) && !this.isSolidTile(xMinusOne, yTile + 1, zTile);
+            boolean east = !this.isSolidTile(xPlusOne, yTile, zTile) && !this.isSolidTile(xPlusOne, yTile + 1, zTile);
+            boolean north = !this.isSolidTile(xTile, yTile, zMinusOne) && !this.isSolidTile(xTile, yTile + 1, zMinusOne);
+            boolean south = !this.isSolidTile(xTile, yTile, zPlusOne) && !this.isSolidTile(xTile, yTile + 1, zPlusOne);
+            int dir = -1;
+            double closest = 9999.0;
+            if (west && xd < closest) {
+                closest = xd;
+                dir = 0;
+            }
+
+            if (east && 1.0 - xd < closest) {
+                closest = 1.0 - xd;
+                dir = 1;
+            }
+
+            if (north && zd < closest) {
+                closest = zd;
+                dir = 4;
+            }
+
+            if (south && 1.0 - zd < closest) {
+                closest = 1.0 - zd;
+                dir = 5;
+            }
+
+            float speed = 0.1F;
+            if (dir == 0) this.xd = -speed;
+            if (dir == 1) this.xd = speed;
+            if (dir == 4) this.zd = -speed;
+            if (dir == 5) this.zd = speed;
+        }
+
+        return false;
+    }
+
     /**
      * @author
      * @reason
@@ -106,54 +230,43 @@ public abstract class LocalPlayerMixin extends Player implements CommandPlayerEx
         if (canNoclip()) {
             return false;
         }
-        BigInteger xt = BigMath.floor(x);
-        int yt = Mth.floor(y);
-        BigInteger zt = BigMath.floor(z);
-        double xOff = x - (double)xt.doubleValue();
-        double zOff = z - (double)zt.doubleValue();
-        if (this.isSolidTile(xt, yt, zt) || this.isSolidTile(xt, yt + 1, zt)) {
-            boolean var14 = !this.isSolidTile(xt.subtract(BigInteger.ONE), yt, zt) && !this.isSolidTile(xt.subtract(BigInteger.ONE), yt + 1, zt);
-            boolean var15 = !this.isSolidTile(xt.add(BigInteger.ONE), yt, zt) && !this.isSolidTile(xt.add(BigInteger.ONE), yt + 1, zt);
-            boolean var16 = !this.isSolidTile(xt, yt, zt.subtract(BigInteger.ONE)) && !this.isSolidTile(xt, yt + 1, zt.subtract(BigInteger.ONE));
-            boolean var17 = !this.isSolidTile(xt, yt, zt.add(BigInteger.ONE)) && !this.isSolidTile(xt, yt + 1, zt.add(BigInteger.ONE));
-            byte var18 = -1;
-            double var19 = 9999.0;
-            if (var14 && xOff < var19) {
-                var19 = xOff;
-                var18 = 0;
+        BigInteger xTile = BigMath.floor(x);
+        int yTile = Mth.floor(y);
+        BigInteger zTile = BigMath.floor(z);
+        double xd = x - (double)xTile.doubleValue();
+        double zd = z - (double)zTile.doubleValue();
+        if (this.isSolidTile(xTile, yTile, zTile) || this.isSolidTile(xTile, yTile + 1, zTile)) {
+            boolean west = !this.isSolidTile(xTile.subtract(BigInteger.ONE), yTile, zTile) && !this.isSolidTile(xTile.subtract(BigInteger.ONE), yTile + 1, zTile);
+            boolean east = !this.isSolidTile(xTile.add(BigInteger.ONE), yTile, zTile) && !this.isSolidTile(xTile.add(BigInteger.ONE), yTile + 1, zTile);
+            boolean north = !this.isSolidTile(xTile, yTile, zTile.subtract(BigInteger.ONE)) && !this.isSolidTile(xTile, yTile + 1, zTile.subtract(BigInteger.ONE));
+            boolean south = !this.isSolidTile(xTile, yTile, zTile.add(BigInteger.ONE)) && !this.isSolidTile(xTile, yTile + 1, zTile.add(BigInteger.ONE));
+            int dir = -1;
+            double closest = 9999.0;
+            if (west && xd < closest) {
+                closest = xd;
+                dir = 0;
             }
 
-            if (var15 && 1.0 - xOff < var19) {
-                var19 = 1.0 - xOff;
-                var18 = 1;
+            if (east && 1.0 - xd < closest) {
+                closest = 1.0 - xd;
+                dir = 1;
             }
 
-            if (var16 && zOff < var19) {
-                var19 = zOff;
-                var18 = 4;
+            if (north && zd < closest) {
+                closest = zd;
+                dir = 4;
             }
 
-            if (var17 && 1.0 - zOff < var19) {
-                var19 = 1.0 - zOff;
-                var18 = 5;
+            if (south && 1.0 - zd < closest) {
+                closest = 1.0 - zd;
+                dir = 5;
             }
 
-            float var21 = 0.1F;
-            if (var18 == 0) {
-                this.xd = (double)(-var21);
-            }
-
-            if (var18 == 1) {
-                this.xd = (double)var21;
-            }
-
-            if (var18 == 4) {
-                this.zd = (double)(-var21);
-            }
-
-            if (var18 == 5) {
-                this.zd = (double)var21;
-            }
+            float speed = 0.1F;
+            if (dir == 0) this.xd = -speed;
+            if (dir == 1) this.xd = speed;
+            if (dir == 4) this.zd = -speed;
+            if (dir == 5) this.zd = speed;
         }
 
         return false;

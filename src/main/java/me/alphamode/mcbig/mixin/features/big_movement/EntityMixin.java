@@ -1,7 +1,10 @@
 package me.alphamode.mcbig.mixin.features.big_movement;
 
+import com.mojang.nbt.CompoundTag;
+import com.mojang.nbt.DoubleTag;
+import com.mojang.nbt.FloatTag;
+import com.mojang.nbt.ListTag;
 import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
-import me.alphamode.mcbig.math.BigConstants;
 import me.alphamode.mcbig.math.BigMath;
 import me.alphamode.mcbig.world.phys.BigAABB;
 import me.alphamode.mcbig.world.phys.DelegatingBigAABB;
@@ -14,6 +17,7 @@ import net.minecraft.world.level.tile.Tile;
 import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -97,6 +101,14 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
 
     @Shadow
     public double yOld;
+    @Shadow
+    protected float fallDistance;
+    @Shadow
+    public int airSupply;
+
+    @Shadow
+    protected abstract void readAdditionalSaveData(CompoundTag tag);
+
     private static final int ENTITY_SCALE = 12;
 
     public BigDecimal xoBig = BigDecimal.ZERO;
@@ -139,6 +151,7 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
     @Override
     public void setPos(BigDecimal x, double y, BigDecimal z) {
         setX(x);
+        this.y = y;
         setZ(z);
 
         float w = this.bbWidth / 2.0F;
@@ -527,5 +540,125 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
         double yd = this.y - y;
         double zd = this.getZ().subtract(z).doubleValue();
         return xd * xd + yd * yd + zd * zd;
+    }
+
+    @Override
+    public boolean checkInBlock(BigDecimal x, double y, BigDecimal z) {
+        BigInteger xTile = BigMath.floor(x);
+        int yTile = Mth.floor(y);
+        BigInteger zTile = BigMath.floor(z);
+        double xd = x.subtract(new BigDecimal(xTile)).doubleValue();
+        double yd = y - yTile;
+        double zd = z.subtract(new BigDecimal(zTile)).doubleValue();
+        if (this.level.isSolidBlockingTile(xTile, yTile, zTile)) {
+            boolean west = !this.level.isSolidBlockingTile(xTile.subtract(BigInteger.ONE), yTile, zTile);
+            boolean east = !this.level.isSolidBlockingTile(xTile.add(BigInteger.ONE), yTile, zTile);
+            boolean down = !this.level.isSolidBlockingTile(xTile, yTile - 1, zTile);
+            boolean up = !this.level.isSolidBlockingTile(xTile, yTile + 1, zTile);
+            boolean north = !this.level.isSolidBlockingTile(xTile, yTile, zTile.subtract(BigInteger.ONE));
+            boolean south = !this.level.isSolidBlockingTile(xTile, yTile, zTile.add(BigInteger.ONE));
+            int dir = -1;
+            double closest = 9999.0;
+            if (west && xd < closest) {
+                closest = xd;
+                dir = 0;
+            }
+
+            if (east && 1.0 - xd < closest) {
+                closest = 1.0 - xd;
+                dir = 1;
+            }
+
+            if (down && yd < closest) {
+                closest = yd;
+                dir = 2;
+            }
+
+            if (up && 1.0 - yd < closest) {
+                closest = 1.0 - yd;
+                dir = 3;
+            }
+
+            if (north && zd < closest) {
+                closest = zd;
+                dir = 4;
+            }
+
+            if (south && 1.0 - zd < closest) {
+                closest = 1.0 - zd;
+                dir = 5;
+            }
+
+            float speed = this.random.nextFloat() * 0.2F + 0.1F;
+            if (dir == 0) this.xd = -speed;
+            if (dir == 1) this.xd = speed;
+
+            if (dir == 2) this.yd = -speed;
+            if (dir == 3) this.yd = speed;
+
+            if (dir == 4) this.zd = -speed;
+            if (dir == 5) this.zd = speed;
+        }
+
+        return false;
+    }
+
+    @Inject(method = "saveWithoutId", at = @At("HEAD"))
+    private void saveBigPos(CompoundTag tag, CallbackInfo ci) {
+        if (isBigMovementEnabled()) {
+            CompoundTag posTag = new CompoundTag();
+            posTag.putString("x", getX().toString());
+            posTag.putString("z", getZ().toString());
+            tag.putTag("PosBig", posTag);
+        }
+    }
+
+    /**
+     * @author
+     * @reason
+     */
+    @Overwrite
+    public void load(CompoundTag nbt) {
+        CompoundTag posBig = nbt.getCompoundTag("PosBig");
+        ListTag pos = nbt.getList("Pos");
+        ListTag motion = nbt.getList("Motion");
+        ListTag rotation = nbt.getList("Rotation");
+        this.xd = ((DoubleTag)motion.get(0)).data;
+        this.yd = ((DoubleTag)motion.get(1)).data;
+        this.zd = ((DoubleTag)motion.get(2)).data;
+        if (Math.abs(this.xd) > 10.0) {
+            this.xd = 0.0;
+        }
+
+        if (Math.abs(this.yd) > 10.0) {
+            this.yd = 0.0;
+        }
+
+        if (Math.abs(this.zd) > 10.0) {
+            this.zd = 0.0;
+        }
+
+        this.yo = this.yOld = this.y = ((DoubleTag)pos.get(1)).data;
+        if (isBigMovementEnabled()) {
+            this.xoBig = this.xOldBig = this.xBig = new BigDecimal(posBig.getString("x"));
+            this.zoBig = this.zOldBig = this.zBig = new BigDecimal(posBig.getString("z"));
+            this.xo = this.xOld = this.x = this.xBig.doubleValue();
+            this.zo = this.zOld = this.z = this.zBig.doubleValue();
+        } else {
+            this.xo = this.xOld = this.x = ((DoubleTag)pos.get(0)).data;
+            this.zo = this.zOld = this.z = ((DoubleTag)pos.get(2)).data;
+        }
+        this.yRotO = this.yRot = ((FloatTag)rotation.get(0)).data;
+        this.xRotO = this.xRot = ((FloatTag)rotation.get(1)).data;
+        this.fallDistance = nbt.getFloat("FallDistance");
+        this.onFire = nbt.getShort("Fire");
+        this.airSupply = nbt.getShort("Air");
+        this.onGround = nbt.getBoolean("OnGround");
+        if (isBigMovementEnabled())
+            this.setPos(this.xBig, this.y, this.zBig);
+        else
+            this.setPos(this.x, this.y, this.z);
+        this.setRot(this.yRot, this.xRot);
+        this.readAdditionalSaveData(nbt);
     }
 }

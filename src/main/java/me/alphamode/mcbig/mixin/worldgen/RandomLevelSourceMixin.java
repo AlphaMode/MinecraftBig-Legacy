@@ -182,9 +182,6 @@ public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSou
                                 }
 
                                 if (val > 0.0) {
-                                    if ((yc * CHUNK_HEIGHT + y) > 120) {
-                                        System.out.println("BE");
-                                    }
                                     tileId = Tile.stone.id;
                                 }
 

@@ -13,6 +13,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.levelgen.RandomLevelSource;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import java.math.BigInteger;
@@ -27,6 +28,12 @@ public class WorldBuilderScreen extends Screen {
 
     private WorldPreviewComponent preview;
 
+    private final WorldType type;
+
+    public WorldBuilderScreen(WorldType type) {
+        this.type = type;
+    }
+
     @Override
     public void init() {
         Keyboard.enableRepeatEvents(true);
@@ -36,7 +43,7 @@ public class WorldBuilderScreen extends Screen {
         this.chunkX = new McBigEditBox(this, this.font, this.width / 2 - 100 + 65 + 10, 35, 60, 20, "", "X");
         this.chunkZ = new McBigEditBox(this, this.font, this.width / 2 - 100 + 65 + 5 + 65 + 5, 35, 60, 20, "", "Z");
         this.buttons.add(new Button(0, this.width / 2 - 100, 95, "Generate"));
-        this.buttons.add(new WorldTypeButton(1, this.width / 2 - 100, 65, 200, 20));
+        this.buttons.add(new WorldTypeButton(1, this.width / 2 - 100, 65, 200, 20, this.type));
     }
 
     @Override
@@ -126,6 +133,15 @@ public class WorldBuilderScreen extends Screen {
         this.regionSize.clicked(x, y, buttonNum);
         this.chunkX.clicked(x, y, buttonNum);
         this.chunkZ.clicked(x, y, buttonNum);
+    }
+
+    @Override
+    public void mouseEvent() {
+        super.mouseEvent();
+        int scroll = Mouse.getDWheel();
+        if (scroll != 0) {
+            this.preview.onScroll(scroll);
+        }
     }
 
     @Override

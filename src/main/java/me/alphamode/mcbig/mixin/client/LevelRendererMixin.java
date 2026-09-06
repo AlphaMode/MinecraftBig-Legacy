@@ -293,9 +293,9 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension {
                                     var22 += var32;
                                 }
 
-                                ARBOcclusionQuery.glBeginQueryARB(35092, this.sortedChunks[var23].occlusion_id);
+                                ARBOcclusionQuery.glBeginQueryARB(ARBOcclusionQuery.GL_SAMPLES_PASSED_ARB, this.sortedChunks[var23].occlusion_id);
                                 this.sortedChunks[var23].renderBB();
-                                ARBOcclusionQuery.glEndQueryARB(35092);
+                                ARBOcclusionQuery.glEndQueryARB(ARBOcclusionQuery.GL_SAMPLES_PASSED_ARB);
                                 this.sortedChunks[var23].occlusion_querying = true;
                             }
                         }

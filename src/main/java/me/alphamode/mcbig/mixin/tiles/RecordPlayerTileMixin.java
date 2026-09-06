@@ -68,9 +68,9 @@ public abstract class RecordPlayerTileMixin extends TileEntityTile implements Bi
     }
 
     @Override
-    public void dropResources(Level level, BigInteger x, int y, BigInteger z, int meta, float dropChance) {
+    public void spawnResources(Level level, BigInteger x, int y, BigInteger z, int meta, float dropChance) {
         if (!level.isClientSide) {
-            super.dropResources(level, x, y, z, meta, dropChance);
+            super.spawnResources(level, x, y, z, meta, dropChance);
         }
     }
 }

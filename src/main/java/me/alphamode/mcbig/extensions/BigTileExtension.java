@@ -2,11 +2,9 @@ package me.alphamode.mcbig.extensions;
 
 import me.alphamode.mcbig.world.phys.BigAABB;
 import me.alphamode.mcbig.world.phys.BigVec3;
-import net.minecraft.stats.Stats;
 import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelSource;
@@ -133,11 +131,11 @@ public interface BigTileExtension {
     default void triggerEvent(Level level, BigInteger x, int y, BigInteger z, int b0, int b1) {
     }
 
-    default void dropResources(Level level, BigInteger x, int y, BigInteger z, int meta) {
+    default void spawnResources(Level level, BigInteger x, int y, BigInteger z, int meta) {
         throw new UnsupportedOperationException();
     }
 
-    default void dropResources(Level level, BigInteger x, int y, BigInteger z, int meta, float f) {
+    default void spawnResources(Level level, BigInteger x, int y, BigInteger z, int meta, float f) {
         throw new UnsupportedOperationException();
     }
 

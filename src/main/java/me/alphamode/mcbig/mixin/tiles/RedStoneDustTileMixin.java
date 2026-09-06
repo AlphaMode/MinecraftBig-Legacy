@@ -273,7 +273,7 @@ public abstract class RedStoneDustTileMixin extends Tile implements BigTileExten
             int var6 = level.getData(x, y, z);
             boolean var7 = this.mayPlace(level, x, y, z);
             if (!var7) {
-                this.dropResources(level, x, y, z, var6);
+                this.spawnResources(level, x, y, z, var6);
                 level.setTile(x, y, z, 0);
             } else {
                 this.updatePowerStrength(level, x, y, z);

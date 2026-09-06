@@ -3,8 +3,6 @@ package me.alphamode.mcbig.mixin.tiles;
 import me.alphamode.mcbig.extensions.BigTileExtension;
 import me.alphamode.mcbig.world.phys.BigAABB;
 import me.alphamode.mcbig.world.phys.BigVec3;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.tile.Tile;
@@ -127,7 +125,7 @@ public abstract class TorchTileMixin extends Tile implements BigTileExtension {
             }
 
             if (canSupport) {
-                this.dropResources(level, x, y, z, level.getData(x, y, z));
+                this.spawnResources(level, x, y, z, level.getData(x, y, z));
                 level.setTile(x, y, z, 0);
             }
         }
@@ -135,7 +133,7 @@ public abstract class TorchTileMixin extends Tile implements BigTileExtension {
 
     private boolean checkCanSurvive(Level level, BigInteger x, int y, BigInteger z) {
         if (!this.mayPlace(level, x, y, z)) {
-            this.dropResources(level, x, y, z, level.getData(x, y, z));
+            this.spawnResources(level, x, y, z, level.getData(x, y, z));
             level.setTile(x, y, z, 0);
             return false;
         } else {

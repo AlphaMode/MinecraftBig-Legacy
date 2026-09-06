@@ -119,13 +119,13 @@ public abstract class EntityMixin implements BigEntityExtension {
         if (isBigMovementEnabled()) {
             for(int i = 0; i < 8; ++i) {
                 me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension bigEntity = (me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension) this;
-                float var2 = ((float)((i >> 0) % 2) - 0.5F) * this.bbWidth * 0.9F;
-                float var3 = ((float)((i >> 1) % 2) - 0.5F) * 0.1F;
-                float var4 = ((float)((i >> 2) % 2) - 0.5F) * this.bbWidth * 0.9F;
-                BigInteger var5 = BigMath.floor(bigEntity.getX().add(new BigDecimal(var2)));
-                int var6 = Mth.floor(this.y + (double)this.getHeadHeight() + (double)var3);
-                BigInteger var7 = BigMath.floor(bigEntity.getZ().add(new BigDecimal(var4)));
-                if (this.level.isSolidBlockingTile(var5, var6, var7)) {
+                float xo = ((float)((i >> 0) % 2) - 0.5F) * this.bbWidth * 0.9F;
+                float yo = ((float)((i >> 1) % 2) - 0.5F) * 0.1F;
+                float zo = ((float)((i >> 2) % 2) - 0.5F) * this.bbWidth * 0.9F;
+                BigInteger xt = BigMath.floor(bigEntity.getX().add(new BigDecimal(xo)));
+                int yt = Mth.floor(this.y + (double)this.getHeadHeight() + (double)yo);
+                BigInteger zt = BigMath.floor(bigEntity.getZ().add(new BigDecimal(zo)));
+                if (this.level.isSolidBlockingTile(xt, yt, zt)) {
                     return true;
                 }
             }
@@ -133,13 +133,13 @@ public abstract class EntityMixin implements BigEntityExtension {
             return false;
         }
         for(int i = 0; i < 8; ++i) {
-            float var2 = ((float)((i >> 0) % 2) - 0.5F) * this.bbWidth * 0.9F;
-            float var3 = ((float)((i >> 1) % 2) - 0.5F) * 0.1F;
-            float var4 = ((float)((i >> 2) % 2) - 0.5F) * this.bbWidth * 0.9F;
-            BigInteger var5 = BigMath.floor(this.x + (double)var2);
-            int var6 = Mth.floor(this.y + (double)this.getHeadHeight() + (double)var3);
-            BigInteger var7 = BigMath.floor(this.z + (double)var4);
-            if (this.level.isSolidBlockingTile(var5, var6, var7)) {
+            float xo = ((float)((i >> 0) % 2) - 0.5F) * this.bbWidth * 0.9F;
+            float yo = ((float)((i >> 1) % 2) - 0.5F) * 0.1F;
+            float zo = ((float)((i >> 2) % 2) - 0.5F) * this.bbWidth * 0.9F;
+            BigInteger xt = BigMath.floor(this.x + (double)xo);
+            int yt = Mth.floor(this.y + (double)this.getHeadHeight() + (double)yo);
+            BigInteger zt = BigMath.floor(this.z + (double)zo);
+            if (this.level.isSolidBlockingTile(xt, yt, zt)) {
                 return true;
             }
         }
@@ -173,6 +173,18 @@ public abstract class EntityMixin implements BigEntityExtension {
      */
     @Overwrite
     public float getBrightness(float partialTick) {
+        if (isBigMovementEnabled()) {
+            me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension bigEntity = (me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension) this;
+            BigInteger xt = BigMath.floor(bigEntity.getX());
+            BigInteger zt = BigMath.floor(bigEntity.getZ());
+            if (this.level.hasChunkAt(xt, 128 / 2, zt)) {
+                double eye = (bigEntity.getBigBB().y1() - bigEntity.getBigBB().y0()) * 0.66;
+                int yt = Mth.floor(this.y - this.heightOffset + eye);
+                return this.level.getBrightness(xt, yt, zt);
+            } else {
+                return 0.0F;
+            }
+        }
         BigInteger xt = BigMath.floor(this.x);
         BigInteger zt = BigMath.floor(this.z);
         if (this.level.hasChunkAt(xt, 128 / 2, zt)) {

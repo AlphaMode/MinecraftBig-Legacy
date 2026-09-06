@@ -1,5 +1,7 @@
 package me.alphamode.mcbig.client.gui;
 
+import me.alphamode.mcbig.math.BigConstants;
+import me.alphamode.mcbig.math.BigMath;
 import net.minecraft.client.MemoryTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -29,6 +31,7 @@ public class WorldPreviewComponent extends GuiComponent {
     private final int size;
     private final BigInteger xOff;
     private final BigInteger zOff;
+    private float zoom = 6;
 
     private boolean built = false;
 
@@ -56,7 +59,7 @@ public class WorldPreviewComponent extends GuiComponent {
         updateMouse(xm, ym, a);
 
         GL11.glPushMatrix();
-        GL11.glTranslatef(this.parent.width / 2F, (this.parent.height / 2F) + 120, 0.0F);
+        GL11.glTranslatef(this.parent.width / 2F, (this.parent.height / 2F) + 160, 0.0F);
 
 
         float center = (this.size * 16) / 2.0F;
@@ -64,7 +67,7 @@ public class WorldPreviewComponent extends GuiComponent {
 
         GL11.glMultMatrix(toMatrix(rotation));
 
-        GL11.glScalef(6.0F, 6.0F, 6.0F);
+        GL11.glScalef(zoom, zoom, zoom);
         GL11.glTranslatef(-center, -center, -center);
 
         GL11.glEnable(GL11.GL_DEPTH_TEST);
@@ -123,6 +126,8 @@ public class WorldPreviewComponent extends GuiComponent {
 
                             Tile tile = Tile.tiles[tileId];
                             int renderLayer = tile.getRenderLayer();
+                            if (TileRenderer.FIX_STRIPELANDS)
+                                t.offset(BigMath.fastAnd(x.shiftRight(4), 15) * 16, (y >> 4) * 16, BigMath.fastAnd(z.shiftRight(4), 15) * 16);
                             if (renderLayer != l) {
                                 renderNextLayer = true;
                             } else if (renderLayer == l) {
@@ -157,6 +162,11 @@ public class WorldPreviewComponent extends GuiComponent {
     private final Quaternion rotation = new Quaternion();
     private float lastMouseX = 0;
     private float lastMouseY = 0;
+
+    public void onScroll(int amount) {
+        this.zoom += amount * 0.001F;
+        this.zoom = Math.max(0, this.zoom);
+    }
 
     public void updateMouse(int xm, int ym, float a) {
         if (Mouse.isButtonDown(0)) {

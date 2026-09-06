@@ -1,15 +1,22 @@
 package me.alphamode.mcbig.client.gui;
 
+import me.alphamode.mcbig.world.level.levelgen.WorldType;
 import net.minecraft.client.gui.Screen;
 import net.minecraft.client.gui.Button;
 import net.minecraft.locale.I18n;
 import org.lwjgl.input.Keyboard;
 
+import java.util.function.Consumer;
+
 public class McBigWorldOptionsScreen extends Screen {
     private final Screen parent;
+    private WorldType selected;
+    private final Consumer<WorldType> callback;
 
-    public McBigWorldOptionsScreen(Screen parent) {
+    public McBigWorldOptionsScreen(Screen parent, WorldType selected, Consumer<WorldType> callback) {
         this.parent = parent;
+        this.selected = selected;
+        this.callback = callback;
     }
 
     @Override
@@ -18,7 +25,7 @@ public class McBigWorldOptionsScreen extends Screen {
 
         this.buttons.clear();
 
-        this.buttons.add(new WorldTypeButton(0, this.width / 2 - 155, this.height / 6 + 24));
+        this.buttons.add(new WorldTypeButton(0, this.width / 2 - 155, this.height / 6 + 24, this.selected));
         this.buttons.add(new Button(1, this.width / 2 - 100, this.height / 4 + 120 + 12, I18n.get("gui.done")));
         this.buttons.add(new Button(3, this.width / 2 - 100, this.height / 4 + 120 - 24, I18n.get("Preview")));
     }
@@ -27,7 +34,9 @@ public class McBigWorldOptionsScreen extends Screen {
     protected void buttonClicked(Button button) {
         if (button.active) {
             if (button.id == 0 && button instanceof WorldTypeButton worldTypeButton) {
-                worldTypeButton.clicked();
+                WorldType type = worldTypeButton.clicked();
+                this.callback.accept(type);
+                this.selected = type;
             }
 
             if (button.id == 1) {
@@ -39,7 +48,7 @@ public class McBigWorldOptionsScreen extends Screen {
             }
 
             if (button.id == 3) {
-                this.minecraft.setScreen(new WorldBuilderScreen());
+                this.minecraft.setScreen(new WorldBuilderScreen(this.selected));
             }
         }
     }

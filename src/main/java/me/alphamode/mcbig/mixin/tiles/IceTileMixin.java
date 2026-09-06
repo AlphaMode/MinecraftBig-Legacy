@@ -38,7 +38,7 @@ public abstract class IceTileMixin extends HalfTransparentTile implements BigTil
     @Override
     public void tick(Level level, BigInteger x, int y, BigInteger z, Random random) {
         if (level.getBrightness(LightLayer.BLOCK, x, y, z) > 11 - Tile.lightBlock[this.id]) {
-            this.dropResources(level, x, y, z, level.getData(x, y, z));
+            this.spawnResources(level, x, y, z, level.getData(x, y, z));
             level.setTile(x, y, z, Tile.calmWater.id);
         }
     }

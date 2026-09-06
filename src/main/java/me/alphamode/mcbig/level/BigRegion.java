@@ -3,6 +3,7 @@ package me.alphamode.mcbig.level;
 import me.alphamode.mcbig.constants.LevelConstants;
 import me.alphamode.mcbig.extensions.BigLevelSourceExtension;
 import me.alphamode.mcbig.math.BigConstants;
+import me.alphamode.mcbig.math.BigMath;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.world.level.Level;
@@ -48,7 +49,7 @@ public class BigRegion extends Region implements BigLevelSourceExtension {
             int zc = (z.shiftRight(4)).subtract(this.zc1).intValue();
             if (xc >= 0 && xc < this.chunks.length && zc >= 0 && zc < this.chunks[xc].length) {
                 LevelChunk lc = this.chunks[xc][zc];
-                return lc == null ? 0 : lc.getTile(x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue());
+                return lc == null ? 0 : lc.getTile(BigMath.fastAnd(x, 15), y, BigMath.fastAnd(z, 15));
             } else {
                 return 0;
             }
@@ -59,7 +60,7 @@ public class BigRegion extends Region implements BigLevelSourceExtension {
     public TileEntity getTileEntity(BigInteger x, int y, BigInteger z) {
         int xc = (x.shiftRight(4)).subtract(this.xc1).intValue();
         int zc = (z.shiftRight(4)).subtract(this.zc1).intValue();
-        return this.chunks[xc][zc].getTileEntity(x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue());
+        return this.chunks[xc][zc].getTileEntity(BigMath.fastAnd(x, 15), y, BigMath.fastAnd(z, 15));
     }
 
     @Override
@@ -137,7 +138,7 @@ public class BigRegion extends Region implements BigLevelSourceExtension {
         } else {
             int xc = (x.shiftRight(4)).subtract(this.xc1).intValue();
             int zc = (z.shiftRight(4)).subtract(this.zc1).intValue();
-            return this.chunks[xc][zc].getRawBrightness(x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue(), this.level.skyDarken);
+            return this.chunks[xc][zc].getRawBrightness(BigMath.fastAnd(x, 15), y, BigMath.fastAnd(z, 15), this.level.skyDarken);
         }
     }
 
@@ -150,7 +151,7 @@ public class BigRegion extends Region implements BigLevelSourceExtension {
         } else {
             int xc = (x.shiftRight(4)).subtract(this.xc1).intValue();
             int zc = (z.shiftRight(4)).subtract(this.zc1).intValue();
-            return this.chunks[xc][zc].getData(x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue());
+            return this.chunks[xc][zc].getData(BigMath.fastAnd(x, 15), y, BigMath.fastAnd(z, 15));
         }
     }
 

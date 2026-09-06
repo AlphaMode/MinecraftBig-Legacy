@@ -129,15 +129,15 @@ public abstract class BedTileMixin extends Tile implements BigTileExtension {
         } else if (level.getTile(x.add(BigInteger.valueOf(HEAD_DIRECTION_OFFSETS[var7][0])), y, z.add(BigInteger.valueOf(HEAD_DIRECTION_OFFSETS[var7][1]))) != this.id) {
             level.setTile(x, y, z, 0);
             if (!level.isClientSide) {
-                this.dropResources(level, x, y, z, var6);
+                this.spawnResources(level, x, y, z, var6);
             }
         }
     }
 
     @Override
-    public void dropResources(Level level, BigInteger x, int y, BigInteger z, int meta, float dropChance) {
+    public void spawnResources(Level level, BigInteger x, int y, BigInteger z, int meta, float dropChance) {
         if (!isHeadPiece(meta)) {
-            super.dropResources(level, x, y, z, meta, dropChance);
+            super.spawnResources(level, x, y, z, meta, dropChance);
         }
     }
 }
