@@ -87,9 +87,9 @@ public abstract class BiomeDecoratorMixin implements BigBiomeDecoratorExtension 
 
     @Override
     public void decorate(Level level, Random random, BigInteger xo, BigInteger zo) {
-//        if (this.level != null) {
-//            throw new RuntimeException("Already decorating!!");
-//        } else {
+        if (this.level != null) {
+            throw new RuntimeException("Already decorating!!");
+        } else {
             this.level = level;
             this.random = random;
             this.xoBig = xo;
@@ -97,7 +97,7 @@ public abstract class BiomeDecoratorMixin implements BigBiomeDecoratorExtension 
             this.decorate();
             this.level = null;
             this.random = null;
-//        }
+        }
     }
 
     /^*

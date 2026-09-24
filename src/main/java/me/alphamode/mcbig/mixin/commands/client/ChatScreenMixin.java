@@ -132,7 +132,7 @@ public class ChatScreenMixin extends Screen {
                 String message = this.message.trim();
                 this.minecraft.gui.getChat().addRecentChat(message);
                 if (this.minecraft.isCommand(message)) {
-                    executeCommand(message.substring(1));
+                    this.minecraft.player.command(message.substring(1));
                 } else {
                     this.minecraft.player.chat(message);
                 }
@@ -151,15 +151,6 @@ public class ChatScreenMixin extends Screen {
             if (allowedChars.indexOf(eventCharacter) >= 0 && this.message.length() < 100) {
                 this.editBox.insertText(Character.toString(eventCharacter));
             }
-        }
-    }
-
-    private void executeCommand(String command) {
-        try {
-            Commands.DISPATCHER.execute(command, this.minecraft.player.getCommandSource());
-        } catch (CommandSyntaxException e) {
-            this.minecraft.gui.addMessage("Failed to execute command: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 

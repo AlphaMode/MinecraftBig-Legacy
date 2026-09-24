@@ -102,7 +102,8 @@ public class WorldBuilderScreen extends Screen {
                     chunkSource = new RandomLevelSource(new PreviewLevel(seed), seed);
                     //? }
                 } else {
-                    chunkSource = WorldType.SELECTED.getFactory().apply(new PreviewLevel(seed), seed);
+                    //~ if >=1.0.0-beta.8.0.r ' seed)' -> ' seed, false)'
+                    chunkSource = WorldType.SELECTED.getFactory().create(new PreviewLevel(seed), seed);
                 }
                 preview = new WorldPreviewComponent(this, (Minecraft) FabricLoader.getInstance().getGameInstance(), chunkSource, regionSize, chunkX, chunkZ);
             }

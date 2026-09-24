@@ -2,6 +2,7 @@ package me.alphamode.mcbig.mixin;
 
 import com.mojang.nbt.CompoundTag;
 import me.alphamode.mcbig.extensions.BigTileEntityExtension;
+import me.alphamode.mcbig.math.BigConstants;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.world.level.Level;
@@ -11,6 +12,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Map;
 
@@ -49,6 +51,14 @@ public class TileEntityMixin implements BigTileEntityExtension {
     public void setZ(BigInteger z) {
         this.zBig = z;
         this.z = z.intValue();
+    }
+
+    @Override
+    public double distanceSqrt(BigDecimal x, double y, BigDecimal z) {
+        double xd = new BigDecimal(this.x).add(BigConstants.POINT_FIVE).subtract(x).doubleValue();
+        double yd = this.y + 0.5 - y;
+        double zd = new BigDecimal(this.z).add(BigConstants.POINT_FIVE).subtract(z).doubleValue();
+        return xd * xd + yd * yd + zd * zd;
     }
 
     /**

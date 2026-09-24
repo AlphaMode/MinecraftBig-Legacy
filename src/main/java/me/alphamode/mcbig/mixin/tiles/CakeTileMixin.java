@@ -81,8 +81,13 @@ public abstract class CakeTileMixin extends Tile implements BigTileExtension {
     }
 
     private void eat(Level level, BigInteger x, int y, BigInteger z, Player player) {
+        //? >=1.0.0-beta.8.0.r {
+        /*if (player.canEat(false)) {
+            player.getFoodData().eat(2, 0.1F);
+        *///? } else {
         if (player.health < 20) {
             player.heal(3);
+        //? }
             int data = level.getData(x, y, z) + 1;
             if (data >= 6) {
                 level.setTile(x, y, z, 0);

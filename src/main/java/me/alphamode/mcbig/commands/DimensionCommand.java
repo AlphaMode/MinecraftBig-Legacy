@@ -13,11 +13,11 @@ import net.minecraft.world.level.dimension.Dimension;
 import java.math.BigDecimal;
 
 public class DimensionCommand {
-    public static void register(CommandDispatcher<CommandSource> dispatcher) {
+    public static <S extends CommandSource> void register(CommandDispatcher<S> dispatcher) {
         dispatcher.register(
-                Commands.literal("dimensiontp")
+                Commands.<S>literal("dimensiontp")
                         .then(
-                                Commands.argument("dimension", new DimensionArgument())
+                                Commands.<S, Integer>argument("dimension", new DimensionArgument())
                                         .executes(context -> moveToDimension(context.getSource(), context.getArgument("dimension", Integer.class)))
                         )
         );

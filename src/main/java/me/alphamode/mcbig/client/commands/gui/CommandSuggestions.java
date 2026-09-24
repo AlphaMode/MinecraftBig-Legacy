@@ -13,6 +13,7 @@ import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import me.alphamode.mcbig.client.commands.ClientCommandSource;
 import me.alphamode.mcbig.commands.CommandSource;
 import me.alphamode.mcbig.commands.Commands;
 import me.alphamode.mcbig.util.Mth2;
@@ -44,7 +45,7 @@ public class CommandSuggestions extends GuiComponent {
     private int commandUsagePosition;
     private int commandUsageWidth;
     @Nullable
-    private ParseResults<CommandSource> currentParse;
+    private ParseResults<ClientCommandSource> currentParse;
     @Nullable
     private CompletableFuture<Suggestions> pendingSuggestions;
     private SuggestionList suggestions;
@@ -160,7 +161,7 @@ public class CommandSuggestions extends GuiComponent {
         boolean isCommand = this.commandsOnly || startsWithSlash;
         int cursorPosition = this.input.getCursorPosition();
         if (isCommand) {
-            CommandDispatcher<CommandSource> commands = Commands.DISPATCHER;
+            CommandDispatcher<ClientCommandSource> commands = this.minecraft.getCommands().getDispatcher();
             if (this.currentParse == null) {
                 this.currentParse = commands.parse(reader, this.minecraft.player.getCommandSource());
             }
@@ -203,7 +204,7 @@ public class CommandSuggestions extends GuiComponent {
             if (this.pendingSuggestions.join().isEmpty() && !this.currentParse.getExceptions().isEmpty()) {
                 int literals = 0;
 
-                for (Map.Entry<CommandNode<CommandSource>, CommandSyntaxException> entry : this.currentParse.getExceptions().entrySet()) {
+                for (Map.Entry<CommandNode<ClientCommandSource>, CommandSyntaxException> entry : this.currentParse.getExceptions().entrySet()) {
                     CommandSyntaxException exception = entry.getValue();
                     if (exception.getType() == CommandSyntaxException.BUILT_IN_EXCEPTIONS.literalIncorrect()) {
                         literals++;
@@ -234,14 +235,14 @@ public class CommandSuggestions extends GuiComponent {
     }
 
     private boolean fillNodeUsage() {
-        CommandContextBuilder<CommandSource> rootContext = this.currentParse.getContext();
-        SuggestionContext<CommandSource> suggestionContext = rootContext.findSuggestionContext(this.input.getCursorPosition());
-        Map<CommandNode<CommandSource>, String> usage = Commands.DISPATCHER
+        CommandContextBuilder<ClientCommandSource> rootContext = this.currentParse.getContext();
+        SuggestionContext<ClientCommandSource> suggestionContext = rootContext.findSuggestionContext(this.input.getCursorPosition());
+        Map<CommandNode<ClientCommandSource>, String> usage = this.minecraft.getCommands().getDispatcher()
                 .getSmartUsage(suggestionContext.parent, this.minecraft.player.getCommandSource());
         List<String> lines = Lists.newArrayList();
         int longest = 0;
 
-        for (Map.Entry<CommandNode<CommandSource>, String> entry : usage.entrySet()) {
+        for (Map.Entry<CommandNode<ClientCommandSource>, String> entry : usage.entrySet()) {
             if (!(entry.getKey() instanceof LiteralCommandNode)) {
                 lines.add(entry.getValue());
                 longest = Math.max(longest, this.font.width(entry.getValue()));

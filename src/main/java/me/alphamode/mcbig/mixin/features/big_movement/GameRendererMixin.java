@@ -37,6 +37,8 @@ import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -73,7 +75,6 @@ public abstract class GameRendererMixin {
     @Shadow
     private float camTiltO;
 
-
     @Shadow
     private float oldZOff;
 
@@ -96,22 +97,7 @@ public abstract class GameRendererMixin {
     private boolean thickFog;
 
     @Shadow
-    private float fogBr;
-
-    @Shadow
-    private float fogBrO;
-
-    @Shadow
-    private float fovOffsetO;
-
-    @Shadow
-    private float fovOffset;
-
-    @Shadow
     private int tick;
-
-    @Shadow
-    public ItemInHandRenderer itemInHandRenderer;
 
     @Shadow
     private Random random;
@@ -134,41 +120,15 @@ public abstract class GameRendererMixin {
 
     @Shadow
     public abstract void turnOffLightLayer(double par1);
-
-    @Shadow
-    protected abstract void tickFov();
-
-    @Shadow
-    protected abstract void tickLightTexture();
     *///? }
 
-    /**
-     * @author
-     * @reason
-     */
-    @Overwrite
-    public void tick() {
-        //? >=1.0.0-beta.8.0.r {
-        /*this.tickFov();
-        this.tickLightTexture();
-        *///? }
-        this.fogBrO = this.fogBr;
-        this.oldZOff = this.zOff;
-        this.yRotO = this.yRot;
-        this.xRotO = this.xRot;
-        this.fovOffsetO = this.fovOffset;
-        this.camTiltO = this.camTilt;
-        if (this.mc.cameraEntity == null) {
-            this.mc.cameraEntity = this.mc.player;
+    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;getBrightness(III)F"))
+    private float redirectBrightness(Level level, int x, int y, int z) {
+        if (this.mc.cameraEntity.isBigMovementEnabled()) {
+            BigEntityExtension camera = (BigEntityExtension) this.mc.cameraEntity;
+            return level.getBrightness(BigMath.floor(camera.getX()), Mth.floor(this.mc.cameraEntity.y), BigMath.floor(camera.getZ()));
         }
-
-        float br = this.mc.level.getBrightness(BigMath.floor(this.mc.cameraEntity.x), Mth.floor(this.mc.cameraEntity.y), BigMath.floor(this.mc.cameraEntity.z));
-        float whiteness = (float)(3 - this.mc.options.viewDistance) / 3.0F;
-        float fogBrT = br * (1.0F - whiteness) + whiteness;
-        this.fogBr += (fogBrT - this.fogBr) * 0.1F;
-        ++this.tick;
-        this.itemInHandRenderer.tick();
-        this.tickRain();
+        return level.getBrightness(BigMath.floor(this.mc.cameraEntity.x), Mth.floor(this.mc.cameraEntity.y), BigMath.floor(this.mc.cameraEntity.z));
     }
 
     /**

@@ -1,6 +1,6 @@
 package me.alphamode.mcbig.world.level.levelgen;
 
-import me.alphamode.mcbig.world.level.levelgen.vanilla.BigFarlandsRandomLevelSource;
+//import me.alphamode.mcbig.world.level.levelgen.vanilla.BigFarlandsRandomLevelSource;
 import me.alphamode.mcbig.world.level.levelgen.vanilla.BigRandomLevelSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkSource;
@@ -13,7 +13,7 @@ import java.util.function.BiFunction;
 public enum WorldType {
     VANILLA("Vanilla", null),
     BIG_VANILLA("Big Vanilla", BigRandomLevelSource::new),
-    BIG_FARLANDS("Big Vanilla With Farlands", BigFarlandsRandomLevelSource::new),
+//    BIG_FARLANDS("Big Vanilla With Farlands", BigFarlandsRandomLevelSource::new),
     FLAT("Flat", FlatLevelSource::new),
     DEBUG("Debug", DebugLevelSource::new);
 
@@ -21,15 +21,15 @@ public enum WorldType {
 
     private final String type;
     @Nullable
-    private final BiFunction<Level, Long, ChunkSource> factory;
+    private final ChunkSourceFactory factory;
 
-    WorldType(String type, @Nullable BiFunction<Level, Long, ChunkSource> factory) {
+    WorldType(String type, @Nullable ChunkSourceFactory factory) {
         this.type = type;
         this.factory = factory;
     }
 
     @Nullable
-    public BiFunction<Level, Long, ChunkSource> getFactory() {
+    public ChunkSourceFactory getFactory() {
         return this.factory;
     }
 
@@ -41,7 +41,7 @@ public enum WorldType {
         return switch (type.toLowerCase(Locale.ROOT)) {
             case "vanilla" -> VANILLA;
             case "big_vanilla" -> BIG_VANILLA;
-            case "big_vanilla_with_farlands" -> BIG_FARLANDS;
+//            case "big_vanilla_with_farlands" -> BIG_FARLANDS;
             case "debug" -> DEBUG;
             case "flat" -> FLAT;
             default -> VANILLA;
@@ -50,5 +50,11 @@ public enum WorldType {
 
     public String getType() {
         return type.toLowerCase(Locale.ROOT).replace(" ", "_");
+    }
+
+    @FunctionalInterface
+    public interface ChunkSourceFactory {
+        //~ if >=1.0.0-beta.8.0.r ', long seed)' -> ', long seed, boolean generateStructures)'
+        ChunkSource create(Level level, long seed);
     }
 }

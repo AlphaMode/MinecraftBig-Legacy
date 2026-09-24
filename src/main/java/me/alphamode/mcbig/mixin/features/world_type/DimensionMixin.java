@@ -17,7 +17,10 @@ public class DimensionMixin {
     @Inject(method = "createRandomLevelSource", at = @At("HEAD"), cancellable = true)
     private void createWorldTypeSource(CallbackInfoReturnable<ChunkSource> cir) {
         if (this.level.getLevelData().getWorldType().getFactory() != null) {
-            cir.setReturnValue(this.level.getLevelData().getWorldType().getFactory().apply(this.level, this.level.getSeed()));
+            //? >=1.0.0-beta.8.0.r {
+            /*cir.setReturnValue(this.level.getLevelData().getWorldType().getFactory().create(this.level, this.level.getSeed(), this.level.getLevelData().isGenerateMapFeatures()));
+            *///? } else
+            cir.setReturnValue(this.level.getLevelData().getWorldType().getFactory().create(this.level, this.level.getSeed()));
         }
     }
 }

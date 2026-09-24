@@ -51,26 +51,32 @@ public abstract class LiquidTileMixin extends Tile implements BigTileExtension, 
 
     @Override
     public boolean isSolid(LevelSource level, BigInteger x, int y, BigInteger z, int face) {
-        Material mat = level.getMaterial(x, y, z);
-        if (mat == this.material) {
-            return false;
-        } else if (mat == Material.ice) {
-            return false;
-        } else {
-            return face == Facing.UP || super.isSolid(level, x, y, z, face);
-        }
+        Material m = level.getMaterial(x, y, z);
+        if (m == this.material) return false;
+        // beta 1.8 swaps these checks
+        //? >=1.0.0-beta.8.0.r {
+        /*if (face == Facing.UP) return true;
+        if (m == Material.ice) return false;
+        *///? } else {
+        if (m == Material.ice) return false;
+        if (face == Facing.UP) return true;
+        //? }
+
+        return super.isSolid(level, x, y, z, face);
     }
 
     @Override
     public boolean shouldRenderFace(LevelSource level, BigInteger x, int y, BigInteger z, int face) {
-        Material mat = level.getMaterial(x, y, z);
-        if (mat == this.material) {
-            return false;
-        } else if (mat == Material.ice) {
-            return false;
-        } else {
-            return face == Facing.UP || super.shouldRenderFace(level, x, y, z, face);
-        }
+        Material m = level.getMaterial(x, y, z);
+        if (m == this.material) return false;
+        //? >=1.0.0-beta.8.0.r {
+        /*if (face == Facing.UP) return true;
+        if (m == Material.ice) return false;
+        *///? } else {
+        if (m == Material.ice) return false;
+        if (face == Facing.UP) return true;
+        //? }
+        return super.shouldRenderFace(level, x, y, z, face);
     }
 
     @Override
@@ -146,6 +152,21 @@ public abstract class LiquidTileMixin extends Tile implements BigTileExtension, 
         delta.z += flow.z;
     }
 
+    //? >=1.0.0-beta.8.0.r {
+    /*@Override
+    public int getLightColor(LevelSource level, BigInteger x, int y, BigInteger z) {
+        int a = level.getLightColor(x, y, z, 0);
+        int b = level.getLightColor(x, y + 1, z, 0);
+
+        int aa = a & 0xFF;
+        int ba = b & 0xFF;
+        int ab = a >> 16 & 0xFF;
+        int bb = b >> 16 & 0xFF;
+
+        return (aa > ba ? aa : ba) | (ab > bb ? ab : bb) << 16;
+    }
+    *///? }
+
     @Override
     public float getBrightness(LevelSource level, BigInteger x, int y, BigInteger z) {
         float a = level.getBrightness(x, y, z);
@@ -155,6 +176,50 @@ public abstract class LiquidTileMixin extends Tile implements BigTileExtension, 
 
     @Override
     public void animateTick(Level level, BigInteger x, int y, BigInteger z, Random random) {
+        //? >=1.0.0-beta.8.0.r {
+        /*if (this.material == Material.water) {
+            if (random.nextInt(10) == 0) {
+                int d = level.getData(x, y, z);
+                if (d <= 0 || d >= 8) {
+                    level.addParticle("suspended", x.doubleValue() + random.nextFloat(), y + random.nextFloat(), z.doubleValue() + random.nextFloat(), 0.0, 0.0, 0.0);
+                }
+            }
+
+            for (int var21 = 0; var21 < 0; var21++) {
+                int dir = random.nextInt(4);
+                BigInteger xt = x;
+                BigInteger zt = z;
+
+                if (dir == 0) xt = xt.subtract(BigInteger.ONE);
+                if (dir == 1) xt = xt.add(BigInteger.ONE);
+                if (dir == 2) zt = zt.subtract(BigInteger.ONE);
+                if (dir == 3) zt = zt.add(BigInteger.ONE);
+
+                if (level.getMaterial(xt, y, zt) == Material.air
+                        && (level.getMaterial(xt, y - 1, zt).blocksMotion() || level.getMaterial(xt, y - 1, zt).isLiquid())) {
+                    float r = 1 / 16.0f;
+                    double xx = x.doubleValue() + random.nextFloat();
+                    double yy = y + random.nextFloat();
+                    double zz = z.doubleValue() + random.nextFloat();
+                    if (dir == 0) xx = x.doubleValue() - r;
+                    if (dir == 1) xx = x.doubleValue() + 1 + r;
+                    if (dir == 2) zz = z.doubleValue() - r;
+                    if (dir == 3) zz = z.doubleValue() + 1 + r;
+
+                    double xd = 0;
+                    double zd = 0;
+
+                    if (dir == 0) xd = -r;
+                    if (dir == 1) xd = r;
+                    if (dir == 2) zd = -r;
+                    if (dir == 3) zd = r;
+
+                    level.addParticle("splash", xx, yy, zz, xd, 0.0, zd);
+                }
+            }
+        }
+        *///? }
+
         if (this.material == Material.water && random.nextInt(64) == 0) {
             int d = level.getData(x, y, z);
             if (d > 0 && d < 8) {

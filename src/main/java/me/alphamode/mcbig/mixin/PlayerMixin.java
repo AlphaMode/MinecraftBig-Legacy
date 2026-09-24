@@ -8,23 +8,32 @@ import me.alphamode.mcbig.extensions.BigPlayerExtension;
 import me.alphamode.mcbig.extensions.CommandPlayerExtension;
 import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
 import net.minecraft.world.entity.Entity;
+//? >=1.0.0-beta.8.0.r
+//import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Mixin(Player.class)
-public abstract class PlayerMixin extends Entity implements BigPlayerExtension, CommandPlayerExtension {
+public abstract class PlayerMixin extends Mob implements BigPlayerExtension, CommandPlayerExtension {
 
+    //? >=1.0.0-beta.8.0.r
+    //@Shadow public Abilities abilities;
     private boolean noclip = false;
+    //? <1.0.0-beta.8.0.r {
     private boolean canFly = false;
     private boolean flying = false;
     private float flyingSpeed = 0.05F;
+    //? }
 
     public PlayerMixin(Level level) {
         super(level);
@@ -32,21 +41,33 @@ public abstract class PlayerMixin extends Entity implements BigPlayerExtension, 
 
     @Override
     public boolean canFly() {
+        //? >=1.0.0-beta.8.0.r {
+        /*return this.abilities.mayfly;
+        *///? } else
         return this.canFly;
     }
 
     @Override
     public void setCanFly(boolean canFly) {
+        //? >=1.0.0-beta.8.0.r {
+        /*this.abilities.mayfly = canFly;
+        *///? } else
         this.canFly = canFly;
     }
 
     @Override
     public boolean isFlying() {
+        //? >=1.0.0-beta.8.0.r {
+        /*return this.abilities.flying;
+        *///? } else
         return this.flying;
     }
 
     @Override
     public void setFlying(boolean flying) {
+        //? >=1.0.0-beta.8.0.r {
+        /*this.abilities.flying = flying;
+        *///? } else
         this.flying = flying;
     }
 
@@ -62,6 +83,7 @@ public abstract class PlayerMixin extends Entity implements BigPlayerExtension, 
 
     @Override
     public void setNoclip(boolean noclip) {
+        this.noPhysics = noclip;
         this.noclip = noclip;
     }
 
@@ -93,5 +115,10 @@ public abstract class PlayerMixin extends Entity implements BigPlayerExtension, 
         } else {
             original.call(instance, xxa, zza);
         }
+    }
+
+    @Override
+    public void teleport(BigDecimal x, double y, BigDecimal z) {
+        ((BigEntityExtension) this).setPos(x, y, z);
     }
 }

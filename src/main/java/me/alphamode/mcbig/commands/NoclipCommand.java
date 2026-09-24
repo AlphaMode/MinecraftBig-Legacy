@@ -6,15 +6,14 @@ import me.alphamode.mcbig.extensions.CommandPlayerExtension;
 import net.minecraft.world.entity.Entity;
 
 public class NoclipCommand {
-    public static void register(CommandDispatcher<CommandSource> dispatcher) {
+    public static <S extends CommandSource> void register(CommandDispatcher<S> dispatcher) {
         dispatcher.register(
-                Commands.literal("noclip")
+                Commands.<S>literal("noclip")
                         .executes(context -> {
                             Entity entity = context.getSource().getEntity();
                             if (entity instanceof CommandPlayerExtension player) {
-                                entity.noPhysics = !entity.noPhysics;
                                 player.setNoclip(!player.canNoclip());
-                                context.getSource().sendMessage("Toggled noclip: " + player.canFly());
+                                context.getSource().sendMessage("Toggled noclip: " + player.canNoclip());
                             }
 
                             return Command.SINGLE_SUCCESS;

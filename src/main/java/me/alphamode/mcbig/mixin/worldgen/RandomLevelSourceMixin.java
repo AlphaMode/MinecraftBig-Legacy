@@ -125,10 +125,8 @@ public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSou
     public void prepareHeights(BigInteger xOffs, BigInteger zOffs, byte[] blocks, Biome[] biomes, double[] temperatures) {
         int xChunks = 16 / CHUNK_WIDTH;
         int yChunks = 128 / CHUNK_HEIGHT;
-        //? <1.0.0-beta.8.0.r {
+        //~ if >=1.0.0-beta.8.0.r '64' -> '63'
         int waterHeight = 64;
-        //? } else
-        //int waterHeight = 63;
 
         int xSize = xChunks + 1;
         int ySize = 128 / CHUNK_HEIGHT + 1;
@@ -205,9 +203,7 @@ public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSou
     }
 
     public void buildSurfaces(BigInteger xOffs, BigInteger zOffs, byte[] blocks, Biome[] biomes) {
-        //? >=1.0.0-beta.8.0.r {
-        /*int waterHeight = 63;
-        *///? } else
+        //~ if >=1.0.0-beta.8.0.r '64' -> '63'
         int waterHeight = 64;
         double s = 1.0 / 32.0;
         //? <1.0.0-beta.8.0.r {
@@ -311,6 +307,7 @@ public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSou
         prepareHeights(x, z, tiles, this.biomes, temps);
         //? }
         buildSurfaces(x, z, tiles, this.biomes);
+        this.caveFeature.apply(this, this.level, x, z, tiles);
         //? >=1.0.0-beta.8.0.r {
         /*if (this.generateStructures) {
             this.strongholdFeature.apply(this, this.level, x, z, tiles);
@@ -320,7 +317,7 @@ public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSou
 
         this.canyonFeature.apply(this, this.level, x, z, tiles);
         *///? }
-        this.caveFeature.apply(this, this.level, x, z, tiles);
+
         chunk.recalcHeightmap();
         return chunk;
     }
@@ -508,8 +505,12 @@ public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSou
 
         if (this.random.nextInt(8) == 0) {
             BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+            //? >=1.0.0-beta.8.0.r {
+            /*int y = this.random.nextInt(this.random.nextInt(128 - 8) + 8);
+            *///? } else
             int y = this.random.nextInt(this.random.nextInt(120) + 8);
             BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
+            //~ if >=1.0.0-beta.8.0.r '64' -> '63'
             if (y < 64 || this.random.nextInt(10) == 0) {
                 new LakeFeature(Tile.calmLava.id).place(this.level, this.random, x, y, z);
             }

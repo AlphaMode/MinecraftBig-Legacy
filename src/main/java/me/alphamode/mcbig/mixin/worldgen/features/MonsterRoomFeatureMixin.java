@@ -94,10 +94,14 @@ public abstract class MonsterRoomFeatureMixin implements BigFeatureExtension {
                 level.setTile(xc, y, zc, Tile.chest.id);
                 ChestTileEntity chest = (ChestTileEntity) level.getTileEntity(xc, y, zc);
 
-                for (int j = 0; j < 8; j++) {
-                    ItemInstance item = generateLoot(random);
-                    if (item != null) chest.setItem(random.nextInt(chest.getContainerSize()), item);
-                }
+                //? >=1.0.0-beta.8.0.r
+                //if (chest != null) {
+                    for (int j = 0; j < 8; j++) {
+                        ItemInstance item = generateLoot(random);
+                        if (item != null) chest.setItem(random.nextInt(chest.getContainerSize()), item);
+                    }
+                //? >=1.0.0-beta.8.0.r
+                //}
                 break;
             }
         }

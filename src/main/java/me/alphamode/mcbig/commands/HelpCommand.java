@@ -3,9 +3,9 @@ package me.alphamode.mcbig.commands;
 import com.mojang.brigadier.CommandDispatcher;
 
 public class HelpCommand {
-    public static void register(CommandDispatcher<CommandSource> dispatcher) {
-        dispatcher.register(Commands.literal("help").executes(context -> {
-            CommandSource source = context.getSource();
+    public static <S extends CommandSource> void register(CommandDispatcher<S> dispatcher) {
+        dispatcher.register(Commands.<S>literal("help").executes(context -> {
+            S source = context.getSource();
             var usage = dispatcher.getSmartUsage(dispatcher.getRoot(), source);
 
             for (String line : usage.values()) {

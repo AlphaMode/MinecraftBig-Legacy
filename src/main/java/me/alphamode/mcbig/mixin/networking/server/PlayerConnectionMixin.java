@@ -68,7 +68,7 @@ public abstract class PlayerConnectionMixin implements BigPlayerConnectionExtens
 
     @Override
     public boolean handleBigMovePlayer(BigMovePlayerPayload payload) {
-        ServerLevel var2 = this.server.getLevel(this.player.dimension);
+        ServerLevel level = this.server.getLevel(this.player.dimension);
         BigEntityExtension bigPlayer = (BigEntityExtension) this.player;
         this.clientIsFloating = true;
         if (!this.awaitingPositionFromClient) {
@@ -105,7 +105,7 @@ public abstract class PlayerConnectionMixin implements BigPlayerConnectionExtens
                 this.player.xd = x.doubleValue();
                 this.player.zd = z.doubleValue();
                 if (this.player.riding != null) {
-                    var2.tickEntity(this.player.riding, true);
+                    level.tickEntity(this.player.riding, true);
                 }
 
                 if (this.player.riding != null) {
@@ -116,14 +116,14 @@ public abstract class PlayerConnectionMixin implements BigPlayerConnectionExtens
                 this.lastGoodBigX = bigPlayer.getX();
                 this.lastGoodY = this.player.y;
                 this.lastGoodBigZ = bigPlayer.getZ();
-                var2.tick(this.player);
+                level.tick(this.player);
                 return true;
             }
 
             if (this.player.isSleeping()) {
                 this.player.doTick(true);
                 bigPlayer.absMoveTo(this.lastGoodBigX, this.lastGoodY, this.lastGoodBigZ, this.player.yRot, this.player.xRot);
-                var2.tick(this.player);
+                level.tick(this.player);
                 return true;
             }
 
@@ -182,8 +182,8 @@ public abstract class PlayerConnectionMixin implements BigPlayerConnectionExtens
             }
 
             float r = 1 / 16.0f;
-            boolean oldOk = var2.getCubes(this.player, bigPlayer.getBigBB().copy().deflate(r, r, r)).size() == 0;
-            this.player.move(xDist, oyDist, zDist);
+            boolean oldOk = this.player.canNoclip() || level.getCubes(this.player, bigPlayer.getBigBB().copy().deflate(r, r, r)).size() == 0;
+            bigPlayer.bigMove(xDist, oyDist, zDist);
             xDist = xt.subtract(bigPlayer.getX()).doubleValue();
             oyDist = yt - this.player.y;
             if (oyDist > -0.5 || oyDist < 0.5) {
@@ -197,22 +197,22 @@ public abstract class PlayerConnectionMixin implements BigPlayerConnectionExtens
                 fail = true;
                 logger.warning(this.player.name + " moved wrongly!");
                 System.out.println("Got position " + xt + ", " + yt + ", " + zt);
-                System.out.println("Expected " + this.player.x + ", " + this.player.y + ", " + this.player.z);
+                System.out.println("Expected " + bigPlayer.getX() + ", " + this.player.y + ", " + bigPlayer.getZ());
             }
 
             bigPlayer.absMoveTo(xt, yt, zt, yRotT, xRotT);
-            boolean newOk = var2.getCubes(this.player, bigPlayer.getBigBB().copy().deflate(r, r, r)).size() == 0;
+            boolean newOk = this.player.canNoclip() || level.getCubes(this.player, bigPlayer.getBigBB().copy().deflate(r, r, r)).size() == 0;
             if (oldOk && (fail || !newOk) && !this.player.isSleeping()) {
                 this.teleport(this.lastGoodBigX, this.lastGoodY, this.lastGoodBigZ, yRotT, xRotT);
                 return true;
             }
 
             BigAABB testBox = bigPlayer.getBigBB().copy().inflate(r, r, r).expand(0.0, -0.55, 0.0);
-            if (this.server.allowFlight || var2.containsAnyBlocks(testBox)) {
+            if (this.server.allowFlight || level.containsAnyBlocks(testBox)) {
                 this.aboveGroundTickCount = 0;
             } else if (oyDist >= (-0.5f / 16.0f)) {
                 this.aboveGroundTickCount++;
-                if (this.aboveGroundTickCount > 80) {
+                if (this.aboveGroundTickCount > 80 && !this.player.canFly()) {
                     logger.warning(this.player.name + " was kicked for floating too long!");
                     this.disconnect("Flying is not enabled on this server");
                     return true;

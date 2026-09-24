@@ -4,7 +4,9 @@ import me.alphamode.mcbig.extensions.biome.BigBiomeSourceExtension;
 import me.alphamode.mcbig.level.chunk.BigChunkPos;
 
 import me.alphamode.mcbig.math.BigConstants;
+import me.alphamode.mcbig.math.BigMath;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeCache;
 import net.minecraft.world.level.biome.BiomeSource;
 //? <1.0.0-beta.8.0.r {
 import net.minecraft.world.level.levelgen.synth.PerlinSimplexNoise;
@@ -17,11 +19,13 @@ import me.alphamode.mcbig.world.level.biome.BigBiomeCache;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.math.BigInteger;
 
 @Mixin(BiomeSource.class)
-public class BiomeSourceMixin implements BigBiomeSourceExtension {
+public abstract class BiomeSourceMixin implements BigBiomeSourceExtension {
     @Shadow
     public Biome[] biomes;
 
@@ -55,6 +59,9 @@ public class BiomeSourceMixin implements BigBiomeSourceExtension {
     @Shadow
     public double[] downfalls;
     //? }
+
+    @Shadow
+    public abstract Biome[] getBiomeBlock(Biome[] par1, int par2, int par3, int par4, int par5, boolean par6);
 
     @Override
     public Biome getBiome(BigChunkPos pos) {
@@ -238,12 +245,12 @@ public class BiomeSourceMixin implements BigBiomeSourceExtension {
             biomes = new Biome[w * h];
         }
 
-        if (useCache && w == 16 && h == 16 && (x.and(BigConstants.FIFTEEN).intValue()) == 0 && (z.and(BigConstants.FIFTEEN).intValue()) == 0) {
+        if (useCache && w == 16 && h == 16 && (BigMath.fastAnd(x, 15)) == 0 && (BigMath.fastAnd(z, 15)) == 0) {
             Biome[] tmp = this.cache.getBiomeBlockAt(x, z);
             System.arraycopy(tmp, 0, biomes, 0, w * h);
             return biomes;
         } else {
-            int[] result = this.zoomedLayer.getArea(x, z, w, h);
+            int[] result = this.zoomedLayer.getArea(x.intValue(), z.intValue(), w, h);
 
             for (int i = 0; i < w * h; i++) {
                 biomes[i] = Biome.biomes[result[i]];
@@ -252,5 +259,11 @@ public class BiomeSourceMixin implements BigBiomeSourceExtension {
             return biomes;
         }
     }
+
+    @Redirect(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/biome/BiomeCache;update()V"))
+    private void updateBigCache(BiomeCache instance) {
+        this.cache.update();
+    }
+
     *///? }
 }

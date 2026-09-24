@@ -12,6 +12,7 @@
     "features.big_movement.entity.ItemEntityMixin"
   ],
   "server": [
+    "commands.server.ConsoleCommandsMixin",
     "features.big_movement.server.ServerPlayerMixin",
     "networking.server.PendingConnectionMixin",
     "networking.server.PlayerChunkMapMixin",

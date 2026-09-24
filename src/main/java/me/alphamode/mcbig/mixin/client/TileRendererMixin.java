@@ -20,6 +20,7 @@ import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.tile.*;
 import net.minecraft.world.level.tile.meta.TileData;
 import net.minecraft.world.level.tile.piston.PistonBaseTile;
+import net.minecraft.world.level.tile.piston.PistonExtensionTile;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -27,6 +28,12 @@ import org.spongepowered.asm.mixin.Shadow;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+/// AO docs cc000, ll000
+/// cc is for lightmap
+/// ll is for ao
+/// --000 means base xyz
+/// lower case means negative so llxy0 means negative x and y
+/// upper case means positive so llXy0 means positive x, negative y and base z
 @Mixin(TileRenderer.class)
 public abstract class TileRendererMixin implements BigTileRendererExtension, me.alphamode.mcbig.extensions.features.fix_stripelands.BigTileRendererExtension {
     @Shadow
@@ -323,6 +330,15 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
     public abstract boolean tesselateStemInWorld(Tile tt, int x, int y, int z);
     *///? }
 
+    @Shadow
+    protected abstract void renderPistonArmUpDown(double x0, double x1, double y0, double y1, double z0, double z1, float br, double armLengthPixels);
+
+    @Shadow
+    protected abstract void renderPistonArmNorthSouth(double x0, double x1, double y0, double y1, double z0, double z1, float br, double armLengthPixels);
+
+    @Shadow
+    protected abstract void renderPistonArmEastWest(double x0, double x1, double y0, double y1, double z0, double z1, float br, double armLengthPixels);
+
     private static float tesselateColorInfo(Tesselator t, Tile tt, Level level, float r, float g, float b, BigInteger x, int y, BigInteger z) {
         float br = tt.getBrightness(level, x, y, z);
         t.color(r * br, g * br, b * br);
@@ -376,12 +392,12 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
             return this.tesselateBedInWorld(tt, x, y, z);
         } else if (shape == BlockShapes.SHAPE_REPEATER) {
             return this.tesselateRepeaterInWorld(tt, x, y, z);
-//        } else if (shape == BlockShapes.PISTON) {
-//            return this.tesselatePistonInWorld(tile, x, y, z, false);
-//        } else {
-//            return shape == BlockShapes.PISTON_HEAD ? this.tesselateHeadPistonInWorld(tile, x, y, z, true) : false;
+        } else if (shape == BlockShapes.SHAPE_PISTON_BASE) {
+            return this.tesselatePistonInWorld(tt, x, y, z, false);
+        } else if (shape == BlockShapes.SHAPE_PISTON_EXTENSION) {
+            return this.tesselatePistonExtensionInWorld(tt, x, y, z, true);
         }
-        return tesselateBlockInWorld(tt, x, y, z);
+        return false;
     }
 
     private static float getShade(Tile tt, LevelSource level, BigInteger x, int y, BigInteger z) {
@@ -830,12 +846,12 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
         this.ll0Y0 = getShade(tt, this.level, x, y + 1, z);
         this.ll00Z = getShade(tt, this.level, x, y, zPlusOne);
         //? >=1.0.0-beta.8.0.r {
-        /*int var19 = tt.getLightColor(this.level, xMinusOne, y, z);
-        int var20 = tt.getLightColor(this.level, x, y - 1, z);
-        int var21 = tt.getLightColor(this.level, x, y, zMinusOne);
-        int var22 = tt.getLightColor(this.level, xPlusOne, y, z);
-        int var23 = tt.getLightColor(this.level, x, y + 1, z);
-        int var24 = tt.getLightColor(this.level, x, y, zPlusOne);
+        /*int cx00 = tt.getLightColor(this.level, xMinusOne, y, z);
+        int c0y0 = tt.getLightColor(this.level, x, y - 1, z);
+        int c00z = tt.getLightColor(this.level, x, y, zMinusOne);
+        int cX00 = tt.getLightColor(this.level, xPlusOne, y, z);
+        int c0Y0 = tt.getLightColor(this.level, x, y + 1, z);
+        int c00Z = tt.getLightColor(this.level, x, y, zPlusOne);
         Tesselator t = Tesselator.instance;
         t.tex2(0xf000f);
         *///? }
@@ -929,10 +945,10 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
                 ll3 = (this.ll0y0 + this.ll0yz + this.llXy0 + this.llXyz) / 4.0F;
                 ll2 = (this.llxy0 + this.llxyz + this.ll0y0 + this.ll0yz) / 4.0F;
                 //? >=1.0.0-beta.8.0.r {
-                /*this.tc1 = this.blend(this.ccxyZ, this.ccxy0, this.cc0yZ, var20);
-                this.tc4 = this.blend(this.cc0yZ, this.ccXyZ, this.ccXy0, var20);
-                this.tc3 = this.blend(this.cc0yz, this.ccXy0, this.ccXyz, var20);
-                this.tc2 = this.blend(this.ccxy0, this.ccxyz, this.cc0yz, var20);
+                /*this.tc1 = this.blend(this.ccxyZ, this.ccxy0, this.cc0yZ, c0y0);
+                this.tc4 = this.blend(this.cc0yZ, this.ccXyZ, this.ccXy0, c0y0);
+                this.tc3 = this.blend(this.cc0yz, this.ccXy0, this.ccXyz, c0y0);
+                this.tc2 = this.blend(this.ccxy0, this.ccxyz, this.cc0yz, c0y0);
                 *///? }
             }
             // TODO: unfuck this shit
@@ -963,7 +979,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
                 ll2 = this.ll0Y0;
                 ll1 = this.ll0Y0;
                 //? >=1.0.0-beta.8.0.r
-                //this.tc1 = this.tc2 = this.tc3 = this.tc4 = var23;
+                //this.tc1 = this.tc2 = this.tc3 = this.tc4 = c0Y0;
             } else {
                 y++;
                 //? >=1.0.0-beta.8.0.r {
@@ -1022,10 +1038,10 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
                 ll2 = (this.ll0Y0 + this.ll0Yz + this.llXY0 + this.llXYz) / 4.0F;
                 ll3 = (this.llxY0 + this.llxYz + this.ll0Y0 + this.ll0Yz) / 4.0F;
                 //? >=1.0.0-beta.8.0.r {
-                /*this.tc4 = this.blend(this.ccxYZ, this.ccxY0, this.cc0YZ, var23);
-                this.tc1 = this.blend(this.cc0YZ, this.ccXYZ, this.ccXY0, var23);
-                this.tc2 = this.blend(this.cc0Yz, this.ccXY0, this.ccXYz, var23);
-                this.tc3 = this.blend(this.ccxY0, this.ccxYz, this.cc0Yz, var23);
+                /*this.tc4 = this.blend(this.ccxYZ, this.ccxY0, this.cc0YZ, c0Y0);
+                this.tc1 = this.blend(this.cc0YZ, this.ccXYZ, this.ccXY0, c0Y0);
+                this.tc2 = this.blend(this.cc0Yz, this.ccXY0, this.ccXYz, c0Y0);
+                this.tc3 = this.blend(this.ccxY0, this.ccxYz, this.cc0Yz, c0Y0);
                 *///? }
             }
 
@@ -1055,26 +1071,27 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
                 ll2 = this.ll00z;
                 ll1 = this.ll00z;
                 //? >=1.0.0-beta.8.0.r
-                //this.tc1 = this.tc2 = this.tc3 = this.tc4 = var21;
+                //this.tc1 = this.tc2 = this.tc3 = this.tc4 = c00z;
             } else {
-                this.llx0z = getShade(tt, this.level, xMinusOne, y, z);
-                this.ll0yz = getShade(tt, this.level, x, y - 1, z);
-                this.ll0Yz = getShade(tt, this.level, x, y + 1, z);
-                this.llX0z = getShade(tt, this.level, xPlusOne, y, z);
+                var _z = zMinusOne;
+                this.llx0z = getShade(tt, this.level, xMinusOne, y, _z);
+                this.ll0yz = getShade(tt, this.level, x, y - 1, _z);
+                this.ll0Yz = getShade(tt, this.level, x, y + 1, _z);
+                this.llX0z = getShade(tt, this.level, xPlusOne, y, _z);
                 //? >=1.0.0-beta.8.0.r {
-                /*this.ccx0z = tt.getLightColor(this.level, xMinusOne, y, z);
-                this.cc0yz = tt.getLightColor(this.level, x, y - 1, z);
-                this.cc0Yz = tt.getLightColor(this.level, x, y + 1, z);
-                this.ccX0z = tt.getLightColor(this.level, xPlusOne, y, z);
+                /*this.ccx0z = tt.getLightColor(this.level, xMinusOne, y, _z);
+                this.cc0yz = tt.getLightColor(this.level, x, y - 1, _z);
+                this.cc0Yz = tt.getLightColor(this.level, x, y + 1, _z);
+                this.ccX0z = tt.getLightColor(this.level, xPlusOne, y, _z);
                 *///? }
                 if (!this.llTransx0z && !this.llTrans0yz) {
                     this.llxyz = this.llx0z;
                     //? >=1.0.0-beta.8.0.r
                     //this.ccxyz = this.ccx0z;
                 } else {
-                    this.llxyz = getShade(tt, this.level, xMinusOne, y - 1, z);
+                    this.llxyz = getShade(tt, this.level, xMinusOne, y - 1, _z);
                     //? >=1.0.0-beta.8.0.r
-                    //this.ccxyz = tt.getLightColor(this.level, xMinusOne, y - 1, z);
+                    //this.ccxyz = tt.getLightColor(this.level, xMinusOne, y - 1, _z);
                 }
 
                 if (!this.llTransx0z && !this.llTrans0Yz) {
@@ -1082,9 +1099,9 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
                     //? >=1.0.0-beta.8.0.r
                     //this.ccxYz = this.ccx0z;
                 } else {
-                    this.llxYz = getShade(tt, this.level, xMinusOne, y + 1, z);
+                    this.llxYz = getShade(tt, this.level, xMinusOne, y + 1, _z);
                     //? >=1.0.0-beta.8.0.r
-                    //this.ccxYz = tt.getLightColor(this.level, xMinusOne, y + 1, z);
+                    //this.ccxYz = tt.getLightColor(this.level, xMinusOne, y + 1, _z);
                 }
 
                 if (!this.llTransX0z && !this.llTrans0yz) {
@@ -1092,9 +1109,9 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
                     //? >=1.0.0-beta.8.0.r
                     //this.ccXyz = this.ccX0z;
                 } else {
-                    this.llXyz = getShade(tt, this.level, xPlusOne, y - 1, z);
+                    this.llXyz = getShade(tt, this.level, xPlusOne, y - 1, _z);
                     //? >=1.0.0-beta.8.0.r
-                    //this.ccXyz = tt.getLightColor(this.level, xPlusOne, y - 1, z);
+                    //this.ccXyz = tt.getLightColor(this.level, xPlusOne, y - 1, _z);
                 }
 
                 if (!this.llTransX0z && !this.llTrans0Yz) {
@@ -1102,9 +1119,9 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
                     //? >=1.0.0-beta.8.0.r
                     //this.ccXYz = this.ccX0z;
                 } else {
-                    this.llXYz = getShade(tt, this.level, xPlusOne, y + 1, z);
+                    this.llXYz = getShade(tt, this.level, xPlusOne, y + 1, _z);
                     //? >=1.0.0-beta.8.0.r
-                    //this.ccXYz = tt.getLightColor(this.level, xPlusOne, y + 1, zMinusOne);
+                    //this.ccXYz = tt.getLightColor(this.level, xPlusOne, y + 1, _z);
                 }
 
                 ll1 = (this.llx0z + this.llxYz + this.ll00z + this.ll0Yz) / 4.0F;
@@ -1112,10 +1129,10 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
                 ll3 = (this.ll0yz + this.ll00z + this.llXyz + this.llX0z) / 4.0F;
                 ll4 = (this.llxyz + this.llx0z + this.ll0yz + this.ll00z) / 4.0F;
                 //? >=1.0.0-beta.8.0.r {
-                /*this.tc1 = this.blend(this.ccx0z, this.ccxYz, this.cc0Yz, var21);
-                this.tc2 = this.blend(this.cc0Yz, this.ccX0z, this.ccXYz, var21);
-                this.tc3 = this.blend(this.cc0yz, this.ccXyz, this.ccX0z, var21);
-                this.tc4 = this.blend(this.ccxyz, this.ccx0z, this.cc0yz, var21);
+                /*this.tc1 = this.blend(this.ccx0z, this.ccxYz, this.cc0Yz, c00z);
+                this.tc2 = this.blend(this.cc0Yz, this.ccX0z, this.ccXYz, c00z);
+                this.tc3 = this.blend(this.cc0yz, this.ccXyz, this.ccX0z, c00z);
+                this.tc4 = this.blend(this.ccxyz, this.ccx0z, this.cc0yz, c00z);
                 *///? }
             }
 
@@ -1162,7 +1179,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
                 ll2 = this.ll00Z;
                 ll1 = this.ll00Z;
                 //? >=1.0.0-beta.8.0.r
-                //this.tc1 = this.tc2 = this.tc3 = this.tc4 = var24;
+                //this.tc1 = this.tc2 = this.tc3 = this.tc4 = c00Z;
             } else {
                 this.llx0Z = getShade(tt, this.level, xMinusOne, y, zPlusOne);
                 this.llX0Z = getShade(tt, this.level, xPlusOne, y, zPlusOne);
@@ -1219,10 +1236,10 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
                 ll3 = (this.llxyZ + this.ll00Z + this.llXyZ + this.llX0Z) / 4.0F;
                 ll2 = (this.llXyz + this.llx0Z + this.llxyZ + this.ll00Z) / 4.0F;
                 //? >=1.0.0-beta.8.0.r {
-                /*this.tc1 = this.blend(this.ccx0Z, this.ccxYZ, this.cc0YZ, var24);
-                this.tc4 = this.blend(this.cc0YZ, this.ccX0Z, this.ccXYZ, var24);
-                this.tc3 = this.blend(this.cc0yZ, this.ccXyZ, this.ccX0Z, var24);
-                this.tc2 = this.blend(this.ccxyZ, this.ccx0Z, this.cc0yZ, var24);
+                /*this.tc1 = this.blend(this.ccx0Z, this.ccxYZ, this.cc0YZ, c00Z);
+                this.tc4 = this.blend(this.cc0YZ, this.ccX0Z, this.ccXYZ, c00Z);
+                this.tc3 = this.blend(this.cc0yZ, this.ccXyZ, this.ccX0Z, c00Z);
+                this.tc2 = this.blend(this.ccxyZ, this.ccx0Z, this.cc0yZ, c00Z);
                 *///? }
             }
 
@@ -1269,7 +1286,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
                 ll2 = this.llx00;
                 ll1 = this.llx00;
                 //? >=1.0.0-beta.8.0.r
-                //this.tc1 = this.tc2 = this.tc3 = this.tc4 = var19;
+                //this.tc1 = this.tc2 = this.tc3 = this.tc4 = cx00;
             } else {
                 this.llxy0 = getShade(tt, this.level, xMinusOne, y - 1, z);
                 this.llx0z = getShade(tt, this.level, xMinusOne, y, zMinusOne);
@@ -1326,10 +1343,10 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
                 ll2 = (this.llx0z + this.llx00 + this.llxYz + this.llxY0) / 4.0F;
                 ll3 = (this.llxyz + this.llxy0 + this.llx0z + this.llx00) / 4.0F;
                 //? >=1.0.0-beta.8.0.r {
-                /*this.tc4 = this.blend(this.ccxy0, this.ccxyZ, this.ccx0Z, var19);
-                this.tc1 = this.blend(this.ccx0Z, this.ccxY0, this.ccxYZ, var19);
-                this.tc2 = this.blend(this.ccx0z, this.ccxYz, this.ccxY0, var19);
-                this.tc3 = this.blend(this.ccxyz, this.ccxy0, this.ccx0z, var19);
+                /*this.tc4 = this.blend(this.ccxy0, this.ccxyZ, this.ccx0Z, cx00);
+                this.tc1 = this.blend(this.ccx0Z, this.ccxY0, this.ccxYZ, cx00);
+                this.tc2 = this.blend(this.ccx0z, this.ccxYz, this.ccxY0, cx00);
+                this.tc3 = this.blend(this.ccxyz, this.ccxy0, this.ccx0z, cx00);
                 *///? }
             }
 
@@ -1376,7 +1393,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
                 ll2 = this.llX00;
                 ll1 = this.llX00;
                 //? >=1.0.0-beta.8.0.r
-                //this.tc1 = this.tc2 = this.tc3 = this.tc4 = var22;
+                //this.tc1 = this.tc2 = this.tc3 = this.tc4 = cX00;
             } else {
                 this.llXy0 = getShade(tt, this.level, xPlusOne, y - 1, z);
                 this.llX0z = getShade(tt, this.level, xPlusOne, y, zMinusOne);
@@ -1433,10 +1450,10 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
                 ll3 = (this.llX0z + this.llX00 + this.llXYz + this.llXY0) / 4.0F;
                 ll2 = (this.llXyz + this.llXy0 + this.llX0z + this.llX00) / 4.0F;
                 //? >=1.0.0-beta.8.0.r {
-                /*this.tc1 = this.blend(this.ccXy0, this.ccXyZ, this.ccX0Z, var22);
-                this.tc4 = this.blend(this.ccX0Z, this.ccXY0, this.ccXYZ, var22);
-                this.tc3 = this.blend(this.ccX0z, this.ccXYz, this.ccXY0, var22);
-                this.tc2 = this.blend(this.ccXyz, this.ccXy0, this.ccX0z, var22);
+                /*this.tc1 = this.blend(this.ccXy0, this.ccXyZ, this.ccX0Z, cX00);
+                this.tc4 = this.blend(this.ccX0Z, this.ccXY0, this.ccXYZ, cX00);
+                this.tc3 = this.blend(this.ccX0z, this.ccXYz, this.ccXY0, cX00);
+                this.tc2 = this.blend(this.ccXyz, this.ccXy0, this.ccX0z, cX00);
                 *///? }
             }
 
@@ -2002,6 +2019,10 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
 
     public boolean tesselateCrossInWorld(Tile tt, BigInteger x, int y, BigInteger z) {
         Tesselator t = Tesselator.instance;
+        //? 1.0.0-beta.8.0.r {
+        /*t.tex2(tt.getLightColor(this.level, x, y, z));
+        float br = 1;
+        *///? } else
         float br = tt.getBrightness(this.level, x, y, z);
         int col = tt.getFoliageColor(this.level, x, y, z);
         float r = (col >> 16 & 0xFF) / 255.0F;
@@ -2224,6 +2245,102 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
             this.downFlip = 0;
         }
 
+        return true;
+    }
+
+    public void tesselatePistonArmNoCulling(Tile tile, BigInteger x, int y, BigInteger z, boolean fullArm) {
+        this.noCulling = true;
+        this.tesselatePistonExtensionInWorld(tile, x, y, z, fullArm);
+        this.noCulling = false;
+    }
+
+    private boolean tesselatePistonExtensionInWorld(Tile tt, BigInteger x, int y, BigInteger z, boolean fullArm) {
+        float xx = FIX_STRIPELANDS ? BigMath.fastAnd(x, 15) : x.floatValue();
+        float zz = FIX_STRIPELANDS ? BigMath.fastAnd(z, 15) : z.floatValue();
+        float yy = FIX_STRIPELANDS ? y & 15 : y;
+
+        int data = this.level.getData(x, y, z);
+        int facing = PistonExtensionTile.getDirection(data);
+
+        float br = tt.getBrightness(this.level, x, y, z);
+        float armLength = fullArm ? 1.0F : 0.5F;
+        double armLengthPixels = fullArm ? 16.0 : 8.0;
+
+        switch (facing) {
+            case Facing.DOWN:
+                this.northFlip = FLIP_180;
+                this.southFlip = FLIP_180;
+                this.eastFlip = FLIP_180;
+                this.westFlip = FLIP_180;
+                tt.setShape(0.0F, 0.0F, 0.0F, 1.0F, 0.25F, 1.0F);
+                this.tesselateBlockInWorld(tt, x, y, z);
+                this.renderPistonArmUpDown(xx + 0.375F, xx + 0.625F, yy + 0.25F, yy + 0.25F + armLength, zz + 0.625F, zz + 0.625F, br * 0.8F, armLengthPixels);
+                this.renderPistonArmUpDown(xx + 0.625F, xx + 0.375F, yy + 0.25F, yy + 0.25F + armLength, zz + 0.375F, zz + 0.375F, br * 0.8F, armLengthPixels);
+                this.renderPistonArmUpDown(xx + 0.375F, xx + 0.375F, yy + 0.25F, yy + 0.25F + armLength, zz + 0.375F, zz + 0.625F, br * 0.6F, armLengthPixels);
+                this.renderPistonArmUpDown(xx + 0.625F, xx + 0.625F, yy + 0.25F, yy + 0.25F + armLength, zz + 0.625F, zz + 0.375F, br * 0.6F, armLengthPixels);
+                break;
+            case Facing.UP:
+                tt.setShape(0.0F, 0.75F, 0.0F, 1.0F, 1.0F, 1.0F);
+                this.tesselateBlockInWorld(tt, x, y, z);
+                this.renderPistonArmUpDown(xx + 0.375F, xx + 0.625F, yy - 0.25F + 1.0F - armLength, yy - 0.25F + 1.0F, zz + 0.625F, zz + 0.625F, br * 0.8F, armLengthPixels);
+                this.renderPistonArmUpDown(xx + 0.625F, xx + 0.375F, yy - 0.25F + 1.0F - armLength, yy - 0.25F + 1.0F, zz + 0.375F, zz + 0.375F, br * 0.8F, armLengthPixels);
+                this.renderPistonArmUpDown(xx + 0.375F, xx + 0.375F, yy - 0.25F + 1.0F - armLength, yy - 0.25F + 1.0F, zz + 0.375F, zz + 0.625F, br * 0.6F, armLengthPixels);
+                this.renderPistonArmUpDown(xx + 0.625F, xx + 0.625F, yy - 0.25F + 1.0F - armLength, yy - 0.25F + 1.0F, zz + 0.625F, zz + 0.375F, br * 0.6F, armLengthPixels);
+                break;
+            case Facing.NORTH:
+                this.eastFlip = FLIP_CW;
+                this.westFlip = FLIP_CCW;
+                tt.setShape(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 0.25F);
+                this.tesselateBlockInWorld(tt, x, y, z);
+                this.renderPistonArmNorthSouth(xx + 0.375F, xx + 0.375F, yy + 0.625F, yy + 0.375F, zz + 0.25F, zz + 0.25F + armLength, br * 0.6F, armLengthPixels);
+                this.renderPistonArmNorthSouth(xx + 0.625F, xx + 0.625F, yy + 0.375F, yy + 0.625F, zz + 0.25F, zz + 0.25F + armLength, br * 0.6F, armLengthPixels);
+                this.renderPistonArmNorthSouth(xx + 0.375F, xx + 0.625F, yy + 0.375F, yy + 0.375F, zz + 0.25F, zz + 0.25F + armLength, br * 0.5F, armLengthPixels);
+                this.renderPistonArmNorthSouth(xx + 0.625F, xx + 0.375F, yy + 0.625F, yy + 0.625F, zz + 0.25F, zz + 0.25F + armLength, br, armLengthPixels);
+                break;
+            case Facing.SOUTH:
+                this.eastFlip = FLIP_CCW;
+                this.westFlip = FLIP_CW;
+                this.upFlip = FLIP_180;
+                this.downFlip = FLIP_180;
+                tt.setShape(0.0F, 0.0F, 0.75F, 1.0F, 1.0F, 1.0F);
+                this.tesselateBlockInWorld(tt, x, y, z);
+                this.renderPistonArmNorthSouth(xx + 0.375F, xx + 0.375F, yy + 0.625F, yy + 0.375F, zz - 0.25F + 1.0F - armLength, zz - 0.25F + 1.0F, br * 0.6F, armLengthPixels);
+                this.renderPistonArmNorthSouth(xx + 0.625F, xx + 0.625F, yy + 0.375F, yy + 0.625F, zz - 0.25F + 1.0F - armLength, zz - 0.25F + 1.0F, br * 0.6F, armLengthPixels);
+                this.renderPistonArmNorthSouth(xx + 0.375F, xx + 0.625F, yy + 0.375F, yy + 0.375F, zz - 0.25F + 1.0F - armLength, zz - 0.25F + 1.0F, br * 0.5F, armLengthPixels);
+                this.renderPistonArmNorthSouth(xx + 0.625F, xx + 0.375F, yy + 0.625F, yy + 0.625F, zz - 0.25F + 1.0F - armLength, zz - 0.25F + 1.0F, br, armLengthPixels);
+                break;
+            case Facing.WEST:
+                this.northFlip = FLIP_CW;
+                this.southFlip = FLIP_CCW;
+                this.upFlip = FLIP_CCW;
+                this.downFlip = FLIP_CW;
+                tt.setShape(0.0F, 0.0F, 0.0F, 0.25F, 1.0F, 1.0F);
+                this.tesselateBlockInWorld(tt, x, y, z);
+                this.renderPistonArmEastWest(xx + 0.25F, xx + 0.25F + armLength, yy + 0.375F, yy + 0.375F, zz + 0.625F, zz + 0.375F, br * 0.5F, armLengthPixels);
+                this.renderPistonArmEastWest(xx + 0.25F, xx + 0.25F + armLength, yy + 0.625F, yy + 0.625F, zz + 0.375F, zz + 0.625F, br, armLengthPixels);
+                this.renderPistonArmEastWest(xx + 0.25F, xx + 0.25F + armLength, yy + 0.375F, yy + 0.625F, zz + 0.375F, zz + 0.375F, br * 0.6F, armLengthPixels);
+                this.renderPistonArmEastWest(xx + 0.25F, xx + 0.25F + armLength, yy + 0.625F, yy + 0.375F, zz + 0.625F, zz + 0.625F, br * 0.6F, armLengthPixels);
+                break;
+            case Facing.EAST:
+                this.northFlip = FLIP_CCW;
+                this.southFlip = FLIP_CW;
+                this.upFlip = FLIP_CW;
+                this.downFlip = FLIP_CCW;
+                tt.setShape(0.75F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+                this.tesselateBlockInWorld(tt, x, y, z);
+                this.renderPistonArmEastWest(xx - 0.25F + 1.0F - armLength, xx - 0.25F + 1.0F, yy + 0.375F, yy + 0.375F, zz + 0.625F, zz + 0.375F, br * 0.5F, armLengthPixels);
+                this.renderPistonArmEastWest(xx - 0.25F + 1.0F - armLength, xx - 0.25F + 1.0F, yy + 0.625F, yy + 0.625F, zz + 0.375F, zz + 0.625F, br, armLengthPixels);
+                this.renderPistonArmEastWest(xx - 0.25F + 1.0F - armLength, xx - 0.25F + 1.0F, yy + 0.375F, yy + 0.625F, zz + 0.375F, zz + 0.375F, br * 0.6F, armLengthPixels);
+                this.renderPistonArmEastWest(xx - 0.25F + 1.0F - armLength, xx - 0.25F + 1.0F, yy + 0.625F, yy + 0.375F, zz + 0.625F, zz + 0.625F, br * 0.6F, armLengthPixels);
+        }
+
+        this.northFlip = FLIP_NONE;
+        this.southFlip = FLIP_NONE;
+        this.eastFlip = FLIP_NONE;
+        this.westFlip = FLIP_NONE;
+        this.upFlip = FLIP_NONE;
+        this.downFlip = FLIP_NONE;
+        tt.setShape(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
         return true;
     }
 
@@ -2967,10 +3084,12 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
             Material m = tt.material;
 
             int data = this.level.getData(x, y, z);
+            //~ if >=1.0.0-beta.8.0.r 'float' -> 'double' {
             float h0 = getWaterHeight(x, y, z, m);
             float h1 = getWaterHeight(x, y, zPlusOne, m);
             float h2 = getWaterHeight(xPlusOne, y, zPlusOne, m);
             float h3 = getWaterHeight(xPlusOne, y, z, m);
+            //~ }
             if (this.noCulling || up) {
                 changed = true;
                 int tex = tt.getTexture(Facing.UP, data);
@@ -2992,6 +3111,10 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
 
                 float s = Mth.sin(angle) * 8.0F / 256.0F;
                 float c = Mth.cos(angle) * 8.0F / 256.0F;
+                //? >=1.0.0-beta.8.0.r {
+                /*t.tex2(tt.getLightColor(this.level, x, y, z));
+                float br = 1;
+                *///? } else
                 float br = tt.getBrightness(this.level, x, y, z);
                 t.color(c11 * br * r, c11 * br * g, c11 * br * b);
                 t.vertexUV(xx, (float) yy + h0, zz, uc - (double) c - (double) s, vc - (double) c + (double) s);
@@ -3001,6 +3124,10 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
             }
 
             if (this.noCulling || down) {
+                //? >=1.0.0-beta.8.0.r {
+                /*t.tex2(tt.getLightColor(this.level, x, y - 1, z));
+                float br = 1;
+                *///? } else
                 float br = tt.getBrightness(this.level, x, y - 1, z);
                 t.color(c10 * br, c10 * br, c10 * br);
                 this.renderFaceDown(tt, xx, yy, zz, tt.getTexture(Facing.DOWN));
@@ -3033,6 +3160,7 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
             final boolean[] dirs,
             final float c2, final float c3, final float c11,
             final float r, final float g, final float b,
+            //~ if >=1.0.0-beta.8.0.r 'float' -> 'double'
             final float h0, final float h1, final float h2, final float h3,
             final int face
     ) {
@@ -3062,10 +3190,12 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
         int xTex = (texx & 15) << 4;
         int yTex = texx & 240;
         if (this.noCulling || dirs[face]) {
+            //~ if >=1.0.0-beta.8.0.r 'float h' -> 'double h' {
             float hh0;
             double x1;
             double z1;
             float hh1;
+            //~ }
             double x0;
             double z0;
             if (face == 0) {
@@ -3103,6 +3233,10 @@ public abstract class TileRendererMixin implements BigTileRendererExtension, me.
             double v01 = (double) (((float) yTex + (1.0F - hh0) * 16.0F) / 256.0F);
             double v02 = (double) (((float) yTex + (1.0F - hh1) * 16.0F) / 256.0F);
             double v1 = ((double) (yTex + 16) - 0.01) / 256.0;
+            //? >=1.0.0-beta.8.0.r {
+            /*t.tex2(tt.getLightColor(this.level, xt, y, zt));
+            float br = 1;
+            *///? } else
             float br = tt.getBrightness(this.level, xt, y, zt);
             if (face < 2) {
                 br *= c2;

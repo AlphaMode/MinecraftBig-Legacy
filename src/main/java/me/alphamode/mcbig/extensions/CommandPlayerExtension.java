@@ -1,19 +1,41 @@
 package me.alphamode.mcbig.extensions;
 
+import java.math.BigDecimal;
+
 public interface CommandPlayerExtension {
-    boolean canFly();
+    default boolean canFly() {
+        throw new UnsupportedOperationException();
+    }
 
-    void setCanFly(boolean canFly);
+    default void setCanFly(boolean canFly) {
+        throw new UnsupportedOperationException();
+    }
 
-    boolean isFlying();
+    default boolean isFlying() {
+        throw new UnsupportedOperationException();
+    }
 
-    void setFlying(boolean flying);
+    default void setFlying(boolean flying) {
+        throw new UnsupportedOperationException();
+    }
 
-    void setFlySpeed(float speed);
+    default void setFlySpeed(float speed) {
+        throw new UnsupportedOperationException();
+    }
 
-    float getFlySpeed();
+    default float getFlySpeed() {
+        throw new UnsupportedOperationException();
+    }
 
-    void setNoclip(boolean noclip);
+    default void setNoclip(boolean noclip) {
+        throw new UnsupportedOperationException();
+    }
 
-    boolean canNoclip();
+    default boolean canNoclip() {
+        throw new UnsupportedOperationException();
+    }
+
+    default void teleport(BigDecimal x, double y, BigDecimal z) {
+        throw new UnsupportedOperationException();
+    }
 }

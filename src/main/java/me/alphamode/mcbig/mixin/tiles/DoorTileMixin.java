@@ -65,43 +65,41 @@ public abstract class DoorTileMixin extends Tile implements BigTileExtension {
 
     @Override
     public boolean use(Level level, BigInteger x, int y, BigInteger z, Player player) {
-        if (this.material == Material.metal) {
+        if (this.material == Material.metal) return true;
+
+        int data = level.getData(x, y, z);
+        if ((data & 8) != 0) {
+            if (level.getTile(x, y - 1, z) == this.id) {
+                this.use(level, x, y - 1, z, player);
+            }
+
             return true;
         } else {
-            int var6 = level.getData(x, y, z);
-            if ((var6 & 8) != 0) {
-                if (level.getTile(x, y - 1, z) == this.id) {
-                    this.use(level, x, y - 1, z, player);
-                }
-
-                return true;
-            } else {
-                if (level.getTile(x, y + 1, z) == this.id) {
-                    level.setData(x, y + 1, z, (var6 ^ 4) + 8);
-                }
-
-                level.setData(x, y, z, var6 ^ 4);
-                level.setTilesDirty(x, y - 1, z, x, y, z);
-                level.levelEvent(player, 1003, x, y, z, 0);
-                return true;
+            if (level.getTile(x, y + 1, z) == this.id) {
+                level.setData(x, y + 1, z, (data ^ 4) + 8);
             }
+
+            level.setData(x, y, z, data ^ 4);
+            level.setTilesDirty(x, y - 1, z, x, y, z);
+            level.levelEvent(player, 1003, x, y, z, 0);
+            return true;
         }
     }
 
     public void setOpen(Level level, BigInteger x, int y, BigInteger z, boolean open) {
-        int var6 = level.getData(x, y, z);
-        if ((var6 & 8) != 0) {
+        int data = level.getData(x, y, z);
+        if ((data & 8) != 0) {
             if (level.getTile(x, y - 1, z) == this.id) {
                 this.setOpen(level, x, y - 1, z, open);
             }
         } else {
-            boolean var7 = (level.getData(x, y, z) & 4) > 0;
-            if (var7 != open) {
+            boolean isOpen = (level.getData(x, y, z) & 4) > 0;
+            if (isOpen != open) {
                 if (level.getTile(x, y + 1, z) == this.id) {
-                    level.setData(x, y + 1, z, (var6 ^ 4) + 8);
+                    level.setData(x, y + 1, z, (data ^ 4) + 8);
                 }
 
-                level.setData(x, y, z, var6 ^ 4);
+                level.setData(x, y, z, data ^ 4);
                 level.setTilesDirty(x, y - 1, z, x, y, z);
                 level.levelEvent(null, 1003, x, y, z, 0);
             }
@@ -110,37 +108,37 @@ public abstract class DoorTileMixin extends Tile implements BigTileExtension {
 
     @Override
     public void neighborChanged(Level level, BigInteger x, int y, BigInteger z, int tile) {
-        int var6 = level.getData(x, y, z);
-        if ((var6 & 8) != 0) {
+        int data = level.getData(x, y, z);
+        if ((data & 8) == 0) { // Upper bit
+            boolean spawn = false;
+            if (level.getTile(x, y + 1, z) != this.id) {
+                level.setTile(x, y, z, 0);
+                spawn = true;
+            }
+
+            if (!level.isSolidBlockingTile(x, y - 1, z)) {
+                level.setTile(x, y, z, 0);
+                spawn = true;
+                if (level.getTile(x, y + 1, z) == this.id) {
+                    level.setTile(x, y + 1, z, 0);
+                }
+            }
+
+            if (spawn) {
+                if (!level.isClientSide) {
+                    this.spawnResources(level, x, y, z, data);
+                }
+            } else if (tile > 0 && Tile.tiles[tile].isSignalSource()) {
+                boolean signal = level.hasNeighborSignal(x, y, z) || level.hasNeighborSignal(x, y + 1, z);
+                this.setOpen(level, x, y, z, signal);
+            }
+        } else {
             if (level.getTile(x, y - 1, z) != this.id) {
                 level.setTile(x, y, z, 0);
             }
 
             if (tile > 0 && Tile.tiles[tile].isSignalSource()) {
                 this.neighborChanged(level, x, y - 1, z, tile);
-            }
-        } else {
-            boolean var7 = false;
-            if (level.getTile(x, y + 1, z) != this.id) {
-                level.setTile(x, y, z, 0);
-                var7 = true;
-            }
-
-            if (!level.isSolidBlockingTile(x, y - 1, z)) {
-                level.setTile(x, y, z, 0);
-                var7 = true;
-                if (level.getTile(x, y + 1, z) == this.id) {
-                    level.setTile(x, y + 1, z, 0);
-                }
-            }
-
-            if (var7) {
-                if (!level.isClientSide) {
-                    this.spawnResources(level, x, y, z, var6);
-                }
-            } else if (tile > 0 && Tile.tiles[tile].isSignalSource()) {
-                boolean var8 = level.hasNeighborSignal(x, y, z) || level.hasNeighborSignal(x, y + 1, z);
-                this.setOpen(level, x, y, z, var8);
             }
         }
     }
@@ -159,6 +157,7 @@ public abstract class DoorTileMixin extends Tile implements BigTileExtension {
 
     @Override
     public boolean mayPlace(Level level, BigInteger x, int y, BigInteger z) {
+        //~ if >=1.0.0-beta.8.0.r '127' -> '128 - 1'
         return y >= 127 ? false : level.isSolidBlockingTile(x, y - 1, z) && super.mayPlace(level, x, y, z) && super.mayPlace(level, x, y + 1, z);
     }
 }

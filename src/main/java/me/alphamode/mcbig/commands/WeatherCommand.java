@@ -4,18 +4,18 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 
 public class WeatherCommand {
-    public static void register(CommandDispatcher<CommandSource> dispatcher) {
+    public static <S extends CommandSource> void register(CommandDispatcher<S> dispatcher) {
         dispatcher.register(
-                Commands.literal("weather")
+                Commands.<S>literal("weather")
                         .then(
-                                Commands.literal("clear")
+                                Commands.<S>literal("clear")
                                         .executes(context -> {
                                             context.getSource().getEntity().level.stopWeather();
                                             return Command.SINGLE_SUCCESS;
                                         })
                         )
                         .then(
-                                Commands.literal("rain")
+                                Commands.<S>literal("rain")
                                         .executes(context -> {
                                             context.getSource().getEntity().level.getLevelData().setRaining(true);
                                             return Command.SINGLE_SUCCESS;

@@ -4,17 +4,18 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import me.alphamode.mcbig.commands.arguments.BlockPosArgument;
 import me.alphamode.mcbig.commands.arguments.ItemArgument;
+import me.alphamode.mcbig.util.BigCoordinates;
 import me.alphamode.mcbig.world.phys.BigVec3i;
 import net.minecraft.world.item.ItemInstance;
 
 public class SetBlockCommand {
-    public static void register(CommandDispatcher<CommandSource> dispatcher) {
+    public static <S extends CommandSource> void register(CommandDispatcher<S> dispatcher) {
         dispatcher.register(
-                Commands.literal("setblock")
+                Commands.<S>literal("setblock")
                         .then(
-                                Commands.argument("block", new ItemArgument())
+                                Commands.<S, ItemInstance>argument("block", new ItemArgument())
                                         .then(
-                                                Commands.argument("location", new BlockPosArgument())
+                                                Commands.<S, BigCoordinates.BigIntegerCoordinates>argument("location", new BlockPosArgument())
                                                         .executes(context -> {
                                                             ItemInstance item = context.getArgument("block", ItemInstance.class);
 

@@ -5,11 +5,11 @@ import com.mojang.brigadier.CommandDispatcher;
 import me.alphamode.mcbig.util.ScreenUtil;
 
 public class SeedCommand {
-    public static void register(CommandDispatcher<CommandSource> dispatcher) {
+    public static <S extends CommandSource> void register(CommandDispatcher<S> dispatcher) {
         dispatcher.register(
-                Commands.literal("seed")
+                Commands.<S>literal("seed")
                         .then(
-                                Commands.literal("copy")
+                                Commands.<S>literal("copy")
                                         .executes(context -> {
                                             long seed = context.getSource().getEntity().level.getSeed();
                                             ScreenUtil.setClipboard(Long.toString(seed));

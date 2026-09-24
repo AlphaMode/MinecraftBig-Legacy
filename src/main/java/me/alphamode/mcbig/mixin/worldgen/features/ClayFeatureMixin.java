@@ -38,6 +38,28 @@ public class ClayFeatureMixin implements BigFeatureExtension {
     public boolean place(Level level, Random random, BigInteger x, int y, BigInteger z) {
         if (level.getMaterial(x, y, z) != Material.water) return false;
 
+        //? >=1.0.0-beta.8.0.r {
+        /*int r = random.nextInt(this.radius - 2) + 2;
+        var _r = BigInteger.valueOf(r);
+        int yr = 1;
+
+        for (var xx = x.subtract(_r); xx.compareTo(x.add(_r)) <= 0; xx = xx.add(BigInteger.ONE)) {
+            for (var zz = z.subtract(_r); zz.compareTo(z.add(_r)) <= 0; zz = zz.add(BigInteger.ONE)) {
+                int xd = xx.subtract(x).intValue();
+                int zd = zz.subtract(z).intValue();
+                if (xd * xd + zd * zd <= r * r) {
+                    for (int var12 = y - yr; var12 <= y + yr; var12++) {
+                        int var13 = level.getTile(xx, var12, zz);
+                        if (var13 == Tile.dirt.id || var13 == Tile.clay.id) {
+                            level.setTileNoUpdate(xx, var12, zz, this.tile);
+                        }
+                    }
+                }
+            }
+        }
+
+        return true;
+        *///? } else {
         float dir = random.nextFloat() * (float) Math.PI;
 
         BigDecimal x0 = new BigDecimal(x.add(BigConstants.EIGHT)).add(BigDecimal.valueOf(Mth.sin(dir) * this.radius / 8.0F));
@@ -81,5 +103,6 @@ public class ClayFeatureMixin implements BigFeatureExtension {
         }
 
         return true;
+        //? }
     }
 }

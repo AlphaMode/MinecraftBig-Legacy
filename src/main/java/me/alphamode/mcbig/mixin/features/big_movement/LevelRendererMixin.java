@@ -157,7 +157,8 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
      */
     @Overwrite
     public void allChanged() {
-        if (this.level != null) {
+        //? >=1.0.0-beta.8.0.r
+        //if (this.level != null) {
             Tile.leaves.setFancy(this.mc.options.fancyGraphics);
             this.lastViewDistance = this.mc.options.viewDistance;
             if (this.chunks != null) {
@@ -172,7 +173,7 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
             }
 
             this.xChunks = dist / 16 + 1;
-            this.yChunks = 8;
+            this.yChunks = 128 / 16;
             this.zChunks = dist / 16 + 1;
             this.chunks = new BigChunk[this.xChunks * this.yChunks * this.zChunks];
             this.sortedChunks = new BigChunk[this.xChunks * this.yChunks * this.zChunks];
@@ -223,7 +224,8 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
             }
 
             this.noEntityRenderFrames = 2;
-        }
+        //? >=1.0.0-beta.8.0.r
+        //}
     }
 
     /**
@@ -575,30 +577,33 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
      * @reason
      */
     @Overwrite
-    public void renderEntities(Vec3 cam, Culler culler, float partialTick) {
+    public void renderEntities(Vec3 cam, Culler culler, float a) {
         if (this.noEntityRenderFrames > 0) {
             --this.noEntityRenderFrames;
         } else {
-            TileEntityRenderDispatcher.instance.prepare(this.level, this.textures, this.mc.font, this.mc.cameraEntity, partialTick);
-            EntityRenderDispatcher.INSTANCE.prepare(this.level, this.textures, this.mc.font, this.mc.cameraEntity, this.mc.options, partialTick);
+            TileEntityRenderDispatcher.instance.prepare(this.level, this.textures, this.mc.font, this.mc.cameraEntity, a);
+            EntityRenderDispatcher.INSTANCE.prepare(this.level, this.textures, this.mc.font, this.mc.cameraEntity, this.mc.options, a);
             this.totalEntities = 0;
             this.renderedEntities = 0;
             this.culledEntities = 0;
             Mob camera = this.mc.cameraEntity;
             if (camera.isBigMovementEnabled()) {
                 BigEntityExtension bigCamera = (BigEntityExtension) camera;
-                BigDecimal a = BigDecimal.valueOf(partialTick);
-                EntityRenderDispatcherData.xOff = bigCamera.getXOld().add((bigCamera.getX().subtract(bigCamera.getXOld())).multiply(a));
-                EntityRenderDispatcherData.zOff = bigCamera.getZOld().add((bigCamera.getZ().subtract(bigCamera.getZOld())).multiply(a));
-                EntityRenderDispatcher.yOff = camera.yOld + (camera.y - camera.yOld) * (double) partialTick;
+                BigDecimal _a = BigDecimal.valueOf(a);
+                EntityRenderDispatcherData.xOff = bigCamera.getXOld().add((bigCamera.getX().subtract(bigCamera.getXOld())).multiply(_a));
+                EntityRenderDispatcherData.zOff = bigCamera.getZOld().add((bigCamera.getZ().subtract(bigCamera.getZOld())).multiply(_a));
+                EntityRenderDispatcher.yOff = camera.yOld + (camera.y - camera.yOld) * (double) a;
+                TileEntityRenderDispatcher.yOff = camera.yOld + (camera.y - camera.yOld) * (double) a;
             } else {
-                EntityRenderDispatcher.xOff = camera.xOld + (camera.x - camera.xOld) * (double) partialTick;
-                EntityRenderDispatcher.yOff = camera.yOld + (camera.y - camera.yOld) * (double) partialTick;
-                EntityRenderDispatcher.zOff = camera.zOld + (camera.z - camera.zOld) * (double) partialTick;
-                TileEntityRenderDispatcher.xOff = camera.xOld + (camera.x - camera.xOld) * (double) partialTick;
-                TileEntityRenderDispatcher.yOff = camera.yOld + (camera.y - camera.yOld) * (double) partialTick;
-                TileEntityRenderDispatcher.zOff = camera.zOld + (camera.z - camera.zOld) * (double) partialTick;
+                EntityRenderDispatcher.xOff = camera.xOld + (camera.x - camera.xOld) * (double) a;
+                EntityRenderDispatcher.yOff = camera.yOld + (camera.y - camera.yOld) * (double) a;
+                EntityRenderDispatcher.zOff = camera.zOld + (camera.z - camera.zOld) * (double) a;
+                TileEntityRenderDispatcher.xOff = camera.xOld + (camera.x - camera.xOld) * (double) a;
+                TileEntityRenderDispatcher.yOff = camera.yOld + (camera.y - camera.yOld) * (double) a;
+                TileEntityRenderDispatcher.zOff = camera.zOld + (camera.z - camera.zOld) * (double) a;
             }
+            //? >=1.0.0-beta.8.0.r
+            //this.mc.gameRenderer.turnOnLightLayer(a);
             List<Entity> entities = this.level.getAllEntities();
             this.totalEntities = entities.size();
 
@@ -606,7 +611,7 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
                 Entity entity = this.level.globalEntities.get(i);
                 ++this.renderedEntities;
                 if (entity.shouldRender(cam)) {
-                    EntityRenderDispatcher.INSTANCE.render(entity, partialTick);
+                    EntityRenderDispatcher.INSTANCE.render(entity, a);
                 }
             }
 
@@ -621,19 +626,23 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
                     }
 
                     if (var8 >= 128) {
-                        var8 = 127;
+                        var8 = 128 - 1;
                     }
 
                     if ((entity.isBigMovementEnabled() ? this.level.hasChunkAt(BigMath.floor(bigEntity.getX()), var8, BigMath.floor(bigEntity.getZ())) : this.level.hasChunkAt(BigMath.floor(entity.x), var8, BigMath.floor(entity.z)))) {
                         ++this.renderedEntities;
-                        EntityRenderDispatcher.INSTANCE.render(entity, partialTick);
+                        EntityRenderDispatcher.INSTANCE.render(entity, a);
                     }
                 }
             }
 
-            for (Object renderableTileEntity : this.renderableTileEntities) {
-                TileEntityRenderDispatcher.instance.render((TileEntity) renderableTileEntity, partialTick);
+            //? >=1.0.0-beta.8.0.r
+            //Lighting.turnOn();
+            for (TileEntity renderableTileEntity : this.renderableTileEntities) {
+                TileEntityRenderDispatcher.instance.render(renderableTileEntity, a);
             }
+            //? >=1.0.0-beta.8.0.r
+            //this.mc.gameRenderer.turnOffLightLayer(a);
         }
     }
 

@@ -1,8 +1,10 @@
 package me.alphamode.mcbig.mixin.tiles;
 
-import me.alphamode.mcbig.extensions.BigTileExtension;
+//? >=1.0.0-beta.8.0.r
+//import me.alphamode.mcbig.extensions.tiles.BigFenceTileExtension;
 import me.alphamode.mcbig.world.phys.BigAABB;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelSource;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.tile.FenceTile;
 import net.minecraft.world.level.tile.Tile;
@@ -13,7 +15,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 @Mixin(FenceTile.class)
-public abstract class FenceTileMixin extends Tile implements BigTileExtension {
+public abstract class FenceTileMixin extends Tile /*? >=1.0.0-beta.8.0.r {*/ /*implements BigFenceTileExtension *//*? }*/ {
     protected FenceTileMixin(int id, Material material) {
         super(id, material);
     }
@@ -36,4 +38,12 @@ public abstract class FenceTileMixin extends Tile implements BigTileExtension {
     public BigAABB getBigAABB(Level level, BigInteger x, int y, BigInteger z) {
         return BigAABB.create(new BigDecimal(x), y, new BigDecimal(z), new BigDecimal(x.add(BigInteger.ONE)), y + 1.5F, new BigDecimal(z.add(BigInteger.ONE)));
     }
+
+    //? >=1.0.0-beta.8.0.r {
+    /*@Override
+    public boolean connectsTo(LevelSource level, BigInteger x, int y, BigInteger z) {
+        int tile = level.getTile(x, y, z);
+        return tile == this.id || tile == Tile.fenceGate.id;
+    }
+    *///? }
 }

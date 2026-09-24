@@ -6,11 +6,11 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.minecraft.world.entity.Mob;
 
 public class HealthCommand {
-    public static void register(CommandDispatcher<CommandSource> dispatcher) {
+    public static <S extends CommandSource> void register(CommandDispatcher<S> dispatcher) {
         dispatcher.register(
-                Commands.literal("health")
+                Commands.<S>literal("health")
                         .then(
-                                Commands.literal("heal")
+                                Commands.<S>literal("heal")
                                         .executes(context -> {
                                             if (context.getSource().getEntity() instanceof Mob mob) {
                                                 mob.health = 20;
@@ -21,7 +21,7 @@ public class HealthCommand {
                                         })
                         )
                         .then(
-                                Commands.argument("health", IntegerArgumentType.integer(0, 20))
+                                Commands.<S, Integer>argument("health", IntegerArgumentType.integer(0, 20))
                                         .executes(context -> {
                                             if (context.getSource().getEntity() instanceof Mob mob) {
                                                 mob.health = IntegerArgumentType.getInteger(context, "health");

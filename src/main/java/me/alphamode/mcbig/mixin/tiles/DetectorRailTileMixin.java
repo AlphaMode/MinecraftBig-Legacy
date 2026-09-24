@@ -51,29 +51,30 @@ public abstract class DetectorRailTileMixin extends RailTile implements BigRailT
     }
 
     private void checkPressed(Level level, BigInteger x, int y, BigInteger z, int meta) {
-        boolean var6 = (meta & 8) != 0;
-        boolean pressed = false;
-        float r = 0.125F;
-        List<Minecart> var9 = level.getEntitiesOfClass(Minecart.class, AABB.newTemp(x.doubleValue() + r, y, z.doubleValue() + r, x.add(BigInteger.ONE).doubleValue() - r, y + 0.25, z.add(BigInteger.ONE).doubleValue() - r));
-        if (var9.size() > 0) {
-            pressed = true;
+        boolean wasPressed = (meta & 8) != 0;
+        boolean shouldBePressed = false;
+
+        float b = 2 / 16.0f;
+        List<Minecart> entities = level.getEntitiesOfClass(Minecart.class, AABB.newTemp(x.doubleValue() + b, y, z.doubleValue() + b, x.add(BigInteger.ONE).doubleValue() - b, y + 0.25, z.add(BigInteger.ONE).doubleValue() - b));
+        if (entities.size() > 0) {
+            shouldBePressed = true;
         }
 
-        if (pressed && !var6) {
+        if (shouldBePressed && !wasPressed) {
             level.setData(x, y, z, meta | 8);
             level.updateNeighborsAt(x, y, z, this.id);
             level.updateNeighborsAt(x, y - 1, z, this.id);
             level.setTilesDirty(x, y, z, x, y, z);
         }
 
-        if (!pressed && var6) {
+        if (!shouldBePressed && wasPressed) {
             level.setData(x, y, z, meta & 7);
             level.updateNeighborsAt(x, y, z, this.id);
             level.updateNeighborsAt(x, y - 1, z, this.id);
             level.setTilesDirty(x, y, z, x, y, z);
         }
 
-        if (pressed) {
+        if (shouldBePressed) {
             level.addToTickNextTick(x, y, z, this.id, this.getTickDelay());
         }
     }

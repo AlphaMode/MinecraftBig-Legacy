@@ -26,6 +26,10 @@ accessible method net/minecraft/world/level/Level stopWeather ()V
 
 # Interface injection
 
+# Commands
+
+inject-interface net/minecraft/world/entity/player/Player me/alphamode/mcbig/extensions/CommandPlayerExtension
+
 # Common
 inject-interface net/minecraft/network/Connection me/alphamode/mcbig/extensions/networking/BigConnectionExtension
 inject-interface net/minecraft/network/PacketListener me/alphamode/mcbig/extensions/networking/PayloadPacketListenerExtension

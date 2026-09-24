@@ -8,26 +8,25 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.alphamode.mcbig.client.commands.CommandHistory;
 import me.alphamode.mcbig.world.phys.BigAABB;
+import net.fabricmc.loader.api.FabricLoader;
 import org.jetbrains.annotations.Nullable;
 
-public class Commands {
-    public static final CommandDispatcher<CommandSource> DISPATCHER = new CommandDispatcher<>();
+public class Commands<S extends CommandSource> {
+    private final CommandDispatcher<S> dispatcher = new CommandDispatcher<>();
 
-    private final CommandHistory chatHistory;
-
-    public Commands(CommandHistory chatHistory) {
-        this.chatHistory = chatHistory;
+    public Commands() {
+        init(this.dispatcher);
     }
 
-    public CommandHistory chatHistory() {
-        return chatHistory;
+    public CommandDispatcher<S> getDispatcher() {
+        return dispatcher;
     }
 
-    public static LiteralArgumentBuilder<CommandSource> literal(String literal) {
+    public static <S> LiteralArgumentBuilder<S> literal(String literal) {
         return LiteralArgumentBuilder.literal(literal);
     }
 
-    public static <T> RequiredArgumentBuilder<CommandSource, T> argument(final String name, final ArgumentType<T> type) {
+    public static <S extends CommandSource, T> RequiredArgumentBuilder<S, T> argument(final String name, final ArgumentType<T> type) {
         return RequiredArgumentBuilder.argument(name, type);
     }
 
@@ -44,24 +43,26 @@ public class Commands {
         }
     }
 
-    static {
-        HelpCommand.register(DISPATCHER);
-        TeleportCommand.register(DISPATCHER);
-        TeleportConstantCommand.register(DISPATCHER);
-        GiveCommand.register(DISPATCHER);
-        SetBlockCommand.register(DISPATCHER);
-        FlyCommand.register(DISPATCHER);
-        FlySpeedCommand.register(DISPATCHER);
-        TimeCommand.register(DISPATCHER);
-        WeatherCommand.register(DISPATCHER);
-        SetSpawnCommand.register(DISPATCHER);
-        HealthCommand.register(DISPATCHER);
-        SeedCommand.register(DISPATCHER);
-        DimensionCommand.register(DISPATCHER);
-        NoclipCommand.register(DISPATCHER);
-        DISPATCHER.register(literal("debug").executes(context -> {
-            BigAABB.USE_VANILLA = !BigAABB.USE_VANILLA;
-            return 1;
-        }));
+    public void init(CommandDispatcher<S> dispatcher) {
+        HelpCommand.register(dispatcher);
+        TeleportCommand.register(dispatcher);
+        TeleportConstantCommand.register(dispatcher);
+        GiveCommand.register(dispatcher);
+        SetBlockCommand.register(dispatcher);
+        FlyCommand.register(dispatcher);
+        FlySpeedCommand.register(dispatcher);
+        TimeCommand.register(dispatcher);
+        WeatherCommand.register(dispatcher);
+        SetSpawnCommand.register(dispatcher);
+        HealthCommand.register(dispatcher);
+        SeedCommand.register(dispatcher);
+        DimensionCommand.register(dispatcher);
+        NoclipCommand.register(dispatcher);
+        if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
+            dispatcher.register(Commands.<S>literal("debug").executes(context -> {
+                BigAABB.USE_VANILLA = !BigAABB.USE_VANILLA;
+                return 1;
+            }));
+        }
     }
 }

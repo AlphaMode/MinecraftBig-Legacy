@@ -1,5 +1,9 @@
 package me.alphamode.mcbig.networking.payload;
 
+import me.alphamode.mcbig.networking.StreamCodec;
+import me.alphamode.mcbig.networking.StreamDecoder;
+import me.alphamode.mcbig.networking.StreamEncoder;
+import me.alphamode.mcbig.networking.packets.McBigPayloadPacket;
 import net.minecraft.network.PacketListener;
 import net.minecraft.network.packet.Packet;
 import org.jetbrains.annotations.Nullable;
@@ -25,6 +29,10 @@ public interface Payload {
         int BIG_BLOCK_REGION_UPDATE = 9;
         int BIG_TILE_EVENT = 10;
         int BIG_PLAYER_ACTION = 11;
+        int ABILITIES = 12;
+        int FLY_SPEED = 13;
+        int SPAWNER_UPDATE = 14;
+        int COMMANDS = 15;
     }
 
     default boolean shouldDelay() {
@@ -35,13 +43,17 @@ public interface Payload {
 
     boolean handle(PacketListener listener);
 
-    record Type<P extends Payload>(int id, PayloadCodec<P> codec, @Nullable Function<P, Packet> vanillaConverter) {
-        public static <P extends Payload> Type<P> create(int id, PayloadEncoder<P> encoder, PayloadDecoder<P> decoder) {
+    default Packet createPacket() {
+        return new McBigPayloadPacket(this);
+    }
+
+    record Type<P extends Payload>(int id, StreamCodec<P> codec, @Nullable Function<P, Packet> vanillaConverter) {
+        public static <P extends Payload> Type<P> create(int id, StreamEncoder<P> encoder, StreamDecoder<P> decoder) {
             return create(id, encoder, decoder, null);
         }
 
-        public static <P extends Payload> Type<P> create(int id, PayloadEncoder<P> encoder, PayloadDecoder<P> decoder, @Nullable Function<P, Packet> vanillaConverter) {
-            return new Type<>(id, new PayloadCodec<>() {
+        public static <P extends Payload> Type<P> create(int id, StreamEncoder<P> encoder, StreamDecoder<P> decoder, @Nullable Function<P, Packet> vanillaConverter) {
+            return new Type<>(id, new StreamCodec<>() {
                 @Override
                 public void encode(DataOutputStream output, P payload) throws IOException {
                     encoder.encode(output, payload);
@@ -53,15 +65,5 @@ public interface Payload {
                 }
             }, vanillaConverter);
         }
-    }
-
-    interface PayloadCodec<P extends Payload> extends PayloadEncoder<P>, PayloadDecoder<P> {}
-
-    interface PayloadEncoder<P extends Payload> {
-        void encode(DataOutputStream output, P payload) throws IOException;
-    }
-
-    interface PayloadDecoder<P extends Payload> {
-        P decode(DataInputStream input) throws IOException;
     }
 }

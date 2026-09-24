@@ -7,11 +7,11 @@ import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.entity.player.Player;
 
 public class GiveCommand {
-    public static void register(CommandDispatcher<CommandSource> dispatcher) {
+    public static <S extends CommandSource> void register(CommandDispatcher<S> dispatcher) {
         dispatcher.register(
-                Commands.literal("give")
+                Commands.<S>literal("give")
                         .then(
-                                Commands.argument("item", new ItemArgument())
+                                Commands.<S, ItemInstance>argument("item", new ItemArgument())
                                         .executes(context -> {
                                             if (context.getSource().getEntity() instanceof Player player) {
                                                 player.inventory.add(context.getArgument("item", ItemInstance.class));

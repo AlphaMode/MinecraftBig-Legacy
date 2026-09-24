@@ -42,6 +42,12 @@ public abstract class MobMixin extends Entity implements BigEntityExtension, Big
     @Shadow
     public float walkAnimPos;
 
+    @Shadow
+    public float speed;
+
+    @Shadow
+    public float flyingSpeed;
+
     public MobMixin(Level level) {
         super(level);
     }
@@ -119,8 +125,21 @@ public abstract class MobMixin extends Entity implements BigEntityExtension, Big
                 }
             }
 
-            float friction2 = 0.16277136F /*(0.6f * 0.6f * 0.91f * 0.91f * 0.6f * 0.91f)*/ / (friction * friction * friction);
-            moveRelative(xa, ya, this.onGround ? 0.1F * friction2 : 0.02F);
+            float friction2 = (0.6f * 0.6f * 0.91f * 0.91f * 0.6f * 0.91f) / (friction * friction * friction);
+            float speed;
+            if (onGround) {
+                //? >=1.0.0-beta.8.0.r {
+                /*speed = this.speed * friction2;
+                *///? } else
+                speed = 0.1F * friction2;
+            } else {
+                //? >=1.0.0-beta.8.0.r {
+                /*speed = this.flyingSpeed;
+                *///? } else
+                speed = 0.02F;
+            }
+
+            moveRelative(xa, ya, speed);
             friction = 0.91F;
             if (this.onGround) {
                 friction = 0.6f * 0.91f;

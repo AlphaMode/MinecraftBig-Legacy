@@ -19,6 +19,7 @@ public class DebugLevelSource implements McBigChunkSource {
     private static final BigInteger GRID_HEIGHT;
     private final Level level;
 
+    //~ if >=1.0.0-beta.8.0.r ', long seed)' -> ', long seed, boolean generateStructures)'
     public DebugLevelSource(Level level, long seed) {
         this.level = level;
     }

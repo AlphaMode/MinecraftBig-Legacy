@@ -1,6 +1,5 @@
 package me.alphamode.mcbig.mixin.features.big_movement;
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Share;
@@ -175,6 +174,8 @@ public abstract class LocalPlayerMixin extends Player implements CommandPlayerEx
 
     @Override
     public boolean checkInBlock(BigDecimal x, double y, BigDecimal z) {
+        if (canNoclip())
+            return false;
         BigInteger xTile = BigMath.floor(x);
         int yTile = Mth.floor(y);
         BigInteger zTile = BigMath.floor(z);
@@ -227,9 +228,8 @@ public abstract class LocalPlayerMixin extends Player implements CommandPlayerEx
      */
     @Overwrite
     public boolean checkInBlock(double x, double y, double z) {
-        if (canNoclip()) {
+        if (canNoclip())
             return false;
-        }
         BigInteger xTile = BigMath.floor(x);
         int yTile = Mth.floor(y);
         BigInteger zTile = BigMath.floor(z);

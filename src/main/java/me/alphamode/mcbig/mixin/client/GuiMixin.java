@@ -1,6 +1,7 @@
 package me.alphamode.mcbig.mixin.client;
 
 import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
+import me.alphamode.mcbig.math.BigMath;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;

@@ -3,6 +3,9 @@ package me.alphamode.mcbig.mixin.networking.server;
 import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
 import net.minecraft.Pos;
 import net.minecraft.network.packet.GameEventPacket;
+import net.minecraft.network.packet.Packet;
+//? >=1.0.0-beta.8.0.r
+//import net.minecraft.network.packet.PlayerInfoPacket;
 import net.minecraft.network.packet.RespawnPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerList;
@@ -31,6 +34,9 @@ public abstract class PlayerListMixin {
     @Shadow
     public abstract void sendLevelInfo(ServerPlayer player, ServerLevel level);
 
+    //? >=1.0.0-beta.8.0.r
+    //@Shadow public abstract void broadcastAll(Packet packet);
+
     /**
      * @author
      * @reason
@@ -51,12 +57,17 @@ public abstract class PlayerListMixin {
         newPlayer.id = player.id;
         newPlayer.connection = player.connection;
         ServerLevel level = this.server.getLevel(player.dimension);
+        //? >=1.0.0-beta.8.0.r {
+        /*newPlayer.gameMode.setGameModeForPlayer(player.gameMode.getGameModeForPlayer());
+        newPlayer.gameMode.updateGameMode(level.getLevelData().getGameType());
+        *///? }
         if (pos != null) {
             Pos spawnPos = Player.checkBedValidRespawnPosition(this.server.getLevel(player.dimension), pos);
             if (spawnPos != null) {
                 newPlayer.moveTo(spawnPos.x + 0.5F, spawnPos.y + 0.1F, spawnPos.z + 0.5F, 0.0F, 0.0F);
                 newPlayer.setRespawnPosition(pos);
             } else {
+                //~ if >=1.0.0-beta.8.0.r '(0)' -> '(0, 0)'
                 newPlayer.connection.send(new GameEventPacket(0));
             }
         }
@@ -67,6 +78,9 @@ public abstract class PlayerListMixin {
             newPlayer.setPos(newPlayer.x, newPlayer.y + 1.0, newPlayer.z);
         }
 
+        //? >=1.0.0-beta.8.0.r {
+        /*newPlayer.connection.send(new RespawnPacket((byte)newPlayer.dimension, (byte)newPlayer.level.difficulty, newPlayer.level.getSeed(), 128, newPlayer.gameMode.getGameModeForPlayer()));
+        *///? } else
         newPlayer.connection.send(new RespawnPacket((byte) newPlayer.dimension));
         newPlayer.connection.teleport(newPlayerB.getX(), newPlayer.y, newPlayerB.getZ(), newPlayer.yRot, newPlayer.xRot);
         this.sendLevelInfo(newPlayer, level);
@@ -84,6 +98,8 @@ public abstract class PlayerListMixin {
      */
     @Overwrite
     public void addPlayer(ServerPlayer player) {
+        //? >=1.0.0-beta.8.0.r
+        //this.broadcastAll(new PlayerInfoPacket(player.name, true, 1000));
         this.players.add(player);
         BigEntityExtension bigPlayer = (BigEntityExtension) player;
         ServerLevel level = this.server.getLevel(player.dimension);
@@ -95,5 +111,12 @@ public abstract class PlayerListMixin {
 
         level.addEntity(player);
         this.getChunkMap(player.dimension).add(player);
+
+        //? >=1.0.0-beta.8.0.r {
+        /*for (int i = 0; i < this.players.size(); i++) {
+            ServerPlayer p = this.players.get(i);
+            player.connection.send(new PlayerInfoPacket(p.name, true, p.latency));
+        }
+        *///? }
     }
 }

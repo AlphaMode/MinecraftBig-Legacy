@@ -1,6 +1,7 @@
 package me.alphamode.mcbig.networking.packets;
 
 import me.alphamode.mcbig.networking.McBigNetworking;
+import me.alphamode.mcbig.networking.StreamCodec;
 import me.alphamode.mcbig.networking.VarInt;
 import me.alphamode.mcbig.networking.payload.Payload;
 import net.minecraft.network.PacketListener;
@@ -41,7 +42,7 @@ public final class McBigPayloadPacket extends Packet {
     @Override
     public void write(DataOutputStream data) throws IOException {
         VarInt.write(data, this.payload.type().id());
-        ((Payload.PayloadCodec) this.payload.type().codec()).encode(data, this.payload);
+        ((StreamCodec) this.payload.type().codec()).encode(data, this.payload);
     }
 
     @Override

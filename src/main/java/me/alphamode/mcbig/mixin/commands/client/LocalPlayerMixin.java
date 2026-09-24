@@ -1,6 +1,7 @@
 package me.alphamode.mcbig.mixin.commands.client;
 
-import me.alphamode.mcbig.commands.CommandSource;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import me.alphamode.mcbig.client.commands.ClientCommandSource;
 import me.alphamode.mcbig.extensions.features.commands.LocalPlayerExtension;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -14,7 +15,17 @@ public class LocalPlayerMixin implements LocalPlayerExtension {
     protected Minecraft minecraft;
 
     @Override
-    public CommandSource getCommandSource() {
-        return new CommandSource(this.minecraft);
+    public ClientCommandSource getCommandSource() {
+        return new ClientCommandSource(this.minecraft);
+    }
+
+    @Override
+    public void command(String command) {
+        try {
+            this.minecraft.getCommands().getDispatcher().execute(command, this.minecraft.player.getCommandSource());
+        } catch (CommandSyntaxException e) {
+            this.minecraft.gui.addMessage("Failed to execute command: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

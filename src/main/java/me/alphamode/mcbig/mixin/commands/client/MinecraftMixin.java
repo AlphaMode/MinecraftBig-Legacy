@@ -2,7 +2,9 @@ package me.alphamode.mcbig.mixin.commands.client;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import me.alphamode.mcbig.client.commands.ClientCommandSource;
 import me.alphamode.mcbig.client.commands.CommandHistory;
+import me.alphamode.mcbig.commands.Commands;
 import me.alphamode.mcbig.extensions.features.commands.ChatMinecraftExtension;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
@@ -18,6 +20,7 @@ public class MinecraftMixin implements ChatMinecraftExtension {
     public Level level;
 
     private final CommandHistory commandHistory = new CommandHistory(FabricLoader.getInstance().getGameDir());
+    private Commands<ClientCommandSource> commands = new Commands<>();
 
     @WrapOperation(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;isOnline()Z", ordinal = 0))
     private boolean allowSingleplayerChat(Minecraft instance, Operation<Boolean> original) {
@@ -40,5 +43,15 @@ public class MinecraftMixin implements ChatMinecraftExtension {
     @Override
     public CommandHistory commandHistory() {
         return this.commandHistory;
+    }
+
+    @Override
+    public Commands<ClientCommandSource> getCommands() {
+        return this.commands;
+    }
+
+//    @Override
+    public void setDispatcher(Commands<ClientCommandSource> commands) {
+        this.commands = commands;
     }
 }

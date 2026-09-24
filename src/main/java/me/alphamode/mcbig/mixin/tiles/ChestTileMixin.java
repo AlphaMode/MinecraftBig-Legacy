@@ -1,7 +1,10 @@
 package me.alphamode.mcbig.mixin.tiles;
 
+import net.minecraft.util.Facing;
+import net.minecraft.util.Mth;
 import net.minecraft.world.CompoundContainer;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -26,6 +29,121 @@ public abstract class ChestTileMixin extends TileEntityTile {
     protected ChestTileMixin(int i, Material material) {
         super(i, material);
     }
+
+    //? >=1.0.0-beta.8.0.r {
+    /*@Override
+    public void onPlace(Level level, BigInteger x, int y, BigInteger z) {
+        super.onPlace(level, x, y, z);
+        recalcLockDir(level, x, y, z);
+
+        var xmo = x.subtract(BigInteger.ONE);
+        var xpo = x.add(BigInteger.ONE);
+        var zmo = z.subtract(BigInteger.ONE);
+        var zpo = z.add(BigInteger.ONE);
+
+        int n = level.getTile(x, y, zmo); // face = 2
+        int s = level.getTile(x, y, zpo); // face = 3
+        int w = level.getTile(xmo, y, z); // face = 4
+        int e = level.getTile(xpo, y, z); // face = 5
+        if (n == this.id) recalcLockDir(level, x, y, zmo);
+        if (s == this.id) recalcLockDir(level, x, y, zpo);
+        if (w == this.id) recalcLockDir(level, xmo, y, z);
+        if (e == this.id) recalcLockDir(level, xpo, y, z);
+    }
+
+    @Override
+    public void setPlacedBy(Level level, BigInteger x, int y, BigInteger z, Mob entity) {
+        var xmo = x.subtract(BigInteger.ONE);
+        var xpo = x.add(BigInteger.ONE);
+        var zmo = z.subtract(BigInteger.ONE);
+        var zpo = z.add(BigInteger.ONE);
+
+        int n = level.getTile(x, y, zmo); // face = 2
+        int s = level.getTile(x, y, zpo); // face = 3
+        int w = level.getTile(xmo, y, z); // face = 4
+        int e = level.getTile(xpo, y, z); // face = 5
+
+        int facing = 0;
+        int dir = Mth.floor(entity.yRot * 4.0F / 360.0F + 0.5) & 3;
+
+        if (dir == 0) facing = Facing.NORTH;
+        if (dir == 1) facing = Facing.EAST;
+        if (dir == 2) facing = Facing.SOUTH;
+        if (dir == 3) facing = Facing.WEST;
+
+        if (n != this.id && s != this.id && w != this.id && e != this.id) {
+            level.setData(x, y, z, facing);
+        } else {
+            if ((n == this.id || s == this.id) && (facing == 4 || facing == 5)) {
+                if (n == this.id) level.setData(x, y, zmo, facing);
+                else level.setData(x, y, zpo, facing);
+
+                level.setData(x, y, z, facing);
+            }
+
+            if ((w == this.id || e == this.id) && (facing == 2 || facing == 3)) {
+                if (w == this.id) level.setData(xmo, y, z, facing);
+                else level.setData(xpo, y, z, facing);
+                level.setData(x, y, z, facing);
+            }
+        }
+    }
+
+    public void recalcLockDir(Level level, BigInteger x, int y, BigInteger z) {
+        if (level.isClientSide)
+            return;
+
+        var xmo = x.subtract(BigInteger.ONE);
+        var xpo = x.add(BigInteger.ONE);
+        var zmo = z.subtract(BigInteger.ONE);
+        var zpo = z.add(BigInteger.ONE);
+
+        int n = level.getTile(x, y, zmo); // face = 2
+        int s = level.getTile(x, y, zpo); // face = 3
+        int w = level.getTile(xmo, y, z); // face = 4
+        int e = level.getTile(xpo, y, z); // face = 5
+
+        int lockDir = 4;
+        if (n == this.id || s == this.id) {
+            int w2 = level.getTile(xmo, y, n == this.id ? zmo : zpo);
+            int e2 = level.getTile(xpo, y, n == this.id ? zmo : zpo);
+
+            lockDir = 5;
+
+            int otherDir = -1;
+            if (n == this.id) otherDir = level.getData(x, y, zmo);
+            else otherDir = level.getData(x, y, zpo);
+
+            if (otherDir == 4) {
+                lockDir = 4;
+            }
+
+            if ((Tile.solid[w] || Tile.solid[w2]) && !Tile.solid[e] && !Tile.solid[e2]) lockDir = 5;
+            if ((Tile.solid[e] || Tile.solid[e2]) && !Tile.solid[w] && !Tile.solid[w2]) lockDir = 4;
+        } else if (w != this.id && e != this.id) {
+            lockDir = 3;
+            if (Tile.solid[n] && !Tile.solid[s]) lockDir = Facing.SOUTH;
+            if (Tile.solid[s] && !Tile.solid[n]) lockDir = Facing.NORTH;
+            if (Tile.solid[w] && !Tile.solid[e]) lockDir = Facing.EAST;
+            if (Tile.solid[e] && !Tile.solid[w]) lockDir = Facing.WEST;
+        } else {
+            int n2 = level.getTile(w == this.id ? xmo : xpo, y, zmo);
+            int s2 = level.getTile(w == this.id ? xmo : xpo, y, zpo);
+
+            lockDir = 3;
+            int otherDir = -1;
+            if (w == this.id) otherDir = level.getData(xmo, y, z);
+            else otherDir = level.getData(xpo, y, z);
+
+            if (otherDir == 2) lockDir = 2;
+
+            if ((Tile.solid[n] || Tile.solid[n2]) && !Tile.solid[s] && !Tile.solid[s2]) lockDir = 3;
+            if ((Tile.solid[s] || Tile.solid[s2]) && !Tile.solid[n] && !Tile.solid[n2]) lockDir = 2;
+        }
+
+        level.setData(x, y, z, lockDir);
+    }
+    *///? }
 
     @Override
     public int getTexture(LevelSource level, BigInteger x, int y, BigInteger z, int face) {
@@ -144,9 +262,20 @@ public abstract class ChestTileMixin extends TileEntityTile {
         return false;
     }
 
+    //? >=1.0.0-beta.8.0.r {
+    /*@Override
+    public void neighborChanged(Level level, BigInteger x, int y, BigInteger z, int type) {
+        super.neighborChanged(level, x, y, z, type);
+        ChestTileEntity chest = (ChestTileEntity)level.getTileEntity(x, y, z);
+        if (chest != null) chest.clearCache();
+    }
+    *///? }
+
     @Override
     public void onRemove(Level level, BigInteger x, int y, BigInteger z) {
         Container container = (ChestTileEntity) level.getTileEntity(x, y, z);
+        //? >=1.0.0-beta.8.0.r
+        //if (container == null) return;
 
         for (int i = 0; i < container.getContainerSize(); i++) {
             ItemInstance item = container.getItem(i);
@@ -178,6 +307,8 @@ public abstract class ChestTileMixin extends TileEntityTile {
     @Override
     public boolean use(Level level, BigInteger x, int y, BigInteger z, Player player) {
         Container container = (Container) level.getTileEntity(x, y, z);
+        //? >=1.0.0-beta.8.0.r
+        //if (container == null) return true;
 
         if (level.isSolidBlockingTile(x, y + 1, z)) return true;
 

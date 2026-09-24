@@ -25,11 +25,11 @@ public class TeleportConstantCommand {
     public static final BigDecimal MIN_DOUBLE_LIMIT = new BigDecimal(Double.MAX_VALUE);
     public static final BigDecimal MAX_DOUBLE_LIMIT = new BigDecimal(Double.MAX_VALUE);
 
-    public static void register(CommandDispatcher<CommandSource> dispatcher) {
-        var command = Commands.literal("tpconstant")
-                .then(Commands.argument("axis", new AxisArgument())
+    public static <S extends CommandSource> void register(CommandDispatcher<S> dispatcher) {
+        var command = Commands.<S>literal("tpconstant")
+                .then(Commands.<S, Axis>argument("axis", new AxisArgument())
                         .then(
-                                Commands.argument("constant", new EnumArgument<>(TeleportConstants.class, TeleportConstants.values()))
+                                Commands.<S, TeleportConstants>argument("constant", new EnumArgument<>(TeleportConstants.class, TeleportConstants.values()))
                                         .executes(context -> {
                                             return teleport(context.getSource().getEntity(), context.getArgument("axis", Axis.class), context.getArgument("constant", TeleportConstants.class).value());
                                         })

@@ -7,12 +7,15 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
 public class EnumArgument<T extends Enum<T> & EnumArgument.EnumData> implements ArgumentType<T> {
+    private static final Int2ObjectMap<Class<?>> TYPES = new Int2ObjectOpenHashMap<>();
 
     private final Class<T> clazz;
     private final T[] values;

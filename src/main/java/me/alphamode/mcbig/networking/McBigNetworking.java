@@ -45,5 +45,9 @@ public class McBigNetworking {
         registerPayload(BigBlockRegionUpdatePayload.TYPE);
         registerPayload(BigTileEventPayload.TYPE);
         registerPayload(BigPlayerActionPayload.TYPE);
+        registerPayload(AbilitiesPayload.TYPE);
+        registerPayload(FlySpeedPayload.TYPE);
+        registerPayload(SpawnerUpdatePayload.TYPE);
+        registerPayload(CommandsPayload.TYPE);
     }
 }

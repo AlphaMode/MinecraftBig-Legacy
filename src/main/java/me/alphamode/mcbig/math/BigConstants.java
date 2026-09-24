@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.math.MathContext;
 
 public class BigConstants {
+    public static final BigInteger THREE = BigInteger.valueOf(3);
     public static final BigInteger FOUR = BigInteger.valueOf(4);
     public static final BigInteger EIGHT = BigInteger.valueOf(8);
     public static final BigInteger FIFTEEN = BigInteger.valueOf(15);

@@ -64,7 +64,7 @@ public class BlockPosArgument implements ArgumentType<BigCoordinates.BigIntegerC
         return relative;
     }
 
-    public static BigVec3i getBlockPos(final CommandContext<CommandSource> context, final String name) {
+    public static <S extends CommandSource> BigVec3i getBlockPos(final CommandContext<S> context, final String name) {
         return context.getArgument(name, BigCoordinates.class).getBlockPos(context.getSource());
     }
 

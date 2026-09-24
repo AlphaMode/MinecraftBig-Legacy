@@ -4,6 +4,7 @@
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import me.alphamode.mcbig.level.chunk.BigChunkPos;
+import me.alphamode.mcbig.math.BigMath;
 import net.minecraft.server.util.LongHashMap;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
@@ -17,7 +18,6 @@ public class BigBiomeCache {
     public static final int ZONE_SIZE_BITS = 4;
     public static final int ZONE_SIZE = 1 << ZONE_SIZE_BITS;
     public static final int ZONE_SIZE_MASK = ZONE_SIZE - 1;
-    public static final BigInteger BIG_ZONE_SIZE_MASK = BigInteger.valueOf(ZONE_SIZE_MASK);
     private final BiomeSource source;
     private long lastUpdateTime = 0L;
     private final Object2ObjectMap<BigChunkPos, Block> cached = new Object2ObjectOpenHashMap<>();
@@ -28,8 +28,8 @@ public class BigBiomeCache {
     }
 
     private Block getBlockAt(BigInteger x, BigInteger z) {
-        x = x.shiftLeft(ZONE_SIZE_BITS);
-        z = z.shiftLeft(ZONE_SIZE_BITS);
+        x = x.shiftRight(ZONE_SIZE_BITS);
+        z = z.shiftRight(ZONE_SIZE_BITS);
         BigChunkPos slot = new BigChunkPos(x, z);
         Block block = this.cached.get(slot);
         if (block == null) {
@@ -93,15 +93,15 @@ public class BigBiomeCache {
         }
 
         public Biome getBiome(BigInteger x, BigInteger z) {
-            return this.biomes[x.and(BIG_ZONE_SIZE_MASK).intValue() | (z.and(BIG_ZONE_SIZE_MASK).intValue()) << ZONE_SIZE_BITS];
+            return this.biomes[BigMath.fastAnd(x, ZONE_SIZE_MASK) | (BigMath.fastAnd(z, ZONE_SIZE_MASK)) << ZONE_SIZE_BITS];
         }
 
         public float getTemperature(BigInteger x, BigInteger z) {
-            return this.temps[x.and(BIG_ZONE_SIZE_MASK).intValue() | (z.and(BIG_ZONE_SIZE_MASK).intValue()) << ZONE_SIZE_BITS];
+            return this.temps[BigMath.fastAnd(x, ZONE_SIZE_MASK) | (BigMath.fastAnd(z, ZONE_SIZE_MASK)) << ZONE_SIZE_BITS];
         }
 
         public float getDownfall(BigInteger x, BigInteger z) {
-            return this.downfall[x.and(BIG_ZONE_SIZE_MASK).intValue() | (z.and(BIG_ZONE_SIZE_MASK).intValue()) << ZONE_SIZE_BITS];
+            return this.downfall[BigMath.fastAnd(x, ZONE_SIZE_MASK) | (BigMath.fastAnd(z, ZONE_SIZE_MASK)) << ZONE_SIZE_BITS];
         }
     }
 }

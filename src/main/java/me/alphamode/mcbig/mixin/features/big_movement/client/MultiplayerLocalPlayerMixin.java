@@ -1,5 +1,7 @@
 package me.alphamode.mcbig.mixin.features.big_movement.client;
 
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import dev.kikugie.fletching_table.mixin.MixinEnvironment;
 import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
 import me.alphamode.mcbig.math.BigMath;
@@ -50,6 +52,9 @@ public abstract class MultiplayerLocalPlayerMixin extends LocalPlayer implements
     @Shadow
     private double yLast2;
 
+    @Shadow
+    public abstract void sendPosition();
+
     private BigDecimal xLastBig = BigDecimal.ZERO;
     private BigDecimal zLastBig = BigDecimal.ZERO;
 
@@ -69,51 +74,53 @@ public abstract class MultiplayerLocalPlayerMixin extends LocalPlayer implements
         }
     }
 
-    /**
-     * @author
-     * @reason
-     */
-    @Overwrite
-    public void sendPosition() {
+    @WrapMethod(method = "sendPosition")
+    public void sendBigPosition(Operation<Void> original) {
+        if (!isBigMovementEnabled()) {
+            original.call();
+            return;
+        }
         if (this.lastInventorySendTime++ == 20) {
             this.ensureHasSentInventory();
             this.lastInventorySendTime = 0;
         }
 
-        boolean var1 = this.isSneaking();
-        if (var1 != this.lastSneaked) {
-            if (var1) {
+        boolean sneaking = this.isSneaking();
+        if (sneaking != this.lastSneaked) {
+            if (sneaking) {
                 this.connection.send(new PlayerCommandPacket(this, 1));
             } else {
                 this.connection.send(new PlayerCommandPacket(this, 2));
             }
 
-            this.lastSneaked = var1;
+            this.lastSneaked = sneaking;
         }
 
-        double var2 = BigMath.subD(this.getX(), this.xLastBig).doubleValue();
-        double var4 = this.bb.y0 - this.yLast1;
-        double var6 = this.y - this.yLast2;
-        double var8 = BigMath.subD(this.getZ(), this.zLastBig).doubleValue();
-        double var10 = this.yRot - this.yRotLast;
-        double var12 = this.xRot - this.xRotLast;
-        boolean var14 = var4 != 0.0 || var6 != 0.0 || var2 != 0.0 || var8 != 0.0;
-        boolean var15 = var10 != 0.0 || var12 != 0.0;
+        double xdd = BigMath.subD(this.getX(), this.xLastBig).doubleValue();
+        double ydd1 = getBigBB().y0() - this.yLast1;
+        double ydd2 = this.y - this.yLast2;
+        double zdd = BigMath.subD(this.getZ(), this.zLastBig).doubleValue();
+
+        double rydd = this.yRot - this.yRotLast;
+        double rxdd = this.xRot - this.xRotLast;
+
+        boolean move = ydd1 != 0.0 || ydd2 != 0.0 || xdd != 0.0 || zdd != 0.0;
+        boolean rot = rydd != 0.0 || rxdd != 0.0;
         if (this.riding != null) {
-            if (var15) {
+            if (rot) {
                 this.connection.sendPayload(new BigMovePlayerPayload.Pos(BigMath.decimal(this.xd), -999.0, -999.0, BigMath.decimal(this.zd), this.onGround));
             } else {
                 this.connection.sendPayload(new BigMovePlayerPayload.PosRot(BigMath.decimal(this.xd), -999.0, -999.0, BigMath.decimal(this.zd), this.yRot, this.xRot, this.onGround));
             }
 
-            var14 = false;
-        } else if (var14 && var15) {
-            this.connection.sendPayload(new BigMovePlayerPayload.PosRot(this.getX(), this.bb.y0, this.y, this.getZ(), this.yRot, this.xRot, this.onGround));
+            move = false;
+        } else if (move && rot) {
+            this.connection.sendPayload(new BigMovePlayerPayload.PosRot(this.getX(), getBigBB().y0(), this.y, this.getZ(), this.yRot, this.xRot, this.onGround));
             this.noSendTime = 0;
-        } else if (var14) {
-            this.connection.sendPayload(new BigMovePlayerPayload.Pos(this.getX(), this.bb.y0, this.y, this.getZ(), this.onGround));
+        } else if (move) {
+            this.connection.sendPayload(new BigMovePlayerPayload.Pos(this.getX(), getBigBB().y0(), this.y, this.getZ(), this.onGround));
             this.noSendTime = 0;
-        } else if (var15) {
+        } else if (rot) {
             this.connection.sendPayload(new BigMovePlayerPayload.Rot(this.yRot, this.xRot, this.onGround));
             this.noSendTime = 0;
         } else {
@@ -126,14 +133,14 @@ public abstract class MultiplayerLocalPlayerMixin extends LocalPlayer implements
         }
 
         this.lastOnGround = this.onGround;
-        if (var14) {
+        if (move) {
             this.xLastBig = this.getX();
-            this.yLast1 = this.bb.y0;
+            this.yLast1 = getBigBB().y0();
             this.yLast2 = this.y;
             this.zLastBig = this.getZ();
         }
 
-        if (var15) {
+        if (rot) {
             this.yRotLast = this.yRot;
             this.xRotLast = this.xRot;
         }

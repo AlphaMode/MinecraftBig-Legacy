@@ -146,7 +146,7 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension {
         this.zChunks = dist / 16 + 1;
         this.chunks = new BigChunk[this.xChunks * this.yChunks * this.zChunks];
         this.sortedChunks = new BigChunk[this.xChunks * this.yChunks * this.zChunks];
-        int var2 = 0;
+        int id = 0;
         int var3 = 0;
         this.xMinChunk = 0;
         this.yMinChunk = 0;
@@ -162,33 +162,33 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension {
         this.dirtyChunks.clear();
         this.renderableTileEntities.clear();
 
-        for(int var8 = 0; var8 < this.xChunks; ++var8) {
-            for(int var5 = 0; var5 < this.yChunks; ++var5) {
-                for(int var6 = 0; var6 < this.zChunks; ++var6) {
-                    this.chunks[(var6 * this.yChunks + var5) * this.xChunks + var8] = new BigChunk(
-                            this.level, this.renderableTileEntities, var8 * 16, var5 * 16, var6 * 16, 16, this.chunkLists + var2
+        for(int x = 0; x < this.xChunks; ++x) {
+            for(int y = 0; y < this.yChunks; ++y) {
+                for(int c = 0; c < this.zChunks; ++c) {
+                    this.chunks[(c * this.yChunks + y) * this.xChunks + x] = new BigChunk(
+                            this.level, this.renderableTileEntities, x * 16, y * 16, c * 16, 16, this.chunkLists + id
                     );
                     if (this.occlusionCheck) {
-                        this.chunks[(var6 * this.yChunks + var5) * this.xChunks + var8].occlusion_id = this.occlusionCheckIds.get(var3);
+                        this.chunks[(c * this.yChunks + y) * this.xChunks + x].occlusion_id = this.occlusionCheckIds.get(var3);
                     }
 
-                    this.chunks[(var6 * this.yChunks + var5) * this.xChunks + var8].occlusion_querying = false;
-                    this.chunks[(var6 * this.yChunks + var5) * this.xChunks + var8].occlusion_visible = true;
-                    this.chunks[(var6 * this.yChunks + var5) * this.xChunks + var8].visible = true;
-                    this.chunks[(var6 * this.yChunks + var5) * this.xChunks + var8].id = var3++;
-                    this.chunks[(var6 * this.yChunks + var5) * this.xChunks + var8].setDirty();
-                    this.sortedChunks[(var6 * this.yChunks + var5) * this.xChunks + var8] = this.chunks[(var6 * this.yChunks + var5) * this.xChunks + var8];
-                    this.dirtyChunks.add(this.chunks[(var6 * this.yChunks + var5) * this.xChunks + var8]);
-                    var2 += 3;
+                    this.chunks[(c * this.yChunks + y) * this.xChunks + x].occlusion_querying = false;
+                    this.chunks[(c * this.yChunks + y) * this.xChunks + x].occlusion_visible = true;
+                    this.chunks[(c * this.yChunks + y) * this.xChunks + x].visible = true;
+                    this.chunks[(c * this.yChunks + y) * this.xChunks + x].id = var3++;
+                    this.chunks[(c * this.yChunks + y) * this.xChunks + x].setDirty();
+                    this.sortedChunks[(c * this.yChunks + y) * this.xChunks + x] = this.chunks[(c * this.yChunks + y) * this.xChunks + x];
+                    this.dirtyChunks.add(this.chunks[(c * this.yChunks + y) * this.xChunks + x]);
+                    id += 3;
                 }
             }
         }
 
         if (this.level != null) {
-            Mob var9 = this.mc.cameraEntity;
-            if (var9 != null) {
-                this.resortChunks(BigMath.floor(var9.x), Mth.floor(var9.y), BigMath.floor(var9.z));
-                Arrays.sort((BigChunk[]) this.sortedChunks, new BigDistanceChunkSorter(var9));
+            Mob player = this.mc.cameraEntity;
+            if (player != null) {
+                this.resortChunks(BigMath.floor(player.x), Mth.floor(player.y), BigMath.floor(player.z));
+                Arrays.sort((BigChunk[]) this.sortedChunks, new BigDistanceChunkSorter(player));
             }
         }
 

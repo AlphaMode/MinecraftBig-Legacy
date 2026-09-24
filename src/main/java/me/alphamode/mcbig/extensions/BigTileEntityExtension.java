@@ -1,5 +1,6 @@
 package me.alphamode.mcbig.extensions;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 public interface BigTileEntityExtension {
@@ -16,6 +17,10 @@ public interface BigTileEntityExtension {
     }
 
     default void setZ(BigInteger z) {
+        throw new UnsupportedOperationException();
+    }
+
+    default double distanceSqrt(BigDecimal x, double y, BigDecimal z) {
         throw new UnsupportedOperationException();
     }
 }

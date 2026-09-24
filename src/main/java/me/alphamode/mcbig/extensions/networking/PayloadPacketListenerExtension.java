@@ -42,4 +42,20 @@ public interface PayloadPacketListenerExtension {
     default boolean handleBigPlayerAction(BigPlayerActionPayload payload) {
         return false;
     }
+
+    default boolean handleAbilities(AbilitiesPayload payload) {
+        return false;
+    }
+
+    default boolean handleSetFlySpeed(FlySpeedPayload payload) {
+        return false;
+    }
+
+    default boolean handleSpawnerUpdate(SpawnerUpdatePayload payload) {
+        return false;
+    }
+
+    default boolean handleCommands(CommandsPayload payload) {
+        return false;
+    }
 }

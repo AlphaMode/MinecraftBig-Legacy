@@ -6,13 +6,13 @@ import com.mojang.brigadier.arguments.FloatArgumentType;
 import me.alphamode.mcbig.extensions.CommandPlayerExtension;
 
 public class FlySpeedCommand {
-    public static void register(CommandDispatcher<CommandSource> dispatcher) {
+    public static <S extends CommandSource> void register(CommandDispatcher<S> dispatcher) {
         dispatcher.register(
-                Commands.literal("flyspeed")
+                Commands.<S>literal("flyspeed")
                         .then(
-                                Commands.literal("set")
+                                Commands.<S>literal("set")
                                         .then(
-                                                Commands.argument("speed", FloatArgumentType.floatArg())
+                                                Commands.<S, Float>argument("speed", FloatArgumentType.floatArg())
                                                         .executes(context -> {
                                                             if (context.getSource().getEntity() instanceof CommandPlayerExtension player) {
                                                                 player.setFlySpeed(FloatArgumentType.getFloat(context, "speed"));
@@ -22,7 +22,7 @@ public class FlySpeedCommand {
                                         )
                         )
                         .then(
-                                Commands.literal("get")
+                                Commands.<S>literal("get")
                                         .executes(context -> {
                                             if (context.getSource().getEntity() instanceof CommandPlayerExtension player) {
                                                 context.getSource().sendMessage("Fly speed: " + player.getFlySpeed());

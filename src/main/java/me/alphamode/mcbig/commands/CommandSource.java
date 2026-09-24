@@ -1,32 +1,18 @@
 package me.alphamode.mcbig.commands;
 
-import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
-import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 
 import java.math.BigDecimal;
 
-public class CommandSource {
+public interface CommandSource {
 
-    private final Minecraft mc;
+    String getName();
 
-    public CommandSource(Minecraft minecraft) {
-        this.mc = minecraft;
-    }
+    void sendMessage(String message);
 
-    public void sendMessage(String message) {
-        this.mc.gui.addMessage(message);
-    }
+    Entity getEntity();
 
-    public Entity getEntity() {
-        return this.mc.player;
-    }
+    BigDecimal getX();
 
-    public BigDecimal getX() {
-        return ((BigEntityExtension) getEntity()).getX();
-    }
-
-    public BigDecimal getZ() {
-        return ((BigEntityExtension) getEntity()).getZ();
-    }
+    BigDecimal getZ();
 }

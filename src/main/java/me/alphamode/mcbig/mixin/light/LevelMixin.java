@@ -1,9 +1,10 @@
 package me.alphamode.mcbig.mixin.light;
 
+import me.alphamode.mcbig.constants.LevelConstants;
 import me.alphamode.mcbig.extensions.BigLevelExtension;
 import me.alphamode.mcbig.extensions.BigLevelSourceExtension;
 //? <1.0.0-beta.8.0.r
-import me.alphamode.mcbig.level.light.BigLightUpdate;
+import me.alphamode.mcbig.level.BigLightUpdate;
 import me.alphamode.mcbig.math.BigConstants;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelListener;
@@ -298,6 +299,10 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
     private int maxRecurse;
     private List<BigLightUpdate> lightUpdatesBig = new ArrayList<>();
 
+    /**
+     * @author
+     * @reason
+     */
     @Overwrite
     public boolean updateLights() {
         if (this.maxRecurse >= 50) {

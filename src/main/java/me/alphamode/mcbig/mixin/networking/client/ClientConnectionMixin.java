@@ -2,6 +2,9 @@ package me.alphamode.mcbig.mixin.networking.client;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.mojang.brigadier.CommandDispatcher;
+import me.alphamode.mcbig.commands.Commands;
+import me.alphamode.mcbig.extensions.CommandPlayerExtension;
 import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
 import me.alphamode.mcbig.extensions.networking.PayloadPacketListenerExtension;
 import me.alphamode.mcbig.math.BigConstants;
@@ -18,6 +21,8 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.PacketListener;
 import net.minecraft.network.packet.*;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.tile.entity.MobSpawnerTileEntity;
+import net.minecraft.world.level.tile.entity.TileEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -176,6 +181,39 @@ public abstract class ClientConnectionMixin extends PacketListener implements Pa
     @Override
     public boolean handleBigTileEvent(BigTileEventPayload payload) {
         this.minecraft.level.tileEvent(payload.x(), payload.y(), payload.z(), payload.b0(), payload.b1());
+        return true;
+    }
+
+    @Override
+    public boolean handleAbilities(AbilitiesPayload payload) {
+        CommandPlayerExtension plr = this.minecraft.player;
+        plr.setCanFly(payload.canFly());
+        plr.setNoclip(payload.canNoclip());
+        return true;
+    }
+
+    @Override
+    public boolean handleSetFlySpeed(FlySpeedPayload payload) {
+        CommandPlayerExtension plr = this.minecraft.player;
+        plr.setFlySpeed(payload.speed());
+        return true;
+    }
+
+    @Override
+    public boolean handleSpawnerUpdate(SpawnerUpdatePayload payload) {
+        if (this.minecraft.level.hasChunkAt(payload.x(), payload.y(), payload.z())) {
+            TileEntity te = this.minecraft.level.getTileEntity(payload.x(), payload.y(), payload.z());
+            if (te instanceof MobSpawnerTileEntity spawner) {
+                spawner.setEntityId(payload.entityId());
+                spawner.setChanged();
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean handleCommands(CommandsPayload payload) {
+//        this.minecraft.setDispatcher(new CommandDispatcher<>(payload.rootNode()));
         return true;
     }
 }

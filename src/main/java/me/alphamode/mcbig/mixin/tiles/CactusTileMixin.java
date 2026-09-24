@@ -100,6 +100,7 @@ public abstract class CactusTileMixin extends Tile implements BigTileExtension {
 
     @Override
     public void entityInside(Level level, BigInteger x, int y, BigInteger z, Entity entity) {
+        //~ if >=1.0.0-beta.8.0.r 'null' -> 'net.minecraft.world.damagesource.DamageSource.cactus'
         entity.hurt(null, 1);
     }
 }

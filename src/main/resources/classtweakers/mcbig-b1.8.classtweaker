@@ -26,6 +26,10 @@ accessible method net/minecraft/world/level/Level stopWeather ()V
 
 # Interface injection
 
+# Commands
+
+inject-interface net/minecraft/world/entity/player/Player me/alphamode/mcbig/extensions/CommandPlayerExtension
+
 # Common
 inject-interface net/minecraft/network/Connection me/alphamode/mcbig/extensions/networking/BigConnectionExtension
 inject-interface net/minecraft/network/PacketListener me/alphamode/mcbig/extensions/networking/PayloadPacketListenerExtension
@@ -54,6 +58,7 @@ inject-interface net/minecraft/world/level/tile/FireTile me/alphamode/mcbig/exte
 inject-interface net/minecraft/world/level/tile/Sapling me/alphamode/mcbig/extensions/tiles/BigSaplingTileExtension
 inject-interface net/minecraft/world/level/tile/CropTile me/alphamode/mcbig/extensions/tiles/BigCropTileExtension
 inject-interface net/minecraft/world/level/tile/RecordPlayerTile me/alphamode/mcbig/extensions/tiles/BigRecordPlayerTileExtension
+inject-interface net/minecraft/world/level/tile/FenceTile me/alphamode/mcbig/extensions/tiles/BigFenceTileExtension
 
 # Items
 inject-interface net/minecraft/world/item/Item me/alphamode/mcbig/extensions/items/BigItemExtension
