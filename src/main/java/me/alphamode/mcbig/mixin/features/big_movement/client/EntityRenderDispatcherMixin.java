@@ -14,6 +14,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.tile.Tile;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -126,8 +127,16 @@ public abstract class EntityRenderDispatcherMixin implements BigEntityRenderDisp
             BigDecimal z = e.getZOld().add((e.getZ().subtract(e.getZOld())).multiply(ab));
             double y = entity.yOld + (entity.y - entity.yOld) * a;
             float r = entity.yRotO + (entity.yRot - entity.yRotO) * a;
+            //? >=1.0.0-beta.8.0.r {
+            /*int col = entity.getLightColor(a);
+            int u = col % 65536;
+            int v = col / 65536;
+            GL13.glMultiTexCoord2f(33985, u / 1.0F, v / 1.0F);
+            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+            *///? } else {
             float br = entity.getBrightness(a);
             GL11.glColor3f(br, br, br);
+            //? }
             this.render(entity, x.subtract(EntityRenderDispatcherData.xOff).doubleValue(), y - yOff, z.subtract(EntityRenderDispatcherData.zOff).doubleValue(), r, a);
             return;
         }
@@ -135,8 +144,16 @@ public abstract class EntityRenderDispatcherMixin implements BigEntityRenderDisp
         double y = entity.yOld + (entity.y - entity.yOld) * a;
         double z = entity.zOld + (entity.z - entity.zOld) * a;
         float r = entity.yRotO + (entity.yRot - entity.yRotO) * a;
+        //? >=1.0.0-beta.8.0.r {
+        /*int col = entity.getLightColor(a);
+        int u = col % 65536;
+        int v = col / 65536;
+        GL13.glMultiTexCoord2f(33985, u / 1.0F, v / 1.0F);
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        *///? } else {
         float br = entity.getBrightness(a);
         GL11.glColor3f(br, br, br);
+        //? }
         this.render(entity, x - EntityRenderDispatcherData.xOff.doubleValue(), y - yOff, z - EntityRenderDispatcherData.zOff.doubleValue(), r, a);
     }
 
