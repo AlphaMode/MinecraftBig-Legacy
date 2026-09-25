@@ -250,7 +250,7 @@ public abstract class BiomeSourceMixin implements BigBiomeSourceExtension {
             System.arraycopy(tmp, 0, biomes, 0, w * h);
             return biomes;
         } else {
-            int[] result = this.zoomedLayer.getArea(x.intValue(), z.intValue(), w, h);
+            int[] result = this.zoomedLayer.getArea(x, z, w, h);
 
             for (int i = 0; i < w * h; i++) {
                 biomes[i] = Biome.biomes[result[i]];
