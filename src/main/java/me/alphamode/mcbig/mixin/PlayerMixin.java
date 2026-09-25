@@ -8,9 +8,9 @@ import me.alphamode.mcbig.extensions.BigPlayerExtension;
 import me.alphamode.mcbig.extensions.CommandPlayerExtension;
 import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
 //? >=1.0.0-beta.8.0.r
-//import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.player.Abilities;
+//import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;

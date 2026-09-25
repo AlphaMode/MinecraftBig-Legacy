@@ -42,11 +42,10 @@ public abstract class MobMixin extends Entity implements BigEntityExtension, Big
     @Shadow
     public float walkAnimPos;
 
-    @Shadow
-    public float speed;
-
-    @Shadow
-    public float flyingSpeed;
+    //? >=1.0.0-beta.8.0.r {
+    /*@Shadow public float speed;
+    @Shadow public float flyingSpeed;
+    *///? }
 
     public MobMixin(Level level) {
         super(level);

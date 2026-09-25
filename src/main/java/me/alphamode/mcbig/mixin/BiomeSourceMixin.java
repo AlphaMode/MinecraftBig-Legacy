@@ -6,12 +6,12 @@ import me.alphamode.mcbig.level.chunk.BigChunkPos;
 import me.alphamode.mcbig.math.BigConstants;
 import me.alphamode.mcbig.math.BigMath;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.BiomeCache;
 import net.minecraft.world.level.biome.BiomeSource;
 //? <1.0.0-beta.8.0.r {
 import net.minecraft.world.level.levelgen.synth.PerlinSimplexNoise;
 //?} else {
 /*import net.minecraft.util.IntCache;
+import net.minecraft.world.level.biome.BiomeCache;
 import net.minecraft.world.level.newbiome.layer.Layer;
 import me.alphamode.mcbig.world.level.biome.BigBiomeCache;
 *///?}
