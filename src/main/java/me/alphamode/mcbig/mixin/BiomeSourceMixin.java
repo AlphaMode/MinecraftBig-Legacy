@@ -60,9 +60,6 @@ public abstract class BiomeSourceMixin implements BigBiomeSourceExtension {
     public double[] downfalls;
     //? }
 
-    @Shadow
-    public abstract Biome[] getBiomeBlock(Biome[] par1, int par2, int par3, int par4, int par5, boolean par6);
-
     @Override
     public Biome getBiome(BigChunkPos pos) {
         return getBiome(pos.x().shiftRight(4), pos.z().shiftRight(4));

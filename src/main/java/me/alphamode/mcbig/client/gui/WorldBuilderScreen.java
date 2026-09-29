@@ -10,7 +10,10 @@ import net.minecraft.client.gui.Screen;
 import net.minecraft.client.gui.Button;
 import net.minecraft.client.gui.EditBox;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.chunk.ChunkSource;
+import net.minecraft.world.level.dimension.Dimension;
 import net.minecraft.world.level.levelgen.RandomLevelSource;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -29,6 +32,7 @@ public class WorldBuilderScreen extends Screen {
     private WorldPreviewComponent preview;
 
     private final WorldType type;
+    private int dimension = 0;
 
     public WorldBuilderScreen(WorldType type) {
         this.type = type;
@@ -42,8 +46,9 @@ public class WorldBuilderScreen extends Screen {
         this.regionSize = new McBigEditBox(this, this.font, this.width / 2 - 100, 35, 70, 20, "", "Region Size");
         this.chunkX = new McBigEditBox(this, this.font, this.width / 2 - 100 + 65 + 10, 35, 60, 20, "", "X");
         this.chunkZ = new McBigEditBox(this, this.font, this.width / 2 - 100 + 65 + 5 + 65 + 5, 35, 60, 20, "", "Z");
-        this.buttons.add(new Button(0, this.width / 2 - 100, 95, "Generate"));
-        this.buttons.add(new WorldTypeButton(1, this.width / 2 - 100, 65, 200, 20, this.type));
+        this.buttons.add(new Button(0, this.width / 2 - 100, 125, "Generate"));
+        this.buttons.add(new WorldTypeButton(1, this.width / 2 - 100, 95, 200, 20, this.type));
+        this.buttons.add(new Button(2, this.width / 2 - 100, 65, "Dimension: Overworld"));
     }
 
     @Override
@@ -94,22 +99,55 @@ public class WorldBuilderScreen extends Screen {
                     }
                 }
 
+                Level level = new PreviewLevel(seed);
+
+
+                Dimension dim = Dimension.getNew(this.dimension);
+                dim.setLevel(level);
+                BiomeSource biomeSource = dim.biomeSource;
+
                 ChunkSource chunkSource;
-                if (WorldType.SELECTED == WorldType.VANILLA) {
-                    //? >=1.0.0-beta.8.0.r {
-                    /*chunkSource = new RandomLevelSource(new PreviewLevel(seed), seed, false);
-                    *///? } else {
-                    chunkSource = new RandomLevelSource(new PreviewLevel(seed), seed);
-                    //? }
+                if (this.dimension == 0) {
+                    if (WorldType.SELECTED == WorldType.VANILLA) {
+                        //? >=1.0.0-beta.8.0.r {
+                        /*chunkSource = new RandomLevelSource(level, seed, false);
+                         *///? } else {
+                        chunkSource = new RandomLevelSource(level, seed);
+                        //? }
+                    } else {
+                        //~ if >=1.0.0-beta.8.0.r 'level, seed' -> 'level, seed, false)'
+                        chunkSource = WorldType.SELECTED.getFactory().create(level, seed);
+                    }
                 } else {
-                    //~ if >=1.0.0-beta.8.0.r ' seed)' -> ' seed, false)'
-                    chunkSource = WorldType.SELECTED.getFactory().create(new PreviewLevel(seed), seed);
+                    chunkSource = dim.createRandomLevelSource();
                 }
-                preview = new WorldPreviewComponent(this, (Minecraft) FabricLoader.getInstance().getGameInstance(), chunkSource, regionSize, chunkX, chunkZ);
+
+                preview = new WorldPreviewComponent(this, (Minecraft) FabricLoader.getInstance().getGameInstance(), chunkSource, biomeSource, regionSize, chunkX, chunkZ);
             }
 
             if (button.id == 1 && button instanceof WorldTypeButton worldTypeButton) {
                 worldTypeButton.clicked();
+            }
+
+            if (button.id == 2) {
+                Button worldTypeButton = this.buttons.get(1);
+                this.dimension = switch (dimension) {
+                    case 0 -> {
+                        button.message = "Dimension: 1 (Sky)";
+                        worldTypeButton.active = false;
+                        yield 1;
+                    }
+                    case 1 -> {
+                        button.message = "Dimension: -1 (Hell)";
+                        yield -1;
+                    }
+                    case -1 -> {
+                        button.message = "Dimension: 0 (Overworld)";
+                        worldTypeButton.active = true;
+                        yield 0;
+                    }
+                    default -> throw new IllegalStateException("Unexpected value: " + dimension);
+                };
             }
         }
     }

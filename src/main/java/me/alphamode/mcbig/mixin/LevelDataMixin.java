@@ -42,7 +42,7 @@ public class LevelDataMixin implements BigLevelDataExtension {
         }
     }
 
-    @Inject(method = "<init>*", at = @At("TAIL"))
+    @Inject(method = {"<init>(JLjava/lang/String;)V", "<init>(Lnet/minecraft/world/level/LevelSettings;Ljava/lang/String;)V"}, at = @At("TAIL"))
     private void addWorldType(CallbackInfo ci) {
         this.worldType = WorldType.SELECTED;
         // Reset selected back to vanilla

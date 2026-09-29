@@ -1,6 +1,5 @@
 package me.alphamode.mcbig.client.gui;
 
-import me.alphamode.mcbig.math.BigConstants;
 import me.alphamode.mcbig.math.BigMath;
 import net.minecraft.client.MemoryTracker;
 import net.minecraft.client.Minecraft;
@@ -9,6 +8,7 @@ import net.minecraft.client.gui.Screen;
 import net.minecraft.client.renderer.OffsettedRenderList;
 import net.minecraft.client.renderer.Tesselator;
 import net.minecraft.client.renderer.TileRenderer;
+import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.tile.Tile;
 import org.lwjgl.BufferUtils;
@@ -35,11 +35,11 @@ public class WorldPreviewComponent extends GuiComponent {
 
     private boolean built = false;
 
-    public WorldPreviewComponent(Screen parent, Minecraft mc, ChunkSource source, int size, BigInteger xOff, BigInteger zOff) {
+    public WorldPreviewComponent(Screen parent, Minecraft mc, ChunkSource source, BiomeSource biomeSource, int size, BigInteger xOff, BigInteger zOff) {
         this.size = size;
         this.mc = mc;
         this.parent = parent;
-        this.region = new PreviewRegion(source, size);
+        this.region = new PreviewRegion(source, biomeSource, size);
         this.xOff = xOff;
         this.zOff = zOff;
         this.lists = MemoryTracker.genLists(3);
@@ -183,7 +183,6 @@ public class WorldPreviewComponent extends GuiComponent {
             lastMouseX = xm;
             lastMouseY = ym;
 
-            // Reduce sensitivity a lot — quaternion updates are easy to overdo
             float sensitivity = 0.005F;
 
             Quaternion yawDelta = fromAxisAngle(0.0F, -1.0F, 0.0F, dx * sensitivity);

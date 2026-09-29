@@ -20,7 +20,7 @@ public class PreviewRegion implements LevelSource {
     private final LevelChunk[] chunks;
     private final BiomeSource biomeSource;
 
-    public PreviewRegion(ChunkSource source, int size) {
+    public PreviewRegion(ChunkSource source, BiomeSource biomeSource, int size) {
         this.size = size;
         this.chunks = new BigLevelChunk[size * size];
 
@@ -31,7 +31,7 @@ public class PreviewRegion implements LevelSource {
             }
         }
 
-        this.biomeSource = new FixedBiomeSource(Biome.plains, 1, 1);
+        this.biomeSource = biomeSource;
     }
 
     @Override
