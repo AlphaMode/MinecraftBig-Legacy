@@ -2,6 +2,7 @@ package me.alphamode.mcbig.mixin.features.big_movement;
 
 import me.alphamode.mcbig.client.renderer.BigChunk;
 import me.alphamode.mcbig.client.renderer.BigDistanceChunkSorter;
+import me.alphamode.mcbig.client.renderer.CubicBigChunk;
 import me.alphamode.mcbig.client.renderer.entity.EntityRenderDispatcherData;
 import me.alphamode.mcbig.extensions.BigLevelListenerExtension;
 import me.alphamode.mcbig.extensions.features.big_movement.BigCullerExtension;
@@ -34,6 +35,9 @@ import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -129,6 +133,13 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
     BigDecimal xOldBig = BigDecimal.valueOf(-9999.0);
     BigDecimal zOldBig = BigDecimal.valueOf(-9999.0);
 
+    @Inject(method = "<init>", at = @At("TAIL"))
+    private void recreateRenderList(Minecraft textures, Textures par2, CallbackInfo ci) {
+        renderLists = new OffsettedRenderList[]{
+                new OffsettedRenderList(), new OffsettedRenderList(), new OffsettedRenderList(), new OffsettedRenderList(), new OffsettedRenderList(), new OffsettedRenderList()
+        };
+    }
+
     /**
      * @author
      * @reason
@@ -173,10 +184,10 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
             }
 
             this.xChunks = dist / 16 + 1;
-            this.yChunks = 128 / 16;
+            this.yChunks = dist / 16 + 1;
             this.zChunks = dist / 16 + 1;
-            this.chunks = new BigChunk[this.xChunks * this.yChunks * this.zChunks];
-            this.sortedChunks = new BigChunk[this.xChunks * this.yChunks * this.zChunks];
+            this.chunks = new CubicBigChunk[this.xChunks * this.yChunks * this.zChunks];
+            this.sortedChunks = new CubicBigChunk[this.xChunks * this.yChunks * this.zChunks];
             int id = 0;
             int count = 0;
             this.xMinChunk = 0;
@@ -196,7 +207,7 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
             for (int x = 0; x < this.xChunks; ++x) {
                 for (int y = 0; y < this.yChunks; ++y) {
                     for (int z = 0; z < this.zChunks; ++z) {
-                        this.chunks[(z * this.yChunks + y) * this.xChunks + x] = new BigChunk(
+                        this.chunks[(z * this.yChunks + y) * this.xChunks + x] = new CubicBigChunk(
                                 this.level, this.renderableTileEntities, x * 16, y * 16, z * 16, 16, this.chunkLists + id
                         );
                         if (this.occlusionCheck) {
@@ -218,8 +229,8 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
             if (this.level != null) {
                 Mob camera = this.mc.cameraEntity;
                 if (camera != null) {
-                    this.resortChunks(BigMath.floor(((BigEntityExtension) camera).getX()), Mth.floor(camera.y), BigMath.floor(((BigEntityExtension) camera).getZ()));
-                    Arrays.sort((BigChunk[]) this.sortedChunks, new BigDistanceChunkSorter(camera));
+                    this.resortChunks(BigMath.floor(((BigEntityExtension) camera).getX()), BigMath.floor(camera.y), BigMath.floor(((BigEntityExtension) camera).getZ()));
+                    Arrays.sort((CubicBigChunk[]) this.sortedChunks, new BigDistanceChunkSorter(camera));
                 }
             }
 
@@ -266,8 +277,8 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
             this.xOldBig = bigCamera.getX();
             this.yOld = camera.y;
             this.zOldBig = bigCamera.getZ();
-            this.resortChunks(BigMath.floor(bigCamera.getX()), Mth.floor(camera.y), BigMath.floor(bigCamera.getZ()));
-            Arrays.sort((BigChunk[]) this.sortedChunks, new BigDistanceChunkSorter(camera));
+            this.resortChunks(BigMath.floor(bigCamera.getX()), BigMath.floor(camera.y), BigMath.floor(bigCamera.getZ()));
+            Arrays.sort((CubicBigChunk[]) this.sortedChunks, new BigDistanceChunkSorter(camera));
         }
 
         Lighting.turnOff();
@@ -314,7 +325,7 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
                             float dist = Mth.sqrt(this.sortedChunks[ix].distanceToSqr(camera));
                             int frequency = (int)(1.0F + dist / 128.0F);
                             if (this.ticks % frequency == ix % frequency) {
-                                BigChunk chunk = (BigChunk) this.sortedChunks[ix];
+                                CubicBigChunk chunk = (CubicBigChunk) this.sortedChunks[ix];
                                 float xt = (float)(new BigDecimal(chunk.xRenderBig).subtract(xOff).floatValue());
                                 float yt = (float)((double)chunk.yRender - yOff);
                                 float zt = (float)(new BigDecimal(chunk.zRenderBig).subtract(zOff).floatValue());
@@ -361,9 +372,9 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
         return count;
     }
 
-    private void resortChunks(BigInteger xc, int yc, BigInteger zc) {
+    private void resortChunks(BigInteger xc, BigInteger yc, BigInteger zc) {
         xc = xc.subtract(BigConstants.EIGHT);
-        yc -= 8;
+        yc = yc.subtract(BigConstants.EIGHT);
         zc = zc.subtract(BigConstants.EIGHT);
         this.xMinChunk = Integer.MAX_VALUE;
         this.yMinChunk = Integer.MAX_VALUE;
@@ -409,16 +420,23 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
                 }
 
                 for(int y = 0; y < this.yChunks; ++y) {
-                    int yy = y * 16;
-                    if (yy < this.yMinChunk) {
-                        this.yMinChunk = yy;
+                    BigInteger yy = BigInteger.valueOf(y * 16);
+                    BigInteger yOff = yy.add(BigInteger.valueOf(s1)).subtract(yc);
+                    if (yOff.compareTo(BigInteger.ZERO) < 0) {
+                        yOff = yOff.subtract(BigInteger.valueOf(s2 - 1));
                     }
 
-                    if (yy > this.yMaxChunk) {
-                        this.yMaxChunk = yy;
+                    yOff = yOff.divide(BigInteger.valueOf(s2));
+                    yy = yy.subtract(yOff.multiply(BigInteger.valueOf(s2)));
+                    if (yy.compareTo(BigInteger.valueOf(this.yMinChunk)) < 0) {
+                        this.yMinChunk = yy.intValue();
                     }
 
-                    BigChunk chunk = (BigChunk) this.chunks[(z * this.yChunks + y) * this.xChunks + x];
+                    if (yy.compareTo(BigInteger.valueOf(this.yMaxChunk)) > 0) {
+                        this.yMaxChunk = yy.intValue();
+                    }
+
+                    CubicBigChunk chunk = (CubicBigChunk) this.chunks[(z * this.yChunks + y) * this.xChunks + x];
                     boolean wasDirty = chunk.dirty;
                     chunk.setPos(xx, yy, zz);
                     if (!wasDirty && chunk.dirty) {
@@ -747,18 +765,18 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension, L
         }
 
         for(int i = 0; i < this.renderChunks.size(); ++i) {
-            BigChunk chunk = (BigChunk) this.renderChunks.get(i);
+            CubicBigChunk chunk = (CubicBigChunk) this.renderChunks.get(i);
             int list = -1;
 
             for(int l = 0; l < lists; ++l) {
-                if (this.renderLists[l].isAt(chunk.xRenderBig, chunk.yRender, chunk.zRenderBig)) {
+                if (this.renderLists[l].isAt(chunk.xRenderBig, chunk.yRenderBig.intValue(), chunk.zRenderBig)) {
                     list = l;
                 }
             }
 
             if (list < 0) {
                 list = lists++;
-                this.renderLists[list].init(chunk.xRenderBig, chunk.yRender, chunk.zRenderBig, xOff, yOff, zOff);
+                this.renderLists[list].init(chunk.xRenderBig, chunk.yRenderBig.intValue(), chunk.zRenderBig, xOff, yOff, zOff);
             }
 
             this.renderLists[list].add(chunk.getList(layer));

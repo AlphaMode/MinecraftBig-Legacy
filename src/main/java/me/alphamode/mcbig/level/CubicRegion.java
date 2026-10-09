@@ -1,0 +1,259 @@
+package me.alphamode.mcbig.level;
+
+import me.alphamode.mcbig.extensions.BigLevelSourceExtension;
+import me.alphamode.mcbig.level.cube.LevelCube;
+import me.alphamode.mcbig.math.BigMath;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.Region;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.tile.Tile;
+import net.minecraft.world.level.tile.entity.TileEntity;
+
+import java.math.BigInteger;
+
+public class CubicRegion extends Region implements BigLevelSourceExtension {
+    private BigInteger xc1;
+    private BigInteger yc1;
+    private BigInteger zc1;
+    private LevelCube[][][] cubes;
+    private Level level;
+
+    public CubicRegion(Level level, BigInteger minX, BigInteger minY, BigInteger minZ, BigInteger maxX, BigInteger maxY, BigInteger maxZ) {
+        super(level, 0, 0, 0, 0, 0, 0);
+        this.level = level;
+        this.xc1 = minX.shiftRight(4);
+        this.yc1 = minY.shiftRight(4);
+        this.zc1 = minZ.shiftRight(4);
+        BigInteger xc2 = maxX.shiftRight(4);
+        BigInteger yc2 = maxY.shiftRight(4);
+        BigInteger zc2 = maxZ.shiftRight(4);
+        this.cubes = new LevelCube[xc2.subtract(this.xc1).add(BigInteger.ONE).intValue()][yc2.subtract(this.yc1).add(BigInteger.ONE).intValue()][zc2.subtract(this.zc1).add(BigInteger.ONE).intValue()];
+
+        for(BigInteger x = this.xc1; x.compareTo(xc2) <= 0; x = x.add(BigInteger.ONE)) {
+            for(BigInteger y = this.yc1; y.compareTo(yc2) <= 0; y = y.add(BigInteger.ONE)) {
+                for (BigInteger z = this.zc1; z.compareTo(zc2) <= 0; z = z.add(BigInteger.ONE)) {
+                    this.cubes[x.subtract(this.xc1).intValue()][y.subtract(this.yc1).intValue()][z.subtract(this.zc1).intValue()] = level.getCube(x, y, z);
+                }
+            }
+        }
+    }
+
+    @Override
+    public int getTile(BigInteger x, int y, BigInteger z) {
+        int xc = (x.shiftRight(4)).subtract(this.xc1).intValue();
+        int yc = (y >> 4) - this.yc1.intValue();
+        int zc = (z.shiftRight(4)).subtract(this.zc1).intValue();
+        if (xc >= 0 && xc < this.cubes.length && zc >= 0 && zc < this.cubes[xc].length) {
+            LevelCube lc = this.cubes[xc][yc][zc];
+            return lc == null ? 0 : lc.getTile(BigMath.fastAnd(x, 15), y & 15, BigMath.fastAnd(z, 15));
+        } else {
+            return 0;
+        }
+    }
+
+    @Override
+    public int getTile(BigInteger x, BigInteger y, BigInteger z) {
+        int xc = (x.shiftRight(4)).subtract(this.xc1).intValue();
+        int yc = (y.shiftRight(4)).subtract(this.yc1).intValue();
+        int zc = (z.shiftRight(4)).subtract(this.zc1).intValue();
+        if (xc >= 0 && xc < this.cubes.length && zc >= 0 && zc < this.cubes[xc].length) {
+            LevelCube lc = this.cubes[xc][yc][zc];
+            return lc == null ? 0 : lc.getTile(BigMath.fastAnd(x, 15), BigMath.fastAnd(y, 15), BigMath.fastAnd(z, 15));
+        } else {
+            return 0;
+        }
+    }
+
+    @Override
+    public TileEntity getTileEntity(BigInteger x, int y, BigInteger z) {
+        int xc = (x.shiftRight(4)).subtract(this.xc1).intValue();
+        int yc = (y >> 4) - this.yc1.intValue();
+        int zc = (z.shiftRight(4)).subtract(this.zc1).intValue();
+        return this.cubes[xc][yc][zc].getTileEntity(BigMath.fastAnd(x, 15), y & 15, BigMath.fastAnd(z, 15));
+    }
+
+    @Override
+    public float getBrightness(BigInteger x, int y, BigInteger z, int emitt) {
+        int br = getRawBrightness(x, y, z);
+        if (br < emitt) {
+            br = emitt;
+        }
+
+        return this.level.dimension.brightnessRamp[br];
+    }
+
+    //? >=1.0.0-beta.8.0.r {
+    /*@Override
+    public int getLightColor(BigInteger x, int y, BigInteger z, int emitt) {
+        int s = getBrightnessPropagate(LightLayer.SKY, x, y, z);
+        int b = getBrightnessPropagate(LightLayer.BLOCK, x, y, z);
+        if (b < emitt) {
+            b = emitt;
+        }
+
+        return s << 20 | b << 4;
+    }
+    *///? }
+
+    @Override
+    public float getBrightness(BigInteger x, int y, BigInteger z) {
+        return this.level.dimension.brightnessRamp[this.getRawBrightness(x, y, z)];
+    }
+
+    @Environment(EnvType.CLIENT)
+    public int getRawBrightness(BigInteger x, int y, BigInteger z) {
+        return this.getRawBrightness(x, y, z, true);
+    }
+
+    @Environment(EnvType.CLIENT)
+    public int getRawBrightness(BigInteger x, int y, BigInteger z, boolean checkNeighbors) {
+        if (checkNeighbors) {
+            int id = this.getTile(x, y, z);
+            if (id == Tile.stoneSlabHalf.id || id == Tile.farmland.id || id == Tile.stairs_wood.id || id == Tile.stairs_stone.id) {
+                int br = this.getRawBrightness(x, y + 1, z, false);
+                int br1 = this.getRawBrightness(x.add(BigInteger.ONE), y, z, false);
+                int br2 = this.getRawBrightness(x.subtract(BigInteger.ONE), y, z, false);
+                int br3 = this.getRawBrightness(x, y, z.add(BigInteger.ONE), false);
+                int br4 = this.getRawBrightness(x, y, z.subtract(BigInteger.ONE), false);
+                if (br1 > br) {
+                    br = br1;
+                }
+
+                if (br2 > br) {
+                    br = br2;
+                }
+
+                if (br3 > br) {
+                    br = br3;
+                }
+
+                if (br4 > br) {
+                    br = br4;
+                }
+
+                return br;
+            }
+        }
+
+        if (y < 0) {
+            return 0;
+        } else if (y >= 128) {
+            int br = 15 - this.level.skyDarken;
+            if (br < 0) {
+                br = 0;
+            }
+
+            return br;
+        } else {
+            int xc = (x.shiftRight(4)).subtract(this.xc1).intValue();
+            int yc = (y >> 4) - this.yc1.intValue();
+            int zc = (z.shiftRight(4)).subtract(this.zc1).intValue();
+            return this.cubes[xc][yc][zc].getRawBrightness(BigMath.fastAnd(x, 15), y & 15, BigMath.fastAnd(z, 15), this.level.skyDarken);
+        }
+    }
+
+    @Override
+    public int getData(BigInteger x, int y, BigInteger z) {
+        if (y < 0) {
+            return 0;
+        } else if (y >= 128) {
+            return 0;
+        } else {
+            int xc = (x.shiftRight(4)).subtract(this.xc1).intValue();
+            int yc = (y >> 4) - this.yc1.intValue();
+            int zc = (z.shiftRight(4)).subtract(this.zc1).intValue();
+            return this.cubes[xc][yc][zc].getData(BigMath.fastAnd(x, 15), y & 15, BigMath.fastAnd(z, 15));
+        }
+    }
+
+    @Override
+    public Material getMaterial(BigInteger x, int y, BigInteger z) {
+        int t = getTile(x, y, z);
+        return t == 0 ? Material.air : Tile.tiles[t].material;
+    }
+
+    @Override
+    public boolean isSolidRenderTile(BigInteger x, int y, BigInteger z) {
+        Tile tile = Tile.tiles[this.getTile(x, y, z)];
+        return tile == null ? false : tile.isSolidRender();
+    }
+
+    @Override
+    public boolean isSolidBlockingTile(BigInteger x, int y, BigInteger z) {
+        Tile tile = Tile.tiles[this.getTile(x, y, z)];
+        if (tile == null) {
+            return false;
+        } else {
+            return tile.material.blocksMotion() && tile.isCubeShaped();
+        }
+    }
+
+    //? >=1.0.0-beta.8.0.r {
+    /*@Override
+    public boolean isEmptyTile(BigInteger x, int y, BigInteger z) {
+        Tile t = Tile.tiles[this.getTile(x, y, z)];
+        return t == null;
+    }
+
+    public int getBrightnessPropagate(LightLayer layer, BigInteger x, int y, BigInteger z) {
+        if (y < 0) y = 0;
+        if (y >= LevelConstants.MAX_BUILD_HEIGHT) y = LevelConstants.MAX_BUILD_HEIGHT - 1;
+        if (y < 0 || y >= LevelConstants.MAX_BUILD_HEIGHT ) {
+            return layer.surrounding;
+        }
+        int id = this.getTile(x, y, z);
+        // Check tiles that don't propagate light
+        if (id != Tile.stoneSlabHalf.id && id != Tile.farmland.id && id != Tile.stairs_stone.id && id != Tile.stairs_wood.id) {
+            int xc = (x.shiftRight(4)).subtract(this.xc1).intValue();
+            int zc = (z.shiftRight(4)).subtract(this.zc1).intValue();
+            return this.chunks[xc][zc].getBrightness(layer, x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue());
+        }
+        int br = getBrightness(layer, x, y + 1, z);
+        int br1 = getBrightness(layer, x.add(BigInteger.ONE), y, z);
+        int br2 = getBrightness(layer, x.subtract(BigInteger.ONE), y, z);
+        int br3 = getBrightness(layer, x, y, z.add(BigInteger.ONE));
+        int br4 = getBrightness(layer, x, y, z.subtract(BigInteger.ONE));
+        if (br1 > br) br = br1;
+        if (br2 > br) br = br2;
+        if (br3 > br) br = br3;
+        if (br4 > br) br = br4;
+
+        return br;
+    }
+
+    public int getBrightness(LightLayer layer, BigInteger x, int y, BigInteger z) {
+        if (y < 0) y = 0;
+        if (y >= LevelConstants.MAX_BUILD_HEIGHT) y = LevelConstants.MAX_BUILD_HEIGHT - 1;
+        if (y < 0 || y >= LevelConstants.MAX_BUILD_HEIGHT) {
+            return layer.surrounding;
+        }
+        int xc = (x.shiftRight(4)).subtract(this.xc1).intValue();
+        int zc = (z.shiftRight(4)).subtract(this.zc1).intValue();
+
+        return this.chunks[xc][zc].getBrightness(layer, x.and(BigConstants.FIFTEEN).intValue(), y, z.and(BigConstants.FIFTEEN).intValue());
+    }
+    *///? }
+
+    @Override
+    public int getRawBrightness(int x, int y, int z) {
+        return getRawBrightness(BigInteger.valueOf(x), y, BigInteger.valueOf(z));
+    }
+
+    @Override
+    public int getRawBrightness(int x, int y, int z, boolean checkNeighbors) {
+        return getRawBrightness(BigInteger.valueOf(x), y, BigInteger.valueOf(z), checkNeighbors);
+    }
+
+    @Override
+    public int getData(int x, int y, int z) {
+        return getData(BigInteger.valueOf(x), y, BigInteger.valueOf(z));
+    }
+
+    @Override
+    public int getTile(int x, int y, int z) {
+        return getTile(BigInteger.valueOf(x), y, BigInteger.valueOf(z));
+    }
+}

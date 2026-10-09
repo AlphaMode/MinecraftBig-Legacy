@@ -14,7 +14,7 @@ import net.minecraft.world.phys.HitResult;
 import java.math.BigInteger;
 import java.util.List;
 
-public interface BigLevelExtension {
+public interface BigLevelExtension extends BigCubicLevelExtension {
     default boolean setTile(BigInteger x, int y, BigInteger z, int tile) {
         throw new UnsupportedOperationException();
     }

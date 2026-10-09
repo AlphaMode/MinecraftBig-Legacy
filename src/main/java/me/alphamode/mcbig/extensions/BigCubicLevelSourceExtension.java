@@ -6,12 +6,12 @@ import net.minecraft.world.level.tile.entity.TileEntity;
 
 import java.math.BigInteger;
 
-public interface BigLevelSourceExtension extends BigCubicLevelSourceExtension {
-    default int getTile(BigInteger x, int y, BigInteger z) {
-        return ((LevelSource) this).getTile(x.intValue(), y, z.intValue());//throw new UnsupportedOperationException();
+public interface BigCubicLevelSourceExtension {
+    default int getTile(BigInteger x, BigInteger y, BigInteger z) {
+        throw new UnsupportedOperationException();
     }
 
-    default TileEntity getTileEntity(BigInteger x, int y, BigInteger z) {
+    default TileEntity getTileEntity(BigInteger x, BigInteger y, BigInteger z) {
         throw new UnsupportedOperationException();
     }
 
@@ -21,27 +21,27 @@ public interface BigLevelSourceExtension extends BigCubicLevelSourceExtension {
     }
     *///? }
 
-    default float getBrightness(BigInteger x, int y, BigInteger z, int emitt) {
+    default float getBrightness(BigInteger x, BigInteger y, BigInteger z, int emitt) {
         throw new UnsupportedOperationException();
     }
 
-    default float getBrightness(BigInteger x, int y, BigInteger z) {
+    default float getBrightness(BigInteger x, BigInteger y, BigInteger z) {
         throw new UnsupportedOperationException();
     }
 
-    default int getData(BigInteger x, int y, BigInteger z) {
+    default int getData(BigInteger x, BigInteger y, BigInteger z) {
         throw new UnsupportedOperationException();
     }
 
-    default Material getMaterial(BigInteger x, int y, BigInteger z) {
+    default Material getMaterial(BigInteger x, BigInteger y, BigInteger z) {
         throw new UnsupportedOperationException();
     }
 
-    default boolean isSolidRenderTile(BigInteger x, int y, BigInteger z) {
+    default boolean isSolidRenderTile(BigInteger x, BigInteger y, BigInteger z) {
         throw new UnsupportedOperationException();
     }
 
-    default boolean isSolidBlockingTile(BigInteger x, int y, BigInteger z) {
+    default boolean isSolidBlockingTile(BigInteger x, BigInteger y, BigInteger z) {
         throw new UnsupportedOperationException();
     }
 

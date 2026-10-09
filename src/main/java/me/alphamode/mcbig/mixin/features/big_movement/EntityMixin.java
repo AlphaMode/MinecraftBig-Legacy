@@ -112,11 +112,15 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
     private static final int ENTITY_SCALE = 12;
 
     public BigDecimal xoBig = BigDecimal.ZERO;
+    public BigDecimal yoBig = BigDecimal.ZERO;
     public BigDecimal zoBig = BigDecimal.ZERO;
+
     public BigDecimal xBig = BigDecimal.ZERO;
+    public BigDecimal yBig = BigDecimal.ZERO;
     public BigDecimal zBig = BigDecimal.ZERO;
 
     public BigDecimal xOldBig = BigDecimal.ZERO;
+    public BigDecimal yOldBig = BigDecimal.ZERO;
     public BigDecimal zOldBig = BigDecimal.ZERO;
 
     public final DelegatingBigAABB bbBig = new DelegatingBigAABB(BigDecimal.ZERO, 0.0, BigDecimal.ZERO, BigDecimal.ZERO, 0.0, BigDecimal.ZERO);
@@ -172,6 +176,7 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
     private void updateOldPos(CallbackInfo ci) {
         if (isBigMovementEnabled()) {
             this.xoBig = getX();
+            this.yoBig = getY();
             this.zoBig = getZ();
         }
     }
@@ -455,6 +460,12 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
     }
 
     @Override
+    public BigDecimal getY() {
+        assert isBigMovementEnabled();
+        return this.yBig;//BigDecimal.valueOf(this.y);
+    }
+
+    @Override
     public BigDecimal getZ() {
         assert isBigMovementEnabled();
         return this.zBig;//BigDecimal.valueOf(this.z);
@@ -465,6 +476,13 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
         assert isBigMovementEnabled();
         this.xBig = x.setScale(ENTITY_SCALE, RoundingMode.HALF_EVEN);
         this.x = x.doubleValue();
+    }
+
+    @Override
+    public void setY(BigDecimal y) {
+        assert isBigMovementEnabled();
+        this.yBig = y.setScale(ENTITY_SCALE, RoundingMode.HALF_EVEN);
+        this.y = y.doubleValue();
     }
 
     @Override
@@ -481,6 +499,12 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
     }
 
     @Override
+    public BigDecimal getYO() {
+        assert isBigMovementEnabled();
+        return this.yoBig;//BigDecimal.valueOf(this.yo);
+    }
+
+    @Override
     public BigDecimal getZO() {
         assert isBigMovementEnabled();
         return this.zoBig;//BigDecimal.valueOf(this.zo);
@@ -491,6 +515,13 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
         assert isBigMovementEnabled();
         this.xoBig = x.setScale(ENTITY_SCALE, RoundingMode.HALF_EVEN);
         this.xo = x.doubleValue();
+    }
+
+    @Override
+    public void setYO(BigDecimal y) {
+        assert isBigMovementEnabled();
+        this.yoBig = y.setScale(ENTITY_SCALE, RoundingMode.HALF_EVEN);
+        this.yo = y.doubleValue();
     }
 
     @Override
@@ -507,6 +538,12 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
     }
 
     @Override
+    public BigDecimal getYOld() {
+        assert isBigMovementEnabled();
+        return this.yOldBig;//BigDecimal.valueOf(this.yOld);
+    }
+
+    @Override
     public BigDecimal getZOld() {
         assert isBigMovementEnabled();
         return this.zOldBig;//BigDecimal.valueOf(this.zOld);
@@ -520,6 +557,13 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
     }
 
     @Override
+    public void setYOld(BigDecimal y) {
+        assert isBigMovementEnabled();
+        this.yOldBig = y.setScale(ENTITY_SCALE, RoundingMode.HALF_EVEN);
+        this.yOld = y.doubleValue();
+    }
+
+    @Override
     public void setZOld(BigDecimal z) {
         assert isBigMovementEnabled();
         this.zOldBig = z.setScale(ENTITY_SCALE, RoundingMode.HALF_EVEN);
@@ -530,6 +574,7 @@ public abstract class EntityMixin implements BigEntityExtension, me.alphamode.mc
     private void bigMoveTo(double x, double y, double z, float yRot, float xRot, CallbackInfo ci) {
         if (isBigMovementEnabled()) {
             setXOld(new BigDecimal(x));
+            setYOld(new BigDecimal(y));
             setZOld(new BigDecimal(z));
         }
     }

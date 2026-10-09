@@ -84,7 +84,7 @@ public abstract class MinecraftMixin {
 
         int pp = 0;
         int max = r * 2 / 16 + 1;
-        max = max * max;
+        max = max * max * max;
         ChunkSource cs = this.level.getChunkSource();
         Pos spawnPos = this.level.getSpawnPos();
         if (this.player != null) {
@@ -97,19 +97,41 @@ public abstract class MinecraftMixin {
             spcc.centerOn(spawnPos.x >> 4, spawnPos.z >> 4);
         }
 
-        for (int x = -r; x <= r; x += 16) {
-            for (int z = -r; z <= r; z += 16) {
-                //? >= 1.0.0-beta.8.0.r
-                //if (this.progressRenderer != null)
-                    this.progressRenderer.progressStagePercentage(pp++ * 100 / max);
-                this.level.getTile(BigInteger.valueOf(spawnPos.x + x), 64, BigInteger.valueOf(spawnPos.z + z));
+        boolean cubic = true;
 
-                //? >= 1.0.0-beta.8.0.r
-                //if (!this.gameMode.isCutScene()) {
+        if (cubic) {
+            for (int x = -r; x <= r; x += 16) {
+                for (int y = -r; y <= r; y += 16) {
+                    for (int z = -r; z <= r; z += 16) {
+                        //? >= 1.0.0-beta.8.0.r
+                        //if (this.progressRenderer != null)
+                        this.progressRenderer.progressStagePercentage(pp++ * 100 / max);
+                        this.level.getTile(BigInteger.valueOf(spawnPos.x + x), BigInteger.valueOf(spawnPos.y + y), BigInteger.valueOf(spawnPos.z + z));
+
+                        //? >= 1.0.0-beta.8.0.r
+                        //if (!this.gameMode.isCutScene()) {
+                        while (this.level.updateLights()) {
+                        }
+                        //? >= 1.0.0-beta.8.0.r
+                        //}
+                    }
+                }
+            }
+        } else {
+            for (int x = -r; x <= r; x += 16) {
+                for (int z = -r; z <= r; z += 16) {
+                    //? >= 1.0.0-beta.8.0.r
+                    //if (this.progressRenderer != null)
+                    this.progressRenderer.progressStagePercentage(pp++ * 100 / max);
+                    this.level.getTile(BigInteger.valueOf(spawnPos.x + x), 64, BigInteger.valueOf(spawnPos.z + z));
+
+                    //? >= 1.0.0-beta.8.0.r
+                    //if (!this.gameMode.isCutScene()) {
                     while (this.level.updateLights()) {
                     }
-                //? >= 1.0.0-beta.8.0.r
-                //}
+                    //? >= 1.0.0-beta.8.0.r
+                    //}
+                }
             }
         }
 

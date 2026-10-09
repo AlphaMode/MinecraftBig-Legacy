@@ -24,6 +24,7 @@ import java.util.Random;
 public abstract class EntityMixin implements BigEntityExtension {
 
     public BigInteger xChunkBig = BigInteger.ZERO;
+    public BigInteger yChunkBig = BigInteger.ZERO;
     public BigInteger zChunkBig = BigInteger.ZERO;
 
     @Shadow public float bbWidth;
@@ -96,6 +97,11 @@ public abstract class EntityMixin implements BigEntityExtension {
     }
 
     @Override
+    public void setYChunk(BigInteger y) {
+        this.yChunkBig = y;
+    }
+
+    @Override
     public void setZChunk(BigInteger z) {
         this.zChunkBig = z;
     }
@@ -103,6 +109,11 @@ public abstract class EntityMixin implements BigEntityExtension {
     @Override
     public BigInteger getXChunk() {
         return this.xChunkBig;
+    }
+
+    @Override
+    public BigInteger getYChunk() {
+        return this.yChunkBig;
     }
 
     @Override

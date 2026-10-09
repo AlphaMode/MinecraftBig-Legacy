@@ -2,9 +2,9 @@ package me.alphamode.mcbig.client.renderer;
 
 import me.alphamode.mcbig.extensions.BigTileRendererExtension;
 import me.alphamode.mcbig.extensions.features.big_movement.BigEntityExtension;
-import me.alphamode.mcbig.level.BigRegion;
 import me.alphamode.mcbig.level.CubicRegion;
 import me.alphamode.mcbig.math.BigConstants;
+import me.alphamode.mcbig.math.BigMath;
 import net.minecraft.client.renderer.Chunk;
 import net.minecraft.client.renderer.TileRenderer;
 import net.minecraft.client.renderer.culling.Culler;
@@ -24,54 +24,57 @@ import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.List;
 
-public class BigChunk extends Chunk {
+public class CubicBigChunk extends Chunk {
 
     public BigInteger bigX = BigInteger.ZERO;
+    public BigInteger bigY = BigInteger.ZERO;
     public BigInteger bigZ = BigInteger.ZERO;
     public BigInteger bigXm = BigInteger.ZERO;
+    public BigInteger bigYm = BigInteger.ZERO;
     public BigInteger bigZm = BigInteger.ZERO;
     public BigInteger xRenderBig = BigInteger.ZERO;
+    public BigInteger yRenderBig = BigInteger.ZERO;
     public BigInteger zRenderBig = BigInteger.ZERO;
 
-    public BigChunk(Level level, List<TileEntity> tileEntities, int x, int y, int z, int size, int lists) {
+    public CubicBigChunk(Level level, List<TileEntity> tileEntities, int x, int y, int z, int size, int lists) {
         super(level, tileEntities, x, y, z, size, lists);
         this.bigX = BigInteger.valueOf(-999);
-        setPos(BigInteger.valueOf(x), y, BigInteger.valueOf(z));
+        setPos(BigInteger.valueOf(x), BigInteger.valueOf(y), BigInteger.valueOf(z));
     }
 
-    public void setPos(BigInteger x, int y, BigInteger z) {
-        if (!x.equals(this.bigX) || y != this.y || !z.equals(this.bigZ)) {
+    public void setPos(BigInteger x, BigInteger y, BigInteger z) {
+        if (!x.equals(this.bigX) || !y.equals(this.bigY) || !z.equals(this.bigZ)) {
             this.reset();
             this.bigX = x;
-            this.y = y;
+            this.bigY = y;
             this.bigZ = z;
             this.bigXm = x.add(BigInteger.valueOf(this.xs / 2));
-            this.ym = y + this.ys / 2;
+            this.bigYm = y.add(BigInteger.valueOf(this.ys / 2));
             this.bigZm = z.add(BigInteger.valueOf(this.zs / 2));
-            this.xRenderOffs = x.and(BigConstants.CHUNK_OFFSET).intValue();
-            this.yRenderOffs = y;
-            this.zRenderOffs = z.and(BigConstants.CHUNK_OFFSET).intValue();
+            this.xRenderOffs = BigMath.fastAnd(x, 1023);
+            this.yRenderOffs = BigMath.fastAnd(y, 1023);
+            this.zRenderOffs = BigMath.fastAnd(z, 1023);
             this.xRenderBig = x.subtract(BigInteger.valueOf(this.xRenderOffs));
-            this.yRender = y - this.yRenderOffs;
+            this.yRenderBig = y.subtract(BigInteger.valueOf(this.yRenderOffs));
             this.zRenderBig = z.subtract(BigInteger.valueOf(this.zRenderOffs));
-            float var4 = 6.0F;
+            float ss = 6.0F;
             this.bb = AABB.create(
-                    (double) (x.doubleValue() - var4),
-                    (double) ((float) y - var4),
-                    (double) (z.doubleValue() - var4),
-                    (double) ((x.doubleValue() + this.xs) + var4),
-                    (double) ((float) (y + this.ys) + var4),
-                    (double) ((z.doubleValue() + this.zs) + var4)
+                    (double) (x.doubleValue() - ss),
+                    (double) ((float) y.doubleValue() - ss),
+                    (double) (z.doubleValue() - ss),
+                    (double) ((x.doubleValue() + this.xs) + ss),
+                    (double) ((float) (y.doubleValue() + this.ys) + ss),
+                    (double) ((z.doubleValue() + this.zs) + ss)
             );
             GL11.glNewList(this.lists + 2, 4864);
             ItemRenderer.renderFlat(
                     AABB.newTemp(
-                            (double) ((float) this.xRenderOffs - var4),
-                            (double) ((float) this.yRenderOffs - var4),
-                            (double) ((float) this.zRenderOffs - var4),
-                            (double) ((float) (this.xRenderOffs + this.xs) + var4),
-                            (double) ((float) (this.yRenderOffs + this.ys) + var4),
-                            (double) ((float) (this.zRenderOffs + this.zs) + var4)
+                            (double) ((float) this.xRenderOffs - ss),
+                            (double) ((float) this.yRenderOffs - ss),
+                            (double) ((float) this.zRenderOffs - ss),
+                            (double) ((float) (this.xRenderOffs + this.xs) + ss),
+                            (double) ((float) (this.yRenderOffs + this.ys) + ss),
+                            (double) ((float) (this.zRenderOffs + this.zs) + ss)
                     )
             );
             GL11.glEndList();
@@ -84,12 +87,12 @@ public class BigChunk extends Chunk {
         if (entity.isBigMovementEnabled()) {
             BigEntityExtension bigEntity = (BigEntityExtension) entity;
             float xd = (float) bigEntity.getX().toBigInteger().subtract(this.bigXm).floatValue();
-            float yd = (float) (entity.y - (double) this.ym);
+            float yd = (float) (entity.y - (double) this.bigYm.doubleValue());
             float zd = (float) bigEntity.getZ().toBigInteger().subtract(this.bigZm).floatValue();
             return xd * xd + yd * yd + zd * zd;
         }
         float xd = (float) (entity.x - (double) this.bigXm.doubleValue());
-        float yd = (float) (entity.y - (double) this.ym);
+        float yd = (float) (entity.y - (double) this.bigYm.doubleValue());
         float zd = (float) (entity.z - (double) this.bigZm.doubleValue());
         return xd * xd + yd * yd + zd * zd;
     }
@@ -99,10 +102,10 @@ public class BigChunk extends Chunk {
         if (this.dirty) {
             ++updates;
             BigInteger x0 = this.bigX;
-            int y0 = this.y;
+            BigInteger y0 = this.bigY;
             BigInteger z0 = this.bigZ;
             BigInteger x1 = this.bigX.add(BigInteger.valueOf(this.xs));
-            int y1 = this.y + this.ys;
+            BigInteger y1 = this.bigY.add(BigInteger.valueOf(this.ys));
             BigInteger z1 = this.bigZ.add(BigInteger.valueOf(this.zs));
 
             for (int i = 0; i < 2; ++i) {
@@ -113,8 +116,8 @@ public class BigChunk extends Chunk {
             HashSet<TileEntity> oldTileEntities = new HashSet<>();
             oldTileEntities.addAll(this.renderableTileEntities);
             this.renderableTileEntities.clear();
-            int r = 1;
-            LevelSource region = new CubicRegion(this.level, x0.subtract(BigInteger.ONE), BigInteger.valueOf(y0 - r), z0.subtract(BigInteger.ONE), x1.add(BigInteger.ONE), BigInteger.valueOf(y1 + r), z1.add(BigInteger.ONE));
+            var r = BigInteger.ONE;
+            LevelSource region = new CubicRegion(this.level, x0.subtract(r), y0.subtract(r), z0.subtract(r), x1.add(r), y1.add(r), z1.add(r));
             TileRenderer tileRenderer = new TileRenderer(region);
 
             for (int l = 0; l < 2; ++l) {
@@ -122,9 +125,9 @@ public class BigChunk extends Chunk {
                 boolean rendered = false;
                 boolean started = false;
 
-                for (int y = y0; y < y1; ++y) {
-                    for (BigInteger z = z0; z.compareTo(z1) < 0; z = z.add(BigInteger.ONE)) {
-                        for (BigInteger x = x0; x.compareTo(x1) < 0; x = x.add(BigInteger.ONE)) {
+                for (var y = y0; y.compareTo(y1) < 0; y = y.add(BigInteger.ONE)) {
+                    for (var z = z0; z.compareTo(z1) < 0; z = z.add(BigInteger.ONE)) {
+                        for (var x = x0; x.compareTo(x1) < 0; x = x.add(BigInteger.ONE)) {
                             int tileId = region.getTile(x, y, z);
                             if (tileId > 0) {
                                 if (!started) {
@@ -142,7 +145,7 @@ public class BigChunk extends Chunk {
                                         tesselator.offset(0, 0, 0);
 
                                     } else {
-                                        tesselator.offset(this.bigX.negate().doubleValue(), -this.y, this.bigZ.negate().doubleValue());
+                                        tesselator.offset(this.bigX.negate().doubleValue(), this.bigY.negate().doubleValue(), this.bigZ.negate().doubleValue());
                                     }
                                 }
 
@@ -158,7 +161,7 @@ public class BigChunk extends Chunk {
                                 if (renderLayer != l) {
                                     renderNextLayer = true;
                                 } else if (renderLayer == l) {
-                                    rendered |= tileRenderer.tesselateInWorld(tile, x, y, z);
+                                    rendered |= tileRenderer.tesselateInWorld(tile, x, y.intValue(), z);
                                 }
                             }
                         }

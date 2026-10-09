@@ -12,11 +12,19 @@ public interface BigEntityExtension {
         throw new UnsupportedOperationException();
     }
 
+    default void setYChunk(BigInteger y) {
+        throw new UnsupportedOperationException();
+    }
+
     default void setZChunk(BigInteger z) {
         throw new UnsupportedOperationException();
     }
 
     default BigInteger getXChunk() {
+        throw new UnsupportedOperationException();
+    }
+
+    default BigInteger getYChunk() {
         throw new UnsupportedOperationException();
     }
 

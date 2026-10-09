@@ -46,6 +46,8 @@ import java.util.*;
 @Mixin(Level.class)
 public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExtension {
 
+    private static final boolean CUBIC = true;
+
     @Shadow
     protected ChunkSource chunkSource;
 
@@ -289,6 +291,9 @@ public abstract class LevelMixin implements BigLevelExtension, BigLevelSourceExt
 
     @Override
     public int getTile(BigInteger x, int y, BigInteger z) {
+        if (CUBIC) {
+            return getTile(x, BigInteger.valueOf(y), z);
+        }
         if (y < 0) {
             return 0;
         } else {

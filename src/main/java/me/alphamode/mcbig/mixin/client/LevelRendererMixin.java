@@ -3,6 +3,7 @@ package me.alphamode.mcbig.mixin.client;
 import dev.kikugie.fletching_table.mixin.MixinIgnore;
 import me.alphamode.mcbig.client.renderer.BigChunk;
 import me.alphamode.mcbig.client.renderer.BigDistanceChunkSorter;
+import me.alphamode.mcbig.client.renderer.CubicBigChunk;
 import me.alphamode.mcbig.extensions.BigLevelListenerExtension;
 import me.alphamode.mcbig.math.BigConstants;
 import me.alphamode.mcbig.math.BigMath;
@@ -188,7 +189,7 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension {
             Mob player = this.mc.cameraEntity;
             if (player != null) {
                 this.resortChunks(BigMath.floor(player.x), Mth.floor(player.y), BigMath.floor(player.z));
-                Arrays.sort((BigChunk[]) this.sortedChunks, new BigDistanceChunkSorter(player));
+                Arrays.sort((CubicBigChunk[]) this.sortedChunks, new BigDistanceChunkSorter(player));
             }
         }
 
@@ -232,7 +233,7 @@ public abstract class LevelRendererMixin implements BigLevelListenerExtension {
             this.yOld = camera.y;
             this.zOld = camera.z;
             this.resortChunks(BigMath.floor(camera.x), Mth.floor(camera.y), BigMath.floor(camera.z));
-            Arrays.sort((BigChunk[]) this.sortedChunks, new BigDistanceChunkSorter(camera));
+            Arrays.sort((CubicBigChunk[]) this.sortedChunks, new BigDistanceChunkSorter(camera));
         }
 
         Lighting.turnOff();
