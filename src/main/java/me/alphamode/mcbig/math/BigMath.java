@@ -27,11 +27,11 @@ public class BigMath {
     public static final MathContext CONTEXT = MathContext.UNLIMITED;
 
     public static BigDecimal decimal(double value) {
-        return new BigDecimal(value, CONTEXT);
+        return new BigDecimal(value, MathContext.DECIMAL64);
     }
 
     public static BigDecimal decimal(int value) {
-        return new BigDecimal(value, CONTEXT);
+        return new BigDecimal(value);
     }
 
     public static final int WORLD_GEN_DECIMAL_SCALE = 10;
@@ -53,7 +53,7 @@ public class BigMath {
     }
 
     public static BigDecimal addD(BigInteger a, BigDecimal b) {
-        return new BigDecimal(a, CONTEXT).add(b);
+        return new BigDecimal(a).add(b);
     }
 
     public static BigDecimal addD(BigInteger a, BigInteger b) {
@@ -61,7 +61,7 @@ public class BigMath {
     }
 
     public static BigDecimal addD(BigInteger a, double b) {
-        return new BigDecimal(a, CONTEXT).add(new BigDecimal(b, CONTEXT));
+        return new BigDecimal(a).add(decimal(b));
     }
 
     // Sub

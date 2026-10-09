@@ -119,6 +119,9 @@ public class BigImprovedNoise implements BigSynth {
             double scale = 1.0 / pow;
 
             for (int xx = 0; xx < xSize; xx++) {
+                //? >=1.0.0-beta.8.0.r {
+                /*BigDecimal x = _x.add(BigMath.decimal(xx).multiply(xs)).add(this.xo);
+                *///? } else
                 BigDecimal x = (_x.add(BigMath.decimal(xx))).multiply(xs).add(this.xo);
                 BigInteger xf = x.toBigInteger();
                 if (x.compareTo(new BigDecimal(xf)) < 0) xf = xf.subtract(BigInteger.ONE);
@@ -128,6 +131,9 @@ public class BigImprovedNoise implements BigSynth {
                 double u = xR * xR * xR * (xR * (xR * 6.0 - 15.0) + 10.0);
 
                 for (int zz = 0; zz < zSize; zz++) {
+                    //? >=1.0.0-beta.8.0.r {
+                    /*BigDecimal z = _z.add(BigMath.decimal(zz).multiply(zs)).add(this.zo);
+                    *///? } else
                     BigDecimal z = (_z.add(BigMath.decimal(zz))).multiply(zs).add(this.zo);
                     BigInteger zf = z.toBigInteger();
                     if (z.compareTo(new BigDecimal(zf)) < 0) zf = zf.subtract(BigInteger.ONE);
@@ -161,6 +167,9 @@ public class BigImprovedNoise implements BigSynth {
             double vv3 = 0.0;
 
             for (int xx = 0; xx < xSize; xx++) {
+                //? >=1.0.0-beta.8.0.r {
+                /*BigDecimal x = _x.add(BigMath.decimal(xx).multiply(xs)).add(this.xo);
+                *///? } else
                 BigDecimal x = (_x.add(BigMath.decimal(xx))).multiply(xs).add(this.xo);
                 BigInteger xf = x.toBigInteger();
                 if (x.compareTo(new BigDecimal(xf)) < 0) xf = xf.subtract(BigInteger.ONE);
@@ -170,6 +179,9 @@ public class BigImprovedNoise implements BigSynth {
                 double u = xR * xR * xR * (xR * (xR * 6.0 - 15.0) + 10.0);
 
                 for (int zz = 0; zz < zSize; zz++) {
+                    //? >=1.0.0-beta.8.0.r {
+                    /*BigDecimal z = _z.add(BigMath.decimal(zz).multiply(zs)).add(this.zo);
+                    *///? } else
                     BigDecimal z = (_z.add(BigMath.decimal(zz))).multiply(zs).add(this.zo);
                     BigInteger zf = z.toBigInteger();
                     if (z.compareTo(new BigDecimal(zf)) < 0) zf = zf.subtract(BigInteger.ONE);
@@ -179,6 +191,9 @@ public class BigImprovedNoise implements BigSynth {
                     double w = zR * zR * zR * (zR * (zR * 6.0 - 15.0) + 10.0);
 
                     for (int yy = 0; yy < ySize; yy++) {
+                        //? >=1.0.0-beta.8.0.r {
+                        /*BigDecimal y = _y.add(BigMath.decimal(yy).multiply(ys)).add(this.yo);
+                        *///? } else
                         BigDecimal y = (_y.add(BigMath.decimal(yy))).multiply(ys).add(this.yo);
                         BigInteger yf = y.toBigInteger();
                         if (y.compareTo(new BigDecimal(yf)) < 0) yf = yf.subtract(BigInteger.ONE);

@@ -3,6 +3,7 @@ package me.alphamode.mcbig.mixin.worldgen;
 import me.alphamode.mcbig.extensions.BigChunkSourceExtension;
 import me.alphamode.mcbig.level.chunk.BigLevelChunk;
 import me.alphamode.mcbig.math.BigConstants;
+import me.alphamode.mcbig.world.level.LevelConstants;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.MobSpawner;
@@ -122,7 +123,7 @@ public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSou
     //~ if >=1.0.0-beta.8.0.r 'byte[] blocks, Biome[] biomes, double[] temperatures' -> 'byte[] blocks'
     public void prepareHeights(BigInteger xOffs, BigInteger zOffs, byte[] blocks, Biome[] biomes, double[] temperatures) {
         int xChunks = 16 / CHUNK_WIDTH;
-        int yChunks = 128 / CHUNK_HEIGHT;
+        int yChunks = LevelConstants.DEPTH / CHUNK_HEIGHT;
         //~ if >=1.0.0-beta.8.0.r '64' -> '63'
         int waterHeight = 64;
 
@@ -320,8 +321,6 @@ public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSou
         return chunk;
     }
 
-    @Shadow
-    protected abstract double[] getHeights(double[] buffer, int x, int y, int z, int xSize, int ySize, int zSize);
 
     private double[] getHeights(double[] buffer, BigInteger x, int y, BigInteger z, int xSize, int ySize, int zSize) {
         if (buffer == null) {
@@ -341,6 +340,7 @@ public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSou
         }
         *///? }
 
+        // Scale
         double s = 1 * 684.412;
         double hs = 1 * 684.412;
         //? <1.0.0-beta.8.0.r {

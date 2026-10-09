@@ -4,7 +4,9 @@ import me.alphamode.mcbig.extensions.BigGameModeExtension;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gamemode.GameMode;
 import net.minecraft.client.gamemode.SurvivalGameMode;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemInstance;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.tile.Tile;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -111,4 +113,16 @@ public abstract class SurvivalGameModeMixin extends GameMode implements BigGameM
             }
         }
     }
+
+    //? >=1.0.0-beta.8.0.r {
+    /*@Override
+    public boolean useItemOn(Player player, Level level, ItemInstance item, BigInteger x, int y, BigInteger z, int face) {
+        int t = level.getTile(x, y, z);
+        if (t > 0 && Tile.tiles[t].use(level, x, y, z, player)) {
+            return true;
+        } else {
+            return item == null ? false : item.useOn(player, level, x, y, z, face);
+        }
+    }
+    *///? }
 }

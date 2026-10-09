@@ -1,6 +1,7 @@
 package me.alphamode.mcbig.tests.world.level.levelgen;
 
 import me.alphamode.mcbig.tests.world.level.TestLevel;
+import me.alphamode.mcbig.util.TestUtils;
 import me.alphamode.mcbig.world.level.levelgen.vanilla.BigRandomLevelSource;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.RandomLevelSource;
@@ -24,7 +25,7 @@ public class RandomLevelSourceTest {
             for (int zc = 0; zc < 10; zc++) {
                 LevelChunk vanillaChunk = levelSource.getChunk(BigInteger.valueOf(xc), BigInteger.valueOf(zc));
                 LevelChunk bigChunk = bigLevelSource.getChunk(BigInteger.valueOf(xc), BigInteger.valueOf(zc));
-                assertArrayEquals(vanillaChunk.blocks, bigChunk.blocks, "Chunks at (" + xc + ", " + zc + ") should be equal");
+                TestUtils.assertArrayEquals(vanillaChunk.blocks, bigChunk.blocks, "Chunks at (" + xc + ", " + zc + ") should be equal");
             }
         }
     }

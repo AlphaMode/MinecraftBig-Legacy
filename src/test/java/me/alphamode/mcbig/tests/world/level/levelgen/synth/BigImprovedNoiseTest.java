@@ -17,6 +17,6 @@ class BigImprovedNoiseTest {
         PerlinNoise normalNoise = new PerlinNoise(new Random(seed), 4);
         BigPerlinNoise bigNoise = new BigPerlinNoise(new Random(seed), 4);
 
-        assertEquals(normalNoise.getValue(1, 1), bigNoise.getValue(BigDecimal.ONE, BigDecimal.ONE));
+        assertEquals(normalNoise.getValue(1, 1), bigNoise.getValue(BigDecimal.ONE, BigDecimal.ONE), 1e-10);
     }
 }

@@ -37,6 +37,7 @@ public class BigRandomLevelSource implements McBigChunkSource {
     private BigPerlinNoise lperlinNoise1;
     private BigPerlinNoise lperlinNoise2;
     private BigPerlinNoise perlinNoise1;
+    //? <1.0.0-beta.8.0.r
     private BigPerlinNoise perlinNoise2;
     private BigPerlinNoise perlinNoise3;
     public BigPerlinNoise scaleNoise;
@@ -46,8 +47,10 @@ public class BigRandomLevelSource implements McBigChunkSource {
     //private final boolean generateStructures;
     private Level level;
     private double[] buffer;
+    //? <1.0.0-beta.8.0.r {
     private double[] sandBuffer = new double[256];
     private double[] gravelBuffer = new double[256];
+    //? }
     private double[] depthBuffer = new double[256];
     private LargeFeature caveFeature = new LargeCaveFeature();
     //? >=1.0.0-beta.8.0.r {
@@ -77,6 +80,7 @@ public class BigRandomLevelSource implements McBigChunkSource {
         this.lperlinNoise1 = new BigPerlinNoise(this.random, 16);
         this.lperlinNoise2 = new BigPerlinNoise(this.random, 16);
         this.perlinNoise1 = new BigPerlinNoise(this.random, 8);
+        //? <1.0.0-beta.8.0.r
         this.perlinNoise2 = new BigPerlinNoise(this.random, 4);
         this.perlinNoise3 = new BigPerlinNoise(this.random, 4);
         this.scaleNoise = new BigPerlinNoise(this.random, 10);
@@ -84,9 +88,7 @@ public class BigRandomLevelSource implements McBigChunkSource {
         this.forestNoise = new BigPerlinNoise(this.random, 8);
     }
 
-    //? >=1.0.0-beta.8.0.r {
-    /*public void prepareHeights(BigInteger xOffs, BigInteger zOffs, byte[] blocks) {
-    *///? } else
+    //~ if >=1.0.0-beta.8.0.r 'byte[] blocks, Biome[] biomes, double[] temperatures' -> 'byte[] blocks'
     public void prepareHeights(BigInteger xOffs, BigInteger zOffs, byte[] blocks, Biome[] biomes, double[] temperatures) {
         int xChunks = 16 / CHUNK_WIDTH;
         int yChunks = LevelConstants.DEPTH / CHUNK_HEIGHT;
@@ -94,15 +96,15 @@ public class BigRandomLevelSource implements McBigChunkSource {
         int waterHeight = 64;
 
         int xSize = xChunks + 1;
-        int ySize = 17;
+        int ySize = 128 / CHUNK_HEIGHT + 1;
         int zSize = xChunks + 1;
         //? >=1.0.0-beta.8.0.r
         //this.biomes = this.level.getBiomeSource().getRawBiomeBlock(this.biomes, xOffs.multiply(BigConstants.FOUR).subtract(BigInteger.TWO), zOffs.multiply(BigConstants.FOUR).subtract(BigInteger.TWO), xSize + 5, zSize + 5);
         this.buffer = this.getHeights(this.buffer, xOffs.multiply(BigInteger.valueOf(xChunks)), 0, zOffs.multiply(BigInteger.valueOf(xChunks)), xSize, ySize, zSize);
 
-        for(int xc = 0; xc < xChunks; ++xc) {
-            for(int zc = 0; zc < xChunks; ++zc) {
-                for(int yc = 0; yc < yChunks; ++yc) {
+        for (int xc = 0; xc < xChunks; ++xc) {
+            for (int zc = 0; zc < xChunks; ++zc) {
+                for (int yc = 0; yc < yChunks; ++yc) {
                     double yStep = 1 / (double) CHUNK_HEIGHT;
                     double s0 = this.buffer[((xc + 0) * zSize + zc + 0) * ySize + yc + 0];
                     double s1 = this.buffer[((xc + 0) * zSize + zc + 1) * ySize + yc + 0];
@@ -114,7 +116,7 @@ public class BigRandomLevelSource implements McBigChunkSource {
                     double s2a = (this.buffer[((xc + 1) * zSize + zc + 0) * ySize + yc + 1] - s2) * yStep;
                     double s3a = (this.buffer[((xc + 1) * zSize + zc + 1) * ySize + yc + 1] - s3) * yStep;
 
-                    for(int y = 0; y < CHUNK_HEIGHT; ++y) {
+                    for (int y = 0; y < CHUNK_HEIGHT; ++y) {
                         double xStep = 1 / (double) CHUNK_WIDTH;
 
                         double _s0 = s0;
@@ -122,14 +124,14 @@ public class BigRandomLevelSource implements McBigChunkSource {
                         double _s0a = (s2 - s0) * xStep;
                         double _s1a = (s3 - s1) * xStep;
 
-                        for(int x = 0; x < CHUNK_WIDTH; ++x) {
+                        for (int x = 0; x < CHUNK_WIDTH; ++x) {
                             int offs = x + xc * CHUNK_WIDTH << 11 | 0 + zc * CHUNK_WIDTH << 7 | yc * CHUNK_HEIGHT + y;
                             int step = 1 << 7;
                             double zStep = 1 / (double) CHUNK_WIDTH;
                             double val = _s0;
                             double vala = (_s1 - _s0) * zStep;
 
-                            for(int z = 0; z < CHUNK_WIDTH; ++z) {
+                            for (int z = 0; z < CHUNK_WIDTH; ++z) {
                                 //? <1.0.0-beta.8.0.r
                                 double temp = temperatures[(xc * CHUNK_WIDTH + x) * 16 + (zc * CHUNK_WIDTH + z)];
                                 int tileId = 0;
@@ -148,7 +150,7 @@ public class BigRandomLevelSource implements McBigChunkSource {
                                     tileId = Tile.stone.id;
                                 }
 
-                                blocks[offs] = (byte)tileId;
+                                blocks[offs] = (byte) tileId;
                                 offs += step;
                                 val += vala;
                             }
@@ -186,8 +188,8 @@ public class BigRandomLevelSource implements McBigChunkSource {
         this.depthBuffer = this.perlinNoise3.getRegion(this.depthBuffer, noise_x, noise_z, BigDecimal.ZERO, 16, 16, 1, s * 2.0, s * 2.0, s * 2.0);
         //~ }
 
-        for(int x = 0; x < 16; ++x) {
-            for(int z = 0; z < 16; ++z) {
+        for (int x = 0; x < 16; ++x) {
+            for (int z = 0; z < 16; ++z) {
                 //? >=1.0.0-beta.8.0.r {
                 /*Biome b = biomes[z + x * 16];
                 *///? } else {
@@ -195,15 +197,15 @@ public class BigRandomLevelSource implements McBigChunkSource {
                 boolean sand = this.sandBuffer[x + z * 16] + this.random.nextDouble() * 0.2 > 0.0;
                 boolean gravel = this.gravelBuffer[x + z * 16] + this.random.nextDouble() * 0.2 > 3.0;
                 //? }
-                int runDepth = (int)(this.depthBuffer[x + z * 16] / 3.0 + 3.0 + this.random.nextDouble() * 0.25);
+                int runDepth = (int) (this.depthBuffer[x + z * 16] / 3.0 + 3.0 + this.random.nextDouble() * 0.25);
                 int run = -1;
                 byte top = b.topMaterial;
                 byte material = b.material;
 
-                for(int y = 127; y >= 0; --y) {
+                for (int y = 127; y >= 0; --y) {
                     int offs = (z * 16 + x) * 128 + y;
                     if (y <= 0 + this.random.nextInt(5)) {
-                        blocks[offs] = (byte)Tile.unbreakable.id;
+                        blocks[offs] = (byte) Tile.unbreakable.id;
                     } else {
                         byte old = blocks[offs];
                         if (old == 0) {
@@ -212,7 +214,7 @@ public class BigRandomLevelSource implements McBigChunkSource {
                             if (run == -1) {
                                 if (runDepth <= 0) {
                                     top = 0;
-                                    material = (byte)Tile.stone.id;
+                                    material = (byte) Tile.stone.id;
                                 } else if (y >= waterHeight - 4 && y <= waterHeight + 1) {
                                     top = b.topMaterial;
                                     material = b.material;
@@ -236,7 +238,7 @@ public class BigRandomLevelSource implements McBigChunkSource {
                                 }
 
                                 if (y < waterHeight && top == 0) {
-                                    top = (byte)Tile.calmWater.id;
+                                    top = (byte) Tile.calmWater.id;
                                 }
 
                                 run = runDepth;
@@ -253,7 +255,7 @@ public class BigRandomLevelSource implements McBigChunkSource {
                                 // runs
                                 if (run == 0 && material == Tile.sand.id) {
                                     run = this.random.nextInt(4);
-                                    material = (byte)Tile.sandStone.id;
+                                    material = (byte) Tile.sandStone.id;
                                 }
                             }
                         }
@@ -349,11 +351,11 @@ public class BigRandomLevelSource implements McBigChunkSource {
 
         //? <1.0.0-beta.8.0.r
         int wScale = 16 / xSize;
-        for(int xx = 0; xx < xSize; ++xx) {
+        for (int xx = 0; xx < xSize; ++xx) {
             //? <1.0.0-beta.8.0.r
             int xp = xx * wScale + wScale / 2;
 
-            for(int zz = 0; zz < zSize; ++zz) {
+            for (int zz = 0; zz < zSize; ++zz) {
                 //? >=1.0.0-beta.8.0.r {
                 /*float sss = 0.0F;
                 float ddd = 0.0F;
@@ -383,7 +385,7 @@ public class BigRandomLevelSource implements McBigChunkSource {
                 int zp = zz * wScale + wScale / 2;
                 double temperature = temperatures[xp * 16 + zp];
                 double downfall = downfalls[xp * 16 + zp] * temperature;
-                double dd = 1.0 - downfall;
+                double dd = 1 - downfall;
                 dd *= dd;
                 dd *= dd;
                 dd = 1.0 - dd;
@@ -395,27 +397,21 @@ public class BigRandomLevelSource implements McBigChunkSource {
                 //? }
                 //~ if >=1.0.0-beta.8.0.r 'depth' -> 'rdepth' {
                 double depth = this.dr[pp] / 8000.0;
-                if (depth < 0.0) {
-                    depth = -depth * 0.3;
-                }
+                if (depth < 0) depth = -depth * 0.3;
 
                 depth = depth * 3.0 - 2.0;
-                if (depth < 0.0) {
-                    depth /= 2.0;
-                    if (depth < -1.0) {
-                        depth = -1.0;
-                    }
+                if (depth < 0) {
+                    depth /= 2;
+                    if (depth < -1) depth = -1;
 
                     depth /= 1.4;
                     depth /= 2.0;
                     //? <1.0.0-beta.8.0.r
-                    scale = 0.0;
+                    scale = 0;
                 } else {
-                    if (depth > 1.0) {
-                        depth = 1.0;
-                    }
+                    if (depth > 1) depth = 1;
 
-                    depth /= 8.0;
+                    depth /= 8;
                 }
 
                 //~}
@@ -428,7 +424,7 @@ public class BigRandomLevelSource implements McBigChunkSource {
                 //? }
                 ++pp;
 
-                for(int yy = 0; yy < ySize; ++yy) {
+                for (int yy = 0; yy < ySize; ++yy) {
                     //? >=1.0.0-beta.8.0.r {
                     /*double depth = ddd;
                     double scale = sss;
@@ -436,28 +432,22 @@ public class BigRandomLevelSource implements McBigChunkSource {
                     depth = depth * ySize / 16.0;
                     double yCenter = ySize / 2.0 + depth * 4.0;
                     *///? }
-                    double val = 0.0;
-                    double yOffs = ((double)yy - yCenter) * 12.0 / scale;
-                    if (yOffs < 0.0) {
-                        yOffs *= 4.0;
-                    }
+                    double val = 0;
+                    double yOffs = ((double) yy - yCenter) * 12 / scale;
+                    if (yOffs < 0.0) yOffs *= 4;
 
                     double bb = this.ar[p] / 512.0;
                     double cc = this.br[p] / 512.0;
+
                     double v = (this.pnr[p] / 10.0 + 1.0) / 2.0;
-
-                    if (v < 0.0) {
-                        val = bb;
-                    } else if (v > 1.0) {
-                        val = cc;
-                    } else {
-                        val = bb + (cc - bb) * v;
-                    }
-
+                    if (v < 0.0) val = bb;
+                    else if (v > 1.0) val = cc;
+                    else val = bb + (cc - bb) * v;
                     val -= yOffs;
+
                     if (yy > ySize - 4) {
-                        double slide = (float)(yy - (ySize - 4)) / 3.0F;
-                        val = val * (1.0 - slide) + -10.0 * slide;
+                        double slide = (float) (yy - (ySize - 4)) / 3.0F;
+                        val = val * (1 - slide) + -10.0 * slide;
                     }
 
                     buffer[p] = val;
@@ -478,7 +468,7 @@ public class BigRandomLevelSource implements McBigChunkSource {
         this.random.setSeed(this.level.getSeed());
         long xScale = this.random.nextLong() / 2L * 2L + 1L;
         long zScale = this.random.nextLong() / 2L * 2L + 1L;
-        this.random.setSeed((long)xc.longValue() * xScale + (long)zc.longValue() * zScale ^ this.level.getSeed());
+        this.random.setSeed((long) xc.longValue() * xScale + (long) zc.longValue() * zScale ^ this.level.getSeed());
         boolean hasVillage = false;
         //? >=1.0.0-beta.8.0.r {
         /*if (this.generateStructures) {
@@ -508,7 +498,7 @@ public class BigRandomLevelSource implements McBigChunkSource {
             }
         }
 
-        for(int i = 0; i < 8; ++i) {
+        for (int i = 0; i < 8; ++i) {
             BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             int y = this.random.nextInt(128);
             BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
