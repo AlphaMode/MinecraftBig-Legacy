@@ -119,9 +119,7 @@ public abstract class RandomLevelSourceMixin implements ChunkSource, BigChunkSou
     private LargeFeature canyonFeature;
     *///? }
 
-    //? >=1.0.0-beta.8.0.r {
-    /*public void prepareHeights(BigInteger xOffs, BigInteger zOffs, byte[] blocks) {
-    *///? } else
+    //~ if >=1.0.0-beta.8.0.r 'byte[] blocks, Biome[] biomes, double[] temperatures' -> 'byte[] blocks'
     public void prepareHeights(BigInteger xOffs, BigInteger zOffs, byte[] blocks, Biome[] biomes, double[] temperatures) {
         int xChunks = 16 / CHUNK_WIDTH;
         int yChunks = 128 / CHUNK_HEIGHT;

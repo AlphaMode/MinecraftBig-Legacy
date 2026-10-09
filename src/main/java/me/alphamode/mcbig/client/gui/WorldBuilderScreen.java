@@ -109,13 +109,10 @@ public class WorldBuilderScreen extends Screen {
                 ChunkSource chunkSource;
                 if (this.dimension == 0) {
                     if (WorldType.SELECTED == WorldType.VANILLA) {
-                        //? >=1.0.0-beta.8.0.r {
-                        /*chunkSource = new RandomLevelSource(level, seed, false);
-                         *///? } else {
+                        //~ if >=1.0.0-beta.8.0.r 'level, seed' -> 'level, seed, false'
                         chunkSource = new RandomLevelSource(level, seed);
-                        //? }
                     } else {
-                        //~ if >=1.0.0-beta.8.0.r 'level, seed' -> 'level, seed, false)'
+                        //~ if >=1.0.0-beta.8.0.r 'level, seed' -> 'level, seed, false'
                         chunkSource = WorldType.SELECTED.getFactory().create(level, seed);
                     }
                 } else {

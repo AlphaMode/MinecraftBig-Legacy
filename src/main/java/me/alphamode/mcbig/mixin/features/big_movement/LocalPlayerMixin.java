@@ -42,6 +42,7 @@ public abstract class LocalPlayerMixin extends Player implements CommandPlayerEx
         this.minecraft.gui.addMessage("<" + this.name + "> " + msg);
     }
 
+    //? <1.0.0-beta.8.0.r {
     private int jumpTriggerTime;
 
     @Inject(method = "aiStep", at = @At("HEAD"))
@@ -96,6 +97,7 @@ public abstract class LocalPlayerMixin extends Player implements CommandPlayerEx
             setFlying(false);
         }
     }
+    //? }
 
     private boolean isSolidTile(BigInteger x, int y, BigInteger z) {
         return this.level.isSolidBlockingTile(x, y, z);

@@ -26,7 +26,9 @@ public class ImprovedNoiseTest {
 
         double[] br = null;
         PerlinNoise noise = new PerlinNoise(random, 16);
-        br = noise.getRegion(br, new BigDecimal("2E154").doubleValue(), 0, 0, xSize, ySize, zSize, s, hs, s);
+        //~ if >=1.0.0-beta.8.0.r '.doubleValue()' -> '.intValue()'
+        var xx = new BigDecimal("2E154").doubleValue();
+        br = noise.getRegion(br, xx, 0, 0, xSize, ySize, zSize, s, hs, s);
 
         IO.println(br);
     }

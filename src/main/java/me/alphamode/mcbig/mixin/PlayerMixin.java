@@ -26,13 +26,16 @@ import java.util.List;
 @Mixin(Player.class)
 public abstract class PlayerMixin extends Mob implements BigPlayerExtension, CommandPlayerExtension {
 
-    //? >=1.0.0-beta.8.0.r
-    //@Shadow public Abilities abilities;
+    //? >=1.0.0-beta.8.0.r {
+    /*@Shadow public Abilities abilities;
+    @Shadow
+    protected float defaultFlySpeed;
+    *///? }
+    private float actualFlySpeed = 0.05F;
     private boolean noclip = false;
     //? <1.0.0-beta.8.0.r {
     private boolean canFly = false;
     private boolean flying = false;
-    private float flyingSpeed = 0.05F;
     //? }
 
     public PlayerMixin(Level level) {
@@ -73,12 +76,14 @@ public abstract class PlayerMixin extends Mob implements BigPlayerExtension, Com
 
     @Override
     public void setFlySpeed(float speed) {
-        this.flyingSpeed = speed;
+        //? >=1.0.0-beta.8.0.r
+        //this.defaultFlySpeed = speed;
+        this.actualFlySpeed = speed;
     }
 
     @Override
     public float getFlySpeed() {
-        return this.flyingSpeed;
+        return this.actualFlySpeed;
     }
 
     @Override

@@ -150,10 +150,15 @@ public class HellRandomLevelSourceMixin implements BigChunkSourceExtension {
 
     public void buildSurfaces(BigInteger xOffs, BigInteger zOffs, byte[] blocks) {
         int waterHeight = 128 - 64;
-        double s = 1 / 32.0;//0.03125;
-        this.sandBuffer = this.perlinNoise2.getRegion(this.sandBuffer, xOffs.doubleValue() * 16, zOffs.doubleValue() * 16, 0.0, 16, 16, 1, s, s, 1.0);
-        this.gravelBuffer = this.perlinNoise2.getRegion(this.gravelBuffer, xOffs.doubleValue() * 16, 109.0134, zOffs.doubleValue() * 16, 16, 1, 16, s, 1.0, s);
-        this.depthBuffer = this.perlinNoise3.getRegion(this.depthBuffer, xOffs.doubleValue() * 16, zOffs.doubleValue() * 16, 0.0, 16, 16, 1, s * 2.0, s * 2.0, s * 2.0);
+        double s = 1 / 32.0;
+        //~ if >=1.0.0-beta.8.0.r '.multiply(BigConstants.SIXTEEN).doubleValue()' -> '.multiply(BigConstants.SIXTEEN)' {
+        var xx = xOffs.multiply(BigConstants.SIXTEEN).doubleValue();
+        var zz = zOffs.multiply(BigConstants.SIXTEEN).doubleValue();
+        //~ }
+        this.sandBuffer = this.perlinNoise2.getRegion(this.sandBuffer, xx, zz, 0, 16, 16, 1, s, s, 1.0);
+        //~ if >=1.0.0-beta.8.0.r '109.0134' -> '109'
+        this.gravelBuffer = this.perlinNoise2.getRegion(this.gravelBuffer, xx, 109.0134, zz, 16, 1, 16, s, 1.0, s);
+        this.depthBuffer = this.perlinNoise3.getRegion(this.depthBuffer, xx, zz, 0, 16, 16, 1, s * 2.0, s * 2.0, s * 2.0);
 
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
@@ -230,7 +235,7 @@ public class HellRandomLevelSourceMixin implements BigChunkSourceExtension {
     @Override
     public LevelChunk getChunk(BigInteger x, BigInteger z) {
         this.random.setSeed(x.longValue() * 341873128712L + z.longValue() * 132897987541L);
-        byte[] blocks = new byte[32768];
+        byte[] blocks = new byte[16 * 128 * 16];
         prepareHeights(x, z, blocks);
         buildSurfaces(x, z, blocks);
         this.caveFeature.apply((ChunkSource) this, this.level, x, z, blocks);
@@ -244,12 +249,16 @@ public class HellRandomLevelSourceMixin implements BigChunkSourceExtension {
 
         double s = 1 * 684.412;
         double hs = 1 * 684.412 * 3;//2053.236;
-        this.sr = this.scaleNoise.getRegion(this.sr, x.doubleValue(), y, z.doubleValue(), xSize, 1, zSize, 1.0, 0.0, 1.0);
-        this.dr = this.depthNoise.getRegion(this.dr, x.doubleValue(), y, z.doubleValue(), xSize, 1, zSize, 100.0, 0.0, 100.0);
+        //~ if >=1.0.0-beta.8.0.r ' .doubleValue() ;' -> ' ;' {
+        var _x = x .doubleValue() ;
+        var _z = z .doubleValue() ;
+        //~ }
+        this.sr = this.scaleNoise.getRegion(this.sr, _x, y, _z, xSize, 1, zSize, 1.0, 0.0, 1.0);
+        this.dr = this.depthNoise.getRegion(this.dr, _x, y, _z, xSize, 1, zSize, 100.0, 0.0, 100.0);
 
-        this.pnr = this.perlinNoise1.getRegion(this.pnr, x.doubleValue(), y, z.doubleValue(), xSize, ySize, zSize, s / 80.0, hs / 60.0, s / 80.0);
-        this.ar = this.lperlinNoise1.getRegion(this.ar, x.doubleValue(), y, z.doubleValue(), xSize, ySize, zSize, s, hs, s);
-        this.br = this.lperlinNoise2.getRegion(this.br, x.doubleValue(), y, z.doubleValue(), xSize, ySize, zSize, s, hs, s);
+        this.pnr = this.perlinNoise1.getRegion(this.pnr, _x, y, _z, xSize, ySize, zSize, s / 80.0, hs / 60.0, s / 80.0);
+        this.ar = this.lperlinNoise1.getRegion(this.ar, _x, y, _z, xSize, ySize, zSize, s, hs, s);
+        this.br = this.lperlinNoise2.getRegion(this.br, _x, y, _z, xSize, ySize, zSize, s, hs, s);
 
         int p = 0;
         int pp = 0;
@@ -362,7 +371,7 @@ public class HellRandomLevelSourceMixin implements BigChunkSourceExtension {
 
         for (int i = 0; i < 8; i++) {
             BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            int y = this.random.nextInt(120) + 4;
+            int y = this.random.nextInt(128 - 8) + 4;
             BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             new HellSpringFeature(Tile.lava.id).place(this.level, this.random, x, y, z);
         }
@@ -371,7 +380,7 @@ public class HellRandomLevelSourceMixin implements BigChunkSourceExtension {
 
         for (int i = 0; i < count; i++) {
             BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            int y = this.random.nextInt(120) + 4;
+            int y = this.random.nextInt(128 - 8) + 4;
             BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             new HellFireFeature().place(this.level, this.random, x, y, z);
         }
@@ -380,7 +389,7 @@ public class HellRandomLevelSourceMixin implements BigChunkSourceExtension {
 
         for (int i = 0; i < count; i++) {
             BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            int y = this.random.nextInt(120) + 4;
+            int y = this.random.nextInt(128 - 8) + 4;
             BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             new LightGemFeature().place(this.level, this.random, x, y, z);
         }

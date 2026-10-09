@@ -73,22 +73,23 @@ public abstract class SkyLevelSourceMixin implements ChunkSource, BigChunkSource
     @Shadow
     private double[] dr;
 
-    @Shadow
-    private double[] temperatures;
+    //? <1.0.0-beta.8.0.r
+    @Shadow private double[] temperatures;
 
+    //~ if >=1.0.0-beta.8.0.r 'Biome[] biomes, double[] temperatures' -> 'Biome[] biomes'
     public void prepareHeights(BigInteger xOffs, BigInteger zOffs, byte[] blocks, Biome[] biomes, double[] temperatures) {
-        int xChunks = 16 / CHUNK_WIDTH;//2;
+        int xChunks = 16 / CHUNK_WIDTH;
         BigInteger xChunksBig = BigInteger.valueOf(xChunks);
 
         int xSize = xChunks + 1;
-        int ySize = 33;
+        int ySize = 128 / 4 + 1;
         int zSize = xChunks + 1;
         this.buffer = getHeights(this.buffer, xOffs.multiply(xChunksBig), 0, zOffs.multiply(xChunksBig), xSize, ySize, zSize);
 
         for (int xc = 0; xc < xChunks; xc++) {
             for (int zc = 0; zc < xChunks; zc++) {
                 for (int yc = 0; yc < 32; yc++) {
-                    double yStep = 1 / (double) CHUNK_HEIGHT;//0.25;
+                    double yStep = 1 / (double) CHUNK_HEIGHT;
                     double s0 = this.buffer[((xc + 0) * zSize + zc + 0) * ySize + yc + 0];
                     double s1 = this.buffer[((xc + 0) * zSize + zc + 1) * ySize + yc + 0];
                     double s2 = this.buffer[((xc + 1) * zSize + zc + 0) * ySize + yc + 0];
@@ -100,7 +101,7 @@ public abstract class SkyLevelSourceMixin implements ChunkSource, BigChunkSource
                     double s3a = (this.buffer[((xc + 1) * zSize + zc + 1) * ySize + yc + 1] - s3) * yStep;
 
                     for (int y = 0; y < 4; y++) {
-                        double xStep = 1 / (double) CHUNK_WIDTH;//0.125;
+                        double xStep = 1 / (double) CHUNK_WIDTH;
 
                         double _s0 = s0;
                         double _s1 = s1;
@@ -110,7 +111,7 @@ public abstract class SkyLevelSourceMixin implements ChunkSource, BigChunkSource
                         for (int x = 0; x < 8; x++) {
                             int offs = x + xc * CHUNK_WIDTH << 11 | 0 + zc * CHUNK_WIDTH << 7 | yc * CHUNK_HEIGHT + y;
                             int step = 1 << 7;//128;
-                            double zStep = 1 / (double) CHUNK_WIDTH;//0.125;
+                            double zStep = 1 / (double) CHUNK_WIDTH;
 
                             double val = _s0;
                             double vala = (_s1 - _s0) * zStep;
@@ -141,12 +142,15 @@ public abstract class SkyLevelSourceMixin implements ChunkSource, BigChunkSource
     }
 
     public void buildSurfaces(BigInteger xOffs, BigInteger zOffs, byte[] blocks, Biome[] biomes) {
-        double s = 1 / 32.0;//0.03125;
-        double xx = xOffs.multiply(BigConstants.SIXTEEN).doubleValue();
-        double zz = zOffs.multiply(BigConstants.SIXTEEN).doubleValue();
-        this.sandBuffer = this.perlinNoise2.getRegion(this.sandBuffer, xx, zz, 0.0, 16, 16, 1, s, s, 1.0);
+        double s = 1 / 32.0;
+        //~ if >=1.0.0-beta.8.0.r '.multiply(BigConstants.SIXTEEN).doubleValue()' -> '.multiply(BigConstants.SIXTEEN)' {
+        var xx = xOffs.multiply(BigConstants.SIXTEEN).doubleValue();
+        var zz = zOffs.multiply(BigConstants.SIXTEEN).doubleValue();
+        //~ }
+        this.sandBuffer = this.perlinNoise2.getRegion(this.sandBuffer, xx, zz, 0, 16, 16, 1, s, s, 1.0);
+        //~ if >=1.0.0-beta.8.0.r '109.0134' -> '109'
         this.gravelBuffer = this.perlinNoise2.getRegion(this.gravelBuffer, xx, 109.0134, zz, 16, 1, 16, s, 1.0, s);
-        this.depthBuffer = this.perlinNoise3.getRegion(this.depthBuffer, xx, zz, 0.0, 16, 16, 1, s * 2.0, s * 2.0, s * 2.0);
+        this.depthBuffer = this.perlinNoise3.getRegion(this.depthBuffer, xx, zz, 0, 16, 16, 1, s * 2.0, s * 2.0, s * 2.0);
 
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
@@ -198,10 +202,12 @@ public abstract class SkyLevelSourceMixin implements ChunkSource, BigChunkSource
     @Override
     public LevelChunk getChunk(BigInteger x, BigInteger z) {
         this.random.setSeed(x.longValue() * 341873128712L + z.longValue() * 132897987541L);
-        byte[] blocks = new byte[32768];
+        byte[] blocks = new byte[16 * 128 * 16];
         LevelChunk lc = new BigLevelChunk(this.level, blocks, x, z);
         this.biomes = this.level.getBiomeSource().getBiomeBlock(this.biomes, x.multiply(BigConstants.SIXTEEN), z.multiply(BigConstants.SIXTEEN), 16, 16);
+        //? <1.0.0-beta.8.0.r
         double[] temperatures = this.level.getBiomeSource().temperatures;
+        //~ if >=1.0.0-beta.8.0.r 'this.biomes, temperatures' -> 'this.biomes'
         prepareHeights(x, z, blocks, this.biomes, temperatures);
         buildSurfaces(x, z, blocks, this.biomes);
         this.carver.apply(this, this.level, x, z, blocks);
@@ -216,17 +222,24 @@ public abstract class SkyLevelSourceMixin implements ChunkSource, BigChunkSource
 
         double s = 1 * 684.412;
         double hs = 1 * 684.412;
+        //? <1.0.0-beta.8.0.r {
         double[] temperatures = this.level.getBiomeSource().temperatures;
         double[] downfalls = this.level.getBiomeSource().downfalls;
-        double xD = x.doubleValue();
-        double zD = z.doubleValue();
-        this.sr = ((BigPerlinNoiseExtension) this.scaleNoise).getRegion(this.sr, x, z, xSize, zSize, 1.121, 1.121, 0.5);
-        this.dr = ((BigPerlinNoiseExtension) this.depthNoise).getRegion(this.dr, x, z, xSize, zSize, 200.0, 200.0, 0.5);
+        //? }
+        //? >=1.0.0-beta.8.0.r {
+        /*var _x = x;
+        var _z = z;
+        *///? } else {
+        var _x = x.doubleValue();
+        var _z = z.doubleValue();
+        //? }
+        this.sr = this.scaleNoise.getRegion(this.sr, x, z, xSize, zSize, 1.121, 1.121, 0.5);
+        this.dr = this.depthNoise.getRegion(this.dr, x, z, xSize, zSize, 200.0, 200.0, 0.5);
 
         s *= 2.0;
-        this.pnr = this.perlinNoise1.getRegion(this.pnr, xD, y, zD, xSize, ySize, zSize, s / 80.0, hs / 160.0, s / 80.0);
-        this.ar = this.lperlinNoise1.getRegion(this.ar, xD, y, zD, xSize, ySize, zSize, s, hs, s);
-        this.br = this.lperlinNoise2.getRegion(this.br, xD, y, zD, xSize, ySize, zSize, s, hs, s);
+        this.pnr = this.perlinNoise1.getRegion(this.pnr, _x, y, _z, xSize, ySize, zSize, s / 80.0, hs / 160.0, s / 80.0);
+        this.ar = this.lperlinNoise1.getRegion(this.ar, _x, y, _z, xSize, ySize, zSize, s, hs, s);
+        this.br = this.lperlinNoise2.getRegion(this.br, _x, y, _z, xSize, ySize, zSize, s, hs, s);
 
         int p = 0;
         int pp = 0;
@@ -236,6 +249,7 @@ public abstract class SkyLevelSourceMixin implements ChunkSource, BigChunkSource
             int xp = xx * wScale + wScale / 2;
 
             for (int zz = 0; zz < zSize; zz++) {
+                //? <1.0.0-beta.8.0.r {
                 int zp = zz * wScale + wScale / 2;
                 double temperature = temperatures[xp * 16 + zp];
                 double downfall = downfalls[xp * 16 + zp] * temperature;
@@ -243,8 +257,10 @@ public abstract class SkyLevelSourceMixin implements ChunkSource, BigChunkSource
                 dd *= dd;
                 dd *= dd;
                 dd = 1.0 - dd;
+                //? }
 
                 double scale = (this.sr[pp] + 256.0) / 512.0;
+                //? <1.0.0-beta.8.0.r
                 scale *= dd;
                 if (scale > 1) scale = 1;
 
@@ -331,7 +347,7 @@ public abstract class SkyLevelSourceMixin implements ChunkSource, BigChunkSource
 
         if (this.random.nextInt(8) == 0) {
             BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            int y = this.random.nextInt(this.random.nextInt(120) + 8);
+            int y = this.random.nextInt(this.random.nextInt(128 - 8) + 8);
             BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             if (y < 64 || this.random.nextInt(10) == 0) {
                 new LakeFeature(Tile.calmLava.id).place(this.level, this.random, x, y, z);
@@ -414,10 +430,13 @@ public abstract class SkyLevelSourceMixin implements ChunkSource, BigChunkSource
         if (this.random.nextInt(10) == 0) forests++;
 
         if (biome == Biome.forest) forests += oFor + 5;
+        //? <1.0.0-beta.8.0.r {
         if (biome == Biome.rainForest) forests += oFor + 5;
         if (biome == Biome.seasonalForest) forests += oFor + 2;
         if (biome == Biome.taiga) forests += oFor + 5;
+        //? }
         if (biome == Biome.desert) forests -= 20;
+        //? <1.0.0-beta.8.0.r
         if (biome == Biome.tundra) forests -= 20;
         if (biome == Biome.plains) forests -= 20;
 
@@ -483,18 +502,19 @@ public abstract class SkyLevelSourceMixin implements ChunkSource, BigChunkSource
 
         for (int i = 0; i < 50; i++) {
             BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            int y = this.random.nextInt(this.random.nextInt(120) + 8);
+            int y = this.random.nextInt(this.random.nextInt(128 - 8) + 8);
             BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             new SpringFeature(Tile.water.id).place(this.level, this.random, x, y, z);
         }
 
         for (int i = 0; i < 20; i++) {
             BigInteger x = xo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
-            int y = this.random.nextInt(this.random.nextInt(this.random.nextInt(112) + 8) + 8);
+            int y = this.random.nextInt(this.random.nextInt(this.random.nextInt(128 - 16) + 8) + 8);
             BigInteger z = zo.add(BigInteger.valueOf(this.random.nextInt(16) + 8));
             new SpringFeature(Tile.lava.id).place(this.level, this.random, x, y, z);
         }
 
+        //? <1.0.0-beta.8.0.r {
         this.temperatures = this.level.getBiomeSource().getTemperatureBlock(this.temperatures, xo.add(BigConstants.EIGHT), zo.add(BigConstants.EIGHT), 16, 16);
 
         final BigInteger xoPlusEight = xo.add(BigConstants.EIGHT);
@@ -512,6 +532,7 @@ public abstract class SkyLevelSourceMixin implements ChunkSource, BigChunkSource
                 }
             }
         }
+        //? }
 
         SandTile.instaFall = false;
     }

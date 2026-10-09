@@ -20,7 +20,7 @@ val classTweaker = when {
 
 base.archivesName = property("archives_base_name").toString()
 
-version = property("mod_version").toString()
+version = property("mod_version").toString() + "+" + stonecutter.current.version
 group = property("maven_group").toString()
 
 loom {

@@ -30,6 +30,16 @@ public class FlySpeedCommand {
                                             return Command.SINGLE_SUCCESS;
                                         })
                         )
+                        .then(
+                                Commands.<S>literal("reset")
+                                        .executes(context -> {
+                                            if (context.getSource().getEntity() instanceof CommandPlayerExtension player) {
+                                                player.setFlySpeed(0.02F);
+                                                context.getSource().sendMessage("Fly speed reset to default.");
+                                            }
+                                            return Command.SINGLE_SUCCESS;
+                                        })
+                        )
         );
     }
 }

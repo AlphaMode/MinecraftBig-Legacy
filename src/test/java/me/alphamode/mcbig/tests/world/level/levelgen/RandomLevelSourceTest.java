@@ -14,8 +14,10 @@ public class RandomLevelSourceTest {
     @Test
     void testRandomLevelSource() {
         TestLevel level = new TestLevel();
+        //~ if >=1.0.0-beta.8.0.r 'level, level.getSeed()' -> 'level, level.getSeed(), true' {
         RandomLevelSource levelSource = new RandomLevelSource(level, level.getSeed());
         BigRandomLevelSource bigLevelSource = new BigRandomLevelSource(level, level.getSeed());
+        //~ }
 
         // Test a 10x10 chunk area
         for (int xc = 0; xc < 10; xc++) {

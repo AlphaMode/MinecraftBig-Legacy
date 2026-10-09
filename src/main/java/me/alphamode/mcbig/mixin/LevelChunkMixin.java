@@ -91,33 +91,33 @@ public abstract class LevelChunkMixin implements BigLevelChunkExtension {
     //? >=1.0.0-beta.8.0.r {
     /*@Override
     public void checkPostProcess(ChunkSource source, ChunkSource parent, BigInteger x, BigInteger z) {
-        BigInteger xPlusOne = x.add(BigInteger.ONE);
-        BigInteger xMinusOne = x.subtract(BigInteger.ONE);
-        BigInteger zPlusOne = z.add(BigInteger.ONE);
-        BigInteger zMinusOne = z.add(BigInteger.ONE);
+        BigInteger xpo = x.add(BigInteger.ONE);
+        BigInteger xmo = x.subtract(BigInteger.ONE);
+        BigInteger zpo = z.add(BigInteger.ONE);
+        BigInteger zmo = z.subtract(BigInteger.ONE);
 
-        if (!this.terrainPopulated && source.hasChunk(xPlusOne, zPlusOne) && source.hasChunk(x, zPlusOne) && source.hasChunk(xPlusOne, z)) {
+        if (!this.terrainPopulated && source.hasChunk(xpo, zpo) && source.hasChunk(x, zpo) && source.hasChunk(xpo, z)) {
             source.postProcess(parent, x, z);
         }
 
-        if (source.hasChunk(xMinusOne, z)
-                && !source.getChunk(xMinusOne, z).terrainPopulated
-                && source.hasChunk(xMinusOne, zPlusOne)
-                && source.hasChunk(x, zPlusOne)
-                && source.hasChunk(xMinusOne, zPlusOne)) {
-            source.postProcess(parent, xMinusOne, z);
+        if (source.hasChunk(xmo, z)
+                && !source.getChunk(xmo, z).terrainPopulated
+                && source.hasChunk(xmo, zpo)
+                && source.hasChunk(x, zpo)
+                && source.hasChunk(xmo, zpo)) {
+            source.postProcess(parent, xmo, z);
         }
 
-        if (source.hasChunk(x, zMinusOne)
-                && !source.getChunk(x, zMinusOne).terrainPopulated
-                && source.hasChunk(xPlusOne, zMinusOne)
-                && source.hasChunk(xPlusOne, zMinusOne)
-                && source.hasChunk(xPlusOne, z)) {
-            source.postProcess(parent, x, zMinusOne);
+        if (source.hasChunk(x, zmo)
+                && !source.getChunk(x, zmo).terrainPopulated
+                && source.hasChunk(xpo, zmo)
+                && source.hasChunk(xpo, zmo)
+                && source.hasChunk(xpo, z)) {
+            source.postProcess(parent, x, zmo);
         }
 
-        if (source.hasChunk(xMinusOne, zMinusOne) && !source.getChunk(xMinusOne, zMinusOne).terrainPopulated && source.hasChunk(x, zMinusOne) && source.hasChunk(xMinusOne, z)) {
-            source.postProcess(parent, xMinusOne, zMinusOne);
+        if (source.hasChunk(xmo, zmo) && !source.getChunk(xmo, zmo).terrainPopulated && source.hasChunk(x, zmo) && source.hasChunk(xmo, z)) {
+            source.postProcess(parent, xmo, zmo);
         }
     }
     *///? }

@@ -55,9 +55,11 @@ public class McBigWorldOptionsScreen extends Screen {
 
     @Override
     public void render(int xm, int ym, float a) {
-        this.renderBackground();
-        this.drawCenteredString(this.font, "Mc Big World Options", this.width / 2, 20, 16777215);
-        this.drawString(this.font, "World Type", this.width / 2 - 153, this.height / 6 + 24 - 12, 10526880);
+        renderBackground();
+        drawCenteredString(this.font, "Mc Big World Options", this.width / 2, 20, 16777215);
+        drawCenteredString(this.font, "Options and Preview are still in development and will be fleshed out in later versions of MC Big Legacy", this.width / 2, 30, 10526880);
+        drawCenteredString(this.font, "Everything here is experimental.", this.width / 2, 40, 10526880);
+        drawString(this.font, "World Type", this.width / 2 - 153, this.height / 6 + 24 - 12, 10526880);
         super.render(xm, ym, a);
     }
 }
